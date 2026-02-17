@@ -4,7 +4,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Solid.js + TypeScript のSPAアプリケーション。Viteをビルドツール、pnpmをパッケージマネージャーとして使用。
+仁戸名聖書バプテスト教会のメンバー（約30名）向けPWAアプリケーション。Solid.js + TypeScript、Viteビルド、pnpmパッケージマネージャー。
+
+- LINE認証のみ、2ロール（管理者/メンバー）
+- iOS風ダッシュボードUI、モバイルファースト
+- 日本語・英語の多言語対応
+- 外部サブドメインサービスはiframeで埋め込み
+
+## Specification Documents
+
+仕様は `docs/` に管理。実装時は必ず該当ドキュメントを参照すること。
+
+- `docs/spec.md` - 全体方針（概要、権限モデル、ダッシュボード、管理画面、技術スタック）
+- `docs/auth.md` - 認証（LINE Login、招待リンク方式、セッション管理）
+- `docs/bulletin.md` - 週報機能（構成、入力、出力、画面）
+- 機能追加時は `docs/` に個別ドキュメントを作成し、`spec.md` のテーブルにリンク
+
+## Environments
+
+| 環境 | 説明 |
+|------|------|
+| ローカル | `pnpm dev`。`DEV_AUTH=true` でLINE認証スキップ、管理者として自動ログイン |
+| Preview | `main` 以外のブランチpushで自動デプロイ。検証・レビュー用 |
+| Production | `main` ブランチpushで自動デプロイ。本番 |
+
+- KV / D1 などのバインディングは環境ごとに分離
+- LINE Login のコールバックURLは環境ごとに設定が必要
 
 ## Commands
 
@@ -55,3 +80,4 @@ Solid.js + TypeScript のSPAアプリケーション。Viteをビルドツール
 - Biome デフォルト設定でlint/format (カスタム設定ファイルなし)
 - TypeScript strict mode有効、未使用変数・パラメータはエラー
 - ターゲット: ES2022 (アプリ) / ES2023 (ツーリング)
+- コミットメッセージ、コード内コメント、consoleに表示するエラーメッセージは英語で記述
