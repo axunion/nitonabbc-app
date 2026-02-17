@@ -1,3 +1,8 @@
+---
+name: verify
+description: lint → build → test の一括検証。コミット前の確認に使用。
+---
+
 lint（Biome）、ビルド（tsc + Vite）、テスト（Vitest）を順番に実行し、結果を報告してください。
 
 1. `pnpm check` を実行

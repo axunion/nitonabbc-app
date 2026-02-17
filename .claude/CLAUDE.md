@@ -44,11 +44,11 @@ Solid.js + TypeScript のSPAアプリケーション。Viteをビルドツール
 - `server/routes/` - Hono APIルート（1ファイル1リソース）
 - `server/middleware/` - 共通ミドルウェア
 
-## Custom Agents & Commands
+## Custom Agents & Skills
 
 - **`ui-component`** エージェント - Kobalte + CSS Modules の規約に沿ったUIコンポーネント作成
 - **`api-route`** エージェント - Hono の規約に沿ったAPIルート追加
-- **`/project:verify`** コマンド - lint → build → test の一括検証
+- **`/verify`** スキル - lint → build → test の一括検証
 
 ## Key Conventions
 
