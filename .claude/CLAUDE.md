@@ -24,7 +24,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | 環境 | 説明 |
 |------|------|
-| ローカル | `pnpm dev`。`DEV_AUTH=true` でLINE認証スキップ、管理者として自動ログイン |
+| ローカル | `pnpm dev` は Vite のみ（APIなし）。`pnpm build && pnpm preview:cf` で API も含めた動作確認が可能。`.dev.vars` に `DEV_AUTH=true` を設定すると LINE認証スキップで管理者として自動ログイン |
 | Preview | `main` 以外のブランチpushで自動デプロイ。検証・レビュー用 |
 | Production | `main` ブランチpushで自動デプロイ。本番 |
 
@@ -45,7 +45,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Architecture
 
 - **エントリポイント**: `index.html` → `src/index.tsx` → `src/App.tsx`
-- **パスエイリアス**: `@/` → `./src` (vite.config.ts で設定)
+- **パスエイリアス**: `@/` → `./src` (vite.config.ts と tsconfig.app.json の両方に設定が必要)
 - **UI**: @kobalte/core (ヘッドレスUIプリミティブ) + CSS Modules（Tailwind不使用）
   - Kobalteの `class` prop に CSS Modules クラスを渡す
   - 状態スタイルは `data-*` 属性セレクタ (`[data-disabled]`, `[data-pressed]`, `[data-focus-visible]`)
@@ -56,18 +56,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **JSX**: Solid.js独自のJSXトランスフォーム (`jsxImportSource: solid-js`)
 - **PWA**: vite-plugin-pwa (generateSwモード、Workbox自動生成)。静的アセットのprecache
 - **デプロイ**: Cloudflare Pages + Workers Functions
+- **データ**: Cloudflare D1（ユーザーDB、バインディング名 `DB`）、Cloudflare KV（セッション、バインディング名 `SESSION_KV`）
 - **APIサーバー**: Hono (`server/` ディレクトリ)。`functions/api/_middleware.ts` でPages Functionsにマウント
+  - `server/types.ts` の `AppEnv` 型で Bindings と Variables を一元管理
   - APIルートは `server/routes/` に配置し、`server/index.ts` で登録
   - エンドポイントは `/api/*` パス配下
+  - サーバー側の型チェックは `tsconfig.server.json`（`@cloudflare/workers-types` を使用）
 
 ## Directory Structure
 
 - `src/components/<Name>/<Name>.tsx` - コンポーネント本体
 - `src/components/<Name>/<Name>.module.css` - コンポーネントスタイル
 - `src/components/<Name>/index.ts` - re-export
+- `src/pages/<Name>/<Name>.tsx` - ページコンポーネント（ルートレベルの画面）
+- `src/store/` - Solid.js ストア（`createResource` ベース）
 - `src/styles/` - グローバルスタイル (tokens.css, reset.css)
 - `server/routes/` - Hono APIルート（1ファイル1リソース）
 - `server/middleware/` - 共通ミドルウェア
+- `server/types.ts` - `AppEnv`・`User`・`SessionData` などサーバー共通型
+- `db/schema.sql` - D1 テーブル定義
+- `.dev.vars` - ローカル環境変数（git管理外）、`.dev.vars.example` を参照
 
 ## Custom Agents & Skills
 

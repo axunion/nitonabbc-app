@@ -1,0 +1,4 @@
+# Copy to .dev.vars (git-ignored)
+DEV_AUTH=true
+LINE_CHANNEL_ID=your_line_channel_id
+LINE_CHANNEL_SECRET=your_line_channel_secret

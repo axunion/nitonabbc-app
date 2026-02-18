@@ -34,17 +34,22 @@
 
 ## セッション管理
 
-- サーバー側セッション（Cloudflare KV or D1）
+- サーバー側セッション（Cloudflare KV）
 - セッションIDをHttpOnly Cookieで管理
-- セッション有効期限: **無期限**（明示的に無効化されるまで継続）
+- セッション有効期限: **30日**（最終ログインから30日間アクセスがない場合に自動失効）
 - 以下の場合にセッションが無効になる:
   - 管理者がユーザーを削除・無効化した場合
   - ユーザー自身がログアウトした場合
+  - 30日間アクセスがなかった場合
+
+> KV のキー構造: `session:{uuid}` → `{ userId, lineUserId, role }` JSON
 
 ## ページの公開範囲
 
 - 全ページ認証必須（ログイン画面・招待ページを除く）
-- 未認証のアクセスはLINEログイン画面へリダイレクト
+- 未認証の場合は SPA 側（`App.tsx`）でログイン画面を表示する（サーバーリダイレクトではない）
+  - `/api/auth/me` が 401 を返した場合にログイン画面を描画
+  - ログインボタンクリックで `/api/auth/login` へ遷移し、LINE 認証後に `/` へリダイレクト
 
 ## ローカル開発
 
@@ -70,10 +75,22 @@
 
 ## API エンドポイント
 
-| メソッド | パス | 説明 |
-|---------|------|------|
-| GET | `/api/auth/login` | LINEログインURLへリダイレクト |
-| GET | `/api/auth/callback` | LINEからのコールバック処理 |
-| POST | `/api/auth/logout` | ログアウト（セッション破棄） |
-| GET | `/api/auth/me` | 現在のユーザー情報を取得 |
-| GET | `/api/invite/:token` | 招待トークンを検証し、LINE認証へリダイレクト |
+| メソッド | パス | 説明 | 実装 |
+|---------|------|------|------|
+| GET | `/api/auth/login` | LINEログインURLへリダイレクト | ✅ |
+| GET | `/api/auth/callback` | LINEからのコールバック処理 | ✅ |
+| POST | `/api/auth/logout` | ログアウト（セッション破棄） | ✅ |
+| GET | `/api/auth/me` | 現在のユーザー情報を取得 | ✅ |
+| GET | `/api/invite/:token` | 招待トークンを検証し、LINE認証へリダイレクト | 未実装 |
+
+## 実装ファイル
+
+| ファイル | 役割 |
+|---------|------|
+| `server/types.ts` | `AppEnv`, `User`, `SessionData` 型定義 |
+| `server/middleware/auth.ts` | セッション検証ミドルウェア（`DEV_AUTH` バイパス含む） |
+| `server/routes/auth.ts` | 認証エンドポイント実装 |
+| `src/store/auth.ts` | `/api/auth/me` を `createResource` で取得する認証ストア |
+| `src/pages/Login/` | ログイン画面（LINE ボタン） |
+| `db/schema.sql` | D1 users テーブル定義 |
+| `wrangler.toml` | D1（`DB`）・KV（`SESSION_KV`）バインディング設定 |

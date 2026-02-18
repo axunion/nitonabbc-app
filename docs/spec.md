@@ -27,6 +27,8 @@
 - @kobalte/core + CSS Modules（UI）
 - Hono（APIサーバー）
 - Cloudflare Pages + Workers Functions（デプロイ）
+- Cloudflare D1（ユーザーDB）
+- Cloudflare KV（セッションストア）
 - LINE認証（LINE Login API）
 
 ## トップページ（ダッシュボード）
@@ -69,7 +71,7 @@
 
 | 機能 | ドキュメント | ステータス |
 |------|-------------|-----------|
-| 認証 | [auth.md](./auth.md) | 策定中 |
+| 認証 | [auth.md](./auth.md) | 実装済み（招待フロー除く） |
 | 週報 | [bulletin.md](./bulletin.md) | 策定中 |
 
 ## 今後の拡張候補（未定）
