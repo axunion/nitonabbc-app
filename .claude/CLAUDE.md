@@ -77,6 +77,55 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `db/schema.sql` - D1 テーブル定義
 - `.dev.vars` - ローカル環境変数（git管理外）、`.dev.vars.example` を参照
 
+## Testing (TDD)
+
+APIルートを中心にTDDで開発する。
+
+### テスト構成
+
+- **テストランナー**: Vitest（設定: `vitest.config.ts`）
+- **対象**: `server/**/*.test.ts`（APIルート・ミドルウェア）
+- **環境**: Node.js（`@cloudflare/vitest-pool-workers` は不使用、D1/KV はモック）
+
+### テストファイルの配置
+
+```
+server/
+  __tests__/helpers.ts          # KV/D1 モックユーティリティ（共通）
+  routes/__tests__/<name>.test.ts  # 各ルートのテスト
+  middleware/__tests__/<name>.test.ts
+```
+
+### モックユーティリティ (`server/__tests__/helpers.ts`)
+
+- `createMockKV(initial?)` - KVNamespace のモック（in-memory Map）
+- `createMockD1(rows?)` - D1Database のモック（固定 rows を返す）
+- `createEnv(overrides?)` - Bindings を組み立てる。テストごとに必要なモックだけ上書き
+
+### Hono のテスト方法
+
+`app.request(url, init?, env?)` を使う。第3引数に `createEnv()` を渡して Bindings を注入する。
+
+```typescript
+const env = createEnv({ SESSION_KV: createMockKV({ "session:sid": "..." }) });
+const res = await app.request("http://localhost/api/auth/me",
+  { headers: { Cookie: "session_id=sid" } },
+  env,
+);
+```
+
+### TDD の進め方
+
+1. **テストを先に書く** - 新しいAPIエンドポイントを実装する前に、期待する動作をテストで記述する
+2. **テストを失敗させる（Red）** - `pnpm test` で失敗することを確認する
+3. **実装する（Green）** - テストがパスする最小限のコードを書く
+4. **リファクタリング（Refactor）** - テストを維持しながらコードを整理する
+
+### 外部 fetch のモック
+
+LINE API など外部 HTTP 呼び出しは `vi.spyOn(global, "fetch")` でモックする。
+`afterEach(() => vi.restoreAllMocks())` を忘れずに。
+
 ## Custom Agents & Skills
 
 - **`ui-component`** エージェント - Kobalte + CSS Modules の規約に沿ったUIコンポーネント作成
