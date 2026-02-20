@@ -6,6 +6,19 @@ import solid from 'vite-plugin-solid'
 export default defineConfig({
   plugins: [
     solid(),
+    {
+      name: "mock-api",
+      configureServer(server) {
+        server.middlewares.use("/api/auth/me", (_req, res) => {
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify({ id: 1, name: "Dev User", role: "admin", lineUserId: "U_dev" }));
+        });
+        server.middlewares.use("/api/auth/logout", (_req, res) => {
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify({ ok: true }));
+        });
+      },
+    },
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {

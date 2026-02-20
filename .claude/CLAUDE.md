@@ -18,13 +18,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `docs/spec.md` - 全体方針（概要、権限モデル、ダッシュボード、管理画面、技術スタック）
 - `docs/auth.md` - 認証（LINE Login、招待リンク方式、セッション管理）
 - `docs/bulletin.md` - 週報機能（構成、入力、出力、画面）
+- `docs/ui-guidelines.md` - UIデザイン方針（iOS HIG 準拠、アイコン・スペーシング・タイポグラフィ）
 - 機能追加時は `docs/` に個別ドキュメントを作成し、`spec.md` のテーブルにリンク
 
 ## Environments
 
 | 環境 | 説明 |
 |------|------|
-| ローカル | `pnpm dev` は Vite のみ（APIなし）。`pnpm build && pnpm preview:cf` で API も含めた動作確認が可能。`.dev.vars` に `DEV_AUTH=true` を設定すると LINE認証スキップで管理者として自動ログイン |
+| ローカル | `pnpm dev` は Vite のみ（APIなし）。API込みの動作確認は `pnpm dev:watch`（別ターミナル）+ `pnpm serve` を組み合わせる。`.dev.vars` に `DEV_AUTH=true` を設定すると LINE認証スキップで管理者として自動ログイン |
 | Preview | `main` 以外のブランチpushで自動デプロイ。検証・レビュー用 |
 | Production | `main` ブランチpushで自動デプロイ。本番 |
 
@@ -33,14 +34,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- `pnpm dev` - 開発サーバー起動 (http://localhost:5173)
+- `pnpm dev` - UIのみ開発サーバー起動・HMR付き (http://localhost:5173、APIなし)
+- `pnpm dev:watch` - Viteをウォッチビルドモードで起動（`pnpm serve` と組み合わせてAPI込み開発）
 - `pnpm build` - TypeScriptビルド + Viteプロダクションビルド (`tsc -b && vite build`)
+- `pnpm serve` - ビルド済み dist を API込みでローカル起動 (http://localhost:8788)
+- `pnpm check` - Biomeによるlint/format チェック
+- `pnpm check:write` - Biomeによるlint/format 自動修正
 - `pnpm test` - テスト実行 (Vitest)
 - `pnpm test:watch` - テストをwatchモードで実行
-- `pnpm check` - Biomeによるlint/format チェック (`biome check ./src`)
-- `pnpm check:write` - Biomeによるlint/format 自動修正
-- `pnpm deploy` - Cloudflare Pagesへデプロイ (`wrangler pages deploy dist`)
-- `pnpm preview:cf` - Cloudflare環境でのローカルプレビュー (`wrangler pages dev dist`)
+- `pnpm deploy` - Cloudflare Pagesへデプロイ
 
 ## Architecture
 
@@ -49,6 +51,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **UI**: @kobalte/core (ヘッドレスUIプリミティブ) + CSS Modules（Tailwind不使用）
   - Kobalteの `class` prop に CSS Modules クラスを渡す
   - 状態スタイルは `data-*` 属性セレクタ (`[data-disabled]`, `[data-pressed]`, `[data-focus-visible]`)
+- **アイコン**: lucide-solid を使用。`stroke-width={1.5}` を標準とする。詳細は `docs/ui-guidelines.md`
 - **CSS**: Lightning CSS でミニファイ。コンポーネント単位で `.module.css` ファイル
   - `src/index.css` → `src/styles/tokens.css` (デザイントークン) + `src/styles/reset.css` (リセット) を読み込み
   - デザイントークンは CSS Custom Properties で管理（ライトテーマのみ）

@@ -5,18 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:watch": "vite build --watch",
     "build": "tsc -b && vite build",
-    "preview": "vite preview",
+    "serve": "wrangler pages dev dist",
     "check": "biome check ./src",
     "check:write": "biome check --write ./src",
     "test": "vitest run",
     "test:watch": "vitest",
-    "deploy": "wrangler pages deploy dist",
-    "preview:cf": "wrangler pages dev dist"
+    "deploy": "wrangler pages deploy dist"
   },
   "dependencies": {
     "@kobalte/core": "^0.13.11",
     "hono": "^4.11.9",
+    "lucide-solid": "^0.575.0",
     "solid-js": "^1.9.10"
   },
   "devDependencies": {
