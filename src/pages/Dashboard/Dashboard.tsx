@@ -14,13 +14,13 @@ const APP_ITEMS: AppItem[] = [
 	{
 		id: "bulletin",
 		label: "週報",
-		icon: <FileText size={72} stroke-width={1.5} />,
+		icon: <FileText size={48} stroke-width={1.5} />,
 		disabled: true,
 	},
 	{
 		id: "expense",
 		label: "経費精算",
-		icon: <ReceiptText size={72} stroke-width={1.5} />,
+		icon: <ReceiptText size={48} stroke-width={1.5} />,
 		disabled: true,
 	},
 ];
@@ -31,7 +31,7 @@ export function Dashboard() {
 			<ul class={styles.grid}>
 				<For each={APP_ITEMS}>
 					{(item) => (
-						<li class={styles.item}>
+						<li>
 							<AppIcon
 								label={item.label}
 								icon={item.icon}
