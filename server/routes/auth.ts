@@ -38,6 +38,17 @@ authRoute.get("/callback", async (c) => {
 	}
 	await c.env.SESSION_KV.delete(`oauth_state:${state}`);
 
+	// Determine if this is an invite flow
+	let inviteToken: string | null = null;
+	if (storedState !== "1") {
+		try {
+			const parsed = JSON.parse(storedState) as { inviteToken?: string };
+			inviteToken = parsed.inviteToken ?? null;
+		} catch {
+			// Not JSON, treat as normal login
+		}
+	}
+
 	const redirectUri = new URL("/api/auth/callback", c.req.url).toString();
 
 	const tokenRes = await fetch("https://api.line.me/oauth2/v2.1/token", {
@@ -68,6 +79,66 @@ authRoute.get("/callback", async (c) => {
 
 	const profile = (await profileRes.json()) as { userId: string };
 
+	if (inviteToken) {
+		// Invite flow: link LINE account to pre-registered user
+		const inviteRow = await c.env.DB.prepare(
+			"SELECT id, name, role, invite_used, line_user_id, is_active FROM users WHERE invite_token = ?",
+		)
+			.bind(inviteToken)
+			.first<{
+				id: number;
+				name: string;
+				role: string;
+				invite_used: number;
+				line_user_id: string | null;
+				is_active: number;
+			}>();
+
+		if (!inviteRow || !inviteRow.is_active || inviteRow.invite_used) {
+			return c.redirect("/?error=invalid_invite");
+		}
+
+		// Check if LINE user ID is already linked to another user
+		const existing = await c.env.DB.prepare(
+			"SELECT id FROM users WHERE line_user_id = ?",
+		)
+			.bind(profile.userId)
+			.first<{ id: number }>();
+
+		if (existing) {
+			return c.redirect("/?error=line_already_linked");
+		}
+
+		// Link LINE account and mark invite as used
+		await c.env.DB.prepare(
+			"UPDATE users SET line_user_id = ?, invite_used = 1, updated_at = datetime('now') WHERE invite_token = ?",
+		)
+			.bind(profile.userId, inviteToken)
+			.run();
+
+		const sessionId = crypto.randomUUID();
+		const sessionData = JSON.stringify({
+			userId: inviteRow.id,
+			lineUserId: profile.userId,
+			role: inviteRow.role,
+		});
+
+		await c.env.SESSION_KV.put(`session:${sessionId}`, sessionData, {
+			expirationTtl: 60 * 60 * 24 * 30,
+		});
+
+		setCookie(c, "session_id", sessionId, {
+			httpOnly: true,
+			secure: true,
+			sameSite: "Lax",
+			path: "/",
+			maxAge: 60 * 60 * 24 * 30,
+		});
+
+		return c.redirect("/");
+	}
+
+	// Normal login flow
 	const row = await c.env.DB.prepare(
 		"SELECT id, name, role, line_user_id, is_active FROM users WHERE line_user_id = ? AND is_active = 1",
 	)

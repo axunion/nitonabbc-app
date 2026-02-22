@@ -59,7 +59,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **JSX**: Solid.js独自のJSXトランスフォーム (`jsxImportSource: solid-js`)
 - **PWA**: vite-plugin-pwa (generateSwモード、Workbox自動生成)。静的アセットのprecache
 - **デプロイ**: Cloudflare Pages + Workers Functions
-- **データ**: Cloudflare D1（ユーザーDB、バインディング名 `DB`）、Cloudflare KV（セッション、バインディング名 `SESSION_KV`）
+- **データ**: Cloudflare D1（ユーザーDB、バインディング名 `DB`）、Cloudflare KV（セッション + OAuth state、バインディング名 `SESSION_KV`）
+  - セッション: `session:{uuid}` → `{ userId, lineUserId, role }` JSON
+  - OAuth state: `oauth_state:{uuid}` → `"1"`（通常ログイン）または `{ inviteToken: "..." }` JSON（招待フロー）
 - **APIサーバー**: Hono (`server/` ディレクトリ)。`functions/api/_middleware.ts` でPages Functionsにマウント
   - `server/types.ts` の `AppEnv` 型で Bindings と Variables を一元管理
   - APIルートは `server/routes/` に配置し、`server/index.ts` で登録

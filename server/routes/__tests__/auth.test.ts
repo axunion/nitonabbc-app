@@ -102,6 +102,143 @@ describe("GET /api/auth/callback", () => {
 		expect(res.headers.get("Location")).toContain("error=not_registered");
 	});
 
+	it("links LINE account and creates session for invite callback", async () => {
+		const state = "invite_state";
+		const inviteStateValue = JSON.stringify({
+			inviteToken: "invite-token-abc",
+		});
+		const kv = createMockKV({ [`oauth_state:${state}`]: inviteStateValue });
+
+		const selectByTokenStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({
+				id: 5,
+				name: "New Member",
+				role: "member",
+				invite_used: 0,
+				line_user_id: null,
+				is_active: 1,
+			}),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const selectByLineIdStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue(null),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const updateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn(),
+			all: vi.fn(),
+			run: vi.fn().mockResolvedValue({ success: true, meta: {}, results: [] }),
+		};
+
+		let prepareCallCount = 0;
+		const db = {
+			prepare: vi.fn(() => {
+				prepareCallCount++;
+				if (prepareCallCount === 1) return selectByTokenStmt;
+				if (prepareCallCount === 2) return selectByLineIdStmt;
+				return updateStmt;
+			}),
+			batch: vi.fn(),
+			exec: vi.fn(),
+			dump: vi.fn(),
+		} as unknown as D1Database;
+
+		const env = createEnv({ SESSION_KV: kv, DB: db });
+		vi.spyOn(global, "fetch")
+			.mockResolvedValueOnce(
+				new Response(JSON.stringify({ access_token: "token" }), {
+					status: 200,
+				}),
+			)
+			.mockResolvedValueOnce(
+				new Response(JSON.stringify({ userId: "U_new_line" }), {
+					status: 200,
+				}),
+			);
+
+		const res = await app.request(
+			`http://localhost/api/auth/callback?code=testcode&state=${state}`,
+			{},
+			env,
+		);
+
+		expect(res.status).toBe(302);
+		expect(res.headers.get("Location")).toBe("/");
+		expect(res.headers.get("Set-Cookie")).toContain("session_id=");
+
+		expect(selectByTokenStmt.bind).toHaveBeenCalledWith("invite-token-abc");
+		expect(selectByLineIdStmt.bind).toHaveBeenCalledWith("U_new_line");
+		expect(updateStmt.bind).toHaveBeenCalledWith("U_new_line", "invite-token-abc");
+		expect(updateStmt.run).toHaveBeenCalled();
+	});
+
+	it("redirects with error when LINE ID is already used by another user on invite callback", async () => {
+		const state = "invite_state";
+		const inviteStateValue = JSON.stringify({
+			inviteToken: "invite-token-dup",
+		});
+		const kv = createMockKV({ [`oauth_state:${state}`]: inviteStateValue });
+
+		const selectByTokenStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({
+				id: 5,
+				name: "New Member",
+				role: "member",
+				invite_used: 0,
+				line_user_id: null,
+				is_active: 1,
+			}),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const selectByLineIdStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({ id: 99 }),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+
+		let prepareCallCount = 0;
+		const db = {
+			prepare: vi.fn(() => {
+				prepareCallCount++;
+				if (prepareCallCount === 1) return selectByTokenStmt;
+				return selectByLineIdStmt;
+			}),
+			batch: vi.fn(),
+			exec: vi.fn(),
+			dump: vi.fn(),
+		} as unknown as D1Database;
+
+		const env = createEnv({ SESSION_KV: kv, DB: db });
+		vi.spyOn(global, "fetch")
+			.mockResolvedValueOnce(
+				new Response(JSON.stringify({ access_token: "token" }), {
+					status: 200,
+				}),
+			)
+			.mockResolvedValueOnce(
+				new Response(JSON.stringify({ userId: "U_duplicate" }), {
+					status: 200,
+				}),
+			);
+
+		const res = await app.request(
+			`http://localhost/api/auth/callback?code=testcode&state=${state}`,
+			{},
+			env,
+		);
+
+		expect(res.status).toBe(302);
+		expect(res.headers.get("Location")).toContain("error=line_already_linked");
+	});
+
 	it("creates session, sets cookie, and redirects to / on success", async () => {
 		const state = "valid_state";
 		const kv = createMockKV({ [`oauth_state:${state}`]: "1" });

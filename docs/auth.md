@@ -81,7 +81,7 @@
 | GET | `/api/auth/callback` | LINEからのコールバック処理 | ✅ |
 | POST | `/api/auth/logout` | ログアウト（セッション破棄） | ✅ |
 | GET | `/api/auth/me` | 現在のユーザー情報を取得 | ✅ |
-| GET | `/api/invite/:token` | 招待トークンを検証し、LINE認証へリダイレクト | 未実装 |
+| GET | `/api/invite/:token` | 招待トークンを検証し、LINE認証へリダイレクト | ✅ |
 
 ## 実装ファイル
 
@@ -89,7 +89,8 @@
 |---------|------|
 | `server/types.ts` | `AppEnv`, `User`, `SessionData` 型定義 |
 | `server/middleware/auth.ts` | セッション検証ミドルウェア（`DEV_AUTH` バイパス含む） |
-| `server/routes/auth.ts` | 認証エンドポイント実装 |
+| `server/routes/auth.ts` | 認証エンドポイント実装（callback で招待フロー分岐含む） |
+| `server/routes/invite.ts` | 招待トークン検証・LINE認証リダイレクト |
 | `src/store/auth.ts` | `/api/auth/me` を `createResource` で取得する認証ストア |
 | `src/pages/Login/` | ログイン画面（LINE ボタン） |
 | `db/schema.sql` | D1 users テーブル定義 |
