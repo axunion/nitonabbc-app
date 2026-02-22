@@ -8,8 +8,8 @@
     "dev:watch": "vite build --watch",
     "build": "tsc -b && vite build",
     "serve": "wrangler pages dev dist",
-    "check": "biome check ./src",
-    "check:write": "biome check --write ./src",
+    "check": "biome check ./src ./server",
+    "check:write": "biome check --write ./src ./server",
     "test": "vitest run",
     "test:watch": "vitest",
     "deploy": "wrangler pages deploy dist"

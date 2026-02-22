@@ -16,7 +16,12 @@ export function createMockKV(
 			return Promise.resolve();
 		}),
 		list: vi.fn(() =>
-			Promise.resolve({ keys: [], list_complete: true, cursor: "", cacheStatus: null }),
+			Promise.resolve({
+				keys: [],
+				list_complete: true,
+				cursor: "",
+				cacheStatus: null,
+			}),
 		),
 		getWithMetadata: vi.fn(() =>
 			Promise.resolve({ value: null, metadata: null, cacheStatus: null }),
@@ -33,9 +38,7 @@ export function createMockD1(rows: D1Row[] = []): D1Database {
 		all: vi.fn(() =>
 			Promise.resolve({ results: rows, success: true, meta: {} }),
 		),
-		run: vi.fn(() =>
-			Promise.resolve({ success: true, meta: {}, results: [] }),
-		),
+		run: vi.fn(() => Promise.resolve({ success: true, meta: {}, results: [] })),
 	};
 	return {
 		prepare: vi.fn(() => stmt),

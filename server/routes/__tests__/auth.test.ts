@@ -1,6 +1,10 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+	createEnv,
+	createMockD1,
+	createMockKV,
+} from "../../__tests__/helpers.ts";
 import app from "../../index.ts";
-import { createEnv, createMockD1, createMockKV } from "../../__tests__/helpers.ts";
 
 afterEach(() => {
 	vi.restoreAllMocks();
@@ -32,7 +36,11 @@ describe("GET /api/auth/login", () => {
 describe("GET /api/auth/callback", () => {
 	it("returns 400 when code and state are missing", async () => {
 		const env = createEnv();
-		const res = await app.request("http://localhost/api/auth/callback", {}, env);
+		const res = await app.request(
+			"http://localhost/api/auth/callback",
+			{},
+			env,
+		);
 		expect(res.status).toBe(400);
 	});
 
@@ -68,7 +76,9 @@ describe("GET /api/auth/callback", () => {
 		const env = createEnv({ SESSION_KV: kv });
 		vi.spyOn(global, "fetch")
 			.mockResolvedValueOnce(
-				new Response(JSON.stringify({ access_token: "token" }), { status: 200 }),
+				new Response(JSON.stringify({ access_token: "token" }), {
+					status: 200,
+				}),
 			)
 			.mockResolvedValueOnce(new Response(null, { status: 500 }));
 
@@ -87,7 +97,9 @@ describe("GET /api/auth/callback", () => {
 		const env = createEnv({ SESSION_KV: kv, DB: db });
 		vi.spyOn(global, "fetch")
 			.mockResolvedValueOnce(
-				new Response(JSON.stringify({ access_token: "token" }), { status: 200 }),
+				new Response(JSON.stringify({ access_token: "token" }), {
+					status: 200,
+				}),
 			)
 			.mockResolvedValueOnce(
 				new Response(JSON.stringify({ userId: "U1234" }), { status: 200 }),
@@ -173,7 +185,10 @@ describe("GET /api/auth/callback", () => {
 
 		expect(selectByTokenStmt.bind).toHaveBeenCalledWith("invite-token-abc");
 		expect(selectByLineIdStmt.bind).toHaveBeenCalledWith("U_new_line");
-		expect(updateStmt.bind).toHaveBeenCalledWith("U_new_line", "invite-token-abc");
+		expect(updateStmt.bind).toHaveBeenCalledWith(
+			"U_new_line",
+			"invite-token-abc",
+		);
 		expect(updateStmt.run).toHaveBeenCalled();
 	});
 
@@ -243,12 +258,20 @@ describe("GET /api/auth/callback", () => {
 		const state = "valid_state";
 		const kv = createMockKV({ [`oauth_state:${state}`]: "1" });
 		const db = createMockD1([
-			{ id: 1, name: "Test User", role: "member", line_user_id: "U1234", is_active: 1 },
+			{
+				id: 1,
+				name: "Test User",
+				role: "member",
+				line_user_id: "U1234",
+				is_active: 1,
+			},
 		]);
 		const env = createEnv({ SESSION_KV: kv, DB: db });
 		vi.spyOn(global, "fetch")
 			.mockResolvedValueOnce(
-				new Response(JSON.stringify({ access_token: "token" }), { status: 200 }),
+				new Response(JSON.stringify({ access_token: "token" }), {
+					status: 200,
+				}),
 			)
 			.mockResolvedValueOnce(
 				new Response(JSON.stringify({ userId: "U1234" }), { status: 200 }),
@@ -313,10 +336,20 @@ describe("GET /api/auth/me", () => {
 
 	it("returns 401 when user is inactive", async () => {
 		const kv = createMockKV({
-			"session:sid": JSON.stringify({ userId: 1, lineUserId: "U1234", role: "member" }),
+			"session:sid": JSON.stringify({
+				userId: 1,
+				lineUserId: "U1234",
+				role: "member",
+			}),
 		});
 		const db = createMockD1([
-			{ id: 1, name: "Test User", role: "member", line_user_id: "U1234", is_active: 0 },
+			{
+				id: 1,
+				name: "Test User",
+				role: "member",
+				line_user_id: "U1234",
+				is_active: 0,
+			},
 		]);
 		const env = createEnv({ SESSION_KV: kv, DB: db });
 		const res = await app.request(
@@ -329,10 +362,20 @@ describe("GET /api/auth/me", () => {
 
 	it("returns user info for a valid session", async () => {
 		const kv = createMockKV({
-			"session:sid": JSON.stringify({ userId: 1, lineUserId: "U1234", role: "member" }),
+			"session:sid": JSON.stringify({
+				userId: 1,
+				lineUserId: "U1234",
+				role: "member",
+			}),
 		});
 		const db = createMockD1([
-			{ id: 1, name: "Test User", role: "member", line_user_id: "U1234", is_active: 1 },
+			{
+				id: 1,
+				name: "Test User",
+				role: "member",
+				line_user_id: "U1234",
+				is_active: 1,
+			},
 		]);
 		const env = createEnv({ SESSION_KV: kv, DB: db });
 		const res = await app.request(

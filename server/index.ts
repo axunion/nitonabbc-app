@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { healthRoute } from "./routes/health.ts";
 import { authRoute } from "./routes/auth.ts";
+import { healthRoute } from "./routes/health.ts";
 import { inviteRoute } from "./routes/invite.ts";
 import type { AppEnv } from "./types.ts";
 
