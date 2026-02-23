@@ -17,6 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `docs/spec.md` - 全体方針（概要、権限モデル、ダッシュボード、管理画面、技術スタック）
 - `docs/auth.md` - 認証（LINE Login、招待リンク方式、セッション管理）
+- `docs/admin.md` - 管理画面（メンバー管理、招待リンク、認可）
 - `docs/bulletin.md` - 週報機能（構成、入力、出力、画面）
 - `docs/ui-guidelines.md` - UIデザイン方針（iOS HIG 準拠、アイコン・スペーシング・タイポグラフィ）
 - 機能追加時は `docs/` に個別ドキュメントを作成し、`spec.md` のテーブルにリンク
@@ -46,6 +47,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture
 
+- **ルーティング**: `@solidjs/router` を使用。`src/index.tsx` でルート定義、`src/App.tsx` がルートレイアウト
+  - `/` → Dashboard, `/admin` → Management（lazy load）
+  - 認証コンテキスト: `src/store/AuthContext.tsx` の `useAuth()` でユーザー情報を取得
 - **エントリポイント**: `index.html` → `src/index.tsx` → `src/App.tsx`
 - **パスエイリアス**: `@/` → `./src` (vite.config.ts と tsconfig.app.json の両方に設定が必要)
 - **UI**: @kobalte/core (ヘッドレスUIプリミティブ) + CSS Modules（Tailwind不使用）
