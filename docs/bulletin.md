@@ -49,3 +49,57 @@
 - **週報詳細**: 選択した週の週報を表示
 - **週報入力/編集**: メンバーなら誰でも入力・編集可能
 - **PDF出力**: 印刷用PDFのダウンロード
+
+## データモデル
+
+### DB テーブル (`bulletins`)
+
+| カラム | 型 | 説明 |
+|--------|-----|------|
+| id | INTEGER PK | 自動採番 |
+| service_date | TEXT UNIQUE | 礼拝日 (YYYY-MM-DD)。1日曜1件 |
+| worship | TEXT (JSON) | 礼拝プログラム `Array<{ type, label, details? }>` |
+| announcements | TEXT (JSON) | お知らせ `Array<{ content }>` |
+| assignments | TEXT (JSON) | 奉仕当番 `Record<role, person>` |
+| created_by | INTEGER FK | 作成者 (users.id) |
+| updated_by | INTEGER FK | 最終更新者 (users.id) |
+| created_at | TEXT | 作成日時 |
+| updated_at | TEXT | 更新日時 |
+
+## API エンドポイント
+
+認証済みメンバー全員が CRUD 可能。`/api/bulletin` 配下。
+
+| Method | Path | 説明 |
+|--------|------|------|
+| GET | `/api/bulletin` | 一覧（service_date DESC） |
+| GET | `/api/bulletin/:id` | 詳細（JSON パース済み） |
+| POST | `/api/bulletin` | 新規作成 → 201 |
+| PUT | `/api/bulletin/:id` | 更新（部分更新可） |
+| DELETE | `/api/bulletin/:id` | 削除 |
+
+### バリデーション
+
+- `serviceDate` 必須、`YYYY-MM-DD` 形式 → 400
+- 重複 `serviceDate` → 409 Conflict
+- JSON フィールドは省略可（デフォルト値使用）
+
+## ルーティング
+
+| パス | ページ | 説明 |
+|------|--------|------|
+| `/bulletin` | BulletinList | 週報一覧 |
+| `/bulletin/new` | BulletinForm | 新規作成 |
+| `/bulletin/:id` | BulletinDetail | 詳細表示 |
+| `/bulletin/:id/edit` | BulletinForm | 編集 |
+
+## 実装ステータス
+
+| 項目 | ステータス |
+|------|-----------|
+| DB スキーマ | 実装済み |
+| CRUD API + テスト | 実装済み |
+| 一覧・詳細・入力フォーム UI | 実装済み |
+| ダッシュボード連携 | 実装済み |
+| テンプレート管理（管理者） | 未実装 |
+| PDF 出力 | 未実装 |

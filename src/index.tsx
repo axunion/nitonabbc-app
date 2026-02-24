@@ -8,6 +8,9 @@ import { Dashboard } from "@/pages/Dashboard";
 import App from "./App.tsx";
 
 const Management = lazy(() => import("@/pages/Management"));
+const BulletinList = lazy(() => import("@/pages/BulletinList"));
+const BulletinDetail = lazy(() => import("@/pages/BulletinDetail"));
+const BulletinForm = lazy(() => import("@/pages/BulletinForm"));
 
 const root = document.getElementById("root");
 
@@ -17,6 +20,10 @@ if (root) {
 			<Router root={App}>
 				<Route path="/" component={Dashboard} />
 				<Route path="/admin" component={Management} />
+				<Route path="/bulletin" component={BulletinList} />
+				<Route path="/bulletin/new" component={BulletinForm} />
+				<Route path="/bulletin/:id" component={BulletinDetail} />
+				<Route path="/bulletin/:id/edit" component={BulletinForm} />
 			</Router>
 		),
 		root,

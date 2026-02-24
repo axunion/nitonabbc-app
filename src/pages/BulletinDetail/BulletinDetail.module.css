@@ -1,0 +1,157 @@
+.container {
+	padding: var(--space-4);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.header {
+	width: 100%;
+	max-width: 480px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: var(--space-4);
+}
+
+.backLink {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	border-radius: var(--radius-md);
+	color: var(--color-gray-700);
+	text-decoration: none;
+	transition: background-color var(--duration-fast) var(--ease-default);
+}
+
+.backLink:hover {
+	background-color: var(--color-gray-100);
+}
+
+.backLink:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+.editButton {
+	display: flex;
+	align-items: center;
+	gap: var(--space-1);
+	height: 36px;
+	padding: 0 var(--space-3);
+	border-radius: var(--radius-md);
+	border: 1px solid var(--color-gray-200);
+	background: white;
+	color: var(--color-gray-700);
+	font-size: var(--text-sm);
+	cursor: pointer;
+	outline: none;
+	text-decoration: none;
+	transition:
+		background-color var(--duration-fast) var(--ease-default),
+		border-color var(--duration-fast) var(--ease-default);
+}
+
+.editButton:hover {
+	background-color: var(--color-gray-50);
+	border-color: var(--color-gray-300);
+}
+
+.editButton:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+.content {
+	width: 100%;
+	max-width: 480px;
+}
+
+.title {
+	font-size: var(--text-lg);
+	font-weight: var(--font-semibold);
+	color: var(--color-gray-900);
+	margin: 0 0 var(--space-6) 0;
+}
+
+.section {
+	margin-bottom: var(--space-6);
+}
+
+.sectionTitle {
+	font-size: var(--text-base);
+	font-weight: var(--font-semibold);
+	color: var(--color-gray-800);
+	margin: 0 0 var(--space-3) 0;
+	padding-bottom: var(--space-2);
+	border-bottom: 1px solid var(--color-gray-200);
+}
+
+.worshipList {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+}
+
+.worshipItem {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	padding: var(--space-2) 0;
+}
+
+.worshipLabel {
+	font-size: var(--text-sm);
+	font-weight: var(--font-medium);
+	color: var(--color-gray-700);
+}
+
+.worshipDetails {
+	font-size: var(--text-sm);
+	color: var(--color-gray-600);
+}
+
+.announcementList {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+}
+
+.announcementItem {
+	font-size: var(--text-sm);
+	color: var(--color-gray-700);
+	line-height: var(--leading-relaxed);
+	white-space: pre-wrap;
+}
+
+.assignmentList {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: var(--space-2) var(--space-4);
+	margin: 0;
+}
+
+.assignmentRole {
+	font-size: var(--text-sm);
+	font-weight: var(--font-medium);
+	color: var(--color-gray-700);
+}
+
+.assignmentPerson {
+	font-size: var(--text-sm);
+	color: var(--color-gray-600);
+	margin: 0;
+}
+
+.loading {
+	text-align: center;
+	padding: var(--space-8);
+	color: var(--color-gray-500);
+	font-size: var(--text-sm);
+}

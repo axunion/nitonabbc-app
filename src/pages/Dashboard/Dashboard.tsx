@@ -1,3 +1,4 @@
+import { useNavigate } from "@solidjs/router";
 import { FileText, ReceiptText } from "lucide-solid";
 import { For } from "solid-js";
 import { AppIcon } from "@/components/AppIcon";
@@ -8,24 +9,28 @@ type AppItem = {
 	label: string;
 	icon: ReturnType<typeof FileText>;
 	disabled: boolean;
+	onClick?: () => void;
 };
 
-const APP_ITEMS: AppItem[] = [
-	{
-		id: "bulletin",
-		label: "週報",
-		icon: <FileText size={48} stroke-width={1.5} />,
-		disabled: true,
-	},
-	{
-		id: "expense",
-		label: "経費精算",
-		icon: <ReceiptText size={48} stroke-width={1.5} />,
-		disabled: true,
-	},
-];
-
 export function Dashboard() {
+	const navigate = useNavigate();
+
+	const APP_ITEMS: AppItem[] = [
+		{
+			id: "bulletin",
+			label: "週報",
+			icon: <FileText size={48} stroke-width={1.5} />,
+			disabled: false,
+			onClick: () => navigate("/bulletin"),
+		},
+		{
+			id: "expense",
+			label: "経費精算",
+			icon: <ReceiptText size={48} stroke-width={1.5} />,
+			disabled: true,
+		},
+	];
+
 	return (
 		<div class={styles.container}>
 			<ul class={styles.grid}>
@@ -35,7 +40,7 @@ export function Dashboard() {
 							<AppIcon
 								label={item.label}
 								icon={item.icon}
-								onClick={() => {}}
+								onClick={item.onClick ?? (() => {})}
 								disabled={item.disabled}
 							/>
 						</li>

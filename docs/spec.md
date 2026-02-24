@@ -73,7 +73,7 @@
 |------|-------------|-----------|
 | 認証 | [auth.md](./auth.md) | 実装済み |
 | 管理画面 | [admin.md](./admin.md) | 実装済み |
-| 週報 | [bulletin.md](./bulletin.md) | 策定中 |
+| 週報 | [bulletin.md](./bulletin.md) | Phase 1 実装済み |
 
 ## 今後の拡張候補（未定）
 
