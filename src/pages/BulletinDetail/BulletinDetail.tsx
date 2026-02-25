@@ -1,6 +1,7 @@
 import { A, useParams } from "@solidjs/router";
 import { ArrowLeft, Pencil } from "lucide-solid";
 import { createResource, For, Show } from "solid-js";
+import { useLocale } from "@/store/LocaleContext.tsx";
 import type { BulletinDetail as BulletinDetailType } from "@/types/bulletin.ts";
 import styles from "./BulletinDetail.module.css";
 
@@ -10,14 +11,19 @@ async function fetchBulletin(id: string): Promise<BulletinDetailType> {
 	return res.json() as Promise<BulletinDetailType>;
 }
 
-function formatDate(dateStr: string): string {
-	const [y, m, d] = dateStr.split("-");
-	return `${y}年${Number(m)}月${Number(d)}日`;
+function formatDate(dateStr: string, locale: string): string {
+	const [y, m, d] = dateStr.split("-").map(Number);
+	return new Intl.DateTimeFormat(locale, {
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+	}).format(new Date(y, m - 1, d));
 }
 
 export function BulletinDetail() {
 	const params = useParams<{ id: string }>();
 	const [bulletin] = createResource(() => params.id, fetchBulletin);
+	const { t, locale } = useLocale();
 
 	return (
 		<div class={styles.container}>
@@ -29,7 +35,7 @@ export function BulletinDetail() {
 					{(b) => (
 						<A href={`/bulletin/${b().id}/edit`} class={styles.editButton}>
 							<Pencil size={14} stroke-width={1.5} />
-							編集
+							{t("common.edit")}
 						</A>
 					)}
 				</Show>
@@ -37,16 +43,20 @@ export function BulletinDetail() {
 
 			<Show
 				when={!bulletin.loading}
-				fallback={<p class={styles.loading}>読み込み中...</p>}
+				fallback={<p class={styles.loading}>{t("common.loading")}</p>}
 			>
 				<Show when={bulletin()}>
 					{(b) => (
 						<div class={styles.content}>
-							<h1 class={styles.title}>{formatDate(b().serviceDate)} 礼拝</h1>
+							<h1 class={styles.title}>
+								{formatDate(b().serviceDate, locale())} {t("bulletin.worship")}
+							</h1>
 
 							<Show when={b().worship.length > 0}>
 								<section class={styles.section}>
-									<h2 class={styles.sectionTitle}>礼拝プログラム</h2>
+									<h2 class={styles.sectionTitle}>
+										{t("bulletin.worshipProgram")}
+									</h2>
 									<ul class={styles.worshipList}>
 										<For each={b().worship}>
 											{(item) => (
@@ -66,7 +76,9 @@ export function BulletinDetail() {
 
 							<Show when={b().announcements.length > 0}>
 								<section class={styles.section}>
-									<h2 class={styles.sectionTitle}>お知らせ</h2>
+									<h2 class={styles.sectionTitle}>
+										{t("bulletin.announcements")}
+									</h2>
 									<ul class={styles.announcementList}>
 										<For each={b().announcements}>
 											{(a) => (
@@ -79,7 +91,9 @@ export function BulletinDetail() {
 
 							<Show when={Object.keys(b().assignments).length > 0}>
 								<section class={styles.section}>
-									<h2 class={styles.sectionTitle}>奉仕当番</h2>
+									<h2 class={styles.sectionTitle}>
+										{t("bulletin.assignments")}
+									</h2>
 									<dl class={styles.assignmentList}>
 										<For each={Object.entries(b().assignments)}>
 											{([role, person]) => (

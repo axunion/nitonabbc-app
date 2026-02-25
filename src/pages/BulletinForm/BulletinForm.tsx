@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { Minus, Plus } from "lucide-solid";
 import { createResource, createSignal, For, onMount, Show } from "solid-js";
+import { useLocale } from "@/store/LocaleContext.tsx";
 import type {
 	Announcement,
 	BulletinDetail,
@@ -8,17 +9,19 @@ import type {
 } from "@/types/bulletin.ts";
 import styles from "./BulletinForm.module.css";
 
-const DEFAULT_WORSHIP: WorshipItem[] = [
-	{ type: "prelude", label: "前奏" },
-	{ type: "hymn", label: "賛美歌" },
-	{ type: "prayer", label: "祈り" },
-	{ type: "reading", label: "聖書朗読" },
-	{ type: "sermon", label: "説教" },
-	{ type: "offering", label: "献金" },
-	{ type: "hymn2", label: "賛美歌" },
-	{ type: "doxology", label: "頌栄" },
-	{ type: "benediction", label: "祝祷" },
-];
+function getDefaultWorship(t: (key: string) => string): WorshipItem[] {
+	return [
+		{ type: "prelude", label: t("bulletinForm.prelude") },
+		{ type: "hymn", label: t("bulletinForm.hymn") },
+		{ type: "prayer", label: t("bulletinForm.prayer") },
+		{ type: "reading", label: t("bulletinForm.reading") },
+		{ type: "sermon", label: t("bulletinForm.sermon") },
+		{ type: "offering", label: t("bulletinForm.offering") },
+		{ type: "hymn2", label: t("bulletinForm.hymn") },
+		{ type: "doxology", label: t("bulletinForm.doxology") },
+		{ type: "benediction", label: t("bulletinForm.benediction") },
+	];
+}
 
 async function fetchBulletin(id: string): Promise<BulletinDetail> {
 	const res = await fetch(`/api/bulletin/${id}`);
@@ -29,6 +32,7 @@ async function fetchBulletin(id: string): Promise<BulletinDetail> {
 export function BulletinForm() {
 	const params = useParams<{ id?: string }>();
 	const navigate = useNavigate();
+	const { t } = useLocale();
 	const isEdit = () => !!params.id;
 
 	const [existing] = createResource(
@@ -48,7 +52,7 @@ export function BulletinForm() {
 
 	onMount(() => {
 		if (!isEdit()) {
-			setWorship(DEFAULT_WORSHIP.map((w) => ({ ...w })));
+			setWorship(getDefaultWorship(t as (key: string) => string));
 			setAnnouncements([{ content: "" }]);
 			setAssignments([{ role: "", person: "" }]);
 			setInitialized(true);
@@ -60,7 +64,11 @@ export function BulletinForm() {
 		const data = existing();
 		if (data && !initialized()) {
 			setServiceDate(data.serviceDate);
-			setWorship(data.worship.length > 0 ? data.worship : DEFAULT_WORSHIP);
+			setWorship(
+				data.worship.length > 0
+					? data.worship
+					: getDefaultWorship(t as (key: string) => string),
+			);
 			setAnnouncements(
 				data.announcements.length > 0 ? data.announcements : [{ content: "" }],
 			);
@@ -167,9 +175,11 @@ export function BulletinForm() {
 
 			<Show
 				when={!isEdit() || initialized()}
-				fallback={<p class={styles.loading}>読み込み中...</p>}
+				fallback={<p class={styles.loading}>{t("common.loading")}</p>}
 			>
-				<h1 class={styles.title}>{isEdit() ? "週報を編集" : "新しい週報"}</h1>
+				<h1 class={styles.title}>
+					{isEdit() ? t("bulletinForm.titleEdit") : t("bulletinForm.titleNew")}
+				</h1>
 
 				<Show when={error()}>
 					<p class={styles.error}>{error()}</p>
@@ -178,7 +188,7 @@ export function BulletinForm() {
 				<form onSubmit={handleSubmit} class={styles.form}>
 					<div class={styles.formGroup}>
 						<label for="service-date" class={styles.label}>
-							礼拝日
+							{t("bulletinForm.serviceDate")}
 						</label>
 						<input
 							id="service-date"
@@ -191,7 +201,9 @@ export function BulletinForm() {
 					</div>
 
 					<fieldset class={styles.fieldset}>
-						<legend class={styles.legend}>礼拝プログラム</legend>
+						<legend class={styles.legend}>
+							{t("bulletinForm.worshipProgram")}
+						</legend>
 						<For each={worship()}>
 							{(item, index) => (
 								<div class={styles.worshipRow}>
@@ -199,7 +211,7 @@ export function BulletinForm() {
 									<input
 										type="text"
 										class={styles.input}
-										placeholder="詳細（賛美歌番号、聖書箇所など）"
+										placeholder={t("bulletinForm.detailsPlaceholder")}
 										value={item.details ?? ""}
 										onInput={(e) =>
 											updateWorship(index(), "details", e.currentTarget.value)
@@ -212,7 +224,7 @@ export function BulletinForm() {
 
 					<fieldset class={styles.fieldset}>
 						<legend class={styles.legend}>
-							お知らせ
+							{t("bulletinForm.announcements")}
 							<button
 								type="button"
 								class={styles.iconButton}
@@ -231,7 +243,7 @@ export function BulletinForm() {
 										onInput={(e) =>
 											updateAnnouncement(index(), e.currentTarget.value)
 										}
-										placeholder="お知らせ内容"
+										placeholder={t("bulletinForm.announcementPlaceholder")}
 									/>
 									<Show when={announcements().length > 1}>
 										<button
@@ -249,7 +261,7 @@ export function BulletinForm() {
 
 					<fieldset class={styles.fieldset}>
 						<legend class={styles.legend}>
-							奉仕当番
+							{t("bulletinForm.assignments")}
 							<button
 								type="button"
 								class={styles.iconButton}
@@ -264,7 +276,7 @@ export function BulletinForm() {
 									<input
 										type="text"
 										class={styles.inputSmall}
-										placeholder="役割（受付、音響など）"
+										placeholder={t("bulletinForm.rolePlaceholder")}
 										value={a.role}
 										onInput={(e) =>
 											updateAssignment(index(), "role", e.currentTarget.value)
@@ -273,7 +285,7 @@ export function BulletinForm() {
 									<input
 										type="text"
 										class={styles.inputSmall}
-										placeholder="担当者"
+										placeholder={t("bulletinForm.personPlaceholder")}
 										value={a.person}
 										onInput={(e) =>
 											updateAssignment(index(), "person", e.currentTarget.value)
@@ -301,14 +313,14 @@ export function BulletinForm() {
 								navigate(isEdit() ? `/bulletin/${params.id}` : "/bulletin")
 							}
 						>
-							キャンセル
+							{t("common.cancel")}
 						</button>
 						<button
 							type="submit"
 							class={styles.submitButton}
 							disabled={submitting() || !serviceDate()}
 						>
-							{isEdit() ? "更新" : "作成"}
+							{isEdit() ? t("common.update") : t("common.create")}
 						</button>
 					</div>
 				</form>

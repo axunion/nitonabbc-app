@@ -11,6 +11,7 @@ import {
 } from "lucide-solid";
 import { createResource, createSignal, For, Show } from "solid-js";
 import { useAuth } from "@/store/AuthContext.tsx";
+import { useLocale } from "@/store/LocaleContext.tsx";
 import styles from "./Management.module.css";
 
 type Member = {
@@ -33,6 +34,7 @@ async function fetchMembers(): Promise<Member[]> {
 
 export function Management() {
 	const { user } = useAuth();
+	const { t } = useLocale();
 	const navigate = useNavigate();
 
 	if (user().role !== "admin") {
@@ -89,17 +91,14 @@ export function Management() {
 	}
 
 	async function handleDeactivate(member: Member) {
-		if (!confirm(`${member.name} を無効化しますか？`)) return;
+		if (!confirm(t("management.confirmDeactivate", { name: member.name })))
+			return;
 		await fetch(`/api/admin/members/${member.id}`, { method: "DELETE" });
 		await refetch();
 	}
 
 	async function handleReinvite(member: Member) {
-		if (
-			!confirm(
-				`${member.name} のLINE連携を解除し、新しい招待リンクを発行しますか？`,
-			)
-		)
+		if (!confirm(t("management.confirmReinvite", { name: member.name })))
 			return;
 		await fetch(`/api/admin/members/${member.id}/reinvite`, {
 			method: "POST",
@@ -117,20 +116,20 @@ export function Management() {
 	return (
 		<div class={styles.container}>
 			<div class={styles.header}>
-				<h1 class={styles.title}>メンバー管理</h1>
+				<h1 class={styles.title}>{t("management.title")}</h1>
 				<button type="button" class={styles.addButton} onClick={openAddDialog}>
 					<Plus size={16} stroke-width={1.5} />
-					追加
+					{t("common.add")}
 				</button>
 			</div>
 
 			<Show
 				when={!members.loading}
-				fallback={<p class={styles.loading}>読み込み中...</p>}
+				fallback={<p class={styles.loading}>{t("common.loading")}</p>}
 			>
 				<Show
 					when={members()?.length}
-					fallback={<p class={styles.empty}>メンバーがいません</p>}
+					fallback={<p class={styles.empty}>{t("management.empty")}</p>}
 				>
 					<ul class={styles.list}>
 						<For each={members()}>
@@ -146,10 +145,14 @@ export function Management() {
 														: styles.badgeMember
 												}
 											>
-												{member.role === "admin" ? "管理者" : "メンバー"}
+												{member.role === "admin"
+													? t("common.admin")
+													: t("common.member")}
 											</span>
 											<Show when={!member.isActive}>
-												<span class={styles.badgeInactive}>無効</span>
+												<span class={styles.badgeInactive}>
+													{t("management.inactive")}
+												</span>
 											</Show>
 											<Show when={member.isActive}>
 												<span
@@ -162,12 +165,12 @@ export function Management() {
 													{member.lineUserId ? (
 														<>
 															<Link size={10} stroke-width={1.5} />
-															LINE連携済
+															{t("management.linked")}
 														</>
 													) : (
 														<>
 															<Link2Off size={10} stroke-width={1.5} />
-															未連携
+															{t("management.unlinked")}
 														</>
 													)}
 												</span>
@@ -183,7 +186,7 @@ export function Management() {
 												onClick={() => openEditDialog(member)}
 											>
 												<Pencil size={14} stroke-width={1.5} />
-												編集
+												{t("common.edit")}
 											</button>
 											<Show when={!member.inviteUsed}>
 												<button
@@ -192,7 +195,7 @@ export function Management() {
 													onClick={() => copyInviteLink(member)}
 												>
 													<ClipboardCopy size={14} stroke-width={1.5} />
-													招待リンク
+													{t("management.inviteLink")}
 													<Show when={copiedId() === member.id}>
 														<span class={styles.copySuccess}>copied!</span>
 													</Show>
@@ -205,7 +208,7 @@ export function Management() {
 													onClick={() => handleReinvite(member)}
 												>
 													<RefreshCw size={14} stroke-width={1.5} />
-													再招待
+													{t("management.reinvite")}
 												</button>
 											</Show>
 											<Show when={member.id !== user().id}>
@@ -215,7 +218,7 @@ export function Management() {
 													onClick={() => handleDeactivate(member)}
 												>
 													<UserMinus size={14} stroke-width={1.5} />
-													無効化
+													{t("management.deactivate")}
 												</button>
 											</Show>
 										</div>
@@ -232,12 +235,14 @@ export function Management() {
 					<Dialog.Overlay class={styles.overlay} />
 					<Dialog.Content class={styles.dialogContent}>
 						<Dialog.Title class={styles.dialogTitle}>
-							{editingMember() ? "メンバー編集" : "メンバー追加"}
+							{editingMember()
+								? t("management.dialogTitleEdit")
+								: t("management.dialogTitleAdd")}
 						</Dialog.Title>
 						<form onSubmit={handleSubmit}>
 							<div class={styles.formGroup}>
 								<label for="member-name" class={styles.label}>
-									名前
+									{t("management.name")}
 								</label>
 								<input
 									id="member-name"
@@ -250,7 +255,7 @@ export function Management() {
 							</div>
 							<div class={styles.formGroup}>
 								<label for="member-role" class={styles.label}>
-									ロール
+									{t("management.role")}
 								</label>
 								<select
 									id="member-role"
@@ -260,20 +265,20 @@ export function Management() {
 										setFormRole(e.currentTarget.value as "admin" | "member")
 									}
 								>
-									<option value="member">メンバー</option>
-									<option value="admin">管理者</option>
+									<option value="member">{t("common.member")}</option>
+									<option value="admin">{t("common.admin")}</option>
 								</select>
 							</div>
 							<div class={styles.dialogActions}>
 								<Dialog.CloseButton class={styles.cancelButton}>
-									キャンセル
+									{t("common.cancel")}
 								</Dialog.CloseButton>
 								<button
 									type="submit"
 									class={styles.submitButton}
 									disabled={submitting() || formName().trim() === ""}
 								>
-									{editingMember() ? "更新" : "追加"}
+									{editingMember() ? t("common.update") : t("common.add")}
 								</button>
 							</div>
 						</form>

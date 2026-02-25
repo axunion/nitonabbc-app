@@ -2,6 +2,7 @@ import { useNavigate } from "@solidjs/router";
 import { FileText, ReceiptText } from "lucide-solid";
 import { For } from "solid-js";
 import { AppIcon } from "@/components/AppIcon";
+import { useLocale } from "@/store/LocaleContext.tsx";
 import styles from "./Dashboard.module.css";
 
 type AppItem = {
@@ -14,18 +15,19 @@ type AppItem = {
 
 export function Dashboard() {
 	const navigate = useNavigate();
+	const { t } = useLocale();
 
 	const APP_ITEMS: AppItem[] = [
 		{
 			id: "bulletin",
-			label: "週報",
+			label: t("dashboard.bulletin"),
 			icon: <FileText size={48} stroke-width={1.5} />,
 			disabled: false,
 			onClick: () => navigate("/bulletin"),
 		},
 		{
 			id: "expense",
-			label: "経費精算",
+			label: t("dashboard.expense"),
 			icon: <ReceiptText size={48} stroke-width={1.5} />,
 			disabled: true,
 		},
