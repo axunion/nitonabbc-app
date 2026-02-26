@@ -68,6 +68,8 @@
 
 ## API エンドポイント
 
+### 週報 CRUD
+
 認証済みメンバー全員が CRUD 可能。`/api/bulletin` 配下。
 
 | Method | Path | 説明 |
@@ -77,6 +79,15 @@
 | POST | `/api/bulletin` | 新規作成 → 201 |
 | PUT | `/api/bulletin/:id` | 更新（部分更新可） |
 | DELETE | `/api/bulletin/:id` | 削除 |
+
+### テンプレート管理
+
+| Method | Path | 認可 | 説明 |
+|--------|------|------|------|
+| GET | `/api/bulletin-template` | 認証済み全員 | テンプレート取得。未設定時はデフォルト値 |
+| PUT | `/api/bulletin-template` | 管理者のみ | テンプレート全体を置換保存 |
+
+テンプレートデータ形式: `Array<{ type: string; label: string }>`。DB の `settings` テーブルに `worship_template` キーで JSON 格納。
 
 ### バリデーション
 
@@ -92,6 +103,7 @@
 | `/bulletin/new` | BulletinForm | 新規作成 |
 | `/bulletin/:id` | BulletinDetail | 詳細表示 |
 | `/bulletin/:id/edit` | BulletinForm | 編集 |
+| `/admin/bulletin-template` | BulletinTemplate | テンプレート管理（管理者のみ） |
 
 ## 実装ステータス
 
@@ -101,5 +113,5 @@
 | CRUD API + テスト | 実装済み |
 | 一覧・詳細・入力フォーム UI | 実装済み |
 | ダッシュボード連携 | 実装済み |
-| テンプレート管理（管理者） | 未実装 |
+| テンプレート管理（管理者） | 実装済み |
 | PDF 出力 | 未実装 |

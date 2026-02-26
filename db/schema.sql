@@ -24,3 +24,9 @@ CREATE TABLE IF NOT EXISTS bulletins (
   updated_at    TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS idx_bulletins_service_date ON bulletins (service_date);
+
+CREATE TABLE IF NOT EXISTS settings (
+  key        TEXT PRIMARY KEY,
+  value      TEXT NOT NULL,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);

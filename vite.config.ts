@@ -17,6 +17,24 @@ export default defineConfig({
           res.setHeader("Content-Type", "application/json");
           res.end(JSON.stringify({ ok: true }));
         });
+        server.middlewares.use("/api/bulletin-template", (req, res) => {
+          res.setHeader("Content-Type", "application/json");
+          if (req.method === "PUT") {
+            res.end(JSON.stringify({ ok: true }));
+            return;
+          }
+          res.end(JSON.stringify([
+            { type: "prelude", label: "前奏" },
+            { type: "hymn", label: "賛美歌" },
+            { type: "prayer", label: "祈り" },
+            { type: "reading", label: "聖書朗読" },
+            { type: "sermon", label: "説教" },
+            { type: "offering", label: "献金" },
+            { type: "hymn2", label: "賛美歌" },
+            { type: "doxology", label: "頌栄" },
+            { type: "benediction", label: "祝祷" },
+          ]));
+        });
         server.middlewares.use("/api/admin/members", (req, res) => {
           res.setHeader("Content-Type", "application/json");
           if (req.method === "POST") {

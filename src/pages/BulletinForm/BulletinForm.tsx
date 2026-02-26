@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { Minus, Plus } from "lucide-solid";
-import { createResource, createSignal, For, onMount, Show } from "solid-js";
+import { createResource, createSignal, For, Show } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type {
 	Announcement,
@@ -9,18 +9,10 @@ import type {
 } from "@/types/bulletin.ts";
 import styles from "./BulletinForm.module.css";
 
-function getDefaultWorship(t: (key: string) => string): WorshipItem[] {
-	return [
-		{ type: "prelude", label: t("bulletinForm.prelude") },
-		{ type: "hymn", label: t("bulletinForm.hymn") },
-		{ type: "prayer", label: t("bulletinForm.prayer") },
-		{ type: "reading", label: t("bulletinForm.reading") },
-		{ type: "sermon", label: t("bulletinForm.sermon") },
-		{ type: "offering", label: t("bulletinForm.offering") },
-		{ type: "hymn2", label: t("bulletinForm.hymn") },
-		{ type: "doxology", label: t("bulletinForm.doxology") },
-		{ type: "benediction", label: t("bulletinForm.benediction") },
-	];
+async function fetchTemplate(): Promise<WorshipItem[]> {
+	const res = await fetch("/api/bulletin-template");
+	if (!res.ok) return [];
+	return res.json() as Promise<WorshipItem[]>;
 }
 
 async function fetchBulletin(id: string): Promise<BulletinDetail> {
@@ -40,6 +32,11 @@ export function BulletinForm() {
 		(id) => fetchBulletin(id),
 	);
 
+	const [template] = createResource(
+		() => !isEdit(),
+		(shouldFetch) => (shouldFetch ? fetchTemplate() : Promise.resolve([])),
+	);
+
 	const [serviceDate, setServiceDate] = createSignal("");
 	const [worship, setWorship] = createSignal<WorshipItem[]>([]);
 	const [announcements, setAnnouncements] = createSignal<Announcement[]>([]);
@@ -50,25 +47,24 @@ export function BulletinForm() {
 	const [error, setError] = createSignal("");
 	const [initialized, setInitialized] = createSignal(false);
 
-	onMount(() => {
-		if (!isEdit()) {
-			setWorship(getDefaultWorship(t as (key: string) => string));
+	// Initialize new bulletin from template
+	const initFromTemplate = () => {
+		const items = template();
+		if (!isEdit() && items && items.length > 0 && !initialized()) {
+			setWorship(items.map((i) => ({ type: i.type, label: i.label })));
 			setAnnouncements([{ content: "" }]);
 			setAssignments([{ role: "", person: "" }]);
 			setInitialized(true);
 		}
-	});
+		return null;
+	};
 
 	// Populate form when editing
 	const populateForm = () => {
 		const data = existing();
 		if (data && !initialized()) {
 			setServiceDate(data.serviceDate);
-			setWorship(
-				data.worship.length > 0
-					? data.worship
-					: getDefaultWorship(t as (key: string) => string),
-			);
+			setWorship(data.worship.length > 0 ? data.worship : []);
 			setAnnouncements(
 				data.announcements.length > 0 ? data.announcements : [{ content: "" }],
 			);
@@ -172,9 +168,10 @@ export function BulletinForm() {
 	return (
 		<div class={styles.container}>
 			<Show when={isEdit()}>{populateForm()}</Show>
+			<Show when={!isEdit()}>{initFromTemplate()}</Show>
 
 			<Show
-				when={!isEdit() || initialized()}
+				when={initialized()}
 				fallback={<p class={styles.loading}>{t("common.loading")}</p>}
 			>
 				<h1 class={styles.title}>

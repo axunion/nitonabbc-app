@@ -2,6 +2,7 @@ import { Dialog } from "@kobalte/core/dialog";
 import { useNavigate } from "@solidjs/router";
 import {
 	ClipboardCopy,
+	FileText,
 	Link,
 	Link2Off,
 	Pencil,
@@ -122,6 +123,15 @@ export function Management() {
 					{t("common.add")}
 				</button>
 			</div>
+
+			<button
+				type="button"
+				class={styles.templateLink}
+				onClick={() => navigate("/admin/bulletin-template")}
+			>
+				<FileText size={16} stroke-width={1.5} />
+				{t("worshipTemplate.templateSettings")}
+			</button>
 
 			<Show
 				when={!members.loading}

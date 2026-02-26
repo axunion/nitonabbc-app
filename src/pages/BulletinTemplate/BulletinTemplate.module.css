@@ -1,0 +1,239 @@
+.container {
+	padding: var(--space-4);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.title {
+	font-size: var(--text-lg);
+	font-weight: var(--font-semibold);
+	color: var(--color-gray-900);
+	margin: 0 0 var(--space-1) 0;
+	width: 100%;
+	max-width: 480px;
+}
+
+.description {
+	font-size: var(--text-sm);
+	color: var(--color-gray-500);
+	margin: 0 0 var(--space-4) 0;
+	width: 100%;
+	max-width: 480px;
+}
+
+.form {
+	width: 100%;
+	max-width: 480px;
+}
+
+.itemRow {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	margin-bottom: var(--space-3);
+}
+
+.orderButtons {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	flex-shrink: 0;
+}
+
+.orderButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 20px;
+	border-radius: var(--radius-sm);
+	border: 1px solid var(--color-gray-200);
+	background: white;
+	color: var(--color-gray-500);
+	cursor: pointer;
+	outline: none;
+	padding: 0;
+	transition: background-color var(--duration-fast) var(--ease-default);
+}
+
+.orderButton:hover {
+	background-color: var(--color-gray-100);
+	color: var(--color-gray-700);
+}
+
+.orderButton:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+.orderButton:disabled {
+	opacity: 0.3;
+	cursor: not-allowed;
+}
+
+.inputs {
+	display: flex;
+	gap: var(--space-2);
+	flex: 1;
+	min-width: 0;
+}
+
+.input {
+	height: 44px;
+	padding: 0 var(--space-3);
+	border: 1px solid var(--color-gray-300);
+	border-radius: var(--radius-md);
+	font-size: var(--text-base);
+	color: var(--color-gray-900);
+	background: white;
+	outline: none;
+	transition: border-color var(--duration-fast) var(--ease-default);
+	box-sizing: border-box;
+	flex: 1;
+	min-width: 0;
+}
+
+.input:focus {
+	border-color: var(--color-primary);
+	box-shadow: var(--focus-ring);
+}
+
+.removeButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: var(--radius-full);
+	border: 1px solid var(--color-destructive-100);
+	background: white;
+	color: var(--color-destructive);
+	cursor: pointer;
+	outline: none;
+	padding: 0;
+	flex-shrink: 0;
+	transition: background-color var(--duration-fast) var(--ease-default);
+}
+
+.removeButton:hover {
+	background-color: var(--color-destructive-50);
+}
+
+.removeButton:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+.addButton {
+	display: flex;
+	align-items: center;
+	gap: var(--space-1);
+	height: 44px;
+	padding: 0 var(--space-3);
+	border-radius: var(--radius-md);
+	border: 1px dashed var(--color-gray-300);
+	background: white;
+	color: var(--color-gray-600);
+	font-size: var(--text-sm);
+	cursor: pointer;
+	outline: none;
+	width: 100%;
+	justify-content: center;
+	margin-bottom: var(--space-4);
+	transition:
+		border-color var(--duration-fast) var(--ease-default),
+		color var(--duration-fast) var(--ease-default);
+}
+
+.addButton:hover {
+	border-color: var(--color-primary);
+	color: var(--color-primary);
+}
+
+.addButton:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+.actions {
+	display: flex;
+	gap: var(--space-2);
+	justify-content: flex-end;
+	padding-bottom: var(--space-8);
+}
+
+.cancelButton {
+	height: 44px;
+	padding: 0 var(--space-4);
+	border-radius: var(--radius-md);
+	border: 1px solid var(--color-gray-200);
+	background: white;
+	color: var(--color-gray-700);
+	font-size: var(--text-sm);
+	font-weight: var(--font-medium);
+	cursor: pointer;
+	outline: none;
+	transition: background-color var(--duration-fast) var(--ease-default);
+}
+
+.cancelButton:hover {
+	background-color: var(--color-gray-50);
+}
+
+.cancelButton:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+.saveButton {
+	height: 44px;
+	padding: 0 var(--space-4);
+	border-radius: var(--radius-md);
+	border: none;
+	background-color: var(--color-primary);
+	color: white;
+	font-size: var(--text-sm);
+	font-weight: var(--font-medium);
+	cursor: pointer;
+	outline: none;
+	transition: background-color var(--duration-fast) var(--ease-default);
+}
+
+.saveButton:hover {
+	background-color: var(--color-primary-700);
+}
+
+.saveButton:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+.saveButton:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.message {
+	font-size: var(--text-sm);
+	padding: var(--space-3);
+	border-radius: var(--radius-md);
+	margin-bottom: var(--space-4);
+	width: 100%;
+	max-width: 480px;
+	box-sizing: border-box;
+}
+
+.success {
+	composes: message;
+	background-color: var(--color-success-50);
+	color: var(--color-success-700);
+}
+
+.error {
+	composes: message;
+	background-color: var(--color-destructive-50);
+	color: var(--color-destructive-700);
+}
+
+.loading {
+	text-align: center;
+	padding: var(--space-8);
+	color: var(--color-gray-500);
+	font-size: var(--text-sm);
+}
