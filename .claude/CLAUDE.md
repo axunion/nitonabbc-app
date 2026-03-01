@@ -26,7 +26,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | 環境 | 説明 |
 |------|------|
-| ローカル | `pnpm dev` は Vite のみ（APIなし）。API込みの動作確認は `pnpm dev:watch`（別ターミナル）+ `pnpm serve` を組み合わせる。`.dev.vars` に `DEV_AUTH=true` を設定すると LINE認証スキップで管理者として自動ログイン |
+| ローカル | `pnpm dev` で `@cloudflare/vite-plugin` により Vite (HMR) + workerd (実API) を同時起動。`.dev.vars` に `DEV_AUTH=true` を設定すると LINE認証スキップで管理者として自動ログイン |
 | Preview | `main` 以外のブランチpushで自動デプロイ。検証・レビュー用 |
 | Production | `main` ブランチpushで自動デプロイ。本番 |
 
@@ -35,15 +35,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- `pnpm dev` - UIのみ開発サーバー起動・HMR付き (http://localhost:5173、APIなし)
-- `pnpm dev:watch` - Viteをウォッチビルドモードで起動（`pnpm serve` と組み合わせてAPI込み開発）
+- `pnpm dev` - フルスタック開発：Vite + workerd を同時起動 (http://localhost:5173)
+- `pnpm dev:api` - Wrangler Workers APIサーバーのみ起動
 - `pnpm build` - TypeScriptビルド + Viteプロダクションビルド (`tsc -b && vite build`)
-- `pnpm serve` - ビルド済み dist を API込みでローカル起動 (http://localhost:8788)
+- `pnpm serve` - ビルド済み出力を workerd でローカル起動 (`vite preview`)
 - `pnpm check` - Biomeによるlint/format チェック
 - `pnpm check:write` - Biomeによるlint/format 自動修正
 - `pnpm test` - テスト実行 (Vitest)
 - `pnpm test:watch` - テストをwatchモードで実行
-- `pnpm deploy` - Cloudflare Pagesへデプロイ
+- `pnpm deploy` - Cloudflare Workersへデプロイ
 
 ## Architecture
 
@@ -62,11 +62,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - トークン: colors (gray/primary/destructive/success), focus ring, typography, spacing, radius, shadows, transitions, z-index
 - **JSX**: Solid.js独自のJSXトランスフォーム (`jsxImportSource: solid-js`)
 - **PWA**: vite-plugin-pwa (generateSwモード、Workbox自動生成)。静的アセットのprecache
-- **デプロイ**: Cloudflare Pages + Workers Functions
+- **デプロイ**: Cloudflare Workers + static assets (`@cloudflare/vite-plugin`)
 - **データ**: Cloudflare D1（ユーザーDB、バインディング名 `DB`）、Cloudflare KV（セッション + OAuth state、バインディング名 `SESSION_KV`）
   - セッション: `session:{uuid}` → `{ userId, lineUserId, role }` JSON
   - OAuth state: `oauth_state:{uuid}` → `"1"`（通常ログイン）または `{ inviteToken: "..." }` JSON（招待フロー）
-- **APIサーバー**: Hono (`server/` ディレクトリ)。`functions/api/_middleware.ts` でPages Functionsにマウント
+- **APIサーバー**: Hono (`server/` ディレクトリ)。`worker/index.ts` でWorkerエントリポイントとしてexport
   - `server/types.ts` の `AppEnv` 型で Bindings と Variables を一元管理
   - APIルートは `server/routes/` に配置し、`server/index.ts` で登録
   - エンドポイントは `/api/*` パス配下
@@ -83,6 +83,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `server/routes/` - Hono APIルート（1ファイル1リソース）
 - `server/middleware/` - 共通ミドルウェア
 - `server/types.ts` - `AppEnv`・`User`・`SessionData` などサーバー共通型
+- `worker/index.ts` - Workerエントリポイント（Hono app を re-export）
 - `db/schema.sql` - D1 テーブル定義
 - `.dev.vars` - ローカル環境変数（git管理外）、`.dev.vars.example` を参照
 

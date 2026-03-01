@@ -5,14 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:watch": "vite build --watch",
+    "dev:api": "wrangler dev",
     "build": "tsc -b && vite build",
-    "serve": "wrangler pages dev dist",
-    "check": "biome check ./src ./server",
-    "check:write": "biome check --write ./src ./server",
+    "serve": "vite preview",
+    "check": "biome check ./src ./server ./worker",
+    "check:write": "biome check --write ./src ./server ./worker",
     "test": "vitest run",
     "test:watch": "vitest",
-    "deploy": "wrangler pages deploy dist"
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "@kobalte/core": "^0.13.11",
@@ -24,7 +24,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.0",
-    "@cloudflare/workers-types": "^4.20260218.0",
+    "@cloudflare/vite-plugin": "^1.25.6",
+    "@cloudflare/workers-types": "^4.20260228.1",
     "@types/node": "^24.10.1",
     "lightningcss": "^1.31.1",
     "typescript": "~5.9.3",
@@ -32,7 +33,7 @@
     "vite-plugin-pwa": "^1.2.0",
     "vite-plugin-solid": "^2.11.10",
     "vitest": "^4.0.18",
-    "wrangler": "^4.65.0"
+    "wrangler": "^4.69.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
