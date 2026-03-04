@@ -24,6 +24,7 @@ export const en: Dictionary = {
 	dashboard: {
 		bulletin: "Bulletin",
 		expense: "Expenses",
+		bulletinHint: "View latest bulletins",
 	},
 	management: {
 		title: "Member Management",

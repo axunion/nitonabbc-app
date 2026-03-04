@@ -3,14 +3,15 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background-color: var(--color-gray-50);
 	padding: var(--space-4);
 }
 
 .card {
-	background-color: var(--color-white);
+	background: var(--glass-bg);
+	backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	border: var(--glass-border);
 	border-radius: var(--radius-lg);
-	box-shadow: var(--shadow-md);
 	padding: var(--space-10) var(--space-8);
 	width: 100%;
 	max-width: 360px;

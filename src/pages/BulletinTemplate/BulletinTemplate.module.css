@@ -48,17 +48,17 @@
 	width: 24px;
 	height: 20px;
 	border-radius: var(--radius-sm);
-	border: 1px solid var(--color-gray-200);
-	background: white;
+	border: var(--glass-border);
+	background: var(--glass-bg);
 	color: var(--color-gray-500);
 	cursor: pointer;
 	outline: none;
 	padding: 0;
-	transition: background-color var(--duration-fast) var(--ease-default);
+	transition: background var(--duration-fast) var(--ease-default);
 }
 
 .orderButton:hover {
-	background-color: var(--color-gray-100);
+	background: var(--glass-bg-hover);
 	color: var(--color-gray-700);
 }
 
@@ -81,11 +81,11 @@
 .input {
 	height: 44px;
 	padding: 0 var(--space-3);
-	border: 1px solid var(--color-gray-300);
+	border: 1px solid var(--input-border);
 	border-radius: var(--radius-md);
 	font-size: var(--text-base);
-	color: var(--color-gray-900);
-	background: white;
+	color: var(--color-text);
+	background: var(--input-bg);
 	outline: none;
 	transition: border-color var(--duration-fast) var(--ease-default);
 	box-sizing: border-box;
@@ -94,7 +94,7 @@
 }
 
 .input:focus {
-	border-color: var(--color-primary);
+	border-color: var(--input-border-focus);
 	box-shadow: var(--focus-ring);
 }
 
@@ -106,7 +106,7 @@
 	height: 28px;
 	border-radius: var(--radius-full);
 	border: 1px solid var(--color-destructive-100);
-	background: white;
+	background: var(--glass-bg);
 	color: var(--color-destructive);
 	cursor: pointer;
 	outline: none;
@@ -130,8 +130,8 @@
 	height: 44px;
 	padding: 0 var(--space-3);
 	border-radius: var(--radius-md);
-	border: 1px dashed var(--color-gray-300);
-	background: white;
+	border: 1px dashed rgba(255, 255, 255, 0.15);
+	background: var(--glass-bg);
 	color: var(--color-gray-600);
 	font-size: var(--text-sm);
 	cursor: pointer;
@@ -164,18 +164,18 @@
 	height: 44px;
 	padding: 0 var(--space-4);
 	border-radius: var(--radius-md);
-	border: 1px solid var(--color-gray-200);
-	background: white;
+	border: var(--glass-border);
+	background: var(--glass-bg);
 	color: var(--color-gray-700);
 	font-size: var(--text-sm);
 	font-weight: var(--font-medium);
 	cursor: pointer;
 	outline: none;
-	transition: background-color var(--duration-fast) var(--ease-default);
+	transition: background var(--duration-fast) var(--ease-default);
 }
 
 .cancelButton:hover {
-	background-color: var(--color-gray-50);
+	background: var(--glass-bg-hover);
 }
 
 .cancelButton:focus-visible {

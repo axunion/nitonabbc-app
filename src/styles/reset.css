@@ -16,7 +16,8 @@ body {
 	line-height: var(--leading-normal);
 	font-weight: var(--font-normal);
 	color: var(--color-text);
-	background-color: var(--color-bg);
+	background: var(--mesh-gradient);
+	background-attachment: fixed;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }

@@ -5,12 +5,101 @@
 }
 
 .grid {
-	display: flex;
-	flex-direction: column;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
 	gap: var(--space-3);
-	list-style: none;
-	padding: 0;
-	margin: 0;
 	width: 100%;
 	max-width: 360px;
+}
+
+.widgetLarge {
+	grid-column: span 2;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--space-1);
+	padding: var(--space-4);
+	background: var(--glass-bg);
+	backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	border: var(--glass-border);
+	border-radius: var(--radius-xl);
+	cursor: pointer;
+	outline: none;
+	transition:
+		background var(--duration-fast) var(--ease-default),
+		border var(--duration-fast) var(--ease-default);
+}
+
+.widgetLarge:hover {
+	background: var(--glass-bg-hover);
+	border: var(--glass-border-hover);
+}
+
+.widgetLarge:active {
+	background: var(--glass-bg-active);
+}
+
+.widgetLarge:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+.widgetSmall {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-2);
+	aspect-ratio: 1;
+	padding: var(--space-4);
+	background: var(--glass-bg);
+	backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	border: var(--glass-border);
+	border-radius: var(--radius-xl);
+	cursor: pointer;
+	outline: none;
+	transition:
+		background var(--duration-fast) var(--ease-default),
+		border var(--duration-fast) var(--ease-default);
+}
+
+.widgetSmall:hover {
+	background: var(--glass-bg-hover);
+	border: var(--glass-border-hover);
+}
+
+.widgetSmall:active {
+	background: var(--glass-bg-active);
+}
+
+.widgetSmall:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+.widgetSmall:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.widgetIcon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 48px;
+	height: 48px;
+	border-radius: var(--radius-full);
+	background: var(--color-primary-50);
+	color: var(--color-primary);
+}
+
+.widgetLabel {
+	font-size: var(--text-base);
+	font-weight: var(--font-semibold);
+	color: var(--color-text);
+}
+
+.widgetSubtitle {
+	font-size: var(--text-sm);
+	color: var(--color-text-muted);
 }

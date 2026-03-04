@@ -60,17 +60,22 @@
 
 .card {
 	display: block;
-	background: white;
+	background: var(--glass-bg);
+	backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	border: var(--glass-border);
 	border-radius: var(--radius-lg);
-	box-shadow: var(--shadow-md);
 	padding: var(--space-4);
 	text-decoration: none;
 	color: inherit;
-	transition: box-shadow var(--duration-fast) var(--ease-default);
+	transition:
+		background var(--duration-fast) var(--ease-default),
+		border var(--duration-fast) var(--ease-default);
 }
 
 .card:hover {
-	box-shadow: var(--shadow-lg);
+	background: var(--glass-bg-hover);
+	border: var(--glass-border-hover);
 }
 
 .card:focus-visible {

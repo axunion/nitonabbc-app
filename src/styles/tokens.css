@@ -1,40 +1,44 @@
 :root {
-	/* --- Colors --- */
-	--color-gray-50: #f9fafb;
-	--color-gray-100: #f3f4f6;
-	--color-gray-200: #e5e7eb;
-	--color-gray-300: #d1d5db;
-	--color-gray-400: #9ca3af;
-	--color-gray-500: #6b7280;
-	--color-gray-600: #4b5563;
-	--color-gray-700: #374151;
-	--color-gray-800: #1f2937;
-	--color-gray-900: #111827;
+	/* --- Colors: Dark theme (inverted gray scale) --- */
+	--color-gray-50: #0a0a0f;
+	--color-gray-100: #12121a;
+	--color-gray-200: #1e1e2a;
+	--color-gray-300: #2a2a3a;
+	--color-gray-400: #4a4a5e;
+	--color-gray-500: #8888a0;
+	--color-gray-600: #a8a8c0;
+	--color-gray-700: #c4c4d6;
+	--color-gray-800: #dcdce8;
+	--color-gray-900: #f0f0f6;
 
-	--color-primary-50: #eef2ff;
-	--color-primary-100: #e0e7ff;
-	--color-primary-200: #c7d2fe;
-	--color-primary-300: #a5b4fc;
-	--color-primary-400: #818cf8;
-	--color-primary-500: #6366f1;
-	--color-primary-600: #4f46e5;
-	--color-primary-700: #4338ca;
-	--color-primary-800: #3730a3;
-	--color-primary-900: #312e81;
+	/* Primary: iOS System Blue */
+	--color-primary-50: rgba(0, 122, 255, 0.08);
+	--color-primary-100: rgba(0, 122, 255, 0.15);
+	--color-primary-200: rgba(0, 122, 255, 0.25);
+	--color-primary-300: #4da3ff;
+	--color-primary-400: #3d96ff;
+	--color-primary-500: #0a84ff;
+	--color-primary-600: #007aff;
+	--color-primary-700: #0066d6;
+	--color-primary-800: #0052ab;
+	--color-primary-900: #003d80;
 
-	--color-destructive-50: #fef2f2;
-	--color-destructive-100: #fee2e2;
-	--color-destructive-500: #ef4444;
-	--color-destructive-600: #dc2626;
-	--color-destructive-700: #b91c1c;
+	/* Destructive: iOS Dark Red */
+	--color-destructive-50: rgba(255, 69, 58, 0.1);
+	--color-destructive-100: rgba(255, 69, 58, 0.18);
+	--color-destructive-500: #ff453a;
+	--color-destructive-600: #ff3b30;
+	--color-destructive-700: #ff6961;
 
-	--color-success-50: #f0fdf4;
-	--color-success-100: #dcfce7;
-	--color-success-500: #22c55e;
-	--color-success-600: #16a34a;
-	--color-success-700: #15803d;
+	/* Success: iOS Dark Green */
+	--color-success-50: rgba(48, 209, 88, 0.1);
+	--color-success-100: rgba(48, 209, 88, 0.18);
+	--color-success-500: #30d158;
+	--color-success-600: #28cd41;
+	--color-success-700: #5cdb7a;
 
-	--color-bg: #ffffff;
+	/* Semantic */
+	--color-bg: #050507;
 	--color-text: var(--color-gray-900);
 	--color-text-muted: var(--color-gray-500);
 	--color-border: var(--color-gray-200);
@@ -42,8 +46,37 @@
 	--color-destructive: var(--color-destructive-600);
 	--color-success: var(--color-success-600);
 
+	/* --- Glass Effect --- */
+	--glass-bg: rgba(255, 255, 255, 0.06);
+	--glass-bg-hover: rgba(255, 255, 255, 0.1);
+	--glass-bg-active: rgba(255, 255, 255, 0.04);
+	--glass-border: 1px solid rgba(255, 255, 255, 0.08);
+	--glass-border-hover: 1px solid rgba(255, 255, 255, 0.15);
+	--glass-blur: blur(20px);
+	--glass-saturate: saturate(1.2);
+
+	/* --- Input --- */
+	--input-bg: rgba(255, 255, 255, 0.05);
+	--input-border: rgba(255, 255, 255, 0.1);
+	--input-border-focus: var(--color-primary);
+
+	/* --- Mesh Gradient Background --- */
+	--mesh-gradient:
+		radial-gradient(
+			ellipse at 20% 50%,
+			rgba(0, 122, 255, 0.15),
+			transparent 50%
+		),
+		radial-gradient(
+			ellipse at 80% 20%,
+			rgba(120, 80, 220, 0.12),
+			transparent 50%
+		),
+		radial-gradient(ellipse at 60% 80%, rgba(0, 200, 180, 0.1), transparent 50%),
+		#050507;
+
 	/* --- Focus --- */
-	--focus-ring-color: var(--color-primary-400);
+	--focus-ring-color: rgba(0, 122, 255, 0.6);
 	--focus-ring-offset: 2px;
 	--focus-ring:
 		0 0 0 var(--focus-ring-offset) var(--color-bg),
@@ -89,11 +122,11 @@
 	--radius-xl: 0.75rem;
 	--radius-full: 9999px;
 
-	/* --- Shadows --- */
-	--shadow-sm: 0 1px 2px rgb(0 0 0 / 0.05);
-	--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+	/* --- Shadows: Dark (glow-based) --- */
+	--shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+	--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
 	--shadow-lg:
-		0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+		0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
 
 	/* --- Transitions --- */
 	--duration-fast: 100ms;

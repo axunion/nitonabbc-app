@@ -22,6 +22,7 @@ export const ja = {
 	dashboard: {
 		bulletin: "週報",
 		expense: "経費精算",
+		bulletinHint: "最新の週報を確認",
 	},
 	management: {
 		title: "メンバー管理",

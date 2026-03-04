@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 仁戸名聖書バプテスト教会のメンバー（約30名）向けPWAアプリケーション。Solid.js + TypeScript、Viteビルド、pnpmパッケージマネージャー。
 
 - LINE認証のみ、2ロール（管理者/メンバー）
-- iOS風ダッシュボードUI、モバイルファースト
+- ダークテーマ + グラスモーフィズム（visionOS/macOS風）、モバイルファースト
 - 日本語・英語の多言語対応
 - 外部サブドメインサービスはiframeで埋め込み
 
@@ -58,8 +58,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **アイコン**: lucide-solid を使用。`stroke-width={1.5}` を標準とする。詳細は `docs/ui-guidelines.md`
 - **CSS**: Lightning CSS でミニファイ。コンポーネント単位で `.module.css` ファイル
   - `src/index.css` → `src/styles/tokens.css` (デザイントークン) + `src/styles/reset.css` (リセット) を読み込み
-  - デザイントークンは CSS Custom Properties で管理（ライトテーマのみ）
-  - トークン: colors (gray/primary/destructive/success), focus ring, typography, spacing, radius, shadows, transitions, z-index
+  - デザイントークンは CSS Custom Properties で管理（ダークテーマ + グラスモーフィズム）
+  - トークン: colors (gray/primary/destructive/success), glass effect, input, mesh gradient, focus ring, typography, spacing, radius, shadows, transitions, z-index
 - **JSX**: Solid.js独自のJSXトランスフォーム (`jsxImportSource: solid-js`)
 - **PWA**: vite-plugin-pwa (generateSwモード、Workbox自動生成)。静的アセットのprecache
 - **デプロイ**: Cloudflare Workers + static assets (`@cloudflare/vite-plugin`)

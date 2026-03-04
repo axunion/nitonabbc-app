@@ -6,9 +6,10 @@
 	position: sticky;
 	top: 0;
 	z-index: var(--z-sticky);
-	background-color: white;
-	border-bottom: 1px solid var(--color-gray-200);
-	box-shadow: var(--shadow-sm);
+	background: var(--glass-bg);
+	backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	border-bottom: var(--glass-border);
 }
 
 .spacer {
@@ -46,7 +47,7 @@
 }
 
 .trigger:hover {
-	background-color: var(--color-gray-100);
+	background-color: rgba(255, 255, 255, 0.08);
 }
 
 .trigger[data-focus-visible] {
@@ -54,7 +55,10 @@
 }
 
 .content {
-	background-color: white;
+	background: rgba(22, 22, 32, 0.95);
+	backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	border: var(--glass-border);
 	border-radius: var(--radius-md);
 	box-shadow: var(--shadow-lg);
 	padding: var(--space-1);
@@ -103,7 +107,7 @@
 }
 
 .menuItem[data-highlighted] {
-	background-color: var(--color-gray-100);
+	background-color: rgba(255, 255, 255, 0.08);
 }
 
 .menuItem[data-focus-visible] {
