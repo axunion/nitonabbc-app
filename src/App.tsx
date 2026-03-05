@@ -1,6 +1,7 @@
 import type { RouteSectionProps } from "@solidjs/router";
 import { Show, Suspense } from "solid-js";
 import { Header } from "@/components/Header";
+import { TabBar } from "@/components/TabBar";
 import { Login } from "@/pages/Login";
 import { AuthProvider } from "@/store/AuthContext.tsx";
 import { createAuthStore } from "@/store/auth.ts";
@@ -20,10 +21,15 @@ function App(props: RouteSectionProps) {
 			<Suspense>
 				<Show when={user()} fallback={<Login />}>
 					{(authUser) => (
-						<AuthProvider user={authUser} refetch={refetch}>
+						<AuthProvider
+							user={authUser}
+							refetch={refetch}
+							logout={handleLogout}
+						>
 							<div class={styles.layout}>
-								<Header user={authUser()} onLogout={handleLogout} />
+								<Header />
 								<main class={styles.main}>{props.children}</main>
+								<TabBar />
 							</div>
 						</AuthProvider>
 					)}

@@ -29,16 +29,22 @@ Solid.js + @kobalte/core + CSS Modules でUIコンポーネントを作成する
 
 ### CSS Modules スタイリング
 - ファイル拡張子: `.module.css`
+- **テーマ**: ライトテーマ + フロスト白グラスモーフィズム（"God's Glory" テーマ）
+  - 背景: warm off-white、暖色メッシュグラデーション
+  - アクセント: Deep Gold (`--color-primary`)
+  - グラス: frosted white (`rgba(255,255,255,0.65)` + `blur(20px)`)
+  - ハードコードの dark値（`rgba(255,255,255,0.08)` 等）は使わない。light用値（`rgba(0,0,0,0.05)` 等）を使用
 - デザイントークン (`src/styles/tokens.css`) の CSS変数を必ず使用する:
   - 色: `var(--color-*)`, `var(--color-primary)`, `var(--color-destructive)` 等
-  - フォーカス: `var(--focus-ring)` を `box-shadow` に適用
+  - フォーカス: `var(--focus-ring)` を `box-shadow` に適用（gold glow）
   - タイポグラフィ: `var(--text-*)`, `var(--font-*)`, `var(--leading-*)`
   - スペーシング: `var(--space-*)`
   - 角丸: `var(--radius-*)`
-  - 影: `var(--shadow-*)`
+  - 影: `var(--shadow-*)` — カードには `--shadow-sm`、ウィジェットには `--shadow-md`
   - トランジション: `var(--duration-*)`, `var(--ease-*)`
   - z-index: `var(--z-*)`
 - ハードコードした色・サイズは使わない
+- ページコンテナには fadeIn アニメーションを適用する
 
 ### TypeScript
 - Props は明示的に型定義する

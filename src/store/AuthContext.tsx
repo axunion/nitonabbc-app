@@ -4,6 +4,7 @@ import type { AuthUser } from "./auth.ts";
 type AuthContextValue = {
 	user: Accessor<AuthUser>;
 	refetch: () => void;
+	logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue>();
@@ -11,12 +12,15 @@ const AuthContext = createContext<AuthContextValue>();
 type AuthProviderProps = {
 	user: Accessor<AuthUser>;
 	refetch: () => void;
+	logout: () => Promise<void>;
 	children: JSX.Element;
 };
 
 export function AuthProvider(props: AuthProviderProps) {
 	return (
-		<AuthContext.Provider value={{ user: props.user, refetch: props.refetch }}>
+		<AuthContext.Provider
+			value={{ user: props.user, refetch: props.refetch, logout: props.logout }}
+		>
 			{props.children}
 		</AuthContext.Provider>
 	);

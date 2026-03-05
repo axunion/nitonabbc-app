@@ -21,6 +21,15 @@ export const en: Dictionary = {
 		logout: "Logout",
 		language: "日本語",
 	},
+	tabbar: {
+		church: "Church",
+		account: "Account",
+	},
+	more: {
+		title: "Settings",
+		language: "Language",
+		logout: "Logout",
+	},
 	dashboard: {
 		bulletin: "Bulletin",
 		expense: "Expenses",

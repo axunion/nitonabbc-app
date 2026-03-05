@@ -12,6 +12,7 @@
 	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
 	border: var(--glass-border);
 	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-lg);
 	padding: var(--space-10) var(--space-8);
 	width: 100%;
 	max-width: 360px;
@@ -26,7 +27,7 @@
 	font-weight: var(--font-bold);
 	color: var(--color-gray-900);
 	text-align: center;
-	line-height: var(--leading-snug);
+	line-height: var(--leading-tight);
 }
 
 .subtitle {
@@ -46,7 +47,7 @@
 	padding: var(--space-3) var(--space-6);
 	border-radius: var(--radius-md);
 	text-decoration: none;
-	transition: opacity var(--transition-fast);
+	transition: opacity var(--duration-fast);
 	width: 100%;
 	justify-content: center;
 }

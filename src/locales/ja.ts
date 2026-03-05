@@ -19,6 +19,15 @@ export const ja = {
 		logout: "ログアウト",
 		language: "English",
 	},
+	tabbar: {
+		church: "教会",
+		account: "アカウント",
+	},
+	more: {
+		title: "設定",
+		language: "言語",
+		logout: "ログアウト",
+	},
 	dashboard: {
 		bulletin: "週報",
 		expense: "経費精算",

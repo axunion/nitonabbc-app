@@ -6,10 +6,10 @@
 	position: sticky;
 	top: 0;
 	z-index: var(--z-sticky);
-	background: var(--glass-bg);
+	background: rgba(255, 255, 255, 0.85);
 	backdrop-filter: var(--glass-blur) var(--glass-saturate);
 	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	border-bottom: var(--glass-border);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .spacer {
@@ -29,92 +29,4 @@
 	flex: 1;
 	display: flex;
 	justify-content: flex-end;
-}
-
-.trigger {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 36px;
-	height: 36px;
-	border-radius: var(--radius-full);
-	background: none;
-	border: none;
-	color: var(--color-gray-600);
-	cursor: pointer;
-	outline: none;
-	transition: background-color var(--transition-fast);
-}
-
-.trigger:hover {
-	background-color: rgba(255, 255, 255, 0.08);
-}
-
-.trigger[data-focus-visible] {
-	box-shadow: var(--focus-ring);
-}
-
-.content {
-	background: rgba(22, 22, 32, 0.95);
-	backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	border: var(--glass-border);
-	border-radius: var(--radius-md);
-	box-shadow: var(--shadow-lg);
-	padding: var(--space-1);
-	min-width: 160px;
-	z-index: var(--z-dropdown);
-	animation: fadeIn var(--transition-fast);
-}
-
-@keyframes fadeIn {
-	from {
-		opacity: 0;
-		transform: translateY(-4px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
-
-.userInfo {
-	padding: var(--space-2) var(--space-3);
-}
-
-.userName {
-	display: block;
-	font-size: var(--text-sm);
-	font-weight: var(--font-normal);
-	color: var(--color-text-muted);
-}
-
-/* 将来のメニュー項目はこのクラスを使用 */
-.menuItem {
-	display: flex;
-	align-items: center;
-	width: 100%;
-	padding: var(--space-2) var(--space-3);
-	border-radius: var(--radius-sm);
-	font-size: var(--text-sm);
-	color: var(--color-gray-700);
-	cursor: pointer;
-	outline: none;
-	background: none;
-	border: none;
-	text-align: left;
-	gap: var(--space-2);
-}
-
-.menuItem[data-highlighted] {
-	background-color: rgba(255, 255, 255, 0.08);
-}
-
-.menuItem[data-focus-visible] {
-	box-shadow: var(--focus-ring);
-}
-
-.logoutItem {
-	composes: menuItem;
-	color: var(--color-destructive);
 }

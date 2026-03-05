@@ -1,44 +1,44 @@
 :root {
-	/* --- Colors: Dark theme (inverted gray scale) --- */
-	--color-gray-50: #0a0a0f;
-	--color-gray-100: #12121a;
-	--color-gray-200: #1e1e2a;
-	--color-gray-300: #2a2a3a;
-	--color-gray-400: #4a4a5e;
-	--color-gray-500: #8888a0;
-	--color-gray-600: #a8a8c0;
-	--color-gray-700: #c4c4d6;
-	--color-gray-800: #dcdce8;
-	--color-gray-900: #f0f0f6;
+	/* --- Colors: Light theme (warm stone palette) --- */
+	--color-gray-50: #faf9f7;
+	--color-gray-100: #f3f1ed;
+	--color-gray-200: #e8e5df;
+	--color-gray-300: #d4d0c8;
+	--color-gray-400: #a8a29e;
+	--color-gray-500: #78716c;
+	--color-gray-600: #57534e;
+	--color-gray-700: #44403c;
+	--color-gray-800: #292524;
+	--color-gray-900: #1c1917;
 
-	/* Primary: iOS System Blue */
-	--color-primary-50: rgba(0, 122, 255, 0.08);
-	--color-primary-100: rgba(0, 122, 255, 0.15);
-	--color-primary-200: rgba(0, 122, 255, 0.25);
-	--color-primary-300: #4da3ff;
-	--color-primary-400: #3d96ff;
-	--color-primary-500: #0a84ff;
-	--color-primary-600: #007aff;
-	--color-primary-700: #0066d6;
-	--color-primary-800: #0052ab;
-	--color-primary-900: #003d80;
+	/* Primary: Deep Gold / Amber */
+	--color-primary-50: rgba(166, 124, 26, 0.08);
+	--color-primary-100: rgba(166, 124, 26, 0.15);
+	--color-primary-200: rgba(166, 124, 26, 0.25);
+	--color-primary-300: #c9a84c;
+	--color-primary-400: #b8923a;
+	--color-primary-500: #a67c1a;
+	--color-primary-600: #a67c1a;
+	--color-primary-700: #8c6815;
+	--color-primary-800: #725410;
+	--color-primary-900: #58400c;
 
-	/* Destructive: iOS Dark Red */
-	--color-destructive-50: rgba(255, 69, 58, 0.1);
-	--color-destructive-100: rgba(255, 69, 58, 0.18);
-	--color-destructive-500: #ff453a;
-	--color-destructive-600: #ff3b30;
-	--color-destructive-700: #ff6961;
+	/* Destructive: Warm Red */
+	--color-destructive-50: rgba(220, 53, 53, 0.08);
+	--color-destructive-100: rgba(220, 53, 53, 0.15);
+	--color-destructive-500: #dc3535;
+	--color-destructive-600: #c53030;
+	--color-destructive-700: #9b2c2c;
 
-	/* Success: iOS Dark Green */
-	--color-success-50: rgba(48, 209, 88, 0.1);
-	--color-success-100: rgba(48, 209, 88, 0.18);
-	--color-success-500: #30d158;
-	--color-success-600: #28cd41;
-	--color-success-700: #5cdb7a;
+	/* Success: Warm Green */
+	--color-success-50: rgba(46, 160, 67, 0.08);
+	--color-success-100: rgba(46, 160, 67, 0.15);
+	--color-success-500: #2ea043;
+	--color-success-600: #22863a;
+	--color-success-700: #1a7f37;
 
 	/* Semantic */
-	--color-bg: #050507;
+	--color-bg: #faf8f5;
 	--color-text: var(--color-gray-900);
 	--color-text-muted: var(--color-gray-500);
 	--color-border: var(--color-gray-200);
@@ -46,37 +46,41 @@
 	--color-destructive: var(--color-destructive-600);
 	--color-success: var(--color-success-600);
 
-	/* --- Glass Effect --- */
-	--glass-bg: rgba(255, 255, 255, 0.06);
-	--glass-bg-hover: rgba(255, 255, 255, 0.1);
-	--glass-bg-active: rgba(255, 255, 255, 0.04);
-	--glass-border: 1px solid rgba(255, 255, 255, 0.08);
-	--glass-border-hover: 1px solid rgba(255, 255, 255, 0.15);
+	/* --- Glass Effect (frosted white) --- */
+	--glass-bg: rgba(255, 255, 255, 0.65);
+	--glass-bg-hover: rgba(255, 255, 255, 0.8);
+	--glass-bg-active: rgba(255, 255, 255, 0.55);
+	--glass-border: 1px solid rgba(0, 0, 0, 0.06);
+	--glass-border-hover: 1px solid rgba(0, 0, 0, 0.1);
 	--glass-blur: blur(20px);
 	--glass-saturate: saturate(1.2);
 
 	/* --- Input --- */
-	--input-bg: rgba(255, 255, 255, 0.05);
-	--input-border: rgba(255, 255, 255, 0.1);
+	--input-bg: rgba(255, 255, 255, 0.7);
+	--input-border: rgba(0, 0, 0, 0.12);
 	--input-border-focus: var(--color-primary);
 
-	/* --- Mesh Gradient Background --- */
+	/* --- Mesh Gradient Background (warm stained glass) --- */
 	--mesh-gradient:
 		radial-gradient(
-			ellipse at 20% 50%,
-			rgba(0, 122, 255, 0.15),
+			ellipse at 20% 30%,
+			rgba(218, 185, 107, 0.15),
 			transparent 50%
 		),
 		radial-gradient(
 			ellipse at 80% 20%,
-			rgba(120, 80, 220, 0.12),
+			rgba(255, 200, 150, 0.12),
 			transparent 50%
 		),
-		radial-gradient(ellipse at 60% 80%, rgba(0, 200, 180, 0.1), transparent 50%),
-		#050507;
+		radial-gradient(
+			ellipse at 50% 80%,
+			rgba(255, 235, 210, 0.1),
+			transparent 50%
+		),
+		#faf8f5;
 
 	/* --- Focus --- */
-	--focus-ring-color: rgba(0, 122, 255, 0.6);
+	--focus-ring-color: rgba(166, 124, 26, 0.5);
 	--focus-ring-offset: 2px;
 	--focus-ring:
 		0 0 0 var(--focus-ring-offset) var(--color-bg),
@@ -112,6 +116,7 @@
 	--space-4: 1rem;
 	--space-6: 1.5rem;
 	--space-8: 2rem;
+	--space-10: 2.5rem;
 	--space-12: 3rem;
 	--space-16: 4rem;
 
@@ -122,11 +127,12 @@
 	--radius-xl: 0.75rem;
 	--radius-full: 9999px;
 
-	/* --- Shadows: Dark (glow-based) --- */
-	--shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
-	--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+	/* --- Shadows: Light --- */
+	--shadow-sm: 0 1px 2px rgb(0 0 0 / 0.05);
+	--shadow-md:
+		0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
 	--shadow-lg:
-		0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+		0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
 
 	/* --- Transitions --- */
 	--duration-fast: 100ms;

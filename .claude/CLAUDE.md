@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 仁戸名聖書バプテスト教会のメンバー（約30名）向けPWAアプリケーション。Solid.js + TypeScript、Viteビルド、pnpmパッケージマネージャー。
 
 - LINE認証のみ、2ロール（管理者/メンバー）
-- ダークテーマ + グラスモーフィズム（visionOS/macOS風）、モバイルファースト
+- ライトテーマ + フロスト白グラスモーフィズム（"God's Glory" テーマ）、モバイルファースト
 - 日本語・英語の多言語対応
 - 外部サブドメインサービスはiframeで埋め込み
 
@@ -48,8 +48,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Architecture
 
 - **ルーティング**: `@solidjs/router` を使用。`src/index.tsx` でルート定義、`src/App.tsx` がルートレイアウト
-  - `/` → Dashboard, `/admin` → Management（lazy load）
-  - 認証コンテキスト: `src/store/AuthContext.tsx` の `useAuth()` でユーザー情報を取得
+  - `/` → Dashboard, `/admin` → Management, `/more` → Account/Settings（lazy load）
+  - ナビゲーション: ボトムタブバー（教会 / アカウント の2タブ）+ シンプルなヘッダー
+  - 認証コンテキスト: `src/store/AuthContext.tsx` の `useAuth()` でユーザー情報・`logout` を取得
 - **エントリポイント**: `index.html` → `src/index.tsx` → `src/App.tsx`
 - **パスエイリアス**: `@/` → `./src` (vite.config.ts と tsconfig.app.json の両方に設定が必要)
 - **UI**: @kobalte/core (ヘッドレスUIプリミティブ) + CSS Modules（Tailwind不使用）
@@ -58,8 +59,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **アイコン**: lucide-solid を使用。`stroke-width={1.5}` を標準とする。詳細は `docs/ui-guidelines.md`
 - **CSS**: Lightning CSS でミニファイ。コンポーネント単位で `.module.css` ファイル
   - `src/index.css` → `src/styles/tokens.css` (デザイントークン) + `src/styles/reset.css` (リセット) を読み込み
-  - デザイントークンは CSS Custom Properties で管理（ダークテーマ + グラスモーフィズム）
-  - トークン: colors (gray/primary/destructive/success), glass effect, input, mesh gradient, focus ring, typography, spacing, radius, shadows, transitions, z-index
+  - デザイントークンは CSS Custom Properties で管理（ライトテーマ + フロスト白グラスモーフィズム）
+  - トークン: colors (warm stone gray/deep gold primary/destructive/success), glass effect (frosted white), input, mesh gradient (warm stained glass), focus ring (gold), typography, spacing, radius, shadows (light), transitions, z-index
 - **JSX**: Solid.js独自のJSXトランスフォーム (`jsxImportSource: solid-js`)
 - **PWA**: vite-plugin-pwa (generateSwモード、Workbox自動生成)。静的アセットのprecache
 - **デプロイ**: Cloudflare Workers + static assets (`@cloudflare/vite-plugin`)

@@ -12,6 +12,7 @@ const BulletinList = lazy(() => import("@/pages/BulletinList"));
 const BulletinDetail = lazy(() => import("@/pages/BulletinDetail"));
 const BulletinForm = lazy(() => import("@/pages/BulletinForm"));
 const BulletinTemplate = lazy(() => import("@/pages/BulletinTemplate"));
+const More = lazy(() => import("@/pages/More"));
 
 const root = document.getElementById("root");
 
@@ -26,6 +27,7 @@ if (root) {
 				<Route path="/bulletin/new" component={BulletinForm} />
 				<Route path="/bulletin/:id" component={BulletinDetail} />
 				<Route path="/bulletin/:id/edit" component={BulletinForm} />
+				<Route path="/more" component={More} />
 			</Router>
 		),
 		root,
