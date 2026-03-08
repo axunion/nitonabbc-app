@@ -46,6 +46,15 @@ Solid.js + @kobalte/core + CSS Modules でUIコンポーネントを作成する
 - ハードコードした色・サイズは使わない
 - ページコンテナには fadeIn アニメーションを適用する
 
+### ナビゲーション
+- ボトムタブバー: 教会(`/`) / 設定(`/settings`) の2タブ。子ページでも常時表示
+- タブ切替時、各タブ内の最後のURLを記憶・復元する（iOS UITabBarController 相当）
+- ページ階層:
+  - 教会タブ: `/` → `/bulletin` → `/bulletin/:id`, `/bulletin/new`, `/bulletin/:id/edit`
+  - 設定タブ: `/settings` → `/settings/admin` → `/settings/admin/bulletin-template`
+- Header の `backTo` prop: 子ページでは親ページのパスを指定し、左に戻るボタン（`ChevronLeft`）を表示
+- 戻るボタンはブラウザバックではなく、親ページへの `navigate()` を行う
+
 ### TypeScript
 - Props は明示的に型定義する
 - Kobalte の Props 型を拡張する場合は intersection type を使用

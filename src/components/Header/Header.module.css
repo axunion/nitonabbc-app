@@ -1,19 +1,62 @@
 .header {
 	display: flex;
 	align-items: center;
-	height: 52px;
-	padding: 0 var(--space-4);
+	min-height: 52px;
+	padding: var(--space-2) var(--space-2);
 	position: sticky;
 	top: 0;
 	z-index: var(--z-sticky);
+	background: transparent;
+	border-bottom: 1px solid transparent;
+	transition:
+		background var(--duration-fast) var(--ease-default),
+		border-color var(--duration-fast) var(--ease-default);
+}
+
+.scrolled {
 	background: rgba(255, 255, 255, 0.85);
 	backdrop-filter: var(--glass-blur) var(--glass-saturate);
 	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+	border-bottom-color: rgba(0, 0, 0, 0.06);
 }
 
 .spacer {
 	flex: 1;
+}
+
+.backButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border: var(--glass-border);
+	border-radius: var(--radius-full);
+	background: var(--glass-bg);
+	backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	color: var(--color-primary);
+	cursor: pointer;
+	outline: none;
+	padding: 0;
+	flex-shrink: 0;
+	-webkit-tap-highlight-color: transparent;
+	box-shadow: var(--shadow-sm);
+	transition:
+		background var(--duration-fast) var(--ease-default),
+		box-shadow var(--duration-fast) var(--ease-default);
+}
+
+.backButton:hover {
+	background: var(--glass-bg-hover);
+}
+
+.backButton:active {
+	transform: scale(0.95);
+}
+
+.backButton:focus-visible {
+	box-shadow: var(--focus-ring);
 }
 
 .title {
@@ -23,6 +66,7 @@
 	position: absolute;
 	left: 50%;
 	transform: translateX(-50%);
+	white-space: nowrap;
 }
 
 .actions {

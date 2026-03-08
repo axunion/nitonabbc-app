@@ -23,14 +23,23 @@
 	gap: 2px;
 	flex: 1;
 	height: 52px;
-	text-decoration: none;
+	border: none;
+	background: none;
+	padding: 0;
+	font: inherit;
 	color: var(--color-gray-400);
-	transition: color var(--duration-fast) var(--ease-default);
+	cursor: pointer;
+	outline: none;
 	-webkit-tap-highlight-color: transparent;
+	transition: color var(--duration-fast) var(--ease-default);
 }
 
 .tab:hover {
 	color: var(--color-gray-600);
+}
+
+.tab:focus-visible {
+	box-shadow: var(--focus-ring);
 }
 
 .active {

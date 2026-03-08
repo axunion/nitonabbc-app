@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { Minus, Plus } from "lucide-solid";
 import { createResource, createSignal, For, Show } from "solid-js";
+import { Header } from "@/components/Header";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type {
 	Announcement,
@@ -166,162 +167,170 @@ export function BulletinForm() {
 	}
 
 	return (
-		<div class={styles.container}>
-			<Show when={isEdit()}>{populateForm()}</Show>
-			<Show when={!isEdit()}>{initFromTemplate()}</Show>
+		<>
+			<Header
+				title={
+					isEdit() ? t("bulletinForm.titleEdit") : t("bulletinForm.titleNew")
+				}
+				backTo={isEdit() ? `/bulletin/${params.id}` : "/bulletin"}
+			/>
+			<div class={styles.container}>
+				<Show when={isEdit()}>{populateForm()}</Show>
+				<Show when={!isEdit()}>{initFromTemplate()}</Show>
 
-			<Show
-				when={initialized()}
-				fallback={<p class={styles.loading}>{t("common.loading")}</p>}
-			>
-				<h1 class={styles.title}>
-					{isEdit() ? t("bulletinForm.titleEdit") : t("bulletinForm.titleNew")}
-				</h1>
+				<Show
+					when={initialized()}
+					fallback={<p class={styles.loading}>{t("common.loading")}</p>}
+				>
+					<Show when={error()}>
+						<p class={styles.error}>{error()}</p>
+					</Show>
 
-				<Show when={error()}>
-					<p class={styles.error}>{error()}</p>
+					<form onSubmit={handleSubmit} class={styles.form}>
+						<div class={styles.formGroup}>
+							<label for="service-date" class={styles.label}>
+								{t("bulletinForm.serviceDate")}
+							</label>
+							<input
+								id="service-date"
+								type="date"
+								class={styles.input}
+								value={serviceDate()}
+								onInput={(e) => setServiceDate(e.currentTarget.value)}
+								required
+							/>
+						</div>
+
+						<fieldset class={styles.fieldset}>
+							<legend class={styles.legend}>
+								{t("bulletinForm.worshipProgram")}
+							</legend>
+							<For each={worship()}>
+								{(item, index) => (
+									<div class={styles.worshipRow}>
+										<span class={styles.worshipLabel}>{item.label}</span>
+										<input
+											type="text"
+											class={styles.input}
+											placeholder={t("bulletinForm.detailsPlaceholder")}
+											value={item.details ?? ""}
+											onInput={(e) =>
+												updateWorship(index(), "details", e.currentTarget.value)
+											}
+										/>
+									</div>
+								)}
+							</For>
+						</fieldset>
+
+						<fieldset class={styles.fieldset}>
+							<legend class={styles.legend}>
+								{t("bulletinForm.announcements")}
+								<button
+									type="button"
+									class={styles.iconButton}
+									onClick={addAnnouncement}
+								>
+									<Plus size={16} stroke-width={1.5} />
+								</button>
+							</legend>
+							<For each={announcements()}>
+								{(a, index) => (
+									<div class={styles.dynamicRow}>
+										<textarea
+											class={styles.textarea}
+											rows={2}
+											value={a.content}
+											onInput={(e) =>
+												updateAnnouncement(index(), e.currentTarget.value)
+											}
+											placeholder={t("bulletinForm.announcementPlaceholder")}
+										/>
+										<Show when={announcements().length > 1}>
+											<button
+												type="button"
+												class={styles.removeButton}
+												onClick={() => removeAnnouncement(index())}
+											>
+												<Minus size={16} stroke-width={1.5} />
+											</button>
+										</Show>
+									</div>
+								)}
+							</For>
+						</fieldset>
+
+						<fieldset class={styles.fieldset}>
+							<legend class={styles.legend}>
+								{t("bulletinForm.assignments")}
+								<button
+									type="button"
+									class={styles.iconButton}
+									onClick={addAssignment}
+								>
+									<Plus size={16} stroke-width={1.5} />
+								</button>
+							</legend>
+							<For each={assignments()}>
+								{(a, index) => (
+									<div class={styles.dynamicRow}>
+										<input
+											type="text"
+											class={styles.inputSmall}
+											placeholder={t("bulletinForm.rolePlaceholder")}
+											value={a.role}
+											onInput={(e) =>
+												updateAssignment(index(), "role", e.currentTarget.value)
+											}
+										/>
+										<input
+											type="text"
+											class={styles.inputSmall}
+											placeholder={t("bulletinForm.personPlaceholder")}
+											value={a.person}
+											onInput={(e) =>
+												updateAssignment(
+													index(),
+													"person",
+													e.currentTarget.value,
+												)
+											}
+										/>
+										<Show when={assignments().length > 1}>
+											<button
+												type="button"
+												class={styles.removeButton}
+												onClick={() => removeAssignment(index())}
+											>
+												<Minus size={16} stroke-width={1.5} />
+											</button>
+										</Show>
+									</div>
+								)}
+							</For>
+						</fieldset>
+
+						<div class={styles.actions}>
+							<button
+								type="button"
+								class={styles.cancelButton}
+								onClick={() =>
+									navigate(isEdit() ? `/bulletin/${params.id}` : "/bulletin")
+								}
+							>
+								{t("common.cancel")}
+							</button>
+							<button
+								type="submit"
+								class={styles.submitButton}
+								disabled={submitting() || !serviceDate()}
+							>
+								{isEdit() ? t("common.update") : t("common.create")}
+							</button>
+						</div>
+					</form>
 				</Show>
-
-				<form onSubmit={handleSubmit} class={styles.form}>
-					<div class={styles.formGroup}>
-						<label for="service-date" class={styles.label}>
-							{t("bulletinForm.serviceDate")}
-						</label>
-						<input
-							id="service-date"
-							type="date"
-							class={styles.input}
-							value={serviceDate()}
-							onInput={(e) => setServiceDate(e.currentTarget.value)}
-							required
-						/>
-					</div>
-
-					<fieldset class={styles.fieldset}>
-						<legend class={styles.legend}>
-							{t("bulletinForm.worshipProgram")}
-						</legend>
-						<For each={worship()}>
-							{(item, index) => (
-								<div class={styles.worshipRow}>
-									<span class={styles.worshipLabel}>{item.label}</span>
-									<input
-										type="text"
-										class={styles.input}
-										placeholder={t("bulletinForm.detailsPlaceholder")}
-										value={item.details ?? ""}
-										onInput={(e) =>
-											updateWorship(index(), "details", e.currentTarget.value)
-										}
-									/>
-								</div>
-							)}
-						</For>
-					</fieldset>
-
-					<fieldset class={styles.fieldset}>
-						<legend class={styles.legend}>
-							{t("bulletinForm.announcements")}
-							<button
-								type="button"
-								class={styles.iconButton}
-								onClick={addAnnouncement}
-							>
-								<Plus size={16} stroke-width={1.5} />
-							</button>
-						</legend>
-						<For each={announcements()}>
-							{(a, index) => (
-								<div class={styles.dynamicRow}>
-									<textarea
-										class={styles.textarea}
-										rows={2}
-										value={a.content}
-										onInput={(e) =>
-											updateAnnouncement(index(), e.currentTarget.value)
-										}
-										placeholder={t("bulletinForm.announcementPlaceholder")}
-									/>
-									<Show when={announcements().length > 1}>
-										<button
-											type="button"
-											class={styles.removeButton}
-											onClick={() => removeAnnouncement(index())}
-										>
-											<Minus size={16} stroke-width={1.5} />
-										</button>
-									</Show>
-								</div>
-							)}
-						</For>
-					</fieldset>
-
-					<fieldset class={styles.fieldset}>
-						<legend class={styles.legend}>
-							{t("bulletinForm.assignments")}
-							<button
-								type="button"
-								class={styles.iconButton}
-								onClick={addAssignment}
-							>
-								<Plus size={16} stroke-width={1.5} />
-							</button>
-						</legend>
-						<For each={assignments()}>
-							{(a, index) => (
-								<div class={styles.dynamicRow}>
-									<input
-										type="text"
-										class={styles.inputSmall}
-										placeholder={t("bulletinForm.rolePlaceholder")}
-										value={a.role}
-										onInput={(e) =>
-											updateAssignment(index(), "role", e.currentTarget.value)
-										}
-									/>
-									<input
-										type="text"
-										class={styles.inputSmall}
-										placeholder={t("bulletinForm.personPlaceholder")}
-										value={a.person}
-										onInput={(e) =>
-											updateAssignment(index(), "person", e.currentTarget.value)
-										}
-									/>
-									<Show when={assignments().length > 1}>
-										<button
-											type="button"
-											class={styles.removeButton}
-											onClick={() => removeAssignment(index())}
-										>
-											<Minus size={16} stroke-width={1.5} />
-										</button>
-									</Show>
-								</div>
-							)}
-						</For>
-					</fieldset>
-
-					<div class={styles.actions}>
-						<button
-							type="button"
-							class={styles.cancelButton}
-							onClick={() =>
-								navigate(isEdit() ? `/bulletin/${params.id}` : "/bulletin")
-							}
-						>
-							{t("common.cancel")}
-						</button>
-						<button
-							type="submit"
-							class={styles.submitButton}
-							disabled={submitting() || !serviceDate()}
-						>
-							{isEdit() ? t("common.update") : t("common.create")}
-						</button>
-					</div>
-				</form>
-			</Show>
-		</div>
+			</div>
+		</>
 	);
 }

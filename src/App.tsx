@@ -1,6 +1,5 @@
 import type { RouteSectionProps } from "@solidjs/router";
 import { Show, Suspense } from "solid-js";
-import { Header } from "@/components/Header";
 import { TabBar } from "@/components/TabBar";
 import { Login } from "@/pages/Login";
 import { AuthProvider } from "@/store/AuthContext.tsx";
@@ -27,7 +26,6 @@ function App(props: RouteSectionProps) {
 							logout={handleLogout}
 						>
 							<div class={styles.layout}>
-								<Header />
 								<main class={styles.main}>{props.children}</main>
 								<TabBar />
 							</div>

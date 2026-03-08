@@ -17,22 +17,6 @@
 	}
 }
 
-.header {
-	width: 100%;
-	max-width: 480px;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: var(--space-4);
-}
-
-.title {
-	font-size: var(--text-lg);
-	font-weight: var(--font-semibold);
-	color: var(--color-gray-900);
-	margin: 0;
-}
-
 .addButton {
 	display: flex;
 	align-items: center;
@@ -47,7 +31,6 @@
 	font-weight: var(--font-medium);
 	cursor: pointer;
 	outline: none;
-	text-decoration: none;
 	transition: background-color var(--duration-fast) var(--ease-default);
 }
 
@@ -72,14 +55,18 @@
 
 .card {
 	display: block;
+	width: 100%;
 	background: var(--glass-bg);
 	backdrop-filter: var(--glass-blur) var(--glass-saturate);
 	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
 	border: var(--glass-border);
 	border-radius: var(--radius-lg);
 	padding: var(--space-4);
-	text-decoration: none;
+	text-align: left;
+	font: inherit;
 	color: inherit;
+	cursor: pointer;
+	outline: none;
 	box-shadow: var(--shadow-sm);
 	transition:
 		background var(--duration-fast) var(--ease-default),

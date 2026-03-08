@@ -17,35 +17,6 @@
 	}
 }
 
-.header {
-	width: 100%;
-	max-width: 480px;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: var(--space-4);
-}
-
-.backLink {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 44px;
-	height: 44px;
-	border-radius: var(--radius-md);
-	color: var(--color-gray-700);
-	text-decoration: none;
-	transition: background-color var(--duration-fast) var(--ease-default);
-}
-
-.backLink:hover {
-	background-color: rgba(0, 0, 0, 0.05);
-}
-
-.backLink:focus-visible {
-	box-shadow: var(--focus-ring);
-}
-
 .editButton {
 	display: flex;
 	align-items: center;
@@ -59,7 +30,6 @@
 	font-size: var(--text-sm);
 	cursor: pointer;
 	outline: none;
-	text-decoration: none;
 	transition:
 		background var(--duration-fast) var(--ease-default),
 		border var(--duration-fast) var(--ease-default);

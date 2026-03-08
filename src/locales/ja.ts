@@ -14,17 +14,13 @@ export const ja = {
 		subtitle: "メンバーポータル",
 		lineLogin: "LINEでログイン",
 	},
-	header: {
-		management: "管理",
-		logout: "ログアウト",
-		language: "English",
-	},
 	tabbar: {
 		church: "教会",
-		account: "アカウント",
+		settings: "設定",
 	},
-	more: {
+	settings: {
 		title: "設定",
+		management: "管理",
 		language: "言語",
 		logout: "ログアウト",
 	},

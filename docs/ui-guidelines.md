@@ -54,18 +54,50 @@ border-radius: var(--radius-xl);
 
 ## ナビゲーション
 
+### デザイン参照
+
+iOS 26 (Liquid Glass) のナビゲーションパターンを参照基準とする。
+
 ### ボトムタブバー (`TabBar`)
 
-- 画面下部固定、2タブ構成（教会 / アカウント）
+- 画面下部固定、2タブ構成（教会 / 設定）
+- `<button>` で実装（`<A>` ではない）。タブクリック時の挙動を制御するため
+- 子ページでも常に表示する
 - `env(safe-area-inset-bottom)` でノッチ対応
 - フロスト白背景（`rgba(255,255,255,0.85)` + backdrop-filter）
 - アクティブタブ: `--color-primary`（Deep Gold）
+- タブ切替時、各タブ内の最後のURL（ページ）を記憶・復元する
+- 同じタブを再タップするとルートに戻る
 
 ### ヘッダー (`Header`)
 
-- シンプルなタイトルバー（中央: 教会名 / 右: オプションアクション）
-- フロスト白背景、下部ボーダー
-- Props: `title?: string`, `rightAction?: JSX.Element`
+各ページが自身の `<Header>` を配置する（App.tsx には含めない）。
+
+- **デフォルト（未スクロール時）**: 背景透明。コンテンツとシームレスに繋がる
+- **スクロール時**: フロスト白背景 + 下部ボーダーが出現（`window.scrollY > 0` で切替）
+- **タブルートページ**: 中央にタイトル（教会名等）、右にオプションアクション
+- **子ページ**: 左に戻るボタン、中央にページタイトル、右にオプションアクション
+- 戻るボタンは親ページへのナビゲーション（ブラウザバックではない）
+- Props: `title?: string`, `rightAction?: JSX.Element`, `backTo?: string`
+
+### 戻るボタン
+
+iOS 26 Liquid Glass 風の円形ガラスボタン。
+
+```css
+width: 36px;
+height: 36px;
+border: var(--glass-border);
+border-radius: var(--radius-full);
+background: var(--glass-bg);
+backdrop-filter: var(--glass-blur) var(--glass-saturate);
+color: var(--color-primary);
+box-shadow: var(--shadow-sm);
+```
+
+- `ChevronLeft` アイコン（24px, stroke-width 1.5）
+- hover: `var(--glass-bg-hover)`
+- active: `scale(0.95)` でタップフィードバック
 
 ## アイコン
 

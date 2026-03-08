@@ -16,17 +16,13 @@ export const en: Dictionary = {
 		subtitle: "Member Portal",
 		lineLogin: "Login with LINE",
 	},
-	header: {
-		management: "Manage",
-		logout: "Logout",
-		language: "日本語",
-	},
 	tabbar: {
 		church: "Church",
-		account: "Account",
+		settings: "Settings",
 	},
-	more: {
+	settings: {
 		title: "Settings",
+		management: "Manage",
 		language: "Language",
 		logout: "Logout",
 	},

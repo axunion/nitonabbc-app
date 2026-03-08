@@ -1,6 +1,7 @@
 import { useNavigate } from "@solidjs/router";
 import { ChevronDown, ChevronUp, Minus, Plus } from "lucide-solid";
 import { createResource, createSignal, For, Show } from "solid-js";
+import { Header } from "@/components/Header";
 import { useAuth } from "@/store/AuthContext.tsx";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import styles from "./BulletinTemplate.module.css";
@@ -99,103 +100,107 @@ export function BulletinTemplate() {
 		items().every((i) => i.type.trim() !== "" && i.label.trim() !== "");
 
 	return (
-		<div class={styles.container}>
-			{initItems()}
+		<>
+			<Header title={t("worshipTemplate.title")} backTo="/settings/admin" />
+			<div class={styles.container}>
+				{initItems()}
 
-			<Show
-				when={initialized()}
-				fallback={<p class={styles.loading}>{t("common.loading")}</p>}
-			>
-				<h1 class={styles.title}>{t("worshipTemplate.title")}</h1>
-				<p class={styles.description}>{t("worshipTemplate.description")}</p>
+				<Show
+					when={initialized()}
+					fallback={<p class={styles.loading}>{t("common.loading")}</p>}
+				>
+					<p class={styles.description}>{t("worshipTemplate.description")}</p>
 
-				<Show when={message()}>
-					{(msg) => (
-						<p class={msg().type === "success" ? styles.success : styles.error}>
-							{msg().text}
-						</p>
-					)}
-				</Show>
-
-				<form onSubmit={handleSave} class={styles.form}>
-					<For each={items()}>
-						{(item, index) => (
-							<div class={styles.itemRow}>
-								<div class={styles.orderButtons}>
-									<button
-										type="button"
-										class={styles.orderButton}
-										onClick={() => moveItem(index(), -1)}
-										disabled={index() === 0}
-										title={t("worshipTemplate.moveUp")}
-									>
-										<ChevronUp size={14} stroke-width={1.5} />
-									</button>
-									<button
-										type="button"
-										class={styles.orderButton}
-										onClick={() => moveItem(index(), 1)}
-										disabled={index() === items().length - 1}
-										title={t("worshipTemplate.moveDown")}
-									>
-										<ChevronDown size={14} stroke-width={1.5} />
-									</button>
-								</div>
-								<div class={styles.inputs}>
-									<input
-										type="text"
-										class={styles.input}
-										placeholder={t("worshipTemplate.typePlaceholder")}
-										value={item.type}
-										onInput={(e) =>
-											updateItem(index(), "type", e.currentTarget.value)
-										}
-									/>
-									<input
-										type="text"
-										class={styles.input}
-										placeholder={t("worshipTemplate.labelPlaceholder")}
-										value={item.label}
-										onInput={(e) =>
-											updateItem(index(), "label", e.currentTarget.value)
-										}
-									/>
-								</div>
-								<button
-									type="button"
-									class={styles.removeButton}
-									onClick={() => removeItem(index())}
-									title={t("worshipTemplate.deleteItem")}
-								>
-									<Minus size={16} stroke-width={1.5} />
-								</button>
-							</div>
+					<Show when={message()}>
+						{(msg) => (
+							<p
+								class={msg().type === "success" ? styles.success : styles.error}
+							>
+								{msg().text}
+							</p>
 						)}
-					</For>
+					</Show>
 
-					<button type="button" class={styles.addButton} onClick={addItem}>
-						<Plus size={16} stroke-width={1.5} />
-						{t("worshipTemplate.addItem")}
-					</button>
+					<form onSubmit={handleSave} class={styles.form}>
+						<For each={items()}>
+							{(item, index) => (
+								<div class={styles.itemRow}>
+									<div class={styles.orderButtons}>
+										<button
+											type="button"
+											class={styles.orderButton}
+											onClick={() => moveItem(index(), -1)}
+											disabled={index() === 0}
+											title={t("worshipTemplate.moveUp")}
+										>
+											<ChevronUp size={14} stroke-width={1.5} />
+										</button>
+										<button
+											type="button"
+											class={styles.orderButton}
+											onClick={() => moveItem(index(), 1)}
+											disabled={index() === items().length - 1}
+											title={t("worshipTemplate.moveDown")}
+										>
+											<ChevronDown size={14} stroke-width={1.5} />
+										</button>
+									</div>
+									<div class={styles.inputs}>
+										<input
+											type="text"
+											class={styles.input}
+											placeholder={t("worshipTemplate.typePlaceholder")}
+											value={item.type}
+											onInput={(e) =>
+												updateItem(index(), "type", e.currentTarget.value)
+											}
+										/>
+										<input
+											type="text"
+											class={styles.input}
+											placeholder={t("worshipTemplate.labelPlaceholder")}
+											value={item.label}
+											onInput={(e) =>
+												updateItem(index(), "label", e.currentTarget.value)
+											}
+										/>
+									</div>
+									<button
+										type="button"
+										class={styles.removeButton}
+										onClick={() => removeItem(index())}
+										title={t("worshipTemplate.deleteItem")}
+									>
+										<Minus size={16} stroke-width={1.5} />
+									</button>
+								</div>
+							)}
+						</For>
 
-					<div class={styles.actions}>
-						<button
-							type="button"
-							class={styles.cancelButton}
-							onClick={() => navigate("/admin")}
-						>
-							{t("common.cancel")}
+						<button type="button" class={styles.addButton} onClick={addItem}>
+							<Plus size={16} stroke-width={1.5} />
+							{t("worshipTemplate.addItem")}
 						</button>
-						<button
-							type="submit"
-							class={styles.saveButton}
-							disabled={saving() || !isValid()}
-						>
-							{t("worshipTemplate.save")}
-						</button>
-					</div>
-				</form>
-			</Show>
-		</div>
+
+						<div class={styles.actions}>
+							<button
+								type="button"
+								class={styles.cancelButton}
+								onClick={() => navigate("/settings/admin")}
+							>
+								{t("common.cancel")}
+							</button>
+							<button
+								type="submit"
+								class={styles.saveButton}
+								disabled={saving() || !isValid()}
+							>
+								{t("worshipTemplate.save")}
+							</button>
+						</div>
+					</form>
+				</Show>
+			</div>
+		</>
 	);
 }

@@ -48,8 +48,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Architecture
 
 - **ルーティング**: `@solidjs/router` を使用。`src/index.tsx` でルート定義、`src/App.tsx` がルートレイアウト
-  - `/` → Dashboard, `/admin` → Management, `/more` → Account/Settings（lazy load）
-  - ナビゲーション: ボトムタブバー（教会 / アカウント の2タブ）+ シンプルなヘッダー
+  - `/` → Dashboard, `/settings` → Settings, `/settings/admin` → Management（lazy load）
+  - ナビゲーション: ボトムタブバー（教会 / 設定 の2タブ）+ ヘッダー（子ページでは戻るボタン付き）
+  - タブ切替時、各タブ内の最後のURLを記憶・復元する（iOS UITabBarController 相当）
   - 認証コンテキスト: `src/store/AuthContext.tsx` の `useAuth()` でユーザー情報・`logout` を取得
 - **エントリポイント**: `index.html` → `src/index.tsx` → `src/App.tsx`
 - **パスエイリアス**: `@/` → `./src` (vite.config.ts と tsconfig.app.json の両方に設定が必要)
