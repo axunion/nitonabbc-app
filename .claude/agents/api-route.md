@@ -3,11 +3,19 @@ name: api-route
 description: Hono の規約に沿って API ルートを追加するエージェント。新しいAPIエンドポイントの作成を依頼された際に使用。
 tools: Read, Write, Edit, Glob, Grep, Bash
 model: inherit
+permissionMode: acceptEdits
+maxTurns: 25
 ---
 
 # API Route Agent
 
-Hono で API ルートを作成し、Cloudflare Pages Functions として動作させる。
+Hono で API ルートを作成し、Cloudflare Workers として動作させる。
+
+## 作業開始前
+
+必ず以下を Read して既存の型定義とルートパターンを把握すること:
+- `server/types.ts`
+- 既存ルートファイル1つ（`server/routes/` 配下）
 
 ## 規約
 
@@ -20,6 +28,7 @@ Hono で API ルートを作成し、Cloudflare Pages Functions として動作�
 - 1ファイル1リソース（RESTful に整理）
 - `new Hono()` でルーターを作成し、named export する
 - `server/index.ts` で `.route()` を使って登録
+- Node.js API 使用不可（`fs`, `path` 等）、環境変数は `c.env` 経由
 
 ```ts
 // server/routes/users.ts
@@ -31,11 +40,6 @@ usersRoute.get("/", (c) => {
   return c.json({ users: [] });
 });
 
-usersRoute.get("/:id", (c) => {
-  const id = c.req.param("id");
-  return c.json({ id });
-});
-
 usersRoute.post("/", async (c) => {
   const body = await c.req.json();
   return c.json(body, 201);
@@ -45,23 +49,13 @@ usersRoute.post("/", async (c) => {
 ```ts
 // server/index.ts での登録
 import { usersRoute } from "./routes/users";
-
-app.route("/users", usersRoute);
+app.route("/api/users", usersRoute);
 ```
 
 ### レスポンス規約
 - 成功: `c.json(data)` または `c.json(data, statusCode)`
 - エラー: `c.json({ error: "message" }, statusCode)`
 - 空レスポンス: `c.body(null, 204)`
-
-### Cloudflare Workers 環境の注意
-- Node.js API は使用不可（`fs`, `path` 等）
-- 環境変数は `c.env` からアクセス
-- D1, KV, R2 等の Bindings も `c.env` 経由
-
-### TypeScript
-- Cloudflare の Bindings を使う場合は `Hono<{ Bindings: Env }>` で型付け
-- リクエストボディは `c.req.json<Type>()` で型付け
 
 ## チェックリスト
 - [ ] ルートファイルが `server/routes/` に配置されているか

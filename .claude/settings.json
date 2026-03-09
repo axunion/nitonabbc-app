@@ -1,0 +1,30 @@
+{
+	"permissions": {
+		"allow": [
+			"Bash(pnpm check)",
+			"Bash(pnpm check:write)",
+			"Bash(pnpm test)",
+			"Bash(pnpm test:*)",
+			"Bash(pnpm build)",
+			"Bash(ls:*)",
+			"WebFetch(domain:developers.cloudflare.com)",
+			"WebFetch(domain:hono.dev)",
+			"WebFetch(domain:github.com)",
+			"WebFetch(domain:blog.cloudflare.com)",
+			"WebSearch"
+		]
+	},
+	"hooks": {
+		"PostToolUse": [
+			{
+				"matcher": "Write|Edit",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "file_path=$(cat - | jq -r '.tool_input.file_path // empty') && [ -n \"$file_path\" ] && pnpm exec biome check --write --files-ignore-unknown=true \"$file_path\" 2>/dev/null || true"
+					}
+				]
+			}
+		]
+	}
+}

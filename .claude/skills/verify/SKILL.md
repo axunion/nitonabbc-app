@@ -1,6 +1,7 @@
 ---
 name: verify
-description: lint → build → test の一括検証。コミット前の確認に使用。
+description: lint, build, test の一括検証。コミット前の確認に使用。
+allowed-tools: Bash
 ---
 
 lint（Biome）、ビルド（tsc + Vite）、テスト（Vitest）を順番に実行し、結果を報告してください。
