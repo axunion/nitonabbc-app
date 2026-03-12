@@ -6,6 +6,7 @@ import { bulletinRoute } from "./routes/bulletin.ts";
 import { bulletinTemplateRoute } from "./routes/bulletinTemplate.ts";
 import { healthRoute } from "./routes/health.ts";
 import { inviteRoute } from "./routes/invite.ts";
+import { membersRoute } from "./routes/members.ts";
 import type { AppEnv } from "./types.ts";
 
 const app = new Hono<AppEnv>().basePath("/api");
@@ -17,5 +18,6 @@ app.route("/invite", inviteRoute);
 app.route("/admin", adminRoute);
 app.route("/bulletin", bulletinRoute);
 app.route("/bulletin-template", bulletinTemplateRoute);
+app.route("/members", membersRoute);
 
 export default app;

@@ -30,17 +30,40 @@
 	max-width: 480px;
 }
 
-.itemRow {
+/* --- Item list --- */
+
+.itemList {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 var(--space-4) 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+}
+
+.item {
+	background: var(--glass-bg);
+	backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	border: var(--glass-border);
+	border-radius: var(--radius-lg);
+	overflow: hidden;
+}
+
+/* --- Collapsed header --- */
+
+.itemHeader {
 	display: flex;
 	align-items: center;
 	gap: var(--space-2);
-	margin-bottom: var(--space-3);
+	padding: var(--space-2) var(--space-3);
+	min-height: 48px;
 }
 
 .orderButtons {
 	display: flex;
 	flex-direction: column;
-	gap: 2px;
+	gap: 1px;
 	flex-shrink: 0;
 }
 
@@ -48,20 +71,19 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 24px;
-	height: 20px;
+	width: 22px;
+	height: 18px;
 	border-radius: var(--radius-sm);
-	border: var(--glass-border);
-	background: var(--glass-bg);
-	color: var(--color-gray-500);
+	border: none;
+	background: transparent;
+	color: var(--color-gray-400);
 	cursor: pointer;
 	outline: none;
 	padding: 0;
-	transition: background var(--duration-fast) var(--ease-default);
+	transition: color var(--duration-fast) var(--ease-default);
 }
 
 .orderButton:hover {
-	background: var(--glass-bg-hover);
 	color: var(--color-gray-700);
 }
 
@@ -70,29 +92,101 @@
 }
 
 .orderButton:disabled {
-	opacity: 0.3;
+	opacity: 0.2;
 	cursor: not-allowed;
 }
 
-.inputs {
-	display: flex;
-	gap: var(--space-2);
+.itemSummary {
 	flex: 1;
 	min-width: 0;
+	display: flex;
+	align-items: baseline;
+	gap: var(--space-2);
+	background: none;
+	border: none;
+	padding: var(--space-1) 0;
+	cursor: pointer;
+	outline: none;
+	text-align: left;
+	font: inherit;
+	color: inherit;
+}
+
+.itemSummary:focus-visible {
+	box-shadow: var(--focus-ring);
+	border-radius: var(--radius-sm);
+}
+
+.itemLabel {
+	font-size: var(--text-sm);
+	font-weight: var(--font-medium);
+	color: var(--color-gray-800);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.itemMeta {
+	font-size: var(--text-xs);
+	color: var(--color-gray-400);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	flex-shrink: 1;
+}
+
+.expandButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: var(--radius-md);
+	border: none;
+	background: transparent;
+	color: var(--color-gray-400);
+	cursor: pointer;
+	outline: none;
+	flex-shrink: 0;
+	transition: color var(--duration-fast) var(--ease-default);
+}
+
+.expandButton:hover {
+	color: var(--color-gray-700);
+}
+
+.expandButton:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+/* --- Expanded detail --- */
+
+.itemDetail {
+	padding: 0 var(--space-3) var(--space-3);
+	border-top: 1px solid var(--color-gray-100);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+}
+
+.detailRow {
+	display: flex;
+	gap: var(--space-2);
+	margin-top: var(--space-3);
 }
 
 .input {
-	height: 44px;
+	height: 40px;
 	padding: 0 var(--space-3);
 	border: 1px solid var(--input-border);
 	border-radius: var(--radius-md);
-	font-size: var(--text-base);
+	font-size: var(--text-sm);
 	color: var(--color-text);
 	background: var(--input-bg);
 	outline: none;
 	transition: border-color var(--duration-fast) var(--ease-default);
 	box-sizing: border-box;
-	flex: 1;
+	flex: 2;
 	min-width: 0;
 }
 
@@ -101,30 +195,210 @@
 	box-shadow: var(--focus-ring);
 }
 
-.removeButton {
+.inputSmall {
+	composes: input;
+	flex: 1;
+}
+
+/* --- Chip selector --- */
+
+.chipRow {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-1);
+}
+
+.chip {
+	height: 30px;
+	padding: 0 var(--space-2);
+	border-radius: var(--radius-full);
+	border: 1px solid var(--color-gray-200);
+	background: transparent;
+	color: var(--color-gray-500);
+	font-size: var(--text-xs);
+	cursor: pointer;
+	outline: none;
+	transition:
+		background var(--duration-fast) var(--ease-default),
+		border-color var(--duration-fast) var(--ease-default),
+		color var(--duration-fast) var(--ease-default);
+}
+
+.chip:hover {
+	border-color: var(--color-primary-300);
+	color: var(--color-primary);
+}
+
+.chip:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+.chipActive {
+	background: var(--color-primary);
+	border-color: var(--color-primary);
+	color: white;
+}
+
+.chipActive:hover {
+	background: var(--color-primary-700);
+	border-color: var(--color-primary-700);
+	color: white;
+}
+
+/* --- Mode toggle --- */
+
+.modeToggle {
+	align-self: flex-start;
+	height: 28px;
+	padding: 0 var(--space-2);
+	border: none;
+	border-radius: var(--radius-sm);
+	background: transparent;
+	color: var(--color-primary);
+	font-size: var(--text-xs);
+	cursor: pointer;
+	outline: none;
+	transition: background var(--duration-fast) var(--ease-default);
+}
+
+.modeToggle:hover {
+	background: rgba(var(--color-primary-rgb, 59, 130, 246), 0.06);
+}
+
+.modeToggle:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+/* --- Sub-fields --- */
+
+.fieldsSection {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	padding-left: var(--space-2);
+	border-left: 2px solid var(--color-gray-100);
+}
+
+.fieldRow {
+	display: flex;
+	align-items: center;
+	gap: var(--space-1);
+}
+
+.fieldInput {
+	height: 36px;
+	padding: 0 var(--space-2);
+	border: 1px solid var(--input-border);
+	border-radius: var(--radius-sm);
+	font-size: var(--text-sm);
+	color: var(--color-text);
+	background: var(--input-bg);
+	outline: none;
+	flex: 1;
+	min-width: 0;
+	box-sizing: border-box;
+}
+
+.fieldInput:focus {
+	border-color: var(--input-border-focus);
+	box-shadow: var(--focus-ring);
+}
+
+.fieldSelect {
+	height: 36px;
+	padding: 0 var(--space-1);
+	border: 1px solid var(--input-border);
+	border-radius: var(--radius-sm);
+	font-size: var(--text-xs);
+	color: var(--color-text);
+	background: var(--input-bg);
+	outline: none;
+	min-width: 68px;
+}
+
+.fieldSelect:focus {
+	border-color: var(--input-border-focus);
+	box-shadow: var(--focus-ring);
+}
+
+.fieldRemoveButton {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 28px;
-	height: 28px;
+	width: 24px;
+	height: 24px;
 	border-radius: var(--radius-full);
-	border: 1px solid var(--color-destructive-100);
-	background: var(--glass-bg);
-	color: var(--color-destructive);
+	border: none;
+	background: transparent;
+	color: var(--color-gray-400);
 	cursor: pointer;
 	outline: none;
 	padding: 0;
 	flex-shrink: 0;
-	transition: background-color var(--duration-fast) var(--ease-default);
+	transition: color var(--duration-fast) var(--ease-default);
 }
 
-.removeButton:hover {
-	background-color: var(--color-destructive-50);
+.fieldRemoveButton:hover {
+	color: var(--color-destructive);
 }
 
-.removeButton:focus-visible {
+.fieldRemoveButton:focus-visible {
 	box-shadow: var(--focus-ring);
 }
+
+.addFieldButton {
+	display: flex;
+	align-items: center;
+	gap: var(--space-1);
+	height: 32px;
+	padding: 0 var(--space-2);
+	border: none;
+	border-radius: var(--radius-sm);
+	background: transparent;
+	color: var(--color-gray-400);
+	font-size: var(--text-xs);
+	cursor: pointer;
+	outline: none;
+	transition: color var(--duration-fast) var(--ease-default);
+}
+
+.addFieldButton:hover {
+	color: var(--color-primary);
+}
+
+.addFieldButton:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+/* --- Delete --- */
+
+.deleteButton {
+	align-self: flex-start;
+	display: flex;
+	align-items: center;
+	gap: var(--space-1);
+	height: 28px;
+	padding: 0 var(--space-2);
+	border: none;
+	border-radius: var(--radius-sm);
+	background: transparent;
+	color: var(--color-destructive);
+	font-size: var(--text-xs);
+	cursor: pointer;
+	outline: none;
+	opacity: 0.7;
+	transition: opacity var(--duration-fast) var(--ease-default);
+}
+
+.deleteButton:hover {
+	opacity: 1;
+}
+
+.deleteButton:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+/* --- Add item / actions --- */
 
 .addButton {
 	display: flex;
@@ -133,9 +407,9 @@
 	height: 44px;
 	padding: 0 var(--space-3);
 	border-radius: var(--radius-md);
-	border: 1px dashed rgba(0, 0, 0, 0.15);
-	background: var(--glass-bg);
-	color: var(--color-gray-600);
+	border: 1px dashed rgba(0, 0, 0, 0.12);
+	background: transparent;
+	color: var(--color-gray-500);
 	font-size: var(--text-sm);
 	cursor: pointer;
 	outline: none;
@@ -211,6 +485,8 @@
 	opacity: 0.5;
 	cursor: not-allowed;
 }
+
+/* --- Messages --- */
 
 .message {
 	font-size: var(--text-sm);

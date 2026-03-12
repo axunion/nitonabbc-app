@@ -3,18 +3,39 @@ import { adminMiddleware } from "../middleware/admin.ts";
 import { authMiddleware } from "../middleware/auth.ts";
 import type { AppEnv } from "../types.ts";
 
-type TemplateItem = { type: string; label: string };
+type TemplateField = {
+	key: string;
+	label: string;
+	inputType: string;
+};
+
+type TemplateItem = {
+	type: string;
+	label: string;
+	inputType?: string;
+	fields?: TemplateField[];
+};
+
+const VALID_INPUT_TYPES = ["text", "number", "member", "scripture", "none"];
 
 const DEFAULT_TEMPLATE: TemplateItem[] = [
-	{ type: "prelude", label: "前奏" },
-	{ type: "hymn", label: "賛美歌" },
-	{ type: "prayer", label: "祈り" },
-	{ type: "reading", label: "聖書朗読" },
-	{ type: "sermon", label: "説教" },
-	{ type: "offering", label: "献金" },
-	{ type: "hymn2", label: "賛美歌" },
-	{ type: "doxology", label: "頌栄" },
-	{ type: "benediction", label: "祝祷" },
+	{ type: "prelude", label: "前奏", inputType: "none" },
+	{ type: "hymn", label: "賛美歌", inputType: "text" },
+	{ type: "prayer", label: "祈り", inputType: "member" },
+	{ type: "reading", label: "聖書朗読", inputType: "scripture" },
+	{
+		type: "sermon",
+		label: "説教",
+		fields: [
+			{ key: "title", label: "タイトル", inputType: "text" },
+			{ key: "preacher", label: "説教者", inputType: "member" },
+			{ key: "scripture", label: "聖書箇所", inputType: "scripture" },
+		],
+	},
+	{ type: "offering", label: "献金", inputType: "none" },
+	{ type: "hymn2", label: "賛美歌", inputType: "text" },
+	{ type: "doxology", label: "頌栄", inputType: "none" },
+	{ type: "benediction", label: "祝祷", inputType: "none" },
 ];
 
 type SettingsRow = {
@@ -23,17 +44,55 @@ type SettingsRow = {
 	updated_at: string;
 };
 
+function isValidField(field: unknown): field is TemplateField {
+	if (typeof field !== "object" || field === null) return false;
+	const f = field as TemplateField;
+	return (
+		typeof f.key === "string" &&
+		f.key.length > 0 &&
+		typeof f.label === "string" &&
+		f.label.length > 0 &&
+		typeof f.inputType === "string" &&
+		VALID_INPUT_TYPES.includes(f.inputType)
+	);
+}
+
 function isValidTemplate(body: unknown): body is TemplateItem[] {
 	if (!Array.isArray(body) || body.length === 0) return false;
-	return body.every(
-		(item: unknown) =>
-			typeof item === "object" &&
-			item !== null &&
-			typeof (item as TemplateItem).type === "string" &&
-			(item as TemplateItem).type.length > 0 &&
-			typeof (item as TemplateItem).label === "string" &&
-			(item as TemplateItem).label.length > 0,
-	);
+	return body.every((item: unknown) => {
+		if (typeof item !== "object" || item === null) return false;
+		const t = item as TemplateItem;
+		if (
+			typeof t.type !== "string" ||
+			t.type.length === 0 ||
+			typeof t.label !== "string" ||
+			t.label.length === 0
+		)
+			return false;
+		if (t.inputType !== undefined && !VALID_INPUT_TYPES.includes(t.inputType))
+			return false;
+		if (t.fields !== undefined) {
+			if (!Array.isArray(t.fields) || t.fields.length === 0) return false;
+			if (!t.fields.every(isValidField)) return false;
+		}
+		return true;
+	});
+}
+
+function sanitizeTemplate(body: TemplateItem[]): TemplateItem[] {
+	return body.map((item) => {
+		const sanitized: TemplateItem = { type: item.type, label: item.label };
+		if (item.fields && item.fields.length > 0) {
+			sanitized.fields = item.fields.map((f) => ({
+				key: f.key,
+				label: f.label,
+				inputType: f.inputType,
+			}));
+		} else if (item.inputType) {
+			sanitized.inputType = item.inputType;
+		}
+		return sanitized;
+	});
 }
 
 export const bulletinTemplateRoute = new Hono<AppEnv>();
@@ -69,10 +128,7 @@ bulletinTemplateRoute.put("/", authMiddleware, adminMiddleware, async (c) => {
 		);
 	}
 
-	const items: TemplateItem[] = body.map((item) => ({
-		type: item.type,
-		label: item.label,
-	}));
+	const items = sanitizeTemplate(body);
 
 	try {
 		await c.env.DB.prepare(

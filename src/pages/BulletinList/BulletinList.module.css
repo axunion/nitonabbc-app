@@ -17,29 +17,63 @@
 	}
 }
 
-.addButton {
+.generateButton {
 	display: flex;
 	align-items: center;
-	gap: var(--space-1);
-	height: 36px;
-	padding: 0 var(--space-3);
-	border-radius: var(--radius-md);
-	border: none;
-	background-color: var(--color-primary);
-	color: white;
-	font-size: var(--text-sm);
+	justify-content: center;
+	gap: var(--space-2);
+	width: 100%;
+	max-width: 480px;
+	height: 56px;
+	border-radius: var(--radius-lg);
+	border: 2px dashed var(--color-primary-300);
+	background: rgba(var(--color-primary-rgb, 59, 130, 246), 0.04);
+	color: var(--color-primary);
+	font-size: var(--text-base);
 	font-weight: var(--font-medium);
 	cursor: pointer;
 	outline: none;
-	transition: background-color var(--duration-fast) var(--ease-default);
+	margin-bottom: var(--space-4);
+	transition:
+		background var(--duration-fast) var(--ease-default),
+		border-color var(--duration-fast) var(--ease-default);
 }
 
-.addButton:hover {
-	background-color: var(--color-primary-700);
+.generateButton:hover {
+	background: rgba(var(--color-primary-rgb, 59, 130, 246), 0.08);
+	border-color: var(--color-primary);
 }
 
-.addButton:focus-visible {
+.generateButton:focus-visible {
 	box-shadow: var(--focus-ring);
+}
+
+.generateButton:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.genError {
+	width: 100%;
+	max-width: 480px;
+	background-color: var(--color-destructive-50);
+	color: var(--color-destructive-700);
+	padding: var(--space-3);
+	border-radius: var(--radius-md);
+	font-size: var(--text-sm);
+	margin-bottom: var(--space-4);
+	box-sizing: border-box;
+}
+
+.sectionTitle {
+	width: 100%;
+	max-width: 480px;
+	font-size: var(--text-sm);
+	font-weight: var(--font-semibold);
+	color: var(--color-gray-500);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	margin: 0 0 var(--space-2) 0;
 }
 
 .list {
@@ -50,7 +84,39 @@
 	gap: var(--space-3);
 	list-style: none;
 	padding: 0;
-	margin: 0;
+	margin: 0 0 var(--space-6) 0;
+}
+
+.upcomingCard {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	width: 100%;
+	background: var(--glass-bg);
+	backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	border: var(--glass-border);
+	border-radius: var(--radius-lg);
+	padding: var(--space-4);
+	text-align: left;
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+	outline: none;
+	box-shadow: var(--shadow-sm);
+	transition:
+		background var(--duration-fast) var(--ease-default),
+		border var(--duration-fast) var(--ease-default),
+		box-shadow var(--duration-fast) var(--ease-default);
+}
+
+.upcomingCard:hover {
+	background: var(--glass-bg-hover);
+	border: var(--glass-border-hover);
+}
+
+.upcomingCard:focus-visible {
+	box-shadow: var(--focus-ring);
 }
 
 .card {
@@ -87,6 +153,33 @@
 	font-size: var(--text-base);
 	font-weight: var(--font-semibold);
 	color: var(--color-gray-900);
+}
+
+.progressRow {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+}
+
+.progressBar {
+	flex: 1;
+	height: 6px;
+	background: var(--color-gray-200);
+	border-radius: var(--radius-full);
+	overflow: hidden;
+}
+
+.progressFill {
+	height: 100%;
+	background: var(--color-primary);
+	border-radius: var(--radius-full);
+	transition: width var(--duration-normal) var(--ease-out);
+}
+
+.progressText {
+	font-size: var(--text-xs);
+	color: var(--color-gray-500);
+	white-space: nowrap;
 }
 
 .loading {

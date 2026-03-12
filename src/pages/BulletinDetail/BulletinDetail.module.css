@@ -53,7 +53,61 @@
 	font-size: var(--text-lg);
 	font-weight: var(--font-semibold);
 	color: var(--color-gray-900);
-	margin: 0 0 var(--space-6) 0;
+	margin: 0 0 var(--space-4) 0;
+}
+
+.progressRow {
+	margin-bottom: var(--space-4);
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+}
+
+.progressBar {
+	flex: 1;
+	height: 6px;
+	background: var(--color-gray-200);
+	border-radius: var(--radius-full);
+	overflow: hidden;
+}
+
+.progressFill {
+	height: 100%;
+	background: var(--color-primary);
+	border-radius: var(--radius-full);
+	transition: width var(--duration-normal) var(--ease-out);
+}
+
+.progressText {
+	font-size: var(--text-xs);
+	color: var(--color-gray-500);
+	white-space: nowrap;
+}
+
+.ctaButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 44px;
+	border-radius: var(--radius-md);
+	border: none;
+	background-color: var(--color-primary);
+	color: white;
+	font-size: var(--text-sm);
+	font-weight: var(--font-medium);
+	cursor: pointer;
+	outline: none;
+	margin-bottom: var(--space-6);
+	transition: background-color var(--duration-fast) var(--ease-default);
+}
+
+.ctaButton:hover {
+	background-color: var(--color-primary-700);
+}
+
+.ctaButton:focus-visible {
+	box-shadow: var(--focus-ring);
 }
 
 .section {
@@ -79,10 +133,13 @@
 }
 
 .worshipItem {
+	padding: var(--space-2) 0;
+}
+
+.worshipItemHeader {
 	display: flex;
 	justify-content: space-between;
 	align-items: baseline;
-	padding: var(--space-2) 0;
 }
 
 .worshipLabel {
@@ -91,7 +148,42 @@
 	color: var(--color-gray-700);
 }
 
+.worshipAssignee {
+	font-size: var(--text-xs);
+	color: var(--color-primary);
+	background: rgba(var(--color-primary-rgb, 59, 130, 246), 0.08);
+	padding: var(--space-1) var(--space-2);
+	border-radius: var(--radius-sm);
+}
+
 .worshipDetails {
+	font-size: var(--text-sm);
+	color: var(--color-gray-600);
+	display: block;
+	margin-top: var(--space-1);
+}
+
+.compoundDetails {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+	margin-top: var(--space-1);
+	padding-left: var(--space-3);
+}
+
+.compoundField {
+	display: flex;
+	gap: var(--space-2);
+	align-items: baseline;
+}
+
+.compoundFieldLabel {
+	font-size: var(--text-xs);
+	color: var(--color-gray-500);
+	min-width: 60px;
+}
+
+.compoundFieldValue {
 	font-size: var(--text-sm);
 	color: var(--color-gray-600);
 }

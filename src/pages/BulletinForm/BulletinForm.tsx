@@ -1,42 +1,32 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { Minus, Plus } from "lucide-solid";
 import { createResource, createSignal, For, Show } from "solid-js";
+import { fetchBulletin, fetchMembers, fetchTemplate } from "@/api/bulletin.ts";
 import { Header } from "@/components/Header";
+import { useAuth } from "@/store/AuthContext.tsx";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type {
 	Announcement,
-	BulletinDetail,
+	TemplateItem,
 	WorshipItem,
 } from "@/types/bulletin.ts";
 import styles from "./BulletinForm.module.css";
-
-async function fetchTemplate(): Promise<WorshipItem[]> {
-	const res = await fetch("/api/bulletin-template");
-	if (!res.ok) return [];
-	return res.json() as Promise<WorshipItem[]>;
-}
-
-async function fetchBulletin(id: string): Promise<BulletinDetail> {
-	const res = await fetch(`/api/bulletin/${id}`);
-	if (!res.ok) throw new Error("Failed to fetch bulletin");
-	return res.json() as Promise<BulletinDetail>;
-}
 
 export function BulletinForm() {
 	const params = useParams<{ id?: string }>();
 	const navigate = useNavigate();
 	const { t } = useLocale();
+	const { user } = useAuth();
 	const isEdit = () => !!params.id;
+	const isAdmin = () => user()?.role === "admin";
 
 	const [existing] = createResource(
 		() => params.id,
 		(id) => fetchBulletin(id),
 	);
 
-	const [template] = createResource(
-		() => !isEdit(),
-		(shouldFetch) => (shouldFetch ? fetchTemplate() : Promise.resolve([])),
-	);
+	const [template] = createResource(fetchTemplate);
+	const [members] = createResource(fetchMembers);
 
 	const [serviceDate, setServiceDate] = createSignal("");
 	const [worship, setWorship] = createSignal<WorshipItem[]>([]);
@@ -52,7 +42,18 @@ export function BulletinForm() {
 	const initFromTemplate = () => {
 		const items = template();
 		if (!isEdit() && items && items.length > 0 && !initialized()) {
-			setWorship(items.map((i) => ({ type: i.type, label: i.label })));
+			setWorship(
+				items.map((i) => {
+					const item: WorshipItem = { type: i.type, label: i.label };
+					if (i.fields && i.fields.length > 0) {
+						item.fieldValues = {};
+						for (const f of i.fields) {
+							item.fieldValues[f.key] = "";
+						}
+					}
+					return item;
+				}),
+			);
 			setAnnouncements([{ content: "" }]);
 			setAssignments([{ role: "", person: "" }]);
 			setInitialized(true);
@@ -80,9 +81,42 @@ export function BulletinForm() {
 		return null;
 	};
 
-	function updateWorship(index: number, field: "details", value: string) {
+	function getTemplateItem(type: string): TemplateItem | undefined {
+		return template()?.find((t) => t.type === type);
+	}
+
+	function updateWorshipDetails(index: number, value: string) {
 		setWorship((prev) =>
-			prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
+			prev.map((item, i) => (i === index ? { ...item, details: value } : item)),
+		);
+	}
+
+	function updateWorshipFieldValue(
+		index: number,
+		fieldKey: string,
+		value: string,
+	) {
+		setWorship((prev) =>
+			prev.map((item, i) => {
+				if (i !== index) return item;
+				return {
+					...item,
+					fieldValues: { ...(item.fieldValues ?? {}), [fieldKey]: value },
+				};
+			}),
+		);
+	}
+
+	function updateWorshipAssignee(index: number, value: string) {
+		setWorship((prev) =>
+			prev.map((item, i) =>
+				i === index
+					? {
+							...item,
+							assigneeId: value ? Number(value) : null,
+						}
+					: item,
+			),
 		);
 	}
 
@@ -118,14 +152,27 @@ export function BulletinForm() {
 		);
 	}
 
+	function getPlaceholder(inputType?: string): string {
+		switch (inputType) {
+			case "scripture":
+				return t("bulletinForm.scripturePlaceholder");
+			case "number":
+				return t("bulletinForm.numberPlaceholder");
+			default:
+				return t("bulletinForm.detailsPlaceholder");
+		}
+	}
+
+	function getInputType(inputType?: string): string {
+		return inputType === "number" ? "number" : "text";
+	}
+
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
 		setError("");
 		setSubmitting(true);
 
-		const worshipData = worship().map((w) =>
-			w.details ? w : { type: w.type, label: w.label },
-		);
+		const worshipData = worship();
 		const announcementsData = announcements().filter(
 			(a) => a.content.trim() !== "",
 		);
@@ -164,6 +211,93 @@ export function BulletinForm() {
 		} finally {
 			setSubmitting(false);
 		}
+	}
+
+	function renderMemberSelect(
+		value: string | undefined,
+		onChange: (val: string) => void,
+	) {
+		return (
+			<select
+				class={styles.select}
+				value={value ?? ""}
+				onChange={(e) => onChange(e.currentTarget.value)}
+			>
+				<option value="">{t("bulletinForm.selectMember")}</option>
+				<For each={members() ?? []}>
+					{(m) => <option value={String(m.id)}>{m.name}</option>}
+				</For>
+			</select>
+		);
+	}
+
+	function renderWorshipInput(item: WorshipItem, index: number) {
+		const tmpl = getTemplateItem(item.type);
+		const inputType = tmpl?.inputType ?? "text";
+
+		// Compound fields mode
+		if (tmpl?.fields && tmpl.fields.length > 0) {
+			return (
+				<div class={styles.compoundFields}>
+					<For each={tmpl.fields}>
+						{(field) => {
+							if (field.inputType === "none") return null;
+							if (field.inputType === "member") {
+								return (
+									<div class={styles.fieldRow}>
+										<span class={styles.fieldLabel}>{field.label}</span>
+										{renderMemberSelect(item.fieldValues?.[field.key], (val) =>
+											updateWorshipFieldValue(index, field.key, val),
+										)}
+									</div>
+								);
+							}
+							return (
+								<div class={styles.fieldRow}>
+									<span class={styles.fieldLabel}>{field.label}</span>
+									<input
+										type={getInputType(field.inputType)}
+										class={styles.input}
+										placeholder={getPlaceholder(field.inputType)}
+										value={item.fieldValues?.[field.key] ?? ""}
+										onInput={(e) =>
+											updateWorshipFieldValue(
+												index,
+												field.key,
+												e.currentTarget.value,
+											)
+										}
+									/>
+								</div>
+							);
+						}}
+					</For>
+				</div>
+			);
+		}
+
+		// None type — no input needed
+		if (inputType === "none") {
+			return null;
+		}
+
+		// Member select
+		if (inputType === "member") {
+			return renderMemberSelect(item.details, (val) =>
+				updateWorshipDetails(index, val),
+			);
+		}
+
+		// Text/number/scripture
+		return (
+			<input
+				type={getInputType(inputType)}
+				class={styles.input}
+				placeholder={getPlaceholder(inputType)}
+				value={item.details ?? ""}
+				onInput={(e) => updateWorshipDetails(index, e.currentTarget.value)}
+			/>
+		);
 	}
 
 	return (
@@ -207,17 +341,42 @@ export function BulletinForm() {
 							</legend>
 							<For each={worship()}>
 								{(item, index) => (
-									<div class={styles.worshipRow}>
-										<span class={styles.worshipLabel}>{item.label}</span>
-										<input
-											type="text"
-											class={styles.input}
-											placeholder={t("bulletinForm.detailsPlaceholder")}
-											value={item.details ?? ""}
-											onInput={(e) =>
-												updateWorship(index(), "details", e.currentTarget.value)
-											}
-										/>
+									<div
+										class={styles.worshipCard}
+										classList={{
+											[styles.highlighted]:
+												item.assigneeId != null &&
+												item.assigneeId === user()?.id,
+										}}
+									>
+										<div class={styles.worshipHeader}>
+											<span class={styles.worshipLabel}>{item.label}</span>
+											<Show when={isAdmin()}>
+												<select
+													class={styles.assigneeSelect}
+													value={
+														item.assigneeId != null
+															? String(item.assigneeId)
+															: ""
+													}
+													onChange={(e) =>
+														updateWorshipAssignee(
+															index(),
+															e.currentTarget.value,
+														)
+													}
+													title={t("bulletinForm.assignTo")}
+												>
+													<option value="">{t("bulletin.unassigned")}</option>
+													<For each={members() ?? []}>
+														{(m) => (
+															<option value={String(m.id)}>{m.name}</option>
+														)}
+													</For>
+												</select>
+											</Show>
+										</div>
+										{renderWorshipInput(item, index())}
 									</div>
 								)}
 							</For>

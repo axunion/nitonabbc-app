@@ -491,3 +491,104 @@ describe("DELETE /api/bulletin/:id", () => {
 		expect(json).toMatchObject({ ok: true });
 	});
 });
+
+// --- POST /api/bulletin/generate ---
+
+describe("POST /api/bulletin/generate", () => {
+	it("returns 401 without session", async () => {
+		const env = createEnv();
+		const res = await app.request(
+			"http://localhost/api/bulletin/generate",
+			{ method: "POST" },
+			env,
+		);
+		expect(res.status).toBe(401);
+	});
+
+	it("generates bulletin and returns 201", async () => {
+		// 1st stmt after auth: template lookup
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({
+				value: JSON.stringify([
+					{ type: "prelude", label: "前奏", inputType: "none" },
+					{ type: "hymn", label: "賛美歌", inputType: "text" },
+				]),
+			}),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		// 2nd stmt: INSERT
+		const runStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn(),
+			all: vi.fn(),
+			run: vi.fn().mockResolvedValue({
+				success: true,
+				meta: { last_row_id: 10 },
+				results: [],
+			}),
+		};
+		// 3rd stmt: SELECT after INSERT
+		const selectStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({
+				id: 10,
+				service_date: "2026-03-15",
+				worship: JSON.stringify([
+					{ type: "prelude", label: "前奏" },
+					{ type: "hymn", label: "賛美歌" },
+				]),
+				announcements: "[]",
+				assignments: "{}",
+				created_by: 1,
+				updated_by: 1,
+				created_at: "2026-03-10 00:00:00",
+				updated_at: "2026-03-10 00:00:00",
+			}),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, runStmt, selectStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/generate",
+			{ method: "POST", headers: memberHeaders },
+			env,
+		);
+		expect(res.status).toBe(201);
+		const json = (await res.json()) as { id: number; serviceDate: string };
+		expect(json.id).toBe(10);
+	});
+
+	it("returns 409 when next Sunday already exists", async () => {
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({
+				value: JSON.stringify([{ type: "prelude", label: "前奏" }]),
+			}),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const runStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn(),
+			all: vi.fn(),
+			run: vi
+				.fn()
+				.mockRejectedValue(
+					new Error("UNIQUE constraint failed: bulletins.service_date"),
+				),
+		};
+		const db = createDbWithPrepare([templateStmt, runStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/generate",
+			{ method: "POST", headers: memberHeaders },
+			env,
+		);
+		expect(res.status).toBe(409);
+	});
+});

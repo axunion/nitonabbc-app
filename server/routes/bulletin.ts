@@ -14,7 +14,57 @@ type BulletinRow = {
 	updated_at: string;
 };
 
-function toBulletinSummary(row: BulletinRow) {
+type WorshipItemData = {
+	type: string;
+	label: string;
+	details?: string;
+	fieldValues?: Record<string, string>;
+	assigneeId?: number | null;
+};
+
+type TemplateItemData = {
+	type: string;
+	label: string;
+	inputType?: string;
+	fields?: { key: string; label: string; inputType: string }[];
+};
+
+function countProgress(
+	worship: WorshipItemData[],
+	template: TemplateItemData[],
+) {
+	let totalItems = 0;
+	let filledItems = 0;
+
+	for (let i = 0; i < worship.length; i++) {
+		const item = worship[i];
+		const tmpl = template.find((t) => t.type === item.type);
+		const inputType = tmpl?.inputType ?? "text";
+
+		if (tmpl?.fields && tmpl.fields.length > 0) {
+			for (const field of tmpl.fields) {
+				if (field.inputType === "none") continue;
+				totalItems++;
+				if (item.fieldValues?.[field.key]?.trim()) {
+					filledItems++;
+				}
+			}
+		} else {
+			if (inputType === "none") continue;
+			totalItems++;
+			if (item.details?.trim()) {
+				filledItems++;
+			}
+		}
+	}
+
+	return { totalItems, filledItems };
+}
+
+function toBulletinSummary(row: BulletinRow, template: TemplateItemData[]) {
+	const worship: WorshipItemData[] = JSON.parse(row.worship);
+	const { totalItems, filledItems } = countProgress(worship, template);
+
 	return {
 		id: row.id,
 		serviceDate: row.service_date,
@@ -22,13 +72,15 @@ function toBulletinSummary(row: BulletinRow) {
 		updatedBy: row.updated_by,
 		createdAt: row.created_at,
 		updatedAt: row.updated_at,
+		totalItems,
+		filledItems,
 	};
 }
 
-function toBulletinDetail(row: BulletinRow) {
+function toBulletinDetail(row: BulletinRow, template: TemplateItemData[]) {
 	return {
-		...toBulletinSummary(row),
-		worship: JSON.parse(row.worship),
+		...toBulletinSummary(row, template),
+		worship: JSON.parse(row.worship) as WorshipItemData[],
 		announcements: JSON.parse(row.announcements),
 		assignments: JSON.parse(row.assignments),
 	};
@@ -36,22 +88,99 @@ function toBulletinDetail(row: BulletinRow) {
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
+async function getTemplate(db: D1Database): Promise<TemplateItemData[]> {
+	try {
+		const row = await db
+			.prepare("SELECT value FROM settings WHERE key = ?")
+			.bind("worship_template")
+			.first<{ value: string }>();
+		if (row) return JSON.parse(row.value);
+	} catch {
+		// Table may not exist — return default
+	}
+	return [];
+}
+
 export const bulletinRoute = new Hono<AppEnv>();
 
 bulletinRoute.use("/*", authMiddleware);
 
 // GET /api/bulletin — list all bulletins
 bulletinRoute.get("/", async (c) => {
+	const template = await getTemplate(c.env.DB);
 	const { results } = await c.env.DB.prepare(
 		"SELECT id, service_date, worship, announcements, assignments, created_by, updated_by, created_at, updated_at FROM bulletins ORDER BY service_date DESC",
 	).all<BulletinRow>();
 
-	return c.json(results.map(toBulletinSummary));
+	return c.json(results.map((r) => toBulletinSummary(r, template)));
+});
+
+// POST /api/bulletin/generate — auto-generate next Sunday's bulletin from template
+bulletinRoute.post("/generate", async (c) => {
+	const user = c.get("user");
+	const template = await getTemplate(c.env.DB);
+
+	// Calculate next Sunday
+	const today = new Date();
+	const dayOfWeek = today.getUTCDay();
+	const daysUntilSunday = dayOfWeek === 0 ? 7 : 7 - dayOfWeek;
+	const nextSunday = new Date(today);
+	nextSunday.setUTCDate(today.getUTCDate() + daysUntilSunday);
+	const serviceDate = nextSunday.toISOString().slice(0, 10);
+
+	// Build worship items from template
+	const worship: WorshipItemData[] = template.map((t) => {
+		const item: WorshipItemData = { type: t.type, label: t.label };
+		if (t.fields && t.fields.length > 0) {
+			item.fieldValues = {};
+			for (const field of t.fields) {
+				item.fieldValues[field.key] = "";
+			}
+		}
+		return item;
+	});
+
+	const worshipJson = JSON.stringify(worship);
+	const announcements = "[]";
+	const assignments = "{}";
+
+	try {
+		const result = await c.env.DB.prepare(
+			"INSERT INTO bulletins (service_date, worship, announcements, assignments, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?)",
+		)
+			.bind(
+				serviceDate,
+				worshipJson,
+				announcements,
+				assignments,
+				user.id,
+				user.id,
+			)
+			.run();
+
+		const newRow = await c.env.DB.prepare(
+			"SELECT id, service_date, worship, announcements, assignments, created_by, updated_by, created_at, updated_at FROM bulletins WHERE id = ?",
+		)
+			.bind(result.meta.last_row_id)
+			.first<BulletinRow>();
+
+		if (!newRow) {
+			return c.json({ error: "Failed to retrieve created bulletin" }, 500);
+		}
+
+		return c.json(toBulletinDetail(newRow, template), 201);
+	} catch (e) {
+		if (e instanceof Error && e.message.includes("UNIQUE constraint")) {
+			return c.json({ error: "Bulletin for this date already exists" }, 409);
+		}
+		throw e;
+	}
 });
 
 // GET /api/bulletin/:id — get single bulletin
 bulletinRoute.get("/:id", async (c) => {
 	const id = Number(c.req.param("id"));
+	const template = await getTemplate(c.env.DB);
 
 	const row = await c.env.DB.prepare(
 		"SELECT id, service_date, worship, announcements, assignments, created_by, updated_by, created_at, updated_at FROM bulletins WHERE id = ?",
@@ -63,7 +192,7 @@ bulletinRoute.get("/:id", async (c) => {
 		return c.json({ error: "Bulletin not found" }, 404);
 	}
 
-	return c.json(toBulletinDetail(row));
+	return c.json(toBulletinDetail(row, template));
 });
 
 // POST /api/bulletin — create a new bulletin
@@ -98,6 +227,7 @@ bulletinRoute.post("/", async (c) => {
 			)
 			.run();
 
+		const template = await getTemplate(c.env.DB);
 		const newRow = await c.env.DB.prepare(
 			"SELECT id, service_date, worship, announcements, assignments, created_by, updated_by, created_at, updated_at FROM bulletins WHERE id = ?",
 		)
@@ -108,7 +238,7 @@ bulletinRoute.post("/", async (c) => {
 			return c.json({ error: "Failed to retrieve created bulletin" }, 500);
 		}
 
-		return c.json(toBulletinDetail(newRow), 201);
+		return c.json(toBulletinDetail(newRow, template), 201);
 	} catch (e) {
 		if (e instanceof Error && e.message.includes("UNIQUE constraint")) {
 			return c.json({ error: "Bulletin for this date already exists" }, 409);
@@ -174,6 +304,7 @@ bulletinRoute.put("/:id", async (c) => {
 			.run();
 	}
 
+	const template = await getTemplate(c.env.DB);
 	const updated = await c.env.DB.prepare(
 		"SELECT id, service_date, worship, announcements, assignments, created_by, updated_by, created_at, updated_at FROM bulletins WHERE id = ?",
 	)
@@ -184,7 +315,7 @@ bulletinRoute.put("/:id", async (c) => {
 		return c.json({ error: "Bulletin not found" }, 404);
 	}
 
-	return c.json(toBulletinDetail(updated));
+	return c.json(toBulletinDetail(updated, template));
 });
 
 // DELETE /api/bulletin/:id — delete a bulletin
