@@ -1,5 +1,5 @@
 import { useNavigate } from "@solidjs/router";
-import { Languages, LogOut, Shield } from "lucide-solid";
+import { ChevronRight, FileText, Languages, Users } from "lucide-solid";
 import { Show } from "solid-js";
 import { Header } from "@/components/Header";
 import type { Locale } from "@/locales/index.ts";
@@ -8,7 +8,7 @@ import { useLocale } from "@/store/LocaleContext.tsx";
 import styles from "./Settings.module.css";
 
 export function Settings() {
-	const { user, logout } = useAuth();
+	const { user } = useAuth();
 	const { t, locale, setLocale } = useLocale();
 	const navigate = useNavigate();
 
@@ -24,18 +24,30 @@ export function Settings() {
 						</span>
 					</div>
 
-					<div class={styles.menuList}>
-						<Show when={user().role === "admin"}>
+					<Show when={user().role === "admin"}>
+						<div class={styles.menuList}>
 							<button
 								type="button"
 								class={styles.menuItem}
-								onClick={() => navigate("/settings/admin")}
+								onClick={() => navigate("/settings/members")}
 							>
-								<Shield size={20} stroke-width={1.5} />
-								<span>{t("settings.management")}</span>
+								<Users size={20} stroke-width={1.5} />
+								<span>{t("settings.memberManagement")}</span>
+								<ChevronRight size={16} class={styles.chevron} />
 							</button>
-						</Show>
+							<button
+								type="button"
+								class={styles.menuItem}
+								onClick={() => navigate("/settings/bulletin-template")}
+							>
+								<FileText size={20} stroke-width={1.5} />
+								<span>{t("settings.worshipTemplate")}</span>
+								<ChevronRight size={16} class={styles.chevron} />
+							</button>
+						</div>
+					</Show>
 
+					<div class={styles.menuList}>
 						<label class={styles.menuRow}>
 							<Languages size={20} stroke-width={1.5} />
 							<span>{t("settings.language")}</span>
@@ -48,11 +60,6 @@ export function Settings() {
 								<option value="en">English</option>
 							</select>
 						</label>
-
-						<button type="button" class={styles.logoutItem} onClick={logout}>
-							<LogOut size={20} stroke-width={1.5} />
-							<span>{t("settings.logout")}</span>
-						</button>
 					</div>
 				</div>
 			</div>

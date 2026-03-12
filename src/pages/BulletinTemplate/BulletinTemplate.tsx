@@ -225,7 +225,7 @@ export function BulletinTemplate() {
 
 	return (
 		<>
-			<Header title={t("worshipTemplate.title")} backTo="/settings/admin" />
+			<Header title={t("worshipTemplate.title")} backTo="/settings" />
 			<div class={styles.container}>
 				{initItems()}
 
@@ -474,7 +474,7 @@ export function BulletinTemplate() {
 							<button
 								type="button"
 								class={styles.cancelButton}
-								onClick={() => navigate("/settings/admin")}
+								onClick={() => navigate("/settings")}
 							>
 								{t("common.cancel")}
 							</button>

@@ -135,14 +135,7 @@ export function BulletinList() {
 					</Show>
 
 					{/* Archive */}
-					<Show
-						when={archive().length > 0}
-						fallback={
-							<Show when={upcoming().length === 0}>
-								<p class={styles.empty}>{t("bulletin.empty")}</p>
-							</Show>
-						}
-					>
+					<Show when={archive().length > 0}>
 						<h2 class={styles.sectionTitle}>{t("bulletin.archive")}</h2>
 						<ul class={styles.list}>
 							<For each={archive()}>

@@ -18,28 +18,7 @@
 }
 
 .addButton {
-	display: flex;
-	align-items: center;
-	gap: var(--space-1);
-	height: 36px;
-	padding: 0 var(--space-3);
-	border-radius: var(--radius-md);
-	border: none;
-	background-color: var(--color-primary);
-	color: white;
-	font-size: var(--text-sm);
-	font-weight: var(--font-medium);
-	cursor: pointer;
-	outline: none;
-	transition: background-color var(--duration-fast) var(--ease-default);
-}
-
-.addButton:hover {
-	background-color: var(--color-primary-700);
-}
-
-.addButton:focus-visible {
-	box-shadow: var(--focus-ring);
+	composes: dashedAction from "../../styles/shared.module.css";
 }
 
 .list {
@@ -323,46 +302,8 @@
 	font-size: var(--text-sm);
 }
 
-.empty {
-	text-align: center;
-	padding: var(--space-8);
-	color: var(--color-gray-400);
-	font-size: var(--text-sm);
-}
-
 .copySuccess {
 	color: var(--color-success);
 	font-size: var(--text-xs);
 	margin-left: var(--space-1);
-}
-
-.templateLink {
-	display: flex;
-	align-items: center;
-	gap: var(--space-2);
-	width: 100%;
-	max-width: 480px;
-	height: 44px;
-	padding: 0 var(--space-3);
-	border-radius: var(--radius-md);
-	border: var(--glass-border);
-	background: var(--glass-bg);
-	color: var(--color-gray-700);
-	font-size: var(--text-sm);
-	font-weight: var(--font-medium);
-	cursor: pointer;
-	outline: none;
-	margin-bottom: var(--space-4);
-	transition:
-		background var(--duration-fast) var(--ease-default),
-		border var(--duration-fast) var(--ease-default);
-}
-
-.templateLink:hover {
-	background: var(--glass-bg-hover);
-	border: var(--glass-border-hover);
-}
-
-.templateLink:focus-visible {
-	box-shadow: var(--focus-ring);
 }

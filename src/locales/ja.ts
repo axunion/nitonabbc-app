@@ -22,9 +22,9 @@ export const ja = {
 	},
 	settings: {
 		title: "設定",
-		management: "管理",
+		memberManagement: "メンバー管理",
+		worshipTemplate: "礼拝テンプレート",
 		language: "言語",
-		logout: "ログアウト",
 	},
 	dashboard: {
 		bulletin: "週報",
@@ -33,7 +33,6 @@ export const ja = {
 	},
 	management: {
 		title: "メンバー管理",
-		empty: "メンバーがいません",
 		linked: "LINE連携済",
 		unlinked: "未連携",
 		inactive: "無効",
@@ -51,7 +50,6 @@ export const ja = {
 	bulletin: {
 		title: "週報",
 		newBulletin: "新規作成",
-		empty: "週報がまだありません",
 		worship: "礼拝",
 		worshipProgram: "礼拝プログラム",
 		announcements: "お知らせ",

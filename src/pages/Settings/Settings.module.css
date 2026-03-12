@@ -47,6 +47,10 @@
 	margin-top: var(--space-1);
 }
 
+.menuList + .menuList {
+	margin-top: var(--space-4);
+}
+
 .menuList {
 	background: var(--glass-bg);
 	backdrop-filter: var(--glass-blur) var(--glass-saturate);
@@ -117,7 +121,7 @@
 	box-shadow: var(--focus-ring);
 }
 
-.logoutItem {
-	composes: menuItem;
-	color: var(--color-destructive);
+.chevron {
+	margin-left: auto;
+	color: var(--color-gray-400);
 }

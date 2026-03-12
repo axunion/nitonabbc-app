@@ -18,34 +18,7 @@
 }
 
 .generateButton {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: var(--space-2);
-	width: 100%;
-	max-width: 480px;
-	height: 56px;
-	border-radius: var(--radius-lg);
-	border: 2px dashed var(--color-primary-300);
-	background: rgba(var(--color-primary-rgb, 59, 130, 246), 0.04);
-	color: var(--color-primary);
-	font-size: var(--text-base);
-	font-weight: var(--font-medium);
-	cursor: pointer;
-	outline: none;
-	margin-bottom: var(--space-4);
-	transition:
-		background var(--duration-fast) var(--ease-default),
-		border-color var(--duration-fast) var(--ease-default);
-}
-
-.generateButton:hover {
-	background: rgba(var(--color-primary-rgb, 59, 130, 246), 0.08);
-	border-color: var(--color-primary);
-}
-
-.generateButton:focus-visible {
-	box-shadow: var(--focus-ring);
+	composes: dashedAction from "../../styles/shared.module.css";
 }
 
 .generateButton:disabled {
@@ -186,12 +159,5 @@
 	text-align: center;
 	padding: var(--space-8);
 	color: var(--color-gray-500);
-	font-size: var(--text-sm);
-}
-
-.empty {
-	text-align: center;
-	padding: var(--space-8);
-	color: var(--color-gray-400);
 	font-size: var(--text-sm);
 }

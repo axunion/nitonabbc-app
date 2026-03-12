@@ -24,9 +24,9 @@ export const en: Dictionary = {
 	},
 	settings: {
 		title: "Settings",
-		management: "Manage",
+		memberManagement: "Member Management",
+		worshipTemplate: "Worship Template",
 		language: "Language",
-		logout: "Logout",
 	},
 	dashboard: {
 		bulletin: "Bulletin",
@@ -35,7 +35,6 @@ export const en: Dictionary = {
 	},
 	management: {
 		title: "Member Management",
-		empty: "No members",
 		linked: "LINE Linked",
 		unlinked: "Not Linked",
 		inactive: "Inactive",
@@ -52,7 +51,6 @@ export const en: Dictionary = {
 	bulletin: {
 		title: "Bulletin",
 		newBulletin: "New",
-		empty: "No bulletins yet",
 		worship: "Worship",
 		worshipProgram: "Worship Program",
 		announcements: "Announcements",

@@ -22,9 +22,9 @@ if (root) {
 			<Router root={App}>
 				<Route path="/" component={Dashboard} />
 				<Route path="/settings" component={Settings} />
-				<Route path="/settings/admin" component={Management} />
+				<Route path="/settings/members" component={Management} />
 				<Route
-					path="/settings/admin/bulletin-template"
+					path="/settings/bulletin-template"
 					component={BulletinTemplate}
 				/>
 				<Route path="/bulletin" component={BulletinList} />

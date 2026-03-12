@@ -2,7 +2,6 @@ import { Dialog } from "@kobalte/core/dialog";
 import { useNavigate } from "@solidjs/router";
 import {
 	ClipboardCopy,
-	FileText,
 	Link,
 	Link2Off,
 	Pencil,
@@ -117,38 +116,18 @@ export function Management() {
 
 	return (
 		<>
-			<Header
-				title={t("management.title")}
-				backTo="/settings"
-				rightAction={
-					<button
-						type="button"
-						class={styles.addButton}
-						onClick={openAddDialog}
-					>
-						<Plus size={16} stroke-width={1.5} />
-						{t("common.add")}
-					</button>
-				}
-			/>
+			<Header title={t("management.title")} backTo="/settings" />
 			<div class={styles.container}>
-				<button
-					type="button"
-					class={styles.templateLink}
-					onClick={() => navigate("/settings/admin/bulletin-template")}
-				>
-					<FileText size={16} stroke-width={1.5} />
-					{t("worshipTemplate.templateSettings")}
+				<button type="button" class={styles.addButton} onClick={openAddDialog}>
+					<Plus size={20} stroke-width={1.5} />
+					{t("common.add")}
 				</button>
 
 				<Show
 					when={!members.loading}
 					fallback={<p class={styles.loading}>{t("common.loading")}</p>}
 				>
-					<Show
-						when={members()?.length}
-						fallback={<p class={styles.empty}>{t("management.empty")}</p>}
-					>
+					<Show when={members()?.length}>
 						<ul class={styles.list}>
 							<For each={members()}>
 								{(member) => (
