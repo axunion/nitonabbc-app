@@ -2,6 +2,7 @@
 paths:
   - "server/**"
   - "worker/**"
+  - "db/**"
 ---
 
 # API Rules
@@ -28,3 +29,10 @@ paths:
 - D1 バインディング: `DB`、KV バインディング: `SESSION_KV`
 - セッション: `session:{uuid}` → `{ userId, lineUserId, role }` JSON
 - OAuth state: `oauth_state:{uuid}` → `"1"` or `{ inviteToken: "..." }` JSON
+
+## D1 スキーマ管理
+
+- スキーマ定義は `db/schema.sql` のみ（マイグレーションツール未導入）
+- テーブル構造を変更したら `db/schema.sql` を更新し、ローカルは `rm -rf .wrangler/state/` でリセット
+- 外部キー制約あり（例: `bulletins.created_by` → `users.id`）。INSERT 時は参照先のレコードが存在すること
+- DEV_AUTH モードでは `auth.ts` の `getOrCreateDevUser()` が dev ユーザーを自動作成するため、外部キー制約を満たす

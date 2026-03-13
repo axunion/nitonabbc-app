@@ -71,6 +71,24 @@ UI・CSS・APIサーバー・テストの詳細規約は `.claude/rules/` のパ
 - `db/schema.sql` - D1 テーブル定義
 - `.dev.vars` - ローカル環境変数（git管理外）、`.dev.vars.example` を参照
 
+## Database (Cloudflare D1)
+
+- **スキーマ定義**: `db/schema.sql` が唯一の正（マイグレーションツールは未導入）
+- **ローカルデータ**: `.wrangler/state/v3/` 内の SQLite ファイルに永続化される（`pnpm dev` 再起動後も維持）
+- **本番データ**: Cloudflare エッジ上の D1 インスタンス（ローカルとは完全に分離）
+
+### スキーマ変更時の手順
+
+1. `db/schema.sql` を編集
+2. ローカル DB をリセット: `rm -rf .wrangler/state/`
+3. `pnpm dev` で再起動（空の DB が自動作成される）
+4. 必要に応じてスキーマを適用: `wrangler d1 execute nitonabbc-db --file=db/schema.sql --local`
+
+### 本番デプロイ時
+
+- **初回**: `wrangler d1 execute nitonabbc-db --file=db/schema.sql --remote` で全テーブルを作成
+- **運用開始後のスキーマ変更**: `CREATE TABLE IF NOT EXISTS` は既存テーブルに影響しないため、`ALTER TABLE` 等の差分 SQL を手動実行するか、マイグレーションツールを導入する
+
 ## Key Conventions
 
 - Biome デフォルト設定でlint/format (カスタム設定ファイルなし)
