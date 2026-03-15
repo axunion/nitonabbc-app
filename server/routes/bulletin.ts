@@ -88,6 +88,16 @@ function toBulletinDetail(row: BulletinRow, template: TemplateItemData[]) {
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
+/** Returns the current or next Sunday as "YYYY-MM-DD" (UTC). Sunday returns today. */
+function getNextSunday(): string {
+	const today = new Date();
+	const dayOfWeek = today.getUTCDay();
+	const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+	const nextSunday = new Date(today);
+	nextSunday.setUTCDate(today.getUTCDate() + daysUntilSunday);
+	return nextSunday.toISOString().slice(0, 10);
+}
+
 async function getTemplate(db: D1Database): Promise<TemplateItemData[]> {
 	try {
 		const row = await db
@@ -105,28 +115,34 @@ export const bulletinRoute = new Hono<AppEnv>();
 
 bulletinRoute.use("/*", authMiddleware);
 
-// GET /api/bulletin — list all bulletins
+// GET /api/bulletin — list all bulletins + next Sunday date
 bulletinRoute.get("/", async (c) => {
 	const template = await getTemplate(c.env.DB);
 	const { results } = await c.env.DB.prepare(
 		"SELECT id, service_date, worship, announcements, assignments, created_by, updated_by, created_at, updated_at FROM bulletins ORDER BY service_date DESC",
 	).all<BulletinRow>();
 
-	return c.json(results.map((r) => toBulletinSummary(r, template)));
+	return c.json({
+		bulletins: results.map((r) => toBulletinSummary(r, template)),
+		nextSunday: getNextSunday(),
+	});
 });
 
-// POST /api/bulletin/generate — auto-generate next Sunday's bulletin from template
+// POST /api/bulletin/generate — auto-generate bulletin from template
 bulletinRoute.post("/generate", async (c) => {
 	const user = c.get("user");
 	const template = await getTemplate(c.env.DB);
 
-	// Calculate next Sunday
-	const today = new Date();
-	const dayOfWeek = today.getUTCDay();
-	const daysUntilSunday = dayOfWeek === 0 ? 7 : 7 - dayOfWeek;
-	const nextSunday = new Date(today);
-	nextSunday.setUTCDate(today.getUTCDate() + daysUntilSunday);
-	const serviceDate = nextSunday.toISOString().slice(0, 10);
+	const body = await c.req
+		.json<{ serviceDate?: string }>()
+		.catch((): { serviceDate?: string } => ({}));
+	let serviceDate: string;
+
+	if (body.serviceDate && DATE_RE.test(body.serviceDate)) {
+		serviceDate = body.serviceDate;
+	} else {
+		serviceDate = getNextSunday();
+	}
 
 	// Build worship items from template
 	const worship: WorshipItemData[] = template.map((t) => {

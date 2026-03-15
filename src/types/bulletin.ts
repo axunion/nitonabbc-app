@@ -42,6 +42,11 @@ export type BulletinDetail = BulletinSummary & {
 	assignments: Record<string, string>;
 };
 
+export type BulletinListResponse = {
+	bulletins: BulletinSummary[];
+	nextSunday: string;
+};
+
 export type Member = {
 	id: number;
 	name: string;

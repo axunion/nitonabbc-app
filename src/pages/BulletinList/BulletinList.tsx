@@ -1,5 +1,6 @@
+import { Dialog } from "@kobalte/core/dialog";
 import { useNavigate } from "@solidjs/router";
-import { CalendarPlus } from "lucide-solid";
+import { Check } from "lucide-solid";
 import { createMemo, createResource, createSignal, For, Show } from "solid-js";
 import { fetchBulletins } from "@/api/bulletin.ts";
 import { Header } from "@/components/Header";
@@ -8,60 +9,107 @@ import type { BulletinSummary } from "@/types/bulletin.ts";
 import { formatDate } from "@/utils/date.ts";
 import styles from "./BulletinList.module.css";
 
-function getNextSunday(): string {
-	const today = new Date();
-	const dayOfWeek = today.getUTCDay();
-	const daysUntilSunday = dayOfWeek === 0 ? 7 : 7 - dayOfWeek;
-	const nextSunday = new Date(today);
-	nextSunday.setUTCDate(today.getUTCDate() + daysUntilSunday);
-	return nextSunday.toISOString().slice(0, 10);
-}
+const START_YEAR = 2026;
+
+type DayEntry = {
+	dateStr: string;
+	bulletin: BulletinSummary | null;
+	isNextSunday: boolean;
+};
 
 export function BulletinList() {
-	const [bulletins, { refetch }] = createResource(fetchBulletins);
+	const [data, { refetch }] = createResource(fetchBulletins);
 	const { t, locale } = useLocale();
 	const navigate = useNavigate();
-	const [generating, setGenerating] = createSignal(false);
-	const [genError, setGenError] = createSignal("");
 
-	const nextSunday = getNextSunday();
-	const today = new Date().toISOString().slice(0, 10);
+	const now = new Date();
+	const [selectedYear, setSelectedYear] = createSignal(now.getFullYear());
+	const [selectedMonth, setSelectedMonth] = createSignal(now.getMonth() + 1);
 
-	const upcoming = createMemo(() => {
-		const items = bulletins();
-		if (!items) return [];
-		return items.filter((b) => b.serviceDate >= today);
+	const [dialogDate, setDialogDate] = createSignal<string | null>(null);
+	const [creating, setCreating] = createSignal(false);
+	const [createError, setCreateError] = createSignal("");
+
+	// Year options: current year down to START_YEAR (constant)
+	const years: number[] = [];
+	for (let y = now.getFullYear(); y >= START_YEAR; y--) {
+		years.push(y);
+	}
+
+	const months = Array.from({ length: 12 }, (_, i) => i + 1);
+
+	// Entries for selected year/month: created bulletins + next Sunday if applicable
+	const entries = createMemo((): DayEntry[] => {
+		const d = data();
+		if (!d) return [];
+		const y = selectedYear();
+		const m = selectedMonth();
+		const prefix = `${y}-${String(m).padStart(2, "0")}`;
+		const { nextSunday } = d;
+
+		const result: DayEntry[] = [];
+		let nextSundayFound = false;
+
+		for (const b of d.bulletins) {
+			if (b.serviceDate.startsWith(prefix)) {
+				if (b.serviceDate === nextSunday) nextSundayFound = true;
+				result.push({
+					dateStr: b.serviceDate,
+					bulletin: b,
+					isNextSunday: b.serviceDate === nextSunday,
+				});
+			}
+		}
+
+		// Add next Sunday if it's in this month and not yet created
+		if (!nextSundayFound && nextSunday.startsWith(prefix)) {
+			result.push({
+				dateStr: nextSunday,
+				bulletin: null,
+				isNextSunday: true,
+			});
+		}
+
+		result.sort((a, b) => a.dateStr.localeCompare(b.dateStr));
+		return result;
 	});
 
-	const archive = createMemo(() => {
-		const items = bulletins();
-		if (!items) return [];
-		return items.filter((b) => b.serviceDate < today);
-	});
+	function handleDayClick(entry: DayEntry) {
+		if (entry.bulletin) {
+			navigate(`/bulletin/${entry.bulletin.id}`);
+		} else {
+			setCreateError("");
+			setDialogDate(entry.dateStr);
+		}
+	}
 
-	const hasNextSunday = () =>
-		bulletins()?.some((b) => b.serviceDate === nextSunday) ?? false;
-
-	async function handleGenerate() {
-		setGenError("");
-		setGenerating(true);
+	async function handleCreate() {
+		const date = dialogDate();
+		if (!date) return;
+		setCreating(true);
+		setCreateError("");
 		try {
-			const res = await fetch("/api/bulletin/generate", { method: "POST" });
+			const res = await fetch("/api/bulletin/generate", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ serviceDate: date }),
+			});
 			if (res.status === 409) {
-				setGenError(t("bulletin.alreadyExists"));
+				setCreateError(t("bulletin.alreadyExists"));
 				return;
 			}
 			if (!res.ok) {
-				setGenError(t("bulletin.generateError"));
+				setCreateError(t("bulletin.generateError"));
 				return;
 			}
-			const data = (await res.json()) as { id: number };
+			const result = (await res.json()) as { id: number };
+			setDialogDate(null);
 			refetch();
-			navigate(`/bulletin/${data.id}/edit`);
+			navigate(`/bulletin/${result.id}/edit`);
 		} catch {
-			setGenError(t("bulletin.generateError"));
+			setCreateError(t("bulletin.generateError"));
 		} finally {
-			setGenerating(false);
+			setCreating(false);
 		}
 	}
 
@@ -75,87 +123,130 @@ export function BulletinList() {
 			<Header title={t("bulletin.title")} backTo="/" />
 			<div class={styles.container}>
 				<Show
-					when={!bulletins.loading}
+					when={!data.loading}
 					fallback={<p class={styles.loading}>{t("common.loading")}</p>}
 				>
-					{/* Generate next Sunday button */}
-					<Show when={!hasNextSunday()}>
-						<button
-							type="button"
-							class={styles.generateButton}
-							onClick={handleGenerate}
-							disabled={generating()}
+					{/* Year / Month selectors */}
+					<div class={styles.selectorRow}>
+						<select
+							class={styles.selector}
+							value={selectedYear()}
+							onChange={(e) => setSelectedYear(Number(e.currentTarget.value))}
 						>
-							<CalendarPlus size={20} stroke-width={1.5} />
-							{generating()
-								? t("bulletin.generating")
-								: t("bulletin.generateNext")}
-						</button>
-					</Show>
+							<For each={years}>
+								{(y) => (
+									<option value={y}>
+										{y}
+										{t("bulletin.year")}
+									</option>
+								)}
+							</For>
+						</select>
+						<select
+							class={styles.selector}
+							value={selectedMonth()}
+							onChange={(e) => setSelectedMonth(Number(e.currentTarget.value))}
+						>
+							<For each={months}>
+								{(m) => (
+									<option value={m}>
+										{m}
+										{t("bulletin.month")}
+									</option>
+								)}
+							</For>
+						</select>
+					</div>
 
-					<Show when={genError()}>
-						<p class={styles.genError}>{genError()}</p>
-					</Show>
-
-					{/* Upcoming bulletins */}
-					<Show when={upcoming().length > 0}>
-						<h2 class={styles.sectionTitle}>{t("bulletin.upcoming")}</h2>
-						<ul class={styles.list}>
-							<For each={upcoming()}>
-								{(b) => (
-									<li>
-										<button
-											type="button"
-											class={styles.upcomingCard}
-											onClick={() => navigate(`/bulletin/${b.id}`)}
-										>
-											<span class={styles.date}>
-												{formatDate(b.serviceDate, locale())}
-											</span>
-											<div class={styles.progressRow}>
-												<div class={styles.progressBar}>
-													<div
-														class={styles.progressFill}
-														style={{
-															width: `${progressPercent(b)}%`,
-														}}
+					{/* Bulletin entries */}
+					<ul class={styles.list}>
+						<For each={entries()}>
+							{(entry) => (
+								<li>
+									<button
+										type="button"
+										class={styles.dayCard}
+										classList={{
+											[styles.dayCardExists]: !!entry.bulletin,
+											[styles.dayCardPending]:
+												!entry.bulletin && entry.isNextSunday,
+										}}
+										onClick={() => handleDayClick(entry)}
+									>
+										<span class={styles.dayDate}>
+											{formatDate(entry.dateStr, locale())}
+										</span>
+										<Show when={entry.bulletin} keyed>
+											{(b) => (
+												<div class={styles.dayMeta}>
+													<div class={styles.progressBar}>
+														<div
+															class={styles.progressFill}
+															style={{
+																width: `${progressPercent(b)}%`,
+															}}
+														/>
+													</div>
+													<span class={styles.progressText}>
+														{t("bulletin.progressCount")
+															.replace("{{filled}}", String(b.filledItems))
+															.replace("{{total}}", String(b.totalItems))}
+													</span>
+													<Check
+														size={16}
+														stroke-width={2}
+														class={styles.checkIcon}
 													/>
 												</div>
-												<span class={styles.progressText}>
-													{t("bulletin.progressCount")
-														.replace("{{filled}}", String(b.filledItems))
-														.replace("{{total}}", String(b.totalItems))}
-												</span>
-											</div>
-										</button>
-									</li>
-								)}
-							</For>
-						</ul>
-					</Show>
-
-					{/* Archive */}
-					<Show when={archive().length > 0}>
-						<h2 class={styles.sectionTitle}>{t("bulletin.archive")}</h2>
-						<ul class={styles.list}>
-							<For each={archive()}>
-								{(b) => (
-									<li>
-										<button
-											type="button"
-											class={styles.card}
-											onClick={() => navigate(`/bulletin/${b.id}`)}
-										>
-											<span class={styles.date}>
-												{formatDate(b.serviceDate, locale())}
-											</span>
-										</button>
-									</li>
-								)}
-							</For>
-						</ul>
-					</Show>
+											)}
+										</Show>
+									</button>
+								</li>
+							)}
+						</For>
+					</ul>
 				</Show>
+
+				{/* Create confirmation dialog */}
+				<Dialog
+					open={dialogDate() !== null}
+					onOpenChange={(open) => {
+						if (!open) setDialogDate(null);
+					}}
+				>
+					<Dialog.Portal>
+						<Dialog.Overlay class={styles.overlay} />
+						<Dialog.Content class={styles.dialogContent}>
+							<Dialog.Title class={styles.dialogTitle}>
+								{t("bulletin.createConfirm").replace(
+									"{{date}}",
+									dialogDate()
+										? formatDate(dialogDate() as string, locale())
+										: "",
+								)}
+							</Dialog.Title>
+							<Dialog.Description class={styles.dialogDesc}>
+								{t("bulletin.createConfirmDesc")}
+							</Dialog.Description>
+							<Show when={createError()}>
+								<p class={styles.dialogError}>{createError()}</p>
+							</Show>
+							<div class={styles.dialogActions}>
+								<Dialog.CloseButton class={styles.cancelButton}>
+									{t("common.cancel")}
+								</Dialog.CloseButton>
+								<button
+									type="button"
+									class={styles.submitButton}
+									onClick={handleCreate}
+									disabled={creating()}
+								>
+									{creating() ? t("bulletin.generating") : t("common.create")}
+								</button>
+							</div>
+						</Dialog.Content>
+					</Dialog.Portal>
+				</Dialog>
 			</div>
 		</>
 	);

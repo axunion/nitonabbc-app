@@ -17,50 +17,52 @@
 	}
 }
 
-.generateButton {
-	composes: dashedAction from "../../styles/shared.module.css";
-}
-
-.generateButton:disabled {
-	opacity: 0.6;
-	cursor: not-allowed;
-}
-
-.genError {
+/* Selectors row */
+.selectorRow {
+	display: flex;
+	gap: var(--space-2);
 	width: 100%;
 	max-width: 480px;
-	background-color: var(--color-destructive-50);
-	color: var(--color-destructive-700);
+	margin-bottom: var(--space-4);
+}
+
+.selector {
+	flex: 1;
 	padding: var(--space-3);
 	border-radius: var(--radius-md);
-	font-size: var(--text-sm);
-	margin-bottom: var(--space-4);
-	box-sizing: border-box;
+	border: var(--glass-border);
+	background: var(--glass-bg);
+	backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	font: inherit;
+	font-size: var(--text-base);
+	color: var(--color-gray-900);
+	outline: none;
+	cursor: pointer;
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right var(--space-3) center;
+	padding-right: var(--space-8);
 }
 
-.sectionTitle {
-	width: 100%;
-	max-width: 480px;
-	font-size: var(--text-sm);
-	font-weight: var(--font-semibold);
-	color: var(--color-gray-500);
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	margin: 0 0 var(--space-2) 0;
+.selector:focus-visible {
+	box-shadow: var(--focus-ring);
 }
 
+/* Sunday card list */
 .list {
 	width: 100%;
 	max-width: 480px;
 	display: flex;
 	flex-direction: column;
-	gap: var(--space-3);
+	gap: var(--space-2);
 	list-style: none;
 	padding: 0;
-	margin: 0 0 var(--space-6) 0;
+	margin: 0;
 }
 
-.upcomingCard {
+.dayCard {
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-2);
@@ -70,10 +72,10 @@
 	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
 	border: var(--glass-border);
 	border-radius: var(--radius-lg);
-	padding: var(--space-4);
+	padding: var(--space-3) var(--space-4);
 	text-align: left;
 	font: inherit;
-	color: inherit;
+	color: var(--color-gray-400);
 	cursor: pointer;
 	outline: none;
 	box-shadow: var(--shadow-sm);
@@ -83,52 +85,30 @@
 		box-shadow var(--duration-fast) var(--ease-default);
 }
 
-.upcomingCard:hover {
+.dayCard:hover {
 	background: var(--glass-bg-hover);
 	border: var(--glass-border-hover);
 }
 
-.upcomingCard:focus-visible {
+.dayCard:focus-visible {
 	box-shadow: var(--focus-ring);
 }
 
-.card {
-	display: block;
-	width: 100%;
-	background: var(--glass-bg);
-	backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	border: var(--glass-border);
-	border-radius: var(--radius-lg);
-	padding: var(--space-4);
-	text-align: left;
-	font: inherit;
-	color: inherit;
-	cursor: pointer;
-	outline: none;
-	box-shadow: var(--shadow-sm);
-	transition:
-		background var(--duration-fast) var(--ease-default),
-		border var(--duration-fast) var(--ease-default),
-		box-shadow var(--duration-fast) var(--ease-default);
-}
-
-.card:hover {
-	background: var(--glass-bg-hover);
-	border: var(--glass-border-hover);
-}
-
-.card:focus-visible {
-	box-shadow: var(--focus-ring);
-}
-
-.date {
-	font-size: var(--text-base);
-	font-weight: var(--font-semibold);
+.dayCardExists {
 	color: var(--color-gray-900);
 }
 
-.progressRow {
+.dayCardPending {
+	opacity: 0.5;
+	border-style: dashed;
+}
+
+.dayDate {
+	font-size: var(--text-base);
+	font-weight: var(--font-semibold);
+}
+
+.dayMeta {
 	display: flex;
 	align-items: center;
 	gap: var(--space-2);
@@ -153,6 +133,132 @@
 	font-size: var(--text-xs);
 	color: var(--color-gray-500);
 	white-space: nowrap;
+}
+
+.checkIcon {
+	color: var(--color-primary);
+	flex-shrink: 0;
+}
+
+/* Dialog */
+.overlay {
+	position: fixed;
+	inset: 0;
+	z-index: var(--z-modal);
+	background-color: rgba(0, 0, 0, 0.3);
+	animation: overlayFadeIn var(--duration-fast) var(--ease-default);
+}
+
+@keyframes overlayFadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+.dialogContent {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: var(--z-modal);
+	background: rgba(255, 255, 255, 0.95);
+	backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	border: var(--glass-border);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-lg);
+	padding: var(--space-6);
+	width: calc(100% - var(--space-8));
+	max-width: 400px;
+	animation: slideUp var(--duration-normal) var(--ease-default);
+}
+
+@keyframes slideUp {
+	from {
+		opacity: 0;
+		transform: translate(-50%, -48%);
+	}
+	to {
+		opacity: 1;
+		transform: translate(-50%, -50%);
+	}
+}
+
+.dialogTitle {
+	font-size: var(--text-lg);
+	font-weight: var(--font-semibold);
+	color: var(--color-gray-900);
+	margin: 0 0 var(--space-2) 0;
+}
+
+.dialogDesc {
+	font-size: var(--text-sm);
+	color: var(--color-gray-500);
+	margin: 0 0 var(--space-4) 0;
+}
+
+.dialogError {
+	background-color: var(--color-destructive-50);
+	color: var(--color-destructive-700);
+	padding: var(--space-3);
+	border-radius: var(--radius-md);
+	font-size: var(--text-sm);
+	margin-bottom: var(--space-4);
+}
+
+.dialogActions {
+	display: flex;
+	gap: var(--space-2);
+	justify-content: flex-end;
+}
+
+.cancelButton {
+	padding: var(--space-2) var(--space-4);
+	border-radius: var(--radius-md);
+	border: var(--glass-border);
+	background: transparent;
+	color: var(--color-gray-700);
+	font: inherit;
+	font-size: var(--text-sm);
+	cursor: pointer;
+	outline: none;
+}
+
+.cancelButton:hover {
+	background: var(--color-gray-100);
+}
+
+.cancelButton:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+.submitButton {
+	padding: var(--space-2) var(--space-4);
+	border-radius: var(--radius-md);
+	border: none;
+	background: var(--color-primary);
+	color: white;
+	font: inherit;
+	font-size: var(--text-sm);
+	font-weight: var(--font-medium);
+	cursor: pointer;
+	outline: none;
+}
+
+.submitButton:hover {
+	opacity: 0.9;
+}
+
+.submitButton:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+.submitButton:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
 }
 
 .loading {

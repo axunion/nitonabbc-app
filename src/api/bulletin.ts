@@ -1,14 +1,14 @@
 import type {
 	BulletinDetail,
-	BulletinSummary,
+	BulletinListResponse,
 	Member,
 	TemplateItem,
 } from "@/types/bulletin.ts";
 
-export async function fetchBulletins(): Promise<BulletinSummary[]> {
+export async function fetchBulletins(): Promise<BulletinListResponse> {
 	const res = await fetch("/api/bulletin");
 	if (!res.ok) throw new Error("Failed to fetch bulletins");
-	return res.json() as Promise<BulletinSummary[]>;
+	return res.json() as Promise<BulletinListResponse>;
 }
 
 export async function fetchBulletin(id: string): Promise<BulletinDetail> {

@@ -99,8 +99,12 @@ describe("GET /api/bulletin", () => {
 			env,
 		);
 		expect(res.status).toBe(200);
-		const json = await res.json();
-		expect(json).toEqual([]);
+		const json = (await res.json()) as {
+			bulletins: unknown[];
+			nextSunday: string;
+		};
+		expect(json.bulletins).toEqual([]);
+		expect(json.nextSunday).toMatch(/^\d{4}-\d{2}-\d{2}$/);
 	});
 
 	it("returns bulletins sorted by service_date DESC", async () => {
@@ -145,10 +149,20 @@ describe("GET /api/bulletin", () => {
 			env,
 		);
 		expect(res.status).toBe(200);
-		const json = (await res.json()) as unknown[];
-		expect(json).toHaveLength(2);
-		expect(json[0]).toMatchObject({ id: 2, serviceDate: "2025-06-15" });
-		expect(json[1]).toMatchObject({ id: 1, serviceDate: "2025-06-08" });
+		const json = (await res.json()) as {
+			bulletins: unknown[];
+			nextSunday: string;
+		};
+		expect(json.bulletins).toHaveLength(2);
+		expect(json.bulletins[0]).toMatchObject({
+			id: 2,
+			serviceDate: "2025-06-15",
+		});
+		expect(json.bulletins[1]).toMatchObject({
+			id: 1,
+			serviceDate: "2025-06-08",
+		});
+		expect(json.nextSunday).toMatch(/^\d{4}-\d{2}-\d{2}$/);
 	});
 });
 
