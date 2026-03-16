@@ -431,59 +431,16 @@
 }
 
 .actions {
-	display: flex;
-	gap: var(--space-2);
-	justify-content: flex-end;
+	composes: pairedActions from "../../styles/shared.module.css";
 	padding-bottom: var(--space-8);
 }
 
 .cancelButton {
-	height: 44px;
-	padding: 0 var(--space-4);
-	border-radius: var(--radius-md);
-	border: var(--glass-border);
-	background: var(--glass-bg);
-	color: var(--color-gray-700);
-	font-size: var(--text-sm);
-	font-weight: var(--font-medium);
-	cursor: pointer;
-	outline: none;
-	transition: background var(--duration-fast) var(--ease-default);
-}
-
-.cancelButton:hover {
-	background: var(--glass-bg-hover);
-}
-
-.cancelButton:focus-visible {
-	box-shadow: var(--focus-ring);
+	composes: pairedCancel from "../../styles/shared.module.css";
 }
 
 .saveButton {
-	height: 44px;
-	padding: 0 var(--space-4);
-	border-radius: var(--radius-md);
-	border: none;
-	background-color: var(--color-primary);
-	color: white;
-	font-size: var(--text-sm);
-	font-weight: var(--font-medium);
-	cursor: pointer;
-	outline: none;
-	transition: background-color var(--duration-fast) var(--ease-default);
-}
-
-.saveButton:hover {
-	background-color: var(--color-primary-700);
-}
-
-.saveButton:focus-visible {
-	box-shadow: var(--focus-ring);
-}
-
-.saveButton:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
+	composes: pairedSubmit from "../../styles/shared.module.css";
 }
 
 /* --- Messages --- */

@@ -140,12 +140,42 @@ import { FileText } from "lucide-solid";
 
 ## タイポグラフィ
 
-| 用途 | サイズ |
-|------|--------|
-| ページタイトル | `text-sm` + `font-semibold` |
-| 本文 | `text-base` |
-| ウィジェットラベル | `text-base` + `font-semibold` |
-| サブテキスト・ミュート | `text-sm` + `color-text-muted` |
+### フォント
+
+- **Latin / 数字**: Inter (Google Fonts, weight 400/500/600)
+- **日本語**: システムフォントへフォールバック (Hiragino Sans / Noto Sans JP)
+- `--font-sans: "Inter", system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif`
+
+### フォントサイズスケール
+
+| トークン | 値 | 用途 |
+|----------|-----|------|
+| `text-2xs` | 0.625rem (10px) | TabBar ラベル |
+| `text-xs` | 0.75rem (12px) | バッジ、進捗テキスト |
+| `text-sm` | 0.875rem (14px) | サブテキスト、ミュート |
+| `text-base` | 1rem (16px) | 本文、ヘッダータイトル |
+| `text-lg` | 1.25rem (20px) | セクションタイトル、ダイアログタイトル |
+| `text-xl` | 1.5rem (24px) | Login タイトル |
+
+### Letter-spacing
+
+| トークン | 値 | 用途 |
+|----------|-----|------|
+| `tracking-tight` | -0.01em | `text-lg` / `text-xl` のタイトル要素 |
+| `tracking-normal` | 0 | `text-base` 本文（デフォルト） |
+| `tracking-wide` | 0.01em | `text-xs` / `text-2xs` のラテン文字小テキスト |
+
+### 用途別スタイル
+
+| 用途 | サイズ | 備考 |
+|------|--------|------|
+| ヘッダータイトル | `text-base` + `font-semibold` | |
+| ページ/ダイアログタイトル | `text-lg` + `font-semibold` | `tracking-tight` |
+| Login タイトル | `text-xl` + `font-semibold` | `tracking-tight` |
+| 本文 | `text-base` | |
+| ウィジェットラベル | `text-base` + `font-semibold` | |
+| サブテキスト・ミュート | `text-sm` + `color-text-muted` | |
+| TabBar ラベル | `text-2xs` + `font-medium` | `tracking-wide` |
 
 ## ダッシュボード レイアウト
 

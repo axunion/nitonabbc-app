@@ -38,6 +38,7 @@
 	font-size: var(--text-lg);
 	font-weight: var(--font-semibold);
 	color: var(--color-gray-900);
+	letter-spacing: var(--tracking-tight);
 }
 
 .userRole {

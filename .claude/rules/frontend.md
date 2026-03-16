@@ -17,10 +17,11 @@ paths:
 
 - ファイル拡張子: `.module.css`、コンポーネントと同ディレクトリに配置
 - デザイントークン (`src/styles/tokens.css`) の CSS 変数を必ず使用（ハードコード禁止）:
-  - 色: `var(--color-*)`, フォーカス: `var(--focus-ring)`, タイポ: `var(--text-*)`, `var(--font-*)`
+  - 色: `var(--color-*)`, フォーカス: `var(--focus-ring)`, タイポ: `var(--text-*)`, `var(--font-*)`, `var(--tracking-*)`
   - スペーシング: `var(--space-*)`, 角丸: `var(--radius-*)`, 影: `var(--shadow-*)`
   - トランジション: `var(--duration-*)`, `var(--ease-*)`, z-index: `var(--z-*)`
 - ページコンテナには fadeIn アニメーションを適用
+- 複数ページで共通のスタイルは `src/styles/shared.module.css` に定義し、各ページで `composes` で適用する（例: `composes: pairedCancel from "../../styles/shared.module.css";`）
 
 ## アイコン
 

@@ -23,8 +23,9 @@
 }
 
 .title {
-	font-size: var(--text-lg);
-	font-weight: var(--font-bold);
+	font-size: var(--text-xl);
+	font-weight: var(--font-semibold);
+	letter-spacing: var(--tracking-tight);
 	color: var(--color-gray-900);
 	text-align: center;
 	line-height: var(--leading-tight);

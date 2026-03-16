@@ -7,6 +7,8 @@
 			"Bash(pnpm test:*)",
 			"Bash(pnpm build)",
 			"Bash(ls:*)",
+			"Bash(grep:*)",
+			"Bash(git add:*)",
 			"WebFetch(domain:developers.cloudflare.com)",
 			"WebFetch(domain:hono.dev)",
 			"WebFetch(domain:github.com)",

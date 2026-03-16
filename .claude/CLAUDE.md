@@ -63,7 +63,7 @@ UI・CSS・APIサーバー・テストの詳細規約は `.claude/rules/` のパ
 - `src/components/<Name>/index.ts` - re-export
 - `src/pages/<Name>/<Name>.tsx` - ページコンポーネント（ルートレベルの画面）
 - `src/store/` - Solid.js ストア（`createResource` ベース）
-- `src/styles/` - グローバルスタイル (tokens.css, reset.css)
+- `src/styles/` - グローバルスタイル (tokens.css, reset.css) + 共通CSS Modulesクラス (shared.module.css)
 - `server/routes/` - Hono APIルート（1ファイル1リソース）
 - `server/middleware/` - 共通ミドルウェア
 - `server/types.ts` - `AppEnv`・`User`・`SessionData` などサーバー共通型

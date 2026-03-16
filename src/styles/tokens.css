@@ -88,17 +88,16 @@
 
 	/* --- Typography --- */
 	--font-sans:
-		system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP",
-		sans-serif;
+		"Inter", system-ui, -apple-system, "Segoe UI", "Hiragino Sans",
+		"Noto Sans JP", sans-serif;
 	--font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", monospace;
 
+	--text-2xs: 0.625rem;
 	--text-xs: 0.75rem;
 	--text-sm: 0.875rem;
 	--text-base: 1rem;
-	--text-lg: 1.125rem;
-	--text-xl: 1.25rem;
-	--text-2xl: 1.5rem;
-	--text-3xl: 1.875rem;
+	--text-lg: 1.25rem;
+	--text-xl: 1.5rem;
 
 	--leading-tight: 1.25;
 	--leading-normal: 1.5;
@@ -108,6 +107,10 @@
 	--font-medium: 500;
 	--font-semibold: 600;
 	--font-bold: 700;
+
+	--tracking-tight: -0.01em;
+	--tracking-normal: 0;
+	--tracking-wide: 0.01em;
 
 	/* --- Spacing --- */
 	--space-1: 0.25rem;

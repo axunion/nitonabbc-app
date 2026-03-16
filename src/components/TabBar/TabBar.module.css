@@ -51,7 +51,8 @@
 }
 
 .label {
-	font-size: 0.625rem;
+	font-size: var(--text-2xs);
 	font-weight: var(--font-medium);
 	line-height: 1;
+	letter-spacing: var(--tracking-wide);
 }

@@ -69,6 +69,7 @@
 	font-size: var(--text-xs);
 	font-weight: var(--font-medium);
 	line-height: 1;
+	letter-spacing: var(--tracking-wide);
 }
 
 .badgeAdmin {
@@ -197,6 +198,7 @@
 	font-weight: var(--font-semibold);
 	color: var(--color-gray-900);
 	margin: 0 0 var(--space-4) 0;
+	letter-spacing: var(--tracking-tight);
 }
 
 .formGroup {
@@ -240,59 +242,16 @@
 }
 
 .dialogActions {
-	display: flex;
-	gap: var(--space-2);
-	justify-content: flex-end;
+	composes: pairedActions from "../../styles/shared.module.css";
 	margin-top: var(--space-6);
 }
 
 .cancelButton {
-	height: 44px;
-	padding: 0 var(--space-4);
-	border-radius: var(--radius-md);
-	border: var(--glass-border);
-	background: var(--glass-bg);
-	color: var(--color-gray-700);
-	font-size: var(--text-sm);
-	font-weight: var(--font-medium);
-	cursor: pointer;
-	outline: none;
-	transition: background var(--duration-fast) var(--ease-default);
-}
-
-.cancelButton:hover {
-	background: var(--glass-bg-hover);
-}
-
-.cancelButton:focus-visible {
-	box-shadow: var(--focus-ring);
+	composes: pairedCancel from "../../styles/shared.module.css";
 }
 
 .submitButton {
-	height: 44px;
-	padding: 0 var(--space-4);
-	border-radius: var(--radius-md);
-	border: none;
-	background-color: var(--color-primary);
-	color: white;
-	font-size: var(--text-sm);
-	font-weight: var(--font-medium);
-	cursor: pointer;
-	outline: none;
-	transition: background-color var(--duration-fast) var(--ease-default);
-}
-
-.submitButton:hover {
-	background-color: var(--color-primary-700);
-}
-
-.submitButton:focus-visible {
-	box-shadow: var(--focus-ring);
-}
-
-.submitButton:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
+	composes: pairedSubmit from "../../styles/shared.module.css";
 }
 
 .loading {
