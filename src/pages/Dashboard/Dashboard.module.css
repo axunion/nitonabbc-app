@@ -36,7 +36,7 @@
 	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
 	border: var(--glass-border);
 	border-radius: var(--radius-xl);
-	box-shadow: var(--shadow-md);
+	box-shadow: var(--glass-shadow-md);
 	cursor: pointer;
 	outline: none;
 	transition:
@@ -71,7 +71,7 @@
 	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
 	border: var(--glass-border);
 	border-radius: var(--radius-xl);
-	box-shadow: var(--shadow-md);
+	box-shadow: var(--glass-shadow-md);
 	cursor: pointer;
 	outline: none;
 	transition:

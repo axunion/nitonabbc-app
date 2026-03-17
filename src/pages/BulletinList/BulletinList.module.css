@@ -78,7 +78,7 @@
 	color: var(--color-gray-400);
 	cursor: pointer;
 	outline: none;
-	box-shadow: var(--shadow-sm);
+	box-shadow: var(--glass-shadow-sm);
 	transition:
 		background var(--duration-fast) var(--ease-default),
 		border var(--duration-fast) var(--ease-default),
@@ -170,7 +170,7 @@
 	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
 	border: var(--glass-border);
 	border-radius: var(--radius-lg);
-	box-shadow: var(--shadow-lg);
+	box-shadow: var(--glass-shadow-lg);
 	padding: var(--space-6);
 	width: calc(100% - var(--space-8));
 	max-width: 400px;

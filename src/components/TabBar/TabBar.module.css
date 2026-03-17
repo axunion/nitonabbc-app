@@ -8,10 +8,10 @@
 	right: 0;
 	height: calc(52px + env(safe-area-inset-bottom, 0px));
 	padding-bottom: env(safe-area-inset-bottom, 0px);
-	background: rgba(255, 255, 255, 0.85);
+	background: var(--glass-bg-chrome);
 	backdrop-filter: var(--glass-blur) var(--glass-saturate);
 	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	border-top: 1px solid rgba(0, 0, 0, 0.06);
+	border-top: var(--glass-border);
 	z-index: var(--z-sticky);
 }
 

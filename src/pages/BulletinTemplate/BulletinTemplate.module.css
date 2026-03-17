@@ -47,6 +47,7 @@
 	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
 	border: var(--glass-border);
 	border-radius: var(--radius-lg);
+	box-shadow: var(--glass-shadow-sm);
 	overflow: hidden;
 }
 

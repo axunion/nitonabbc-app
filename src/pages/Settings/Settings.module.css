@@ -30,7 +30,7 @@
 	border-radius: var(--radius-lg);
 	padding: var(--space-4);
 	margin-bottom: var(--space-4);
-	box-shadow: var(--shadow-sm);
+	box-shadow: var(--glass-shadow-sm);
 }
 
 .userName {
@@ -59,7 +59,7 @@
 	border: var(--glass-border);
 	border-radius: var(--radius-lg);
 	overflow: hidden;
-	box-shadow: var(--shadow-sm);
+	box-shadow: var(--glass-shadow-sm);
 }
 
 .menuItem {

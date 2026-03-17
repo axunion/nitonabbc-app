@@ -14,10 +14,10 @@
 }
 
 .scrolled {
-	background: rgba(255, 255, 255, 0.85);
+	background: var(--glass-bg-chrome);
 	backdrop-filter: var(--glass-blur) var(--glass-saturate);
 	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	border-bottom-color: rgba(0, 0, 0, 0.06);
+	border-bottom: var(--glass-border);
 }
 
 .spacer {
@@ -41,7 +41,7 @@
 	padding: 0;
 	flex-shrink: 0;
 	-webkit-tap-highlight-color: transparent;
-	box-shadow: var(--shadow-sm);
+	box-shadow: var(--glass-shadow-sm);
 	transition:
 		background var(--duration-fast) var(--ease-default),
 		box-shadow var(--duration-fast) var(--ease-default);
