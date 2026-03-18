@@ -56,7 +56,6 @@ export const en: Dictionary = {
 		announcements: "Announcements",
 		assignments: "Assignments",
 		generateNext: "Create next Sunday's bulletin",
-		generating: "Creating...",
 		generateError: "Failed to create",
 		alreadyExists: "A bulletin for this date already exists",
 		progress: "Progress",
@@ -71,8 +70,7 @@ export const en: Dictionary = {
 		year: "Year",
 		month: "Month",
 		created: "Created",
-		createConfirm: "Create bulletin for {{date}}?",
-		createConfirmDesc: "A bulletin will be created from the template.",
+		notCreated: "Not created",
 	},
 	worshipTemplate: {
 		title: "Worship Program Template",
@@ -123,5 +121,6 @@ export const en: Dictionary = {
 		selectMember: "Select member",
 		scripturePlaceholder: "Scripture (e.g. John 3:16)",
 		numberPlaceholder: "Number",
+		fillAtLeastOne: "Fill in at least one item",
 	},
 };

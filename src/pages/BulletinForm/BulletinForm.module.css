@@ -237,6 +237,14 @@
 	box-sizing: border-box;
 }
 
+.validationHint {
+	font-size: var(--text-xs);
+	color: var(--color-gray-400);
+	text-align: center;
+	margin-top: var(--space-2);
+	letter-spacing: var(--tracking-wide);
+}
+
 .loading {
 	text-align: center;
 	padding: var(--space-8);

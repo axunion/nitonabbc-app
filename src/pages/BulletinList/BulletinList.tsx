@@ -1,4 +1,3 @@
-import { Dialog } from "@kobalte/core/dialog";
 import { useNavigate } from "@solidjs/router";
 import { Check } from "lucide-solid";
 import { createMemo, createResource, createSignal, For, Show } from "solid-js";
@@ -18,17 +17,13 @@ type DayEntry = {
 };
 
 export function BulletinList() {
-	const [data, { refetch }] = createResource(fetchBulletins);
+	const [data] = createResource(fetchBulletins);
 	const { t, locale } = useLocale();
 	const navigate = useNavigate();
 
 	const now = new Date();
 	const [selectedYear, setSelectedYear] = createSignal(now.getFullYear());
 	const [selectedMonth, setSelectedMonth] = createSignal(now.getMonth() + 1);
-
-	const [dialogDate, setDialogDate] = createSignal<string | null>(null);
-	const [creating, setCreating] = createSignal(false);
-	const [createError, setCreateError] = createSignal("");
 
 	// Year options: current year down to START_YEAR (constant)
 	const years: number[] = [];
@@ -78,38 +73,7 @@ export function BulletinList() {
 		if (entry.bulletin) {
 			navigate(`/bulletin/${entry.bulletin.id}`);
 		} else {
-			setCreateError("");
-			setDialogDate(entry.dateStr);
-		}
-	}
-
-	async function handleCreate() {
-		const date = dialogDate();
-		if (!date) return;
-		setCreating(true);
-		setCreateError("");
-		try {
-			const res = await fetch("/api/bulletin/generate", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ serviceDate: date }),
-			});
-			if (res.status === 409) {
-				setCreateError(t("bulletin.alreadyExists"));
-				return;
-			}
-			if (!res.ok) {
-				setCreateError(t("bulletin.generateError"));
-				return;
-			}
-			const result = (await res.json()) as { id: number };
-			setDialogDate(null);
-			refetch();
-			navigate(`/bulletin/${result.id}/edit`);
-		} catch {
-			setCreateError(t("bulletin.generateError"));
-		} finally {
-			setCreating(false);
+			navigate(`/bulletin/new?date=${entry.dateStr}`);
 		}
 	}
 
@@ -176,77 +140,46 @@ export function BulletinList() {
 										<span class={styles.dayDate}>
 											{formatDate(entry.dateStr, locale())}
 										</span>
-										<Show when={entry.bulletin} keyed>
-											{(b) => (
-												<div class={styles.dayMeta}>
-													<div class={styles.progressBar}>
-														<div
-															class={styles.progressFill}
-															style={{
-																width: `${progressPercent(b)}%`,
-															}}
-														/>
-													</div>
-													<span class={styles.progressText}>
-														{t("bulletin.progressCount")
-															.replace("{{filled}}", String(b.filledItems))
-															.replace("{{total}}", String(b.totalItems))}
+										<div class={styles.dayMeta}>
+											<Show
+												when={entry.bulletin}
+												keyed
+												fallback={
+													<span class={styles.pendingLabel}>
+														{t("bulletin.notCreated")}
 													</span>
-													<Check
-														size={16}
-														stroke-width={2}
-														class={styles.checkIcon}
-													/>
-												</div>
-											)}
-										</Show>
+												}
+											>
+												{(b) => (
+													<>
+														<div class={styles.progressBar}>
+															<div
+																class={styles.progressFill}
+																style={{
+																	width: `${progressPercent(b)}%`,
+																}}
+															/>
+														</div>
+														<span class={styles.progressText}>
+															{t("bulletin.progressCount")
+																.replace("{{filled}}", String(b.filledItems))
+																.replace("{{total}}", String(b.totalItems))}
+														</span>
+														<Check
+															size={16}
+															stroke-width={2}
+															class={styles.checkIcon}
+														/>
+													</>
+												)}
+											</Show>
+										</div>
 									</button>
 								</li>
 							)}
 						</For>
 					</ul>
 				</Show>
-
-				{/* Create confirmation dialog */}
-				<Dialog
-					open={dialogDate() !== null}
-					onOpenChange={(open) => {
-						if (!open) setDialogDate(null);
-					}}
-				>
-					<Dialog.Portal>
-						<Dialog.Overlay class={styles.overlay} />
-						<Dialog.Content class={styles.dialogContent}>
-							<Dialog.Title class={styles.dialogTitle}>
-								{t("bulletin.createConfirm").replace(
-									"{{date}}",
-									dialogDate()
-										? formatDate(dialogDate() as string, locale())
-										: "",
-								)}
-							</Dialog.Title>
-							<Dialog.Description class={styles.dialogDesc}>
-								{t("bulletin.createConfirmDesc")}
-							</Dialog.Description>
-							<Show when={createError()}>
-								<p class={styles.dialogError}>{createError()}</p>
-							</Show>
-							<div class={styles.dialogActions}>
-								<Dialog.CloseButton class={styles.cancelButton}>
-									{t("common.cancel")}
-								</Dialog.CloseButton>
-								<button
-									type="button"
-									class={styles.submitButton}
-									onClick={handleCreate}
-									disabled={creating()}
-								>
-									{creating() ? t("bulletin.generating") : t("common.create")}
-								</button>
-							</div>
-						</Dialog.Content>
-					</Dialog.Portal>
-				</Dialog>
 			</div>
 		</>
 	);

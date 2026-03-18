@@ -55,7 +55,6 @@ export const ja = {
 		announcements: "お知らせ",
 		assignments: "奉仕当番",
 		generateNext: "次の日曜日の週報を作成",
-		generating: "作成中...",
 		generateError: "作成に失敗しました",
 		alreadyExists: "この日付の週報はすでに作成済みです",
 		progress: "入力進捗",
@@ -70,8 +69,7 @@ export const ja = {
 		year: "年",
 		month: "月",
 		created: "作成済",
-		createConfirm: "{{date}} の週報を作成しますか？",
-		createConfirmDesc: "テンプレートから週報を作成します。",
+		notCreated: "未作成",
 	},
 	worshipTemplate: {
 		title: "礼拝プログラム テンプレート",
@@ -122,5 +120,6 @@ export const ja = {
 		selectMember: "メンバーを選択",
 		scripturePlaceholder: "聖書箇所（例: ヨハネ 3:16）",
 		numberPlaceholder: "番号",
+		fillAtLeastOne: "1つ以上の項目を入力してください",
 	},
 };

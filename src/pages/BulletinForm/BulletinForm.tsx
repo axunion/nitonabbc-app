@@ -1,6 +1,6 @@
-import { useNavigate, useParams } from "@solidjs/router";
+import { useNavigate, useParams, useSearchParams } from "@solidjs/router";
 import { Minus, Plus } from "lucide-solid";
-import { createResource, createSignal, For, Show } from "solid-js";
+import { createMemo, createResource, createSignal, For, Show } from "solid-js";
 import { fetchBulletin, fetchMembers, fetchTemplate } from "@/api/bulletin.ts";
 import { Header } from "@/components/Header";
 import { useAuth } from "@/store/AuthContext.tsx";
@@ -14,6 +14,7 @@ import styles from "./BulletinForm.module.css";
 
 export function BulletinForm() {
 	const params = useParams<{ id?: string }>();
+	const [searchParams] = useSearchParams<{ date?: string }>();
 	const navigate = useNavigate();
 	const { t } = useLocale();
 	const { user } = useAuth();
@@ -56,6 +57,9 @@ export function BulletinForm() {
 			);
 			setAnnouncements([{ content: "" }]);
 			setAssignments([{ role: "", person: "" }]);
+			if (searchParams.date) {
+				setServiceDate(searchParams.date);
+			}
 			setInitialized(true);
 		}
 		return null;
@@ -151,6 +155,18 @@ export function BulletinForm() {
 			prev.map((a, i) => (i === index ? { ...a, [field]: value } : a)),
 		);
 	}
+
+	const hasContent = createMemo(
+		() =>
+			worship().some(
+				(w) =>
+					w.details?.trim() ||
+					w.assigneeId != null ||
+					(w.fieldValues && Object.values(w.fieldValues).some((v) => v.trim())),
+			) ||
+			announcements().some((a) => a.content.trim()) ||
+			assignments().some((a) => a.role.trim() || a.person.trim()),
+	);
 
 	function getPlaceholder(inputType?: string): string {
 		switch (inputType) {
@@ -482,11 +498,18 @@ export function BulletinForm() {
 							<button
 								type="submit"
 								class={styles.submitButton}
-								disabled={submitting() || !serviceDate()}
+								disabled={
+									submitting() || !serviceDate() || (!isEdit() && !hasContent())
+								}
 							>
 								{isEdit() ? t("common.update") : t("common.create")}
 							</button>
 						</div>
+						<Show when={!isEdit() && serviceDate() && !hasContent()}>
+							<p class={styles.validationHint}>
+								{t("bulletinForm.fillAtLeastOne")}
+							</p>
+						</Show>
 					</form>
 				</Show>
 			</div>
