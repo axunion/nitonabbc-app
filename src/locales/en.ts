@@ -27,6 +27,11 @@ export const en: Dictionary = {
 		memberManagement: "Member Management",
 		worshipTemplate: "Worship Template",
 		language: "Language",
+		installApp: "Install App",
+		installDescription: "Add to home screen to use it like an app",
+		installButton: "Install",
+		installIosGuide:
+			'Tap the share button (□↑) at the bottom of the screen, then select "Add to Home Screen"',
 	},
 	dashboard: {
 		bulletin: "Bulletin",

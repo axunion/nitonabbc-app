@@ -25,6 +25,11 @@ export const ja = {
 		memberManagement: "メンバー管理",
 		worshipTemplate: "礼拝テンプレート",
 		language: "言語",
+		installApp: "アプリをインストール",
+		installDescription: "ホーム画面に追加すると、アプリのように使えます",
+		installButton: "インストール",
+		installIosGuide:
+			"画面下の共有ボタン（□↑）をタップし、「ホーム画面に追加」を選択してください",
 	},
 	dashboard: {
 		bulletin: "週報",
