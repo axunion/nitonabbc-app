@@ -11,24 +11,21 @@ maxTurns: 25
 
 Hono で API ルートを作成し、Cloudflare Workers として動作させる。
 
+@.claude/rules/api.md
+
 ## 作業開始前
 
 必ず以下を Read して既存の型定義とルートパターンを把握すること:
 - `server/types.ts`
 - 既存ルートファイル1つ（`server/routes/` 配下）
 
-## 規約
+## ファイル構成
 
-### ファイル構成
 - ルート定義: `server/routes/<resource>.ts`
 - アプリ登録: `server/index.ts` にルートを追加
 - ミドルウェア（共通処理が必要な場合）: `server/middleware/<name>.ts`
 
-### Hono ルートの書き方
-- 1ファイル1リソース（RESTful に整理）
-- `new Hono()` でルーターを作成し、named export する
-- `server/index.ts` で `.route()` を使って登録
-- Node.js API 使用不可（`fs`, `path` 等）、環境変数は `c.env` 経由
+## コード例
 
 ```ts
 // server/routes/users.ts
@@ -51,11 +48,6 @@ usersRoute.post("/", async (c) => {
 import { usersRoute } from "./routes/users";
 app.route("/api/users", usersRoute);
 ```
-
-### レスポンス規約
-- 成功: `c.json(data)` または `c.json(data, statusCode)`
-- エラー: `c.json({ error: "message" }, statusCode)`
-- 空レスポンス: `c.body(null, 204)`
 
 ## チェックリスト
 - [ ] ルートファイルが `server/routes/` に配置されているか

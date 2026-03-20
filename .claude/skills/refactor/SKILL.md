@@ -1,22 +1,22 @@
 ---
 name: refactor
-description: 変更箇所のコード品質・再利用性・プロジェクト規約との整合性を分析し、改善を適用する。
+description: プロジェクト全体または指定範囲のコードを分析し、品質・規約・パターンの問題を修正する。
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 ---
 
-現在の git diff（staged + unstaged）を分析し、変更箇所のコード品質を改善してください。以下の手順で進めること。
+引数なしの場合は `src/`・`server/`・`worker/` 全体、引数ありの場合は指定されたディレクトリ/ファイルのみを対象とする。
 
-## 1. 変更の収集
+## 1. 対象の決定
 
-`git diff HEAD` を実行し、変更されたファイルと行を特定する。
+- 引数なし → `src/`・`server/`・`worker/` 配下の全ファイルを分析
+- 引数あり → 指定されたパスのみ対象
 
 ## 2. レビューチェックリスト
 
-変更されたファイルごとに以下を確認する。
-
-### 再利用・重複
+### 重複・デッドコード
 - 共通ヘルパーに抽出すべき重複ロジックがないか
-- `src/` や `server/` に同じことをする既存ユーティリティがないか
+- 使われていない関数・コンポーネント・エクスポートがないか
+- `src/` や `server/` に同じ役割の既存ユーティリティがないか
 
 ### Solid.js パターン（`src/**` 対象）
 - リアクティビティ: props の分割代入をしない、シグナルは JSX/effect 内でアクセス（即時評価しない）
@@ -36,6 +36,7 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 ### CSS Modules（`*.module.css` 対象）
 - `src/styles/tokens.css` のデザイントークン（CSS カスタムプロパティ）を使用し、ハードコード値は避ける
 - クラス名は camelCase
+- 複数ページで共通のスタイルは `src/styles/shared.module.css` へ抽出
 
 ## 3. 修正の適用
 
@@ -43,8 +44,17 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 
 ## 4. 検証
 
-`pnpm check` を実行して lint/format の準拠を確認。エラーが残る場合は `pnpm check:write` → `pnpm check` の順で再実行。
+以下の順で検証を実施する:
+
+1. `pnpm check` — lint/format 確認。エラーがあれば `pnpm check:write` → `pnpm check` の順で再実行
+2. `pnpm build` — TypeScript コンパイル + Vite ビルドが通ることを確認
+3. `pnpm test` — テストが通ることを確認
 
 ## 5. 報告
 
-変更内容と理由を簡潔に報告する。カテゴリ別（再利用、パターン、型、スタイル）にグループ化すること。
+変更内容と理由をカテゴリ別にグループ化して報告する:
+- **重複・デッドコード**
+- **Solid.js パターン**
+- **Hono / Workers パターン**
+- **TypeScript**
+- **CSS Modules**

@@ -11,35 +11,21 @@ maxTurns: 20
 
 Solid.js + @kobalte/core + CSS Modules でUIコンポーネントを作成する。
 
+@.claude/rules/frontend.md
+
 ## 作業開始前
 
 必ず以下を Read して最新のデザイン規約とトークンを把握すること:
 - `docs/ui-guidelines.md`
 - `src/styles/tokens.css`
 
-## 規約
+## ファイル構成
 
-### ファイル構成
 - コンポーネント: `src/components/<ComponentName>/<ComponentName>.tsx`
 - スタイル: `src/components/<ComponentName>/<ComponentName>.module.css`
 - エクスポート: `src/components/<ComponentName>/index.ts` (re-export)
 
-### Kobalte の使い方
-- `@kobalte/core/<component>` から個別インポート
-- `class` prop に CSS Modules のクラスを渡す
-- 状態スタイルは `data-*` 属性セレクタで定義:
-  - `[data-disabled]`, `[data-pressed]`, `[data-hover]`, `[data-focus-visible]`, `[data-expanded]`, `[data-checked]`
-
-### CSS Modules スタイリング
-- ファイル拡張子: `.module.css`
-- デザイントークンの CSS 変数を必ず使用する（ハードコード値禁止）
-- ページコンテナには fadeIn アニメーションを適用する
-
-### TypeScript
-- Props は明示的に型定義する
-- Kobalte の Props 型を拡張する場合は intersection type を使用
-
-### コード例
+## コード例
 
 ```tsx
 // Button/Button.tsx

@@ -33,6 +33,13 @@ paths:
 - ヘッダーの `rightAction` は基本的に使わず、ページ内コンテナにアクションボタンを配置する
 - 空状態テキスト（「○○がありません」）は表示しない。追加/生成ボタンのみで統一
 
+## i18n
+
+- `@solid-primitives/i18n` を使用
+- ロケールファイル: `src/locales/{ja,en}.ts`
+- キーは flatCase（例: `bulletinTitle`）
+- UI テキストは直書きせず必ず `t()` 経由で出力する
+
 ## デザイン詳細
 
 UIデザインの詳細は @docs/ui-guidelines.md を参照すること。

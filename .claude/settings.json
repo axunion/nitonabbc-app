@@ -7,26 +7,17 @@
 			"Bash(pnpm test:*)",
 			"Bash(pnpm build)",
 			"Bash(ls:*)",
-			"Bash(grep:*)",
+			"Bash(git diff:*)",
+			"Bash(git log:*)",
+			"Bash(git status)",
 			"Bash(git add:*)",
 			"WebFetch(domain:developers.cloudflare.com)",
 			"WebFetch(domain:hono.dev)",
 			"WebFetch(domain:github.com)",
 			"WebFetch(domain:blog.cloudflare.com)",
+			"WebFetch(domain:docs.solidjs.com)",
+			"WebFetch(domain:kobalte.dev)",
 			"WebSearch"
-		]
-	},
-	"hooks": {
-		"PostToolUse": [
-			{
-				"matcher": "Write|Edit",
-				"hooks": [
-					{
-						"type": "command",
-						"command": "file_path=$(cat - | jq -r '.tool_input.file_path // empty') && [ -n \"$file_path\" ] && pnpm exec biome check --write --files-ignore-unknown=true \"$file_path\" 2>/dev/null || true"
-					}
-				]
-			}
 		]
 	}
 }

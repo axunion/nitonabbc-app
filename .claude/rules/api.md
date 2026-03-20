@@ -32,7 +32,7 @@ paths:
 
 ## D1 スキーマ管理
 
-- スキーマ定義は `db/schema.sql` のみ（マイグレーションツール未導入）
-- テーブル構造を変更したら `db/schema.sql` を更新し、ローカルは `rm -rf .wrangler/state/` でリセット
+DB 運用手順（スキーマ変更・本番デプロイ）は CLAUDE.md の Database セクションを参照。
+
 - 外部キー制約あり（例: `bulletins.created_by` → `users.id`）。INSERT 時は参照先のレコードが存在すること
 - DEV_AUTH モードでは `auth.ts` の `getOrCreateDevUser()` が dev ユーザーを自動作成するため、外部キー制約を満たす
