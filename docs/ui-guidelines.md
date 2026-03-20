@@ -60,11 +60,12 @@ iOS 26 (Liquid Glass) のナビゲーションパターンを参照基準とす�
 
 ### ボトムタブバー (`TabBar`)
 
-- 画面下部固定、2タブ構成（教会 / 設定）
+- 画面下部にフローティング表示（ピル形状）、2タブ構成（教会 / 設定）
 - `<button>` で実装（`<A>` ではない）。タブクリック時の挙動を制御するため
 - 子ページでも常に表示する
-- `env(safe-area-inset-bottom)` でノッチ対応
-- フロスト白背景（`rgba(255,255,255,0.85)` + backdrop-filter）
+- `env(safe-area-inset-bottom)` でノッチ対応（`bottom: calc(env(safe-area-inset-bottom) + 12px)`）
+- 幅: `min(calc(100vw - 32px), 448px)`、中央揃え
+- フロスト白グラスモーフィズム背景（`--glass-bg-chrome` + backdrop-filter）、`--radius-full` で全丸
 - アクティブタブ: `--color-primary`（Deep Gold）
 - タブ切替時、各タブ内の最後のURL（ページ）を記憶・復元する
 - 同じタブを再タップするとルートに戻る
