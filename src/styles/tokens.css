@@ -22,6 +22,11 @@
 	--color-primary-700: #8c6815;
 	--color-primary-800: #725410;
 	--color-primary-900: #58400c;
+	/* Glass button (floating action, close button) */
+	--color-primary-glass: rgba(166, 124, 26, 0.38);
+	--color-primary-glass-hover: rgba(166, 124, 26, 0.52);
+	--color-primary-glass-active: rgba(166, 124, 26, 0.62);
+	--color-primary-glass-border: rgba(166, 124, 26, 0.2);
 
 	/* Destructive: Warm Red */
 	--color-destructive-50: rgba(220, 53, 53, 0.08);
@@ -170,9 +175,11 @@
 	--duration-fast: 100ms;
 	--duration-normal: 200ms;
 	--duration-slow: 300ms;
+	--duration-x-slow: 400ms;
 	--ease-default: cubic-bezier(0.4, 0, 0.2, 1);
 	--ease-in: cubic-bezier(0.4, 0, 1, 1);
 	--ease-out: cubic-bezier(0, 0, 0.2, 1);
+	--ease-ios-push: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
 	/* --- Z-index --- */
 	--z-dropdown: 50;

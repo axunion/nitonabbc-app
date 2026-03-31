@@ -1,0 +1,140 @@
+.overlay {
+	position: fixed;
+	inset: 0;
+	z-index: var(--z-modal);
+	background-color: rgba(0, 0, 0, 0.4);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity var(--duration-x-slow) var(--ease-ios-push);
+}
+
+.overlayOpen {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.content {
+	position: fixed;
+	inset: 0;
+	z-index: var(--z-modal);
+	background: var(--color-bg);
+	transform: translateX(100%);
+	pointer-events: none;
+	/* iOS navigation push curve (ease-out-quad, ~400ms — standard approximation) */
+	transition: transform var(--duration-x-slow) var(--ease-ios-push);
+	will-change: transform;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.contentOpen {
+	transform: translateX(0);
+	pointer-events: auto;
+}
+
+/* Higher specificity than .content and .content[data-expanded] — disables transition
+   while the finger is directly controlling the position */
+.content.swiping {
+	transition: none;
+}
+
+/* Transparent strip on the left edge to capture swipe gestures above the iframe */
+.edgeStrip {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 20px;
+	height: 100%;
+	z-index: 1;
+	pointer-events: none;
+}
+
+.iframe {
+	flex: 1;
+	width: 100%;
+	border: none;
+	display: block;
+}
+
+/* Loading spinner overlay */
+.loader {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--color-bg);
+	z-index: 2;
+}
+
+.loaderSpinner {
+	width: 32px;
+	height: 32px;
+	border-radius: var(--radius-full);
+	border: 2px solid var(--color-border);
+	border-top-color: var(--color-primary);
+	animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Close button — floating semi-transparent primary glass, bottom-left */
+.closeButton {
+	position: fixed;
+	left: var(--space-4);
+	bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+	z-index: calc(var(--z-modal) + 1);
+	width: 44px;
+	height: 44px;
+	border-radius: var(--radius-full);
+	border: 1px solid var(--color-primary-glass-border);
+	background: var(--color-primary-glass);
+	backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.18),
+		0 2px 10px var(--color-primary-glass-border);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+	cursor: pointer;
+	outline: none;
+	transition:
+		background var(--duration-fast) var(--ease-default),
+		transform var(--duration-fast) var(--ease-default);
+}
+
+.closeButton:hover {
+	background: var(--color-primary-glass-hover);
+}
+
+.closeButton:active {
+	transform: scale(0.9);
+	background: var(--color-primary-glass-active);
+}
+
+.closeButton:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+/* Reduced motion: skip slide, use opacity only */
+@media (prefers-reduced-motion: reduce) {
+	.content {
+		transition: opacity var(--duration-fast) var(--ease-default);
+		transform: translateX(0);
+	}
+
+	.content:not(.contentOpen) {
+		opacity: 0;
+	}
+
+	.contentOpen {
+		opacity: 1;
+	}
+}

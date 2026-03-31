@@ -11,6 +11,7 @@ export const ja = {
 		member: "メンバー",
 		delete: "削除",
 		save: "保存",
+		close: "閉じる",
 	},
 	login: {
 		subtitle: "メンバーポータル",
@@ -33,7 +34,7 @@ export const ja = {
 	},
 	dashboard: {
 		bulletin: "週報",
-		expense: "経費精算",
+		expense: "立替申請",
 		bulletinHint: "最新の週報を確認",
 	},
 	management: {

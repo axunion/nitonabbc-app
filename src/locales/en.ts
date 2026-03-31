@@ -13,6 +13,7 @@ export const en: Dictionary = {
 		member: "Member",
 		delete: "Delete",
 		save: "Save",
+		close: "Close",
 	},
 	login: {
 		subtitle: "Member Portal",
@@ -35,7 +36,7 @@ export const en: Dictionary = {
 	},
 	dashboard: {
 		bulletin: "Bulletin",
-		expense: "Expenses",
+		expense: "Reimbursement",
 		bulletinHint: "View latest bulletins",
 	},
 	management: {
