@@ -89,10 +89,7 @@ export function Button(props: ButtonProps) {
 ```
 
 ## チェックリスト
-- [ ] Kobalte プリミティブを使用しているか
-- [ ] CSS Modules でスタイリングしているか
-- [ ] デザイントークンのCSS変数を使用しているか（ハードコード値なし）
-- [ ] `[data-focus-visible]` でフォーカススタイルを定義しているか
-- [ ] `[data-disabled]` で無効状態を定義しているか
+- [ ] ファイル構成が上記パターンに従っているか（.tsx / .module.css / index.ts）
+- [ ] コード例のパターン（Kobalte import、class prop、data-* セレクタ）に従っているか
 - [ ] TypeScript の型が適切か
 - [ ] Biome のフォーマットに準拠しているか（`pnpm check`）

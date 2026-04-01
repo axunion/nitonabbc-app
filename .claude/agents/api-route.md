@@ -50,9 +50,6 @@ app.route("/api/users", usersRoute);
 ```
 
 ## チェックリスト
-- [ ] ルートファイルが `server/routes/` に配置されているか
-- [ ] `server/index.ts` にルート登録されているか
-- [ ] エンドポイントパスが `/api/*` 配下になるか
-- [ ] レスポンス形式が規約に沿っているか
-- [ ] Node.js 固有の API を使っていないか
+- [ ] ファイル配置とルート登録が上記コード例に従っているか
+- [ ] レスポンス形式・Workers 環境の制約が @.claude/rules/api.md に沿っているか
 - [ ] Biome のフォーマットに準拠しているか（`pnpm check`）

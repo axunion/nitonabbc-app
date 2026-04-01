@@ -1,6 +1,7 @@
 ---
 name: verify
-description: lint, build, test の一括検証。コミット前の確認に使用。
+description: >
+  lint・ビルド・テストを一括検証するスキル。コミット前・実装後・「ビルド通る？」「エラーないか確認して」「チェックして」「テスト走らせて」など検証を求める場面で必ず使用する。
 allowed-tools: Bash
 ---
 

@@ -95,3 +95,4 @@ UI・CSS・APIサーバー・テストの詳細規約は `.claude/rules/` のパ
 - TypeScript strict mode有効、未使用変数・パラメータはエラー
 - ターゲット: ES2022 (アプリ) / ES2023 (ツーリング)
 - コミットメッセージ、コード内コメント、consoleに表示するエラーメッセージは英語で記述
+- コミットメッセージは `Verb + description` 形式（例: `Add PWA install prompt to Settings page`）。詳細は `/commit` スキル参照
