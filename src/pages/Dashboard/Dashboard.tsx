@@ -1,5 +1,5 @@
 import { useNavigate } from "@solidjs/router";
-import { FileText, ReceiptText } from "lucide-solid";
+import { FileText, FolderOpen, ReceiptText } from "lucide-solid";
 import { createSignal } from "solid-js";
 import { Header } from "@/components/Header";
 import { IframeViewer } from "@/components/IframeViewer";
@@ -10,6 +10,7 @@ export function Dashboard() {
 	const navigate = useNavigate();
 	const { t } = useLocale();
 	const [iframeOpen, setIframeOpen] = createSignal(false);
+	const [fileBrowserOpen, setFileBrowserOpen] = createSignal(false);
 
 	return (
 		<>
@@ -39,12 +40,29 @@ export function Dashboard() {
 						</span>
 						<span class={styles.widgetLabel}>{t("dashboard.expense")}</span>
 					</button>
+					<button
+						type="button"
+						class={styles.widgetSmall}
+						onClick={() => setFileBrowserOpen(true)}
+					>
+						<span class={styles.widgetIcon}>
+							<FolderOpen size={24} stroke-width={1.5} />
+						</span>
+						<span class={styles.widgetLabel}>{t("dashboard.files")}</span>
+					</button>
 				</div>
 			</div>
 			<IframeViewer
 				open={iframeOpen()}
 				url="https://receipt-snap.nitonabbc.org/"
+				title={t("dashboard.expense")}
 				onClose={() => setIframeOpen(false)}
+			/>
+			<IframeViewer
+				open={fileBrowserOpen()}
+				url="https://web-file-browser.nitonabbc.org/"
+				title={t("dashboard.files")}
+				onClose={() => setFileBrowserOpen(false)}
 			/>
 		</>
 	);

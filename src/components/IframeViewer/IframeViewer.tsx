@@ -8,6 +8,7 @@ import styles from "./IframeViewer.module.css";
 interface IframeViewerProps {
 	open: boolean;
 	url: string;
+	title: string;
 	onClose: () => void;
 }
 
@@ -29,6 +30,7 @@ export function IframeViewer(props: IframeViewerProps) {
 		const targetOrigin = new URL(props.url).origin;
 
 		function onMessage(e: MessageEvent) {
+			if (!props.open) return;
 			if (e.origin !== targetOrigin) return;
 			if (e.data === "receipt-snap:ready") {
 				iframeRef?.contentWindow?.postMessage(
@@ -124,7 +126,7 @@ export function IframeViewer(props: IframeViewerProps) {
 				classList={{ [styles.contentOpen]: props.open }}
 				role="dialog"
 				aria-modal="true"
-				aria-label={t("dashboard.expense")}
+				aria-label={props.title}
 			>
 				{/* Transparent strip on the left edge captures swipe gestures above the iframe */}
 				<div class={styles.edgeStrip} aria-hidden="true" />
@@ -138,7 +140,7 @@ export function IframeViewer(props: IframeViewerProps) {
 						ref={iframeRef}
 						src={props.url}
 						class={styles.iframe}
-						title={t("dashboard.expense")}
+						title={props.title}
 						onLoad={() => setLoaded(true)}
 					/>
 				)}

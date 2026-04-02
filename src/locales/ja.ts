@@ -34,7 +34,8 @@ export const ja = {
 	},
 	dashboard: {
 		bulletin: "週報",
-		expense: "立替申請",
+		expense: "立替精算",
+		files: "ファイル",
 		bulletinHint: "最新の週報を確認",
 	},
 	management: {
