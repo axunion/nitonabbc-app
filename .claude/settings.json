@@ -1,23 +1,18 @@
 {
-	"permissions": {
-		"allow": [
-			"Bash(pnpm check)",
-			"Bash(pnpm check:write)",
-			"Bash(pnpm test)",
-			"Bash(pnpm test:*)",
-			"Bash(pnpm build)",
-			"Bash(ls:*)",
-			"Bash(git diff:*)",
-			"Bash(git log:*)",
-			"Bash(git status)",
-			"Bash(git add:*)",
-			"WebFetch(domain:developers.cloudflare.com)",
-			"WebFetch(domain:hono.dev)",
-			"WebFetch(domain:github.com)",
-			"WebFetch(domain:blog.cloudflare.com)",
-			"WebFetch(domain:docs.solidjs.com)",
-			"WebFetch(domain:kobalte.dev)",
-			"WebSearch"
-		]
-	}
+  "sandbox": {
+    "enabled": true
+  },
+  "autoAllowBashIfSandboxed": true,
+  "permissions": {
+    "deny": [
+      "Bash(rm -rf*)",
+      "Bash(rm -r*)",
+      "Bash(git push*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -f*)",
+      "Bash(sudo *)",
+      "Bash(chmod *)",
+      "Bash(chown *)"
+    ]
+  }
 }
