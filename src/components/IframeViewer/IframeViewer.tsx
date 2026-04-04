@@ -32,7 +32,7 @@ export function IframeViewer(props: IframeViewerProps) {
 		function onMessage(e: MessageEvent) {
 			if (!props.open) return;
 			if (e.origin !== targetOrigin) return;
-			if (e.data === "receipt-snap:ready") {
+			if (e.data?.type === "receipt-snap:ready") {
 				iframeRef?.contentWindow?.postMessage(
 					{ type: "receipt-snap:set-name", name: user().name },
 					targetOrigin,
