@@ -19,20 +19,17 @@ export function Dashboard() {
 				<div class={styles.grid}>
 					<button
 						type="button"
-						class={styles.widgetLarge}
+						class={styles.widgetPrimary}
 						onClick={() => navigate("/bulletin")}
 					>
 						<span class={styles.widgetIcon}>
-							<FileText size={28} stroke-width={1.5} />
+							<FileText size={24} stroke-width={1.5} />
 						</span>
 						<span class={styles.widgetLabel}>{t("dashboard.bulletin")}</span>
-						<span class={styles.widgetSubtitle}>
-							{t("dashboard.bulletinHint")}
-						</span>
 					</button>
 					<button
 						type="button"
-						class={styles.widgetSmall}
+						class={styles.widget}
 						onClick={() => setIframeOpen(true)}
 					>
 						<span class={styles.widgetIcon}>
@@ -42,7 +39,7 @@ export function Dashboard() {
 					</button>
 					<button
 						type="button"
-						class={styles.widgetSmall}
+						class={styles.widget}
 						onClick={() => setFileBrowserOpen(true)}
 					>
 						<span class={styles.widgetIcon}>

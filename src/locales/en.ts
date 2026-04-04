@@ -38,7 +38,6 @@ export const en: Dictionary = {
 		bulletin: "Bulletin",
 		expense: "Reimbursement",
 		files: "Files",
-		bulletinHint: "View latest bulletins",
 	},
 	management: {
 		title: "Member Management",

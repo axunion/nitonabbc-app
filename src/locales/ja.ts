@@ -36,7 +36,6 @@ export const ja = {
 		bulletin: "週報",
 		expense: "立替精算",
 		files: "ファイル",
-		bulletinHint: "最新の週報を確認",
 	},
 	management: {
 		title: "メンバー管理",

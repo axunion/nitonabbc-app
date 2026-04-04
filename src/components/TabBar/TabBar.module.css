@@ -1,6 +1,7 @@
 .tabBar {
 	display: flex;
-	justify-content: space-around;
+	justify-content: center;
+	gap: var(--space-10);
 	align-items: center;
 	position: fixed;
 	bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
@@ -24,11 +25,11 @@
 	align-items: center;
 	justify-content: center;
 	gap: 2px;
-	flex: 1;
+	flex: none;
 	height: 56px;
 	border: none;
 	background: none;
-	padding: 0;
+	padding: 0 var(--space-6);
 	font: inherit;
 	color: var(--color-gray-400);
 	cursor: pointer;
