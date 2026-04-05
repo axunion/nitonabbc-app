@@ -1,5 +1,5 @@
 import { useNavigate } from "@solidjs/router";
-import { FileText, FolderOpen, ReceiptText } from "lucide-solid";
+import { FileText, FolderOpen, PictureInPicture2, ReceiptText } from "lucide-solid";
 import { createSignal } from "solid-js";
 import { Header } from "@/components/Header";
 import { IframeViewer } from "@/components/IframeViewer";
@@ -36,7 +36,10 @@ export function Dashboard() {
 						<span class={styles.widgetIcon}>
 							<ReceiptText size={24} stroke-width={1.5} />
 						</span>
-						<span class={styles.widgetLabel}>{t("dashboard.expense")}</span>
+						<span class={styles.widgetLabelRow}>
+							<span class={styles.widgetLabel}>{t("dashboard.expense")}</span>
+							<PictureInPicture2 size={12} stroke-width={1.5} class={styles.widgetExternalBadge} />
+						</span>
 					</button>
 					<button
 						type="button"
@@ -46,7 +49,10 @@ export function Dashboard() {
 						<span class={styles.widgetIcon}>
 							<FolderOpen size={24} stroke-width={1.5} />
 						</span>
-						<span class={styles.widgetLabel}>{t("dashboard.files")}</span>
+						<span class={styles.widgetLabelRow}>
+							<span class={styles.widgetLabel}>{t("dashboard.files")}</span>
+							<PictureInPicture2 size={12} stroke-width={1.5} class={styles.widgetExternalBadge} />
+						</span>
 					</button>
 				</div>
 			</div>

@@ -19,11 +19,20 @@ export function IframeViewer(props: IframeViewerProps) {
 	let overlayRef: HTMLDivElement | undefined;
 	let iframeRef: HTMLIFrameElement | undefined;
 	const [loaded, setLoaded] = createSignal(false);
+	const [isMounted, setIsMounted] = createSignal(false);
 
-	// Reset loader when panel closes so the spinner shows on next open
+	// Mount immediately on open; unmount only after the closing animation finishes
 	createEffect(() => {
-		if (!props.open) setLoaded(false);
+		if (props.open) setIsMounted(true);
 	});
+
+	function handleTransitionEnd(e: TransitionEvent) {
+		if (e.target !== contentRef) return;
+		if (!props.open) {
+			setIsMounted(false);
+			setLoaded(false);
+		}
+	}
 
 	const EDGE_THRESHOLD = 20;
 	const SWIPE_DISTANCE_RATIO = 0.3;
@@ -137,6 +146,7 @@ export function IframeViewer(props: IframeViewerProps) {
 				role="dialog"
 				aria-modal="true"
 				aria-label={props.title}
+				onTransitionEnd={handleTransitionEnd}
 			>
 				{/* Transparent strip on the left edge captures swipe gestures above the iframe */}
 				<div class={styles.edgeStrip} aria-hidden="true" />
@@ -145,7 +155,7 @@ export function IframeViewer(props: IframeViewerProps) {
 						<div class={styles.loaderSpinner} />
 					</div>
 				)}
-				{props.open && (
+				{isMounted() && (
 					<iframe
 						ref={iframeRef}
 						src={props.url}

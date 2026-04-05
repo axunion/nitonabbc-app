@@ -66,8 +66,19 @@
 	color: var(--color-primary);
 }
 
+.widgetLabelRow {
+	display: flex;
+	align-items: center;
+	gap: var(--space-1);
+}
+
 .widgetLabel {
 	font-size: var(--text-base);
 	font-weight: var(--font-semibold);
 	color: var(--color-text);
+}
+
+.widgetExternalBadge {
+	color: var(--color-text-tertiary);
+	flex-shrink: 0;
 }
