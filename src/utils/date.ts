@@ -4,5 +4,6 @@ export function formatDate(dateStr: string, locale: string): string {
 		year: "numeric",
 		month: "long",
 		day: "numeric",
+		timeZone: "Asia/Tokyo",
 	}).format(new Date(y, m - 1, d));
 }

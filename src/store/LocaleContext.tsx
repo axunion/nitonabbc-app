@@ -3,7 +3,6 @@ import { flatten, resolveTemplate, translator } from "@solid-primitives/i18n";
 import {
 	type Accessor,
 	createContext,
-	createMemo,
 	createSignal,
 	type JSX,
 	useContext,
@@ -48,14 +47,12 @@ export function LocaleProvider(props: { children: JSX.Element }) {
 		loadDictionary(locale()).then((d) => setDict(flatten(d)));
 	}
 
-	const t = createMemo(() => translator(() => dict(), resolveTemplate));
+	const t = translator(() => dict(), resolveTemplate);
 
 	return (
 		<LocaleContext.Provider
 			value={{
-				get t() {
-					return t();
-				},
+				t,
 				locale,
 				setLocale,
 			}}

@@ -1,10 +1,116 @@
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.pageContainer {
+	padding: var(--space-4);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	animation: fadeIn var(--duration-normal) var(--ease-out);
+}
+
+.loadingText {
+	text-align: center;
+	padding: var(--space-8);
+	color: var(--color-gray-500);
+	font-size: var(--text-sm);
+}
+
+.glassCard {
+	background: var(--glass-bg);
+	backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	border: var(--glass-border);
+	border-radius: var(--radius-xl);
+	box-shadow: var(--glass-shadow-md);
+}
+
+.formInput {
+	width: 100%;
+	height: 44px;
+	padding: 0 var(--space-3);
+	border: 1px solid var(--input-border);
+	border-radius: var(--radius-md);
+	font-size: var(--text-base);
+	color: var(--color-text);
+	background: var(--input-bg);
+	outline: none;
+	transition: border-color var(--duration-fast) var(--ease-default);
+	box-sizing: border-box;
+}
+
+.formInput:focus {
+	border-color: var(--input-border-focus);
+	box-shadow: var(--focus-ring);
+}
+
+.formSelect {
+	composes: formInput;
+	appearance: none;
+	background-image: var(--icon-chevron-down);
+	background-repeat: no-repeat;
+	background-position: right var(--space-3) center;
+	padding-right: var(--space-8);
+}
+
+.formTextarea {
+	width: 100%;
+	padding: var(--space-2) var(--space-3);
+	border: 1px solid var(--input-border);
+	border-radius: var(--radius-md);
+	font-size: var(--text-base);
+	font-family: var(--font-sans);
+	color: var(--color-text);
+	background: var(--input-bg);
+	outline: none;
+	resize: vertical;
+	transition: border-color var(--duration-fast) var(--ease-default);
+	box-sizing: border-box;
+	flex: 1;
+}
+
+.formTextarea:focus {
+	border-color: var(--input-border-focus);
+	box-shadow: var(--focus-ring);
+}
+
+.messageBase {
+	font-size: var(--text-sm);
+	padding: var(--space-3);
+	border-radius: var(--radius-md);
+	margin-bottom: var(--space-4);
+	width: 100%;
+	max-width: var(--app-max-width);
+	box-sizing: border-box;
+}
+
+.messageError {
+	composes: messageBase;
+	background-color: var(--color-destructive-50);
+	color: var(--color-destructive-700);
+}
+
+.messageSuccess {
+	composes: messageBase;
+	background-color: var(--color-success-50);
+	color: var(--color-success-700);
+}
+
 .dashedAction {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	gap: var(--space-2);
 	width: 100%;
-	max-width: 480px;
+	max-width: var(--app-max-width);
 	height: 56px;
 	border-radius: var(--radius-lg);
 	border: 2px dashed var(--color-primary-300);

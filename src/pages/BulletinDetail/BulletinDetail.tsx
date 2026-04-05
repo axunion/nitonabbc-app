@@ -3,9 +3,10 @@ import { Pencil } from "lucide-solid";
 import { createResource, For, Show } from "solid-js";
 import { fetchBulletin, fetchMembers, fetchTemplate } from "@/api/bulletin.ts";
 import { Header } from "@/components/Header";
+import { ProgressBar } from "@/components/ProgressBar";
 import { useAuth } from "@/store/AuthContext.tsx";
 import { useLocale } from "@/store/LocaleContext.tsx";
-import type { TemplateItem } from "@/types/bulletin.ts";
+import { getMemberName, getTemplateItem } from "@/utils/bulletin.ts";
 import { formatDate } from "@/utils/date.ts";
 import styles from "./BulletinDetail.module.css";
 
@@ -18,23 +19,13 @@ export function BulletinDetail() {
 	const navigate = useNavigate();
 	const { user } = useAuth();
 
-	function getMemberName(id: number | null | undefined): string | null {
-		if (id == null) return null;
-		const m = members()?.find((m) => m.id === id);
-		return m?.name ?? null;
-	}
-
-	function getTemplateItem(type: string): TemplateItem | undefined {
-		return template()?.find((t) => t.type === type);
-	}
-
 	function hasMyUnfilledItems(): boolean {
 		const b = bulletin();
-		const uid = user()?.id;
+		const uid = user().id;
 		if (!b || uid == null) return false;
 		return b.worship.some((item) => {
 			if (item.assigneeId !== uid) return false;
-			const tmpl = getTemplateItem(item.type);
+			const tmpl = getTemplateItem(template(), item.type);
 			if (tmpl?.fields && tmpl.fields.length > 0) {
 				return tmpl.fields.some(
 					(f) => f.inputType !== "none" && !item.fieldValues?.[f.key]?.trim(),
@@ -82,19 +73,14 @@ export function BulletinDetail() {
 								{/* Progress bar */}
 								<Show when={b().totalItems > 0}>
 									<div class={styles.progressRow}>
-										<div class={styles.progressBar}>
-											<div
-												class={styles.progressFill}
-												style={{
-													width: `${Math.round((b().filledItems / b().totalItems) * 100)}%`,
-												}}
-											/>
-										</div>
-										<span class={styles.progressText}>
-											{t("bulletin.progressCount")
-												.replace("{{filled}}", String(b().filledItems))
-												.replace("{{total}}", String(b().totalItems))}
-										</span>
+										<ProgressBar
+											filled={b().filledItems}
+											total={b().totalItems}
+											label={t("bulletin.progressCount", {
+												filled: String(b().filledItems),
+												total: String(b().totalItems),
+											})}
+										/>
 									</div>
 								</Show>
 
@@ -117,8 +103,11 @@ export function BulletinDetail() {
 										<ul class={styles.worshipList}>
 											<For each={b().worship}>
 												{(item) => {
-													const tmpl = getTemplateItem(item.type);
-													const assigneeName = getMemberName(item.assigneeId);
+													const tmpl = getTemplateItem(template(), item.type);
+													const assigneeName = getMemberName(
+														members(),
+														item.assigneeId,
+													);
 
 													return (
 														<li class={styles.worshipItem}>
@@ -155,6 +144,7 @@ export function BulletinDetail() {
 																					>
 																						{field.inputType === "member"
 																							? (getMemberName(
+																									members(),
 																									Number(
 																										item.fieldValues?.[
 																											field.key
@@ -178,8 +168,10 @@ export function BulletinDetail() {
 															>
 																<span class={styles.worshipDetails}>
 																	{tmpl?.inputType === "member"
-																		? (getMemberName(Number(item.details)) ??
-																			item.details)
+																		? (getMemberName(
+																				members(),
+																				Number(item.details),
+																			) ?? item.details)
 																		: item.details}
 																</span>
 															</Show>

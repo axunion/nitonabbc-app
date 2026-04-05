@@ -1,20 +1,5 @@
 .container {
-	padding: var(--space-4);
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	animation: fadeIn var(--duration-normal) var(--ease-out);
-}
-
-@keyframes fadeIn {
-	from {
-		opacity: 0;
-		transform: translateY(8px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
+	composes: pageContainer from "../../styles/shared.module.css";
 }
 
 .description {
@@ -22,12 +7,12 @@
 	color: var(--color-gray-500);
 	margin: 0 0 var(--space-4) 0;
 	width: 100%;
-	max-width: 480px;
+	max-width: var(--app-max-width);
 }
 
 .form {
 	width: 100%;
-	max-width: 480px;
+	max-width: var(--app-max-width);
 }
 
 /* --- Item list --- */
@@ -446,31 +431,14 @@
 
 /* --- Messages --- */
 
-.message {
-	font-size: var(--text-sm);
-	padding: var(--space-3);
-	border-radius: var(--radius-md);
-	margin-bottom: var(--space-4);
-	width: 100%;
-	max-width: 480px;
-	box-sizing: border-box;
-}
-
 .success {
-	composes: message;
-	background-color: var(--color-success-50);
-	color: var(--color-success-700);
+	composes: messageSuccess from "../../styles/shared.module.css";
 }
 
 .error {
-	composes: message;
-	background-color: var(--color-destructive-50);
-	color: var(--color-destructive-700);
+	composes: messageError from "../../styles/shared.module.css";
 }
 
 .loading {
-	text-align: center;
-	padding: var(--space-8);
-	color: var(--color-gray-500);
-	font-size: var(--text-sm);
+	composes: loadingText from "../../styles/shared.module.css";
 }

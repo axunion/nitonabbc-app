@@ -3,6 +3,7 @@ import { FileText, FolderOpen, ReceiptText } from "lucide-solid";
 import { createSignal } from "solid-js";
 import { Header } from "@/components/Header";
 import { IframeViewer } from "@/components/IframeViewer";
+import { FILE_BROWSER_URL, RECEIPT_SNAP_URL } from "@/config/iframes.ts";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import styles from "./Dashboard.module.css";
 
@@ -51,13 +52,13 @@ export function Dashboard() {
 			</div>
 			<IframeViewer
 				open={iframeOpen()}
-				url="https://receipt-snap.nitonabbc.org/"
+				url={RECEIPT_SNAP_URL}
 				title={t("dashboard.expense")}
 				onClose={() => setIframeOpen(false)}
 			/>
 			<IframeViewer
 				open={fileBrowserOpen()}
-				url="https://web-file-browser.nitonabbc.org/"
+				url={FILE_BROWSER_URL}
 				title={t("dashboard.files")}
 				onClose={() => setFileBrowserOpen(false)}
 			/>

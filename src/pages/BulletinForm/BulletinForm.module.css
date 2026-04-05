@@ -1,13 +1,10 @@
 .container {
-	padding: var(--space-4);
-	display: flex;
-	flex-direction: column;
-	align-items: center;
+	composes: pageContainer from "../../styles/shared.module.css";
 }
 
 .form {
 	width: 100%;
-	max-width: 480px;
+	max-width: var(--app-max-width);
 }
 
 .formGroup {
@@ -23,68 +20,23 @@
 }
 
 .input {
-	width: 100%;
-	height: 44px;
-	padding: 0 var(--space-3);
-	border: 1px solid var(--input-border);
-	border-radius: var(--radius-md);
-	font-size: var(--text-base);
-	color: var(--color-text);
-	background: var(--input-bg);
-	outline: none;
-	transition: border-color var(--duration-fast) var(--ease-default);
-	box-sizing: border-box;
-}
-
-.input:focus {
-	border-color: var(--input-border-focus);
-	box-shadow: var(--focus-ring);
+	composes: formInput from "../../styles/shared.module.css";
 }
 
 .inputSmall {
-	composes: input;
+	composes: formInput from "../../styles/shared.module.css";
 	flex: 1;
 	min-width: 0;
+	height: auto;
+	width: auto;
 }
 
 .select {
-	width: 100%;
-	height: 44px;
-	padding: 0 var(--space-3);
-	border: 1px solid var(--input-border);
-	border-radius: var(--radius-md);
-	font-size: var(--text-base);
-	color: var(--color-text);
-	background: var(--input-bg);
-	outline: none;
-	transition: border-color var(--duration-fast) var(--ease-default);
-	box-sizing: border-box;
-}
-
-.select:focus {
-	border-color: var(--input-border-focus);
-	box-shadow: var(--focus-ring);
+	composes: formSelect from "../../styles/shared.module.css";
 }
 
 .textarea {
-	width: 100%;
-	padding: var(--space-2) var(--space-3);
-	border: 1px solid var(--input-border);
-	border-radius: var(--radius-md);
-	font-size: var(--text-base);
-	font-family: var(--font-sans);
-	color: var(--color-text);
-	background: var(--input-bg);
-	outline: none;
-	resize: vertical;
-	transition: border-color var(--duration-fast) var(--ease-default);
-	box-sizing: border-box;
-	flex: 1;
-}
-
-.textarea:focus {
-	border-color: var(--input-border-focus);
-	box-shadow: var(--focus-ring);
+	composes: formTextarea from "../../styles/shared.module.css";
 }
 
 .fieldset {
@@ -204,7 +156,7 @@
 	composes: iconButton;
 	color: var(--color-destructive);
 	border-color: var(--color-destructive-100);
-	margin-top: 10px;
+	margin-top: var(--space-3);
 }
 
 .removeButton:hover {
@@ -226,15 +178,7 @@
 }
 
 .error {
-	background-color: var(--color-destructive-50);
-	color: var(--color-destructive-700);
-	padding: var(--space-3);
-	border-radius: var(--radius-md);
-	font-size: var(--text-sm);
-	margin-bottom: var(--space-4);
-	width: 100%;
-	max-width: 480px;
-	box-sizing: border-box;
+	composes: messageError from "../../styles/shared.module.css";
 }
 
 .validationHint {
@@ -246,8 +190,5 @@
 }
 
 .loading {
-	text-align: center;
-	padding: var(--space-8);
-	color: var(--color-gray-500);
-	font-size: var(--text-sm);
+	composes: loadingText from "../../styles/shared.module.css";
 }

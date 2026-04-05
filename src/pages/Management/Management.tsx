@@ -9,44 +9,44 @@ import {
 	RefreshCw,
 	UserMinus,
 } from "lucide-solid";
-import { createResource, createSignal, For, Show } from "solid-js";
+import {
+	createEffect,
+	createResource,
+	createSignal,
+	For,
+	Show,
+} from "solid-js";
+import {
+	type AdminMember,
+	createMember,
+	deactivateMember,
+	fetchAdminMembers,
+	reinviteMember,
+	updateMember,
+} from "@/api/members.ts";
 import { Header } from "@/components/Header";
 import { useAuth } from "@/store/AuthContext.tsx";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import styles from "./Management.module.css";
-
-type Member = {
-	id: number;
-	name: string;
-	role: "admin" | "member";
-	lineUserId: string | null;
-	inviteToken: string;
-	inviteUsed: boolean;
-	isActive: boolean;
-	createdAt: string;
-	updatedAt: string;
-};
-
-async function fetchMembers(): Promise<Member[]> {
-	const res = await fetch("/api/admin/members");
-	if (!res.ok) throw new Error("Failed to fetch members");
-	return res.json() as Promise<Member[]>;
-}
 
 export function Management() {
 	const { user } = useAuth();
 	const { t } = useLocale();
 	const navigate = useNavigate();
 
-	if (user().role !== "admin") {
-		navigate("/", { replace: true });
-	}
+	createEffect(() => {
+		if (user().role !== "admin") {
+			navigate("/", { replace: true });
+		}
+	});
 
-	const [members, { refetch }] = createResource(fetchMembers);
+	const [members, { refetch }] = createResource(fetchAdminMembers);
 
 	// Dialog state
 	const [dialogOpen, setDialogOpen] = createSignal(false);
-	const [editingMember, setEditingMember] = createSignal<Member | null>(null);
+	const [editingMember, setEditingMember] = createSignal<AdminMember | null>(
+		null,
+	);
 	const [formName, setFormName] = createSignal("");
 	const [formRole, setFormRole] = createSignal<"admin" | "member">("member");
 	const [submitting, setSubmitting] = createSignal(false);
@@ -59,7 +59,7 @@ export function Management() {
 		setDialogOpen(true);
 	}
 
-	function openEditDialog(member: Member) {
+	function openEditDialog(member: AdminMember) {
 		setEditingMember(member);
 		setFormName(member.name);
 		setFormRole(member.role);
@@ -71,18 +71,11 @@ export function Management() {
 		setSubmitting(true);
 		try {
 			const editing = editingMember();
+			const payload = { name: formName(), role: formRole() };
 			if (editing) {
-				await fetch(`/api/admin/members/${editing.id}`, {
-					method: "PUT",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ name: formName(), role: formRole() }),
-				});
+				await updateMember(editing.id, payload);
 			} else {
-				await fetch("/api/admin/members", {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ name: formName(), role: formRole() }),
-				});
+				await createMember(payload);
 			}
 			setDialogOpen(false);
 			await refetch();
@@ -91,23 +84,21 @@ export function Management() {
 		}
 	}
 
-	async function handleDeactivate(member: Member) {
+	async function handleDeactivate(member: AdminMember) {
 		if (!confirm(t("management.confirmDeactivate", { name: member.name })))
 			return;
-		await fetch(`/api/admin/members/${member.id}`, { method: "DELETE" });
+		await deactivateMember(member.id);
 		await refetch();
 	}
 
-	async function handleReinvite(member: Member) {
+	async function handleReinvite(member: AdminMember) {
 		if (!confirm(t("management.confirmReinvite", { name: member.name })))
 			return;
-		await fetch(`/api/admin/members/${member.id}/reinvite`, {
-			method: "POST",
-		});
+		await reinviteMember(member.id);
 		await refetch();
 	}
 
-	async function copyInviteLink(member: Member) {
+	async function copyInviteLink(member: AdminMember) {
 		const url = `${window.location.origin}/api/invite/${member.inviteToken}`;
 		await navigator.clipboard.writeText(url);
 		setCopiedId(member.id);

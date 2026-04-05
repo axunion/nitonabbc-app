@@ -1,5 +1,6 @@
 import type { RouteSectionProps } from "@solidjs/router";
 import { Show, Suspense } from "solid-js";
+import { logout } from "@/api/auth.ts";
 import { TabBar } from "@/components/TabBar";
 import { Login } from "@/pages/Login";
 import { AuthProvider } from "@/store/AuthContext.tsx";
@@ -11,7 +12,7 @@ function App(props: RouteSectionProps) {
 	const { user, refetch } = createAuthStore();
 
 	async function handleLogout() {
-		await fetch("/api/auth/logout", { method: "POST" });
+		await logout();
 		await refetch();
 	}
 

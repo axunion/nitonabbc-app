@@ -1,25 +1,10 @@
 .container {
-	padding: var(--space-4);
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	animation: fadeIn var(--duration-normal) var(--ease-out);
-}
-
-@keyframes fadeIn {
-	from {
-		opacity: 0;
-		transform: translateY(8px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
+	composes: pageContainer from "../../styles/shared.module.css";
 }
 
 .content {
 	width: 100%;
-	max-width: 480px;
+	max-width: var(--app-max-width);
 }
 
 .userSection {
@@ -115,7 +100,7 @@
 	color: var(--color-gray-800);
 	outline: none;
 	cursor: pointer;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	background-image: var(--icon-chevron-down);
 	background-repeat: no-repeat;
 	background-position: right var(--space-1) center;
 	transition: border-color var(--duration-fast) var(--ease-default);
@@ -159,7 +144,7 @@
 	font-size: var(--text-sm);
 	color: var(--color-text-muted);
 	margin: 0;
-	line-height: 1.5;
+	line-height: var(--leading-normal);
 }
 
 .installButton {

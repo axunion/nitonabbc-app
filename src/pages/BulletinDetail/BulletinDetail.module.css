@@ -1,20 +1,5 @@
 .container {
-	padding: var(--space-4);
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	animation: fadeIn var(--duration-normal) var(--ease-out);
-}
-
-@keyframes fadeIn {
-	from {
-		opacity: 0;
-		transform: translateY(8px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
+	composes: pageContainer from "../../styles/shared.module.css";
 }
 
 .editButton {
@@ -46,7 +31,7 @@
 
 .content {
 	width: 100%;
-	max-width: 480px;
+	max-width: var(--app-max-width);
 }
 
 .title {
@@ -62,28 +47,6 @@
 	display: flex;
 	align-items: center;
 	gap: var(--space-2);
-}
-
-.progressBar {
-	flex: 1;
-	height: 6px;
-	background: var(--color-gray-200);
-	border-radius: var(--radius-full);
-	overflow: hidden;
-}
-
-.progressFill {
-	height: 100%;
-	background: var(--color-primary);
-	border-radius: var(--radius-full);
-	transition: width var(--duration-normal) var(--ease-out);
-}
-
-.progressText {
-	font-size: var(--text-xs);
-	color: var(--color-gray-500);
-	white-space: nowrap;
-	letter-spacing: var(--tracking-wide);
 }
 
 .ctaButton {
@@ -227,8 +190,5 @@
 }
 
 .loading {
-	text-align: center;
-	padding: var(--space-8);
-	color: var(--color-gray-500);
-	font-size: var(--text-sm);
+	composes: loadingText from "../../styles/shared.module.css";
 }

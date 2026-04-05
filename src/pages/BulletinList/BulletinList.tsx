@@ -3,12 +3,12 @@ import { Check } from "lucide-solid";
 import { createMemo, createResource, createSignal, For, Show } from "solid-js";
 import { fetchBulletins } from "@/api/bulletin.ts";
 import { Header } from "@/components/Header";
+import { ProgressBar } from "@/components/ProgressBar";
+import { BULLETIN_START_YEAR } from "@/config/app.ts";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type { BulletinSummary } from "@/types/bulletin.ts";
 import { formatDate } from "@/utils/date.ts";
 import styles from "./BulletinList.module.css";
-
-const START_YEAR = 2026;
 
 type DayEntry = {
 	dateStr: string;
@@ -25,9 +25,9 @@ export function BulletinList() {
 	const [selectedYear, setSelectedYear] = createSignal(now.getFullYear());
 	const [selectedMonth, setSelectedMonth] = createSignal(now.getMonth() + 1);
 
-	// Year options: current year down to START_YEAR (constant)
+	// Year options: current year down to BULLETIN_START_YEAR (constant)
 	const years: number[] = [];
-	for (let y = now.getFullYear(); y >= START_YEAR; y--) {
+	for (let y = now.getFullYear(); y >= BULLETIN_START_YEAR; y--) {
 		years.push(y);
 	}
 
@@ -75,11 +75,6 @@ export function BulletinList() {
 		} else {
 			navigate(`/bulletin/new?date=${entry.dateStr}`);
 		}
-	}
-
-	function progressPercent(b: BulletinSummary): number {
-		if (b.totalItems === 0) return 100;
-		return Math.round((b.filledItems / b.totalItems) * 100);
 	}
 
 	return (
@@ -152,19 +147,14 @@ export function BulletinList() {
 											>
 												{(b) => (
 													<>
-														<div class={styles.progressBar}>
-															<div
-																class={styles.progressFill}
-																style={{
-																	width: `${progressPercent(b)}%`,
-																}}
-															/>
-														</div>
-														<span class={styles.progressText}>
-															{t("bulletin.progressCount")
-																.replace("{{filled}}", String(b.filledItems))
-																.replace("{{total}}", String(b.totalItems))}
-														</span>
+														<ProgressBar
+															filled={b.filledItems}
+															total={b.totalItems}
+															label={t("bulletin.progressCount", {
+																filled: String(b.filledItems),
+																total: String(b.totalItems),
+															})}
+														/>
 														<Check
 															size={16}
 															stroke-width={2}

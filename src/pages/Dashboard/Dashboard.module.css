@@ -1,19 +1,6 @@
 .container {
-	padding: var(--space-4);
-	display: flex;
+	composes: pageContainer from "../../styles/shared.module.css";
 	justify-content: center;
-	animation: fadeIn var(--duration-normal) var(--ease-out);
-}
-
-@keyframes fadeIn {
-	from {
-		opacity: 0;
-		transform: translateY(8px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
 }
 
 .grid {

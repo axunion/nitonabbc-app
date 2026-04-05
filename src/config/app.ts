@@ -1,0 +1,1 @@
+export const BULLETIN_START_YEAR = 2026;

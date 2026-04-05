@@ -103,6 +103,7 @@ export const en: Dictionary = {
 		fieldLabel: "Label",
 		fieldKeyPlaceholder: "Key (e.g. title)",
 		fieldLabelPlaceholder: "Label (e.g. Title)",
+		defaultFieldLabel: "Value",
 	},
 	bulletinForm: {
 		titleNew: "New Bulletin",

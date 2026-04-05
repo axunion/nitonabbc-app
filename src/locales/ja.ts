@@ -102,6 +102,7 @@ export const ja = {
 		fieldLabel: "表示名",
 		fieldKeyPlaceholder: "キー（例: title）",
 		fieldLabelPlaceholder: "表示名（例: タイトル）",
+		defaultFieldLabel: "値",
 	},
 	bulletinForm: {
 		titleNew: "新しい週報",

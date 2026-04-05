@@ -3,7 +3,7 @@
 	flex-direction: column;
 	height: 100dvh;
 	overflow: hidden;
-	max-width: 480px;
+	max-width: var(--app-max-width);
 	margin: 0 auto;
 }
 

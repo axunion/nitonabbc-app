@@ -11,20 +11,9 @@ import { Header } from "@/components/Header";
 import type { Locale } from "@/locales/index.ts";
 import { useAuth } from "@/store/AuthContext.tsx";
 import { useLocale } from "@/store/LocaleContext.tsx";
+import type { BeforeInstallPromptEvent } from "@/types/dom.d.ts";
+import { isIos, isStandalone } from "@/utils/platform.ts";
 import styles from "./Settings.module.css";
-
-type BeforeInstallPromptEvent = Event & {
-	prompt: () => Promise<void>;
-	userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-};
-
-function isIos() {
-	return /iphone|ipad|ipod/i.test(navigator.userAgent);
-}
-
-function isStandalone() {
-	return window.matchMedia("(display-mode: standalone)").matches;
-}
 
 export function Settings() {
 	const { user } = useAuth();
@@ -141,5 +130,3 @@ export function Settings() {
 		</>
 	);
 }
-
-export default Settings;

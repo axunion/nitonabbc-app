@@ -1,5 +1,5 @@
 import { X } from "lucide-solid";
-import { createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { createEffect, createSignal, onCleanup } from "solid-js";
 import { Portal } from "solid-js/web";
 import { useAuth } from "@/store/AuthContext.tsx";
 import { useLocale } from "@/store/LocaleContext.tsx";
@@ -25,12 +25,16 @@ export function IframeViewer(props: IframeViewerProps) {
 		if (!props.open) setLoaded(false);
 	});
 
+	const EDGE_THRESHOLD = 20;
+	const SWIPE_DISTANCE_RATIO = 0.3;
+	const SWIPE_VELOCITY_THRESHOLD = 0.5;
+
 	// postMessage: respond to receipt-snap:ready with the user's name
-	onMount(() => {
+	createEffect(() => {
+		if (!props.open) return;
 		const targetOrigin = new URL(props.url).origin;
 
-		function onMessage(e: MessageEvent) {
-			if (!props.open) return;
+		function onMessage(e: MessageEvent<{ type?: string }>) {
 			if (e.origin !== targetOrigin) return;
 			if (e.data?.type === "receipt-snap:ready") {
 				iframeRef?.contentWindow?.postMessage(
@@ -45,9 +49,11 @@ export function IframeViewer(props: IframeViewerProps) {
 	});
 
 	// Escape key to close
-	onMount(() => {
+	createEffect(() => {
+		if (!props.open) return;
+
 		function onKeyDown(e: KeyboardEvent) {
-			if (e.key === "Escape" && props.open) {
+			if (e.key === "Escape") {
 				props.onClose();
 			}
 		}
@@ -56,16 +62,17 @@ export function IframeViewer(props: IframeViewerProps) {
 	});
 
 	// Swipe-to-close gesture (left-edge rightward drag)
-	onMount(() => {
+	createEffect(() => {
+		if (!props.open) return;
+
 		let startX = 0;
 		let startTime = 0;
 		let currentDelta = 0;
 		let isEdgeSwipe = false;
 
 		function onTouchStart(e: TouchEvent) {
-			if (!props.open) return;
 			const touch = e.touches[0];
-			if (touch.clientX <= 20) {
+			if (touch.clientX <= EDGE_THRESHOLD) {
 				isEdgeSwipe = true;
 				startX = touch.clientX;
 				startTime = Date.now();
@@ -91,7 +98,10 @@ export function IframeViewer(props: IframeViewerProps) {
 			const elapsed = Date.now() - startTime;
 			const velocity = elapsed > 0 ? currentDelta / elapsed : 0;
 
-			if (currentDelta > window.innerWidth * 0.3 || velocity > 0.5) {
+			if (
+				currentDelta > window.innerWidth * SWIPE_DISTANCE_RATIO ||
+				velocity > SWIPE_VELOCITY_THRESHOLD
+			) {
 				props.onClose();
 			} else {
 				contentRef.style.transform = "";
