@@ -188,4 +188,8 @@
 	--z-modal: 300;
 	--z-popover: 400;
 	--z-toast: 500;
+
+	/* --- Layout --- */
+	/* Max width shared by TabBar and page content to keep them visually aligned */
+	--app-max-width: 448px;
 }

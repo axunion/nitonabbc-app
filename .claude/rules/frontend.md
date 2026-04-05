@@ -20,6 +20,7 @@ paths:
   - 色: `var(--color-*)`, フォーカス: `var(--focus-ring)`, タイポ: `var(--text-*)`, `var(--font-*)`, `var(--tracking-*)`
   - スペーシング: `var(--space-*)`, 角丸: `var(--radius-*)`, 影: `var(--shadow-*)`
   - トランジション: `var(--duration-*)`, `var(--ease-*)`, z-index: `var(--z-*)`
+  - レイアウト: `var(--app-max-width)`（TabBar とページコンテンツの幅を揃える共通値）
 - ページコンテナには fadeIn アニメーションを適用
 - 複数ページで共通のスタイルは `src/styles/shared.module.css` に定義し、各ページで `composes` で適用する（例: `composes: pairedCancel from "../../styles/shared.module.css";`）
 

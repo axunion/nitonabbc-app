@@ -7,7 +7,7 @@
 	bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
 	left: 50%;
 	transform: translateX(-50%);
-	width: min(calc(100vw - 32px), 448px);
+	width: min(calc(100vw - 32px), var(--app-max-width));
 	height: 56px;
 	padding: 0 var(--space-2);
 	background: var(--glass-bg-chrome);
