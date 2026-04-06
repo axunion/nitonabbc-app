@@ -37,7 +37,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm serve` - ビルド済み出力を workerd でローカル起動 (`vite preview`)
 - `pnpm check` - Biomeによるlint/format チェック
 - `pnpm check:write` - Biomeによるlint/format 自動修正
-- `pnpm test` - テスト実行 (Vitest)
+- `pnpm test` - テスト実行 (Vitest、対象: `server/**/*.test.ts` のみ)
 - `pnpm test:watch` - テストをwatchモードで実行
 - `pnpm deploy` - Cloudflare Workersへデプロイ
 
@@ -99,4 +99,3 @@ UI・CSS・APIサーバー・テストの詳細規約は `.claude/rules/` のパ
   - 動詞: `Add` / `Fix` / `Redesign` / `Refactor` / `Update` / `Enhance` / `Remove` / `Implement` / `Optimize` / `Migrate`
   - 本文は必要な場合のみ、"what" より "why" を重視
   - `.dev.vars` など機密ファイルは絶対にコミットしない
-  - pre-commit hook 失敗時は `--no-verify` / `--amend` を使わず、修正後に新しいコミットを作成する
