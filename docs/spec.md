@@ -51,7 +51,7 @@
 | タブ | ルート | 子ページ |
 |------|--------|---------|
 | 教会 | `/` (Dashboard) | `/bulletin`, `/bulletin/:id`, `/bulletin/new`, `/bulletin/:id/edit` |
-| 設定 | `/settings` | `/settings/admin`, `/settings/admin/bulletin-template` |
+| 設定 | `/settings` | `/settings/admin`, `/settings/admin/bulletin-template`, `/settings/admin/church-profile` |
 
 ### ヘッダー
 
@@ -121,7 +121,7 @@
 |------|-------------|-----------|
 | 認証 | [auth.md](./auth.md) | 実装済み |
 | 管理画面 | [admin.md](./admin.md) | 実装済み |
-| 週報 | [bulletin.md](./bulletin.md) | Phase 1 + テンプレート管理 実装済み |
+| 週報 | [bulletin.md](./bulletin.md) | セクションブロックモデルへ再設計中（旧 worship/announcements/assignments は移植待ち） |
 
 ## 今後の拡張候補（未定）
 

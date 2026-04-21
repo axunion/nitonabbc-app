@@ -1,139 +1,318 @@
 # 週報機能
 
-## 背景
+## 1. 概要と背景
 
-現在は紙で手作りして礼拝時に配布している。これをアプリで入力・生成・閲覧できるようにする。
+仁戸名聖書バプテスト教会の週報を、アプリ上で入力・整理・閲覧・PDF 出力できるようにする機能。
+実際の週報（紙）は、礼拝プログラム・出席人数・曜日別祈りの課題・今週のみことば・誕生日・財務報告など、多彩なセクションで構成されている。
 
-## 入力
+旧モデル（`worship` / `announcements` / `assignments` の固定 3 カラム）ではこの情報量・構造を表現できないため、**セクションブロックモデル**に再設計する。
 
-- **担当者**: メンバーなら誰でも入力可能
-- **タイミング**: 随時（情報が決まり次第入力していく）
-- **担当割り当て**: 管理者が各項目にメンバーを割り当て可能（UIレベルの制限、他メンバーも編集可）
+### 利用者
 
-## 週報の構成
+| ロール | できること |
+|--------|-----------|
+| メンバー | 週報の閲覧・入力（全セクション） |
+| 管理者 | 上記 + テンプレート管理・教会プロフィール設定 |
 
-### 1. 礼拝プログラム
+---
 
-礼拝の流れはほぼ固定。毎週変わるのは各項目の詳細（賛美歌番号、聖書箇所、担当者名など）。
+## 2. 設計方針
 
-固定の流れの例:
-- 前奏
-- 賛美歌（曲名・番号）
-- 祈り（担当者）
-- 聖書朗読（箇所）
-- 説教（タイトル、説教者、聖書箇所）
-- 献金
-- 頌栄
-- 祝祷
-- 後奏
+- **セクションブロック**: 週報 = 型付きセクションの順序付きリスト。種別・順序・表示/非表示を自由に構成できる
+- **構造と値の分離**: テンプレートが「どのセクションが何の順番であるか」を定義し、週報データは各セクションの値だけを保持する
+- **セクションの入れ替え**: 並び替えはテンプレート画面で管理。週報フォームは入力専用
+- **Web 先行**: まず Web 上で整理・閲覧・編集を完成させる。PDF 出力は後続フェーズ
+- **月次データも週次で管理**: 今月の歌・誕生日・祈りの課題曜日表などは週報の通常セクションとして扱い、直近週報からのコピーで差分編集する
+- **複数サービス**: 朝礼拝・午後集会それぞれに `worship-program` セクションをテンプレートで複数配置する（セクション複製型）
 
-> プログラムのテンプレート（項目の順序・構成・入力フィールド種別）は管理者が設定可能とする。
+---
 
-### 2. お知らせ・予定
+## 3. 教会プロフィール（スコープ外）
 
-今週・来週のイベントや連絡事項。自由テキストで複数件入力。
+教会名・住所・牧師名・年間テーマ・連絡先など、週をまたいで変わらない情報は `settings` テーブルに `church_profile` キーで保存し、週報詳細画面のヘッダー部に表示する。週報ごとの上書きは行わない。編集は管理者のみ（`/admin/church-profile`）。
 
-### 3. 奉仕当番
+フィールド: `name`, `pastors[]`, `address`, `phone`, `website`, `foundedDate`, `yearlyTheme`
 
-受付、音響、掃除など、その週の奉仕担当者一覧。
+---
 
-## 出力
+## 4. 週報の構造モデル
 
-| 形式 | 説明 |
-|------|------|
-| アプリ内閲覧 | メンバーがアプリを開いて今週の週報を確認 |
-| 印刷用PDF | A4片面 or 両面。教会で印刷して配布用 |
+### テンプレート（構造定義）
 
-## データモデル
+テンプレートはセクションの配列。順序 = 週報内での表示順。
 
-### テンプレート型
-
-```typescript
-type InputType = "text" | "number" | "member" | "scripture" | "none";
-
-type TemplateField = {
-  key: string;        // e.g. "title", "person"
-  label: string;      // e.g. "曲名", "担当者"
-  inputType: InputType;
-};
-
-type TemplateItem = {
-  type: string;       // 識別子 (e.g. "hymn", "sermon")
-  label: string;      // 表示名 (e.g. "賛美歌", "説教")
-  inputType?: InputType;      // 単一フィールド（デフォルト: "text"）
-  fields?: TemplateField[];   // 複合フィールド（fields がある場合 inputType は無視）
-};
+```
+BulletinTemplate.sections[]
+  ├── { id, type, label, config }   例: id="morning", type="worship-program", label="午前礼拝"
+  ├── { id, type, label, config }   例: id="afternoon", type="worship-program", label="午後集会"
+  ├── { id, type, label, config }   例: id="news", type="announcements", label="報告・お知らせ"
+  └── ...
 ```
 
-- `"text"`: 自由テキスト入力
-- `"number"`: 数値入力（賛美歌番号など）
-- `"member"`: メンバー選択ドロップダウン
-- `"scripture"`: 聖書箇所用テキスト（プレースホルダーが異なる）
-- `"none"`: 前奏・後奏のように入力不要な項目
-- `fields`: 説教→タイトル+説教者+聖書箇所のように1項目を複数サブフィールドに分割
+`id` はテンプレート内で一意の安定キー。セクション種別ごとに `config` の形が異なる（§5 参照）。
 
-### WorshipItem 型
+### 週報データ（値）
 
-```typescript
-type WorshipItem = {
-  type: string;
-  label: string;
-  details?: string;                      // 単一フィールド（後方互換）
-  fieldValues?: Record<string, string>;  // 複合フィールドの値
-  assigneeId?: number | null;            // 担当メンバーの user ID
-};
+週報は同じセクション配列を持ち、`id` でテンプレートと対応する。各セクションは `data` フィールドに値を保持。
+
+```
+BulletinDetail.sections[]
+  ├── { id="morning", type, label, data: WorshipItem[] }
+  ├── { id="afternoon", type, label, data: WorshipItem[] }
+  └── ...
 ```
 
-**後方互換**: 既存データは `details` のみで動作し続ける。DBスキーマ変更は不要（JSON列）。
+### 進捗カウント
 
-### DB テーブル (`bulletins`)
+`totalItems` / `filledItems` はサーバーがセクション種別ごとの規則で合算して返す。進捗対象外のセクション（出席数・財務など）は 0/0 として扱う。
+
+---
+
+## 5. セクション種別カタログ
+
+すべてのセクションはテンプレートレベルで `visible: boolean`（既定 `true`）を持ち、非表示にできる。
+
+### `service-meta` — サービス基本情報
+
+司会・奏楽・開始時刻など、礼拝プログラムに紐づくメタ情報。`worship-program` の直前に置くことを想定。
+
+| テンプレート設定フィールド | 説明 |
+|--------------------------|------|
+| `fieldDefs[]` | `{ key, label, inputType }` の配列。`inputType` は `"text"` / `"member"` / `"time"` |
+
+データ例: `{ fieldValues: { chair: "雄輝兄", pianist: "愛香姉" } }`
+
+進捗: `fieldDefs` の件数 / 入力済みの件数
+
+---
+
+### `worship-program` — 礼拝プログラム
+
+礼拝の進行順序と各項目の詳細。同一週報内に複数配置可能（朝礼拝・午後集会など）。
+
+| テンプレート設定フィールド | 説明 |
+|--------------------------|------|
+| `items[]` | `TemplateItem[]`（既存の `TemplateItem` / `TemplateField` / `InputType` 型を継承） |
+
+データ例: `[ { type: "hymn", label: "賛美歌", details: "#179" }, { type: "sermon", label: "説教", fieldValues: { title: "...", speaker: "太秀師" }, assigneeId: 5 } ]`
+
+各アイテムは `assigneeId`（担当メンバーの userId）を持てる。担当者にはフォームでハイライト表示。
+
+進捗: 既存ロジック（`inputType: "none"` 除外、compound は field 単位）を継承
+
+---
+
+### `announcements` — 報告・お知らせ
+
+自由テキストの告知リスト。任意の `heading`（例: "報告" / "お知らせ"）を各アイテムに付けられる。
+
+| テンプレート設定フィールド | 説明 |
+|--------------------------|------|
+| `subHeadings[]` | 入力補完用のカテゴリラベル候補（任意） |
+
+データ例: `[ { heading: "報告", content: "先週の礼拝に..." }, { heading: "お知らせ", content: "復活祭特別献金..." } ]`
+
+進捗: アイテムが 1 件以上あれば 1/1
+
+---
+
+### `assignments` — 奉仕当番
+
+役割と担当者の対応。今週・次週など、別インスタンスを並べて使う。
+
+| テンプレート設定フィールド | 説明 |
+|--------------------------|------|
+| `roles[]` | 役割名の配列（例: `["司会", "奏楽", "特賛", "受付"]`） |
+
+データ例: `{ "司会": "川田兄", "奏楽": "愛香姉", "受付": "香翔姉" }`
+
+進捗: `roles.length` のうち入力済みの件数
+
+---
+
+### `attendance` — 出席人数
+
+先週の集会ごとの出席者数。
+
+| テンプレート設定フィールド | 説明 |
+|--------------------------|------|
+| `meetings[]` | `{ key, label }` の配列（例: `[{ key: "morning", label: "朝礼拝" }, ...]`） |
+
+データ例: `{ morning: { adults: "30", children: "2" }, cs: { adults: "6" } }`
+
+各アイテムは `adults`, `children`, `note` を持てる。進捗: 対象外
+
+---
+
+### `weekly-prayer` — 曜日別祈りの課題
+
+日〜土の 7 日分の祈り課題。
+
+テンプレート設定: なし（曜日は固定）
+
+データ例: `{ "日": "牧師・伝道師の働き", "月": "兄弟姉妹の健康", "火": "求道者の救い", ... }`
+
+進捗: 7 日のうち入力済みの件数
+
+---
+
+### `upcoming-events` — 今後の予定
+
+日付・内容ペアのリスト。
+
+テンプレート設定: なし
+
+データ例: `[ { date: "2026-05-04〜06", description: "全国青年キャンプ" }, { date: "2026-05-10", description: "母の日合同礼拝" } ]`
+
+進捗: 対象外
+
+---
+
+### `weekly-verse` — 今週のみことば
+
+聖書箇所と本文。
+
+テンプレート設定: なし
+
+データ例: `{ reference: "ローマ人への手紙 8:28", text: "神を愛する人たち、すなわち..." }`
+
+進捗: `text` が入力されていれば 1/1
+
+---
+
+### `monthly-song` — 今月の歌
+
+今月の賛美歌タイトルとキーワード。
+
+テンプレート設定: なし
+
+データ例: `{ title: "暗闇 過ぎ去って", keywords: ["ハレルヤ", "復活", "平和"] }`
+
+進捗: `title` が入力されていれば 1/1
+
+---
+
+### `birthdays` — 今月の誕生日
+
+月内の誕生日リスト。
+
+テンプレート設定: なし
+
+データ例: `[ { day: "2日", name: "勇人兄" }, { day: "6日", name: "太秀師" } ]`
+
+進捗: 対象外
+
+---
+
+### `financial-summary` — 財務報告（抜粋）
+
+会堂献金積立残高など、定期的に掲載する財務情報。
+
+| テンプレート設定フィールド | 説明 |
+|--------------------------|------|
+| `items[]` | `{ key, label, unit? }` の配列（例: `[{ key: "hall_fund", label: "会堂献金積立", unit: "円" }]`） |
+
+データ例: `{ hall_fund: { amount: "2,963,176 + 12,800,000", note: "車購入貸出 530,200円" } }`
+
+進捗: 対象外
+
+---
+
+### `scripture-quotes` — 引用聖句
+
+礼拝中に使用した聖書箇所のリスト。
+
+テンプレート設定: なし
+
+データ例: `[ { reference: "ガラテヤ人への手紙 6:2", text: "互いの重荷を負い合いなさい。..." } ]`
+
+進捗: 対象外
+
+---
+
+### `text-block` — 汎用テキスト
+
+見出しと本文の自由記述。その他のコンテンツに使うフォールバック。
+
+テンプレート設定: なし
+
+データ例: `{ heading: "今月の歌について", body: "全6番からなる賛美歌です。" }`
+
+進捗: 対象外
+
+---
+
+## 6. データモデル
+
+型の実装は `src/types/bulletin.ts` で行う。ここでは構造の概要のみ示す。
+
+### テンプレート
+
+| フィールド | 説明 |
+|-----------|------|
+| `sections[]` | `SectionTemplate` の配列。順序 = 表示順 |
+| `sections[].id` | テンプレート内で一意の安定キー |
+| `sections[].type` | セクション種別（§5 の type 文字列） |
+| `sections[].label` | 見出し（例: "午前礼拝", "報告・お知らせ"） |
+| `sections[].visible` | 表示/非表示フラグ（既定 `true`） |
+| `sections[].config` | 種別固有の設定（§5 参照） |
+
+settings テーブルのキー: `bulletin_template`（旧 `worship_template` から改名）
+
+### 週報データ
+
+| フィールド | 説明 |
+|-----------|------|
+| `id` | 自動採番 |
+| `serviceDate` | 礼拝日 (YYYY-MM-DD) |
+| `sections[]` | `SectionData` の配列（テンプレートと `id` で対応） |
+| `sections[].data` | 種別固有の値（§5 参照） |
+| `totalItems` | 進捗対象のフィールド総数（サーバー算出） |
+| `filledItems` | 入力済みフィールド数（同上） |
+| `createdBy` / `updatedBy` | ユーザー ID |
+| `createdAt` / `updatedAt` | 日時 |
+
+### 既存型の継承
+
+`worship-program` セクションの内部型として既存コードを再利用する:
+
+- `TemplateItem` / `TemplateField` / `InputType` → `config.items` の型
+- `WorshipItem` → `data` の型（`details` / `fieldValues` / `assigneeId` を含む）
+
+### 教会プロフィール
+
+settings テーブルのキー: `church_profile`
+
+フィールド: `name`, `pastors[]`, `address`, `phone`, `website`, `foundedDate`, `yearlyTheme`
+
+---
+
+## 7. DB スキーマ
+
+### `bulletins` テーブル
 
 | カラム | 型 | 説明 |
 |--------|-----|------|
 | id | INTEGER PK | 自動採番 |
-| service_date | TEXT UNIQUE | 礼拝日 (YYYY-MM-DD)。1日曜1件 |
-| worship | TEXT (JSON) | 礼拝プログラム `Array<WorshipItem>` |
-| announcements | TEXT (JSON) | お知らせ `Array<{ content }>` |
-| assignments | TEXT (JSON) | 奉仕当番 `Record<role, person>` |
+| service_date | TEXT UNIQUE | 礼拝日 (YYYY-MM-DD) |
+| sections | TEXT (JSON) | `SectionData[]` |
 | created_by | INTEGER FK | 作成者 (users.id) |
 | updated_by | INTEGER FK | 最終更新者 (users.id) |
 | created_at | TEXT | 作成日時 |
 | updated_at | TEXT | 更新日時 |
 
-### 担当割り当てモデル
+旧カラム（`worship` / `announcements` / `assignments`）は廃止。スキーマの正は `db/schema.sql`。
 
-- 割り当ては `worship` JSON 内の各項目に `assigneeId` で保存（別テーブル不要）
-- 権限制限は **UI レベルのみ**（30名の教会、信頼ベースで十分）
-- 担当者以外も編集可能だが、UIでは担当項目のみハイライト表示
+### `settings` テーブルの利用キー
 
-## 画面構成
+| key | 内容 |
+|-----|------|
+| `bulletin_template` | テンプレート（`SectionTemplate[]`） |
+| `church_profile` | 教会プロフィール |
 
-### BulletinList — 週次管理ダッシュボード
+---
 
-- 「次の日曜日の週報を作成」ボタン（ワンタップ生成）
-- 直近の週報を大きく表示 + 入力進捗バー
-- 未入力項目の一覧表示
-- 過去の週報はアーカイブリスト
-
-### BulletinForm — 入力/編集
-
-- テンプレートの `inputType` に応じたフィールドレンダリング
-- 複合フィールドのサブフィールド表示
-- メンバー割り当てドロップダウン（管理者向け）
-- 担当項目のハイライト表示
-
-### BulletinDetail — 詳細表示
-
-- 複合フィールドの構造化表示
-- 担当者名表示
-- 自分の未入力項目への「入力する」CTA
-
-### BulletinTemplate — テンプレート管理（管理者のみ）
-
-- 各項目に `inputType` セレクター追加
-- 複合フィールドモードの切替・サブフィールド管理
-
-## API エンドポイント
+## 8. API エンドポイント
 
 ### 週報 CRUD
 
@@ -142,22 +321,21 @@ type WorshipItem = {
 | Method | Path | 説明 |
 |--------|------|------|
 | GET | `/api/bulletin` | 一覧（service_date DESC）。`totalItems`, `filledItems` を含む |
-| GET | `/api/bulletin/:id` | 詳細（JSON パース済み） |
+| GET | `/api/bulletin/:id` | 詳細（sections JSON パース済み） |
 | POST | `/api/bulletin` | 新規作成 → 201 |
-| PUT | `/api/bulletin/:id` | 更新（部分更新可） |
+| PUT | `/api/bulletin/:id` | 更新（sections 全体差し替え） |
 | DELETE | `/api/bulletin/:id` | 削除 |
 
 ### 自動生成
 
-| Method | Path | 認可 | 説明 |
-|--------|------|------|------|
-| POST | `/api/bulletin/generate` | 認証済み全員 | 次の日曜日の週報をテンプレートから自動生成 → 201 |
+| Method | Path | 説明 |
+|--------|------|------|
+| POST | `/api/bulletin/generate` | 次の日曜日の週報を生成 → 201 |
 
-### メンバー一覧
-
-| Method | Path | 認可 | 説明 |
-|--------|------|------|------|
-| GET | `/api/members` | 認証済み全員 | アクティブメンバー一覧 `{id, name}[]` |
+生成ロジック:
+- テンプレートからセクション構造を生成
+- 直近の週報が存在する場合、繰り返し性が高いセクション（`weekly-prayer`, `assignments`, `monthly-song`, `birthdays` など）は値をコピー
+- `announcements`, `upcoming-events`, `weekly-verse` は空で初期化
 
 ### テンプレート管理
 
@@ -166,37 +344,128 @@ type WorshipItem = {
 | GET | `/api/bulletin-template` | 認証済み全員 | テンプレート取得。未設定時はデフォルト値 |
 | PUT | `/api/bulletin-template` | 管理者のみ | テンプレート全体を置換保存 |
 
-テンプレートデータ形式: `Array<TemplateItem>`。DB の `settings` テーブルに `worship_template` キーで JSON 格納。
+### 教会プロフィール
+
+| Method | Path | 認可 | 説明 |
+|--------|------|------|------|
+| GET | `/api/church-profile` | 認証済み全員 | 教会プロフィール取得 |
+| PUT | `/api/church-profile` | 管理者のみ | 教会プロフィール保存 |
+
+### メンバー一覧（既存）
+
+| Method | Path | 説明 |
+|--------|------|------|
+| GET | `/api/members` | アクティブメンバー `{ id, name }[]` |
 
 ### バリデーション
 
 - `serviceDate` 必須、`YYYY-MM-DD` 形式 → 400
 - 重複 `serviceDate` → 409 Conflict
-- JSON フィールドは省略可（デフォルト値使用）
+- `sections` 省略可（デフォルト: `[]`）
+- テンプレートの各 `type` が有効値であること → 400
+- テンプレートの `id` 重複 → 400
 
-## ルーティング
+---
+
+## 9. 画面構成（Web）
+
+### BulletinList — 週次管理ダッシュボード
+
+- 「次の日曜日の週報を作成」ボタン
+- 週報一覧（service_date DESC）、各行に進捗バー（`filledItems / totalItems`）
+- 未入力項目の概要表示
+
+### BulletinDetail — 詳細表示
+
+- 教会プロフィール（`church_profile`）をヘッダーに表示
+- セクションを定義順に縦スクロールで表示
+- セクション種別ごとに専用の閲覧コンポーネント（出席は表組み、曜日別祈りは 7 行リストなど）
+- `assigneeId` が自分と一致する項目をハイライト
+- 自分の未入力担当項目への「入力する」CTA
+
+### BulletinForm — 入力/編集
+
+- セクションごとに専用エディタ UI
+- セクションの **並び替えはテンプレート画面で管理**。フォームでは値入力のみ
+- `worship-program`: 既存の `WorshipInput` コンポーネントを継承
+- `service-meta`: member セレクタ / テキスト入力
+- `assignments`: role リストに対して担当者入力
+- `attendance`: 集会ごとの大人/子供数入力
+- `weekly-prayer`: 7 曜日 × テキストエリア
+- `upcoming-events`: 日付 + 内容のペア追加/削除
+- 管理者には `assigneeId` の割り当てドロップダウンを表示（`worship-program` 内項目）
+
+### BulletinTemplate — テンプレート管理（管理者のみ）
+
+- セクションの追加（型選択）・削除・非表示切替
+- ドラッグ or ボタンで順序入れ替え
+- セクションごとの `config` 編集（`worship-program` は既存の項目リスト編集 UI を継承）
+
+### ChurchProfile — 教会プロフィール（管理者のみ）
+
+- 教会名・牧師名・住所・連絡先・年間テーマなどの編集
+- 保存後は全週報のヘッダーに即時反映
+
+---
+
+## 10. PDF 出力（将来フェーズ）
+
+- 出力形式: A4 縦、印刷用 PDF
+- `visible: true` のセクションのみ、テンプレートの定義順に流し込む
+- ページブレークはセクション境界を優先
+- 教会プロフィールを 1 ページ目ヘッダーに掲載
+- 実装時に別プランで設計する
+
+---
+
+## 11. ルーティング
 
 | パス | ページ | 説明 |
 |------|--------|------|
-| `/bulletin` | BulletinList | 週報一覧（週次管理ダッシュボード） |
+| `/bulletin` | BulletinList | 週報一覧 |
 | `/bulletin/new` | BulletinForm | 新規作成 |
 | `/bulletin/:id` | BulletinDetail | 詳細表示 |
 | `/bulletin/:id/edit` | BulletinForm | 編集 |
 | `/admin/bulletin-template` | BulletinTemplate | テンプレート管理（管理者のみ） |
+| `/admin/church-profile` | ChurchProfile | 教会プロフィール（管理者のみ） |
 
-## 実装ステータス
+---
+
+## 12. マイグレーション
+
+既存の `bulletins` テーブル（旧 3 カラム: `worship` / `announcements` / `assignments`）から新スキーマへの移行。Cloudflare D1 はマイグレーションツール未導入のため、差分 SQL を手動実行する（`CLAUDE.md` 参照）。
+
+1. `sections` カラムを追加 (`ALTER TABLE bulletins ADD COLUMN sections TEXT NOT NULL DEFAULT '[]'`)
+2. 各既存行を変換して `sections` に書き込む:
+   - 旧 `worship` → `{ id: "worship", type: "worship-program", label: "礼拝プログラム", data: <旧値> }`
+   - 旧 `announcements` → `{ id: "announcements", type: "announcements", label: "お知らせ", data: <旧値を `{ content }` 形式に変換> }`
+   - 旧 `assignments` → `{ id: "assignments", type: "assignments", label: "奉仕当番", data: <旧値そのまま> }`
+3. 旧 3 カラムを DROP
+4. `settings` の `worship_template` キーを `bulletin_template` にリネームし、値を `worship-program` セクションの `config.items` として包み直す
+
+---
+
+## 13. 実装ステータス
 
 | 項目 | ステータス |
 |------|-----------|
-| DB スキーマ | 実装済み |
-| CRUD API + テスト | 実装済み |
-| 一覧・詳細・入力フォーム UI | 実装済み |
-| ダッシュボード連携 | 実装済み |
-| テンプレート管理（管理者） | 実装済み |
-| テンプレート拡張（inputType/fields） | 実装済み |
-| メンバー一覧 API | 実装済み |
-| 自動生成 API | 実装済み |
-| フォームリワーク（型対応入力・割り当て） | 実装済み |
-| 週次管理ダッシュボード UI | 実装済み |
-| 詳細ページ更新（複合フィールド・担当者） | 実装済み |
-| PDF 出力 | 未実装 |
+| セクションブロックモデル（型定義・DB） | 未実装 |
+| マイグレーション（旧 3 カラム → sections） | 未実装 |
+| テンプレート API 更新（SectionTemplate[] 対応） | 未実装 |
+| 教会プロフィール API・画面 | 未実装 |
+| 既存 worship-program 入力・表示 | 旧モデルで実装済み（移植必要） |
+| 既存 announcements / assignments | 旧モデルで実装済み（移植必要） |
+| service-meta セクション | 未実装 |
+| attendance セクション | 未実装 |
+| weekly-prayer セクション | 未実装 |
+| upcoming-events セクション | 未実装 |
+| weekly-verse セクション | 未実装 |
+| monthly-song セクション | 未実装 |
+| birthdays セクション | 未実装 |
+| financial-summary セクション | 未実装 |
+| scripture-quotes セクション | 未実装 |
+| text-block セクション | 未実装 |
+| BulletinDetail（セクションブロック対応） | 未実装 |
+| BulletinForm（セクション別エディタ） | 未実装 |
+| BulletinTemplate（セクション管理 UI） | 未実装 |
+| PDF 出力 | 未実装（将来フェーズ） |
