@@ -51,7 +51,7 @@
 | タブ | ルート | 子ページ |
 |------|--------|---------|
 | 教会 | `/` (Dashboard) | `/bulletin`, `/bulletin/:id`, `/bulletin/new`, `/bulletin/:id/edit` |
-| 設定 | `/settings` | `/settings/admin`, `/settings/admin/bulletin-template`, `/settings/admin/church-profile` |
+| 設定 | `/settings` | `/settings/members`, `/settings/bulletin-template` |
 
 ### ヘッダー
 

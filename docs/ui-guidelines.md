@@ -13,7 +13,7 @@
 
 ### カラー
 
-- **背景**: warm off-white (`#faf8f5`) + 暖色メッシュグラデーション（ゴールド・ピーチ・アイボリーの光）
+- **背景**: warm off-white (`#f8f5f0`) + 暖色メッシュグラデーション（ゴールド・ピーチ・アイボリーの光）
 - **アクセント**: Deep Gold (`#a67c1a`)。小テキスト用は primary-700 (`#8c6815`)。WCAG AA ~4.6:1 on white
 - **テキスト**: warm stone palette（メイン `#1c1917`、muted `#78716c`）
 - **セマンティックカラー**: Warm Red (`#c53030`)、Warm Green (`#22863a`)
@@ -25,20 +25,40 @@
 
 ```css
 /* 標準グラスカード */
-background: var(--glass-bg);             /* rgba(255,255,255,0.65) */
+background: var(--glass-bg);             /* rgba(255, 253, 248, 0.6) */
 backdrop-filter: var(--glass-blur) var(--glass-saturate);
 -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-border: var(--glass-border);             /* 1px solid rgba(0,0,0,0.06) */
+border: var(--glass-border);             /* 1px solid rgba(0,0,0,0.08) */
 border-radius: var(--radius-xl);
 ```
 
-- **hover**: `var(--glass-bg-hover)` (`rgba(255,255,255,0.8)`) + `var(--glass-border-hover)` (`rgba(0,0,0,0.1)`)
-- **ダイアログ**: 高不透明度白背景（`rgba(255,255,255,0.95)`）で可読性を確保
-- **入力フォーム**: `var(--input-bg)` (`rgba(255,255,255,0.7)`) + `var(--input-border)` (`rgba(0,0,0,0.12)`)
+- **hover**: `var(--glass-bg-hover)` (`rgba(255, 253, 248, 0.75)`) + `var(--glass-border-hover)` (`1px solid rgba(0,0,0,0.14)`)
+- **active**: `var(--glass-bg-active)` (`rgba(255, 253, 248, 0.5)`)
+- **chrome（TabBar・Header）**: `var(--glass-bg-chrome)` (`rgba(255, 253, 248, 0.82)`)
+- **ダイアログ**: 高不透明度白背景（`rgba(255,255,255,0.95)`）で可読性を確保（トークン未定義、ハードコード）
+- **入力フォーム**: `var(--input-bg)` (`rgba(255, 253, 248, 0.65)`) + `var(--input-border)` (`rgba(0,0,0,0.12)`)
+
+### プライマリカラー グラストークン
+
+フローティングボタン・閉じるボタンなど、プライマリ色を持つガラス系 UI 要素に使用:
+
+| トークン | 値 | 用途 |
+|---------|-----|------|
+| `--color-primary-glass` | `rgba(166,124,26,0.38)` | 通常 |
+| `--color-primary-glass-hover` | `rgba(166,124,26,0.52)` | hover |
+| `--color-primary-glass-active` | `rgba(166,124,26,0.62)` | active |
+| `--color-primary-glass-border` | `rgba(166,124,26,0.2)` | ボーダー |
 
 ### シャドウ
 
-ライト背景ではソフトなドロップシャドウ（不透明度 `0.05`〜`0.08`）。カードには `--shadow-sm`、ウィジェットには `--shadow-md` を適用。
+2 系統のシャドウトークンを使い分ける:
+
+| 系統 | トークン | 特徴 |
+|------|---------|------|
+| 標準 | `--shadow-sm/md/lg` | ウォームゴールドドロップシャドウのみ |
+| グラス | `--glass-shadow-sm/md/lg` | 上記 + inset の白ハイライト（ガラス感を強調） |
+
+ガラスカード（ウィジェット・戻るボタン等）には `--glass-shadow-*` を使用する。ダッシュボードウィジェットは `--glass-shadow-md` を適用。
 
 ### ページ遷移アニメーション
 

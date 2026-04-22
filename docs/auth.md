@@ -35,14 +35,16 @@
 ## セッション管理
 
 - サーバー側セッション（Cloudflare KV）
-- セッションIDをHttpOnly Cookieで管理
-- セッション有効期限: **30日**（最終ログインから30日間アクセスがない場合に自動失効）
-- 以下の場合にセッションが無効になる:
-  - 管理者がユーザーを削除・無効化した場合
-  - ユーザー自身がログアウトした場合
-  - 30日間アクセスがなかった場合
+- セッションIDをHttpOnly Cookie（`secure: true`, `sameSite: Lax`, `path: /`, `maxAge: 30日`）で管理
+- セッション有効期限: **30日**（セッション発行時に固定 TTL を設定。スライディング延長なし）
+- 以下の場合にリクエストが 401 になる:
+  - 管理者がユーザーを無効化した場合（KV セッションは残存するが、`authMiddleware` が DB の `is_active = 0` を検出して 401 を返す）
+  - ユーザー自身がログアウトした場合（KV セッションを削除）
+  - セッション発行から30日が経過した場合（KV の TTL 切れ）
 
 > KV のキー構造: `session:{uuid}` → `{ userId, lineUserId, role }` JSON
+>
+> OAuth state 管理: `oauth_state:{uuid}` → `{}` or `{ inviteToken }` JSON（TTL 600 秒）。招待フロー経由のコールバックでは `inviteToken` を格納して CSRF 対策と招待フロー識別を兼ねる。
 
 ## ページの公開範囲
 
@@ -83,15 +85,33 @@
 | GET | `/api/auth/me` | 現在のユーザー情報を取得 | ✅ |
 | GET | `/api/invite/:token` | 招待トークンを検証し、LINE認証へリダイレクト | ✅ |
 
+### callback エラーリダイレクト
+
+`/api/auth/callback` は失敗時にトップページへリダイレクトしクエリパラメータでエラー種別を通知する。
+
+| `?error=` 値 | 状況 |
+|-------------|------|
+| `invalid_invite` | 招待トークンが存在しない / 使用済み |
+| `line_already_linked` | その LINE アカウントは別メンバーに紐付き済み |
+| `not_registered` | 名簿に存在しない LINE アカウント（招待なし直接ログイン） |
+
 ## 実装ファイル
 
 | ファイル | 役割 |
 |---------|------|
 | `server/types.ts` | `AppEnv`, `User`, `SessionData` 型定義 |
-| `server/middleware/auth.ts` | セッション検証ミドルウェア（`DEV_AUTH` バイパス含む） |
+| `server/middleware/auth.ts` | セッション検証ミドルウェア（`DEV_AUTH` バイパス・`is_active` チェック含む） |
 | `server/routes/auth.ts` | 認証エンドポイント実装（callback で招待フロー分岐含む） |
 | `server/routes/invite.ts` | 招待トークン検証・LINE認証リダイレクト |
 | `src/store/auth.ts` | `/api/auth/me` を `createResource` で取得する認証ストア |
+| `src/store/AuthContext.tsx` | `AuthProvider` と `useAuth()` フック（コンポーネントが利用） |
 | `src/pages/Login/` | ログイン画面（LINE ボタン） |
-| `db/schema.sql` | D1 users テーブル定義 |
-| `wrangler.toml` | D1（`DB`）・KV（`SESSION_KV`）バインディング設定 |
+| `db/schema.sql` | D1 users テーブル定義（`invite_token NOT NULL UNIQUE`, `invite_used`, `is_active` 含む） |
+| `wrangler.jsonc` | D1（`DB`）・KV（`SESSION_KV`）バインディング設定 |
+
+### ローカル開発用ダミーユーザー
+
+`DEV_AUTH=true` 時に `authMiddleware` が自動生成するダミーユーザーの固定値:
+- `line_user_id`: `"dev_line_user_id"`
+- `name`: `"Dev Admin"`
+- `role`: `"admin"`

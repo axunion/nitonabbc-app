@@ -29,7 +29,7 @@
 
 ## 3. 教会プロフィール（スコープ外）
 
-教会名・住所・牧師名・年間テーマ・連絡先など、週をまたいで変わらない情報は `settings` テーブルに `church_profile` キーで保存し、週報詳細画面のヘッダー部に表示する。週報ごとの上書きは行わない。編集は管理者のみ（`/admin/church-profile`）。
+教会名・住所・牧師名・年間テーマ・連絡先など、週をまたいで変わらない情報は `settings` テーブルに `church_profile` キーで保存し、週報詳細画面のヘッダー部に表示する。週報ごとの上書きは行わない。編集は管理者のみ（目標パス: `/settings/church-profile`、現状は未実装）。
 
 フィールド: `name`, `pastors[]`, `address`, `phone`, `website`, `foundedDate`, `yearlyTheme`
 
@@ -257,7 +257,7 @@ BulletinDetail.sections[]
 | `sections[].visible` | 表示/非表示フラグ（既定 `true`） |
 | `sections[].config` | 種別固有の設定（§5 参照） |
 
-settings テーブルのキー: `bulletin_template`（旧 `worship_template` から改名）
+settings テーブルのキー: `bulletin_template`（目標）。**現状のコードは `worship_template` キーを使用中。改名は§12 マイグレーションと合わせて実施予定。**
 
 ### 週報データ
 
@@ -289,6 +289,8 @@ settings テーブルのキー: `church_profile`
 
 ## 7. DB スキーマ
 
+> **現状**: `db/schema.sql` は旧 3 カラム（`worship` / `announcements` / `assignments`）のまま。本節は目標形を示す。§12 のマイグレーションが未実施のため、現時点では旧スキーマで動作している。
+
 ### `bulletins` テーブル
 
 | カラム | 型 | 説明 |
@@ -301,7 +303,7 @@ settings テーブルのキー: `church_profile`
 | created_at | TEXT | 作成日時 |
 | updated_at | TEXT | 更新日時 |
 
-旧カラム（`worship` / `announcements` / `assignments`）は廃止。スキーマの正は `db/schema.sql`。
+旧カラム（`worship` / `announcements` / `assignments`）は廃止予定。スキーマの正は `db/schema.sql`（現状は旧カラムのまま）。
 
 ### `settings` テーブルの利用キー
 
@@ -345,6 +347,8 @@ settings テーブルのキー: `church_profile`
 | PUT | `/api/bulletin-template` | 管理者のみ | テンプレート全体を置換保存 |
 
 ### 教会プロフィール
+
+> **現状**: 未実装。`server/routes/` にルートファイルなし。§13 参照。
 
 | Method | Path | 認可 | 説明 |
 |--------|------|------|------|
@@ -420,14 +424,14 @@ settings テーブルのキー: `church_profile`
 
 ## 11. ルーティング
 
-| パス | ページ | 説明 |
-|------|--------|------|
-| `/bulletin` | BulletinList | 週報一覧 |
-| `/bulletin/new` | BulletinForm | 新規作成 |
-| `/bulletin/:id` | BulletinDetail | 詳細表示 |
-| `/bulletin/:id/edit` | BulletinForm | 編集 |
-| `/admin/bulletin-template` | BulletinTemplate | テンプレート管理（管理者のみ） |
-| `/admin/church-profile` | ChurchProfile | 教会プロフィール（管理者のみ） |
+| パス | ページ | 説明 | 現状 |
+|------|--------|------|------|
+| `/bulletin` | BulletinList | 週報一覧 | 実装済み（旧モデル） |
+| `/bulletin/new` | BulletinForm | 新規作成 | 実装済み（旧モデル） |
+| `/bulletin/:id` | BulletinDetail | 詳細表示 | 実装済み（旧モデル） |
+| `/bulletin/:id/edit` | BulletinForm | 編集 | 実装済み（旧モデル） |
+| `/settings/bulletin-template` | BulletinTemplate | テンプレート管理（管理者のみ） | 実装済み（旧モデル） |
+| `/settings/church-profile` | ChurchProfile | 教会プロフィール（管理者のみ） | 未実装 |
 
 ---
 
@@ -449,6 +453,10 @@ settings テーブルのキー: `church_profile`
 
 | 項目 | ステータス |
 |------|-----------|
+| `bulletins` テーブルスキーマ | 旧 3 カラム（`worship` / `announcements` / `assignments`）が現役。`sections` JSON への移行は未実施 |
+| settings テーブルのキー名 | 現状 `worship_template`（コード全体）。目標 `bulletin_template` への改名は未実施 |
+| `/settings/bulletin-template` ルート | 実装済み（旧モデル対応。目標パス `/settings/bulletin-template`、現実装と一致） |
+| `/settings/church-profile` ルート | 未実装 |
 | セクションブロックモデル（型定義・DB） | 未実装 |
 | マイグレーション（旧 3 カラム → sections） | 未実装 |
 | テンプレート API 更新（SectionTemplate[] 対応） | 未実装 |

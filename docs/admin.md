@@ -3,7 +3,7 @@
 ## 概要
 
 管理者がメンバーの追加・編集・無効化・招待リンク管理を行うページ。
-ヘッダーのユーザーメニューから `/admin` にアクセスできる（管理者のみ表示）。
+設定ページ (`/settings`) 内のリンクから `/settings/members` にアクセスできる（管理者のみ表示）。
 
 ## 機能
 
@@ -93,6 +93,7 @@
 |---------|------|
 | `server/middleware/admin.ts` | 管理者ロール検証ミドルウェア |
 | `server/routes/admin.ts` | 管理 API エンドポイント（5ルート） |
+| `server/routes/members.ts` | アクティブメンバー一覧 API（`GET /api/members`、認証済み全員） |
 | `src/store/AuthContext.tsx` | 認証コンテキスト（`useAuth()` フック） |
 | `src/pages/Management/Management.tsx` | 管理画面 UI（メンバー一覧・CRUD） |
 | `src/pages/Management/Management.module.css` | 管理画面スタイル |
@@ -104,6 +105,8 @@
 | パス | コンポーネント | 説明 |
 |------|--------------|------|
 | `/` | `Dashboard` | ダッシュボード |
-| `/admin` | `Management` | 管理画面（lazy load） |
+| `/settings` | `Settings` | 設定ページ（管理画面へのリンク） |
+| `/settings/members` | `Management` | 管理画面・メンバー一覧（lazy load） |
+| `/settings/bulletin-template` | `BulletinTemplate` | 週報テンプレート管理（lazy load、管理者のみ） |
 
 `App.tsx` がルートレイアウトとして機能し、認証ゲート + ヘッダーを提供する。
