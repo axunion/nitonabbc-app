@@ -22,8 +22,78 @@ export type WorshipItem = {
 };
 
 export type Announcement = {
+	heading?: string;
 	content: string;
 };
+
+// Section template types (structure)
+
+export type WorshipProgramSectionTemplate = {
+	id: string;
+	type: "worship-program";
+	label: string;
+	visible?: boolean;
+	config: { items: TemplateItem[] };
+};
+
+export type AnnouncementsSectionTemplate = {
+	id: string;
+	type: "announcements";
+	label: string;
+	visible?: boolean;
+	config: { subHeadings?: string[] };
+};
+
+export type AssignmentsSectionTemplate = {
+	id: string;
+	type: "assignments";
+	label: string;
+	visible?: boolean;
+	config: { roles: string[] };
+};
+
+export type SectionTemplate =
+	| WorshipProgramSectionTemplate
+	| AnnouncementsSectionTemplate
+	| AssignmentsSectionTemplate;
+
+// Section data types (values)
+
+export type WorshipProgramSectionData = {
+	id: string;
+	type: "worship-program";
+	label: string;
+	data: WorshipItem[];
+};
+
+export type AnnouncementsSectionData = {
+	id: string;
+	type: "announcements";
+	label: string;
+	data: Announcement[];
+};
+
+export type AssignmentsSectionData = {
+	id: string;
+	type: "assignments";
+	label: string;
+	data: Record<string, string>;
+};
+
+export type SectionData =
+	| WorshipProgramSectionData
+	| AnnouncementsSectionData
+	| AssignmentsSectionData;
+
+// Forward-compat: unknown section types are passed through without crashing
+export type UnknownSection = {
+	id: string;
+	type: string;
+	label: string;
+	data?: unknown;
+};
+
+export type AnySection = SectionData | UnknownSection;
 
 export type BulletinSummary = {
 	id: number;
@@ -37,9 +107,7 @@ export type BulletinSummary = {
 };
 
 export type BulletinDetail = BulletinSummary & {
-	worship: WorshipItem[];
-	announcements: Announcement[];
-	assignments: Record<string, string>;
+	sections: AnySection[];
 };
 
 export type BulletinListResponse = {

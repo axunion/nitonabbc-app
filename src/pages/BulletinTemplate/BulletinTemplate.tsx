@@ -1,11 +1,11 @@
 import { useNavigate } from "@solidjs/router";
-import { Plus } from "lucide-solid";
 import { createEffect, For, Show } from "solid-js";
 import { Header } from "@/components/Header";
 import { useAuth } from "@/store/AuthContext.tsx";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import styles from "./BulletinTemplate.module.css";
-import { TemplateItemRow } from "./components/TemplateItemRow.tsx";
+import { AddSectionMenu } from "./components/AddSectionMenu.tsx";
+import { SectionRow } from "./components/SectionRow.tsx";
 import { useTemplateEditor } from "./hooks/useTemplateEditor.ts";
 
 export function BulletinTemplate() {
@@ -23,14 +23,12 @@ export function BulletinTemplate() {
 
 	return (
 		<>
-			<Header title={t("worshipTemplate.title")} backTo="/settings" />
+			<Header title={t("bulletinTemplate.title")} backTo="/settings" />
 			<div class={styles.container}>
 				<Show
 					when={editor.initialized()}
 					fallback={<p class={styles.loading}>{t("common.loading")}</p>}
 				>
-					<p class={styles.description}>{t("worshipTemplate.description")}</p>
-
 					<Show when={editor.message()}>
 						{(msg) => (
 							<p
@@ -43,35 +41,34 @@ export function BulletinTemplate() {
 
 					<form onSubmit={editor.handleSave} class={styles.form}>
 						<ul class={styles.itemList}>
-							<For each={editor.items()}>
-								{(item, index) => (
-									<TemplateItemRow
-										item={item}
+							<For each={editor.sections()}>
+								{(section, index) => (
+									<SectionRow
+										section={section}
 										index={index()}
-										total={editor.items().length}
-										isExpanded={editor.expandedIndex() === index()}
+										total={editor.sections().length}
+										isExpanded={editor.expandedSectionId() === section.id}
 										onToggle={editor.toggleExpand}
-										onMoveUp={(i) => editor.moveItem(i, -1)}
-										onMoveDown={(i) => editor.moveItem(i, 1)}
-										onUpdateItem={editor.updateItem}
-										onToggleFieldMode={editor.toggleFieldMode}
-										onAddField={editor.addField}
-										onRemoveField={editor.removeField}
-										onUpdateField={editor.updateField}
-										onRemoveItem={editor.removeItem}
+										onMove={editor.moveSection}
+										onRemove={editor.removeSection}
+										onUpdateLabel={editor.updateLabel}
+										onToggleVisible={editor.toggleVisible}
+										onUpdateWorshipItem={editor.updateWorshipItem}
+										onToggleWorshipFieldMode={editor.toggleWorshipFieldMode}
+										onAddWorshipField={editor.addWorshipField}
+										onRemoveWorshipField={editor.removeWorshipField}
+										onUpdateWorshipField={editor.updateWorshipField}
+										onAddWorshipItem={editor.addWorshipItem}
+										onRemoveWorshipItem={editor.removeWorshipItem}
+										onMoveWorshipItem={editor.moveWorshipItem}
+										onUpdateSubHeadings={editor.updateSubHeadings}
+										onUpdateRoles={editor.updateRoles}
 									/>
 								)}
 							</For>
 						</ul>
 
-						<button
-							type="button"
-							class={styles.addButton}
-							onClick={editor.addItem}
-						>
-							<Plus size={16} stroke-width={1.5} />
-							{t("worshipTemplate.addItem")}
-						</button>
+						<AddSectionMenu onAdd={editor.addSection} />
 
 						<div class={styles.actions}>
 							<button

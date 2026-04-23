@@ -1,10 +1,9 @@
-import type { ApiError, CreatedResource } from "@/types/api.ts";
+import type { ApiError } from "@/types/api.ts";
 import type {
-	Announcement,
 	BulletinDetail,
 	BulletinListResponse,
-	TemplateItem,
-	WorshipItem,
+	SectionData,
+	SectionTemplate,
 } from "@/types/bulletin.ts";
 
 export { fetchMembers } from "@/api/members.ts";
@@ -21,17 +20,19 @@ export async function fetchBulletin(id: string): Promise<BulletinDetail> {
 	return res.json() as Promise<BulletinDetail>;
 }
 
-export async function fetchTemplate(): Promise<TemplateItem[]> {
+export async function fetchTemplate(): Promise<SectionTemplate[]> {
 	const res = await fetch("/api/bulletin-template");
 	if (!res.ok) return [];
-	return res.json() as Promise<TemplateItem[]>;
+	return res.json() as Promise<SectionTemplate[]>;
 }
 
-export async function saveTemplate(items: TemplateItem[]): Promise<ApiError> {
+export async function saveTemplate(
+	sections: SectionTemplate[],
+): Promise<ApiError> {
 	const res = await fetch("/api/bulletin-template", {
 		method: "PUT",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify(items),
+		body: JSON.stringify(sections),
 	});
 	if (!res.ok) return res.json() as Promise<ApiError>;
 	return {};
@@ -39,9 +40,7 @@ export async function saveTemplate(items: TemplateItem[]): Promise<ApiError> {
 
 type BulletinPayload = {
 	serviceDate: string;
-	worship: WorshipItem[];
-	announcements: Announcement[];
-	assignments: Record<string, string>;
+	sections: SectionData[];
 };
 
 export async function saveBulletin(
@@ -59,6 +58,6 @@ export async function saveBulletin(
 		const data = (await res.json()) as ApiError;
 		return { ok: false, error: data.error };
 	}
-	const result = (await res.json()) as CreatedResource;
+	const result = (await res.json()) as { id?: number };
 	return { ok: true, id: result.id };
 }

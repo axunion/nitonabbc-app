@@ -81,6 +81,21 @@ function createDbWithPrepare(
 	} as unknown as D1Database;
 }
 
+const validTemplate = [
+	{
+		id: "worship",
+		type: "worship-program",
+		label: "礼拝プログラム",
+		visible: true,
+		config: {
+			items: [
+				{ type: "prelude", label: "前奏", inputType: "none" },
+				{ type: "hymn", label: "賛美歌", inputType: "text" },
+			],
+		},
+	},
+];
+
 // --- GET /api/bulletin-template ---
 
 describe("GET /api/bulletin-template", () => {
@@ -97,8 +112,8 @@ describe("GET /api/bulletin-template", () => {
 	it("returns default template when not set in DB", async () => {
 		const selectStmt = {
 			bind: vi.fn().mockReturnThis(),
-			first: vi.fn().mockResolvedValue(null),
-			all: vi.fn(),
+			first: vi.fn(),
+			all: vi.fn().mockResolvedValue({ results: [] }),
 			run: vi.fn(),
 		};
 		const db = createDbWithPrepare([selectStmt]);
@@ -110,26 +125,31 @@ describe("GET /api/bulletin-template", () => {
 			env,
 		);
 		expect(res.status).toBe(200);
-		const json = (await res.json()) as { type: string; label: string }[];
+		const json = (await res.json()) as {
+			id: string;
+			type: string;
+			label: string;
+		}[];
 		expect(Array.isArray(json)).toBe(true);
 		expect(json.length).toBeGreaterThan(0);
+		expect(json[0]).toHaveProperty("id");
 		expect(json[0]).toHaveProperty("type");
 		expect(json[0]).toHaveProperty("label");
+		expect(json[0].type).toBe("worship-program");
 	});
 
-	it("returns stored template from DB", async () => {
-		const stored = [
-			{ type: "hymn", label: "Hymn" },
-			{ type: "sermon", label: "Sermon" },
-		];
+	it("returns stored SectionTemplate[] from DB", async () => {
 		const selectStmt = {
 			bind: vi.fn().mockReturnThis(),
-			first: vi.fn().mockResolvedValue({
-				key: "worship_template",
-				value: JSON.stringify(stored),
-				updated_at: "2025-01-01 00:00:00",
+			first: vi.fn(),
+			all: vi.fn().mockResolvedValue({
+				results: [
+					{
+						key: "bulletin_template",
+						value: JSON.stringify(validTemplate),
+					},
+				],
 			}),
-			all: vi.fn(),
 			run: vi.fn(),
 		};
 		const db = createDbWithPrepare([selectStmt]);
@@ -142,14 +162,14 @@ describe("GET /api/bulletin-template", () => {
 		);
 		expect(res.status).toBe(200);
 		const json = await res.json();
-		expect(json).toEqual(stored);
+		expect(json).toEqual(validTemplate);
 	});
 
 	it("allows member access (not admin-only)", async () => {
 		const selectStmt = {
 			bind: vi.fn().mockReturnThis(),
-			first: vi.fn().mockResolvedValue(null),
-			all: vi.fn(),
+			first: vi.fn(),
+			all: vi.fn().mockResolvedValue({ results: [] }),
 			run: vi.fn(),
 		};
 		const db = createDbWithPrepare([selectStmt], createMemberAuthStmt());
@@ -161,6 +181,58 @@ describe("GET /api/bulletin-template", () => {
 			env,
 		);
 		expect(res.status).toBe(200);
+	});
+
+	it("migrates old worship_template key to bulletin_template on read", async () => {
+		const oldItems = [
+			{ type: "prelude", label: "前奏", inputType: "none" },
+			{ type: "hymn", label: "賛美歌", inputType: "text" },
+		];
+		const selectStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn(),
+			all: vi.fn().mockResolvedValue({
+				results: [
+					{
+						key: "worship_template",
+						value: JSON.stringify(oldItems),
+					},
+				],
+			}),
+			run: vi.fn(),
+		};
+		// INSERT new key
+		const insertStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn(),
+			all: vi.fn(),
+			run: vi.fn().mockResolvedValue({ success: true, meta: {}, results: [] }),
+		};
+		// DELETE old key
+		const deleteStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn(),
+			all: vi.fn(),
+			run: vi.fn().mockResolvedValue({ success: true, meta: {}, results: [] }),
+		};
+		const db = createDbWithPrepare([selectStmt, insertStmt, deleteStmt]);
+		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
+
+		const res = await app.request(
+			"http://localhost/api/bulletin-template",
+			{ headers: adminHeaders },
+			env,
+		);
+		expect(res.status).toBe(200);
+		const json = (await res.json()) as {
+			id: string;
+			type: string;
+			config: { items: unknown[] };
+		}[];
+		expect(Array.isArray(json)).toBe(true);
+		expect(json[0].type).toBe("worship-program");
+		expect(json[0].config.items).toEqual(oldItems);
+		expect(insertStmt.run).toHaveBeenCalled();
 	});
 });
 
@@ -174,7 +246,7 @@ describe("PUT /api/bulletin-template", () => {
 			{
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify([{ type: "hymn", label: "Hymn" }]),
+				body: JSON.stringify(validTemplate),
 			},
 			env,
 		);
@@ -197,11 +269,8 @@ describe("PUT /api/bulletin-template", () => {
 			"http://localhost/api/bulletin-template",
 			{
 				method: "PUT",
-				headers: {
-					...memberHeaders,
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify([{ type: "hymn", label: "Hymn" }]),
+				headers: { ...memberHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify(validTemplate),
 			},
 			env,
 		);
@@ -224,7 +293,7 @@ describe("PUT /api/bulletin-template", () => {
 		expect(res.status).toBe(400);
 	});
 
-	it("returns 400 for invalid item (missing type or label)", async () => {
+	it("returns 400 when section is missing label", async () => {
 		const db = createDbWithPrepare([]);
 		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
 
@@ -233,14 +302,67 @@ describe("PUT /api/bulletin-template", () => {
 			{
 				method: "PUT",
 				headers: { ...adminHeaders, "Content-Type": "application/json" },
-				body: JSON.stringify([{ type: "hymn" }]),
+				body: JSON.stringify([
+					{ id: "worship", type: "worship-program", config: { items: [] } },
+				]),
 			},
 			env,
 		);
 		expect(res.status).toBe(400);
 	});
 
-	it("saves template and returns 200", async () => {
+	it("returns 400 for unknown section type", async () => {
+		const db = createDbWithPrepare([]);
+		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
+
+		const res = await app.request(
+			"http://localhost/api/bulletin-template",
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify([
+					{ id: "unknown", type: "weekly-prayer", label: "祈り", config: {} },
+				]),
+			},
+			env,
+		);
+		expect(res.status).toBe(400);
+	});
+
+	it("returns 400 for duplicate section ids", async () => {
+		const db = createDbWithPrepare([]);
+		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
+
+		const res = await app.request(
+			"http://localhost/api/bulletin-template",
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify([
+					{
+						id: "worship",
+						type: "worship-program",
+						label: "礼拝1",
+						config: {
+							items: [{ type: "hymn", label: "賛美歌", inputType: "text" }],
+						},
+					},
+					{
+						id: "worship",
+						type: "worship-program",
+						label: "礼拝2",
+						config: {
+							items: [{ type: "hymn", label: "賛美歌", inputType: "text" }],
+						},
+					},
+				]),
+			},
+			env,
+		);
+		expect(res.status).toBe(400);
+	});
+
+	it("saves SectionTemplate[] and returns 200", async () => {
 		const runStmt = {
 			bind: vi.fn().mockReturnThis(),
 			first: vi.fn(),
@@ -254,16 +376,12 @@ describe("PUT /api/bulletin-template", () => {
 		const db = createDbWithPrepare([runStmt]);
 		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
 
-		const template = [
-			{ type: "prelude", label: "Prelude" },
-			{ type: "hymn", label: "Hymn" },
-		];
 		const res = await app.request(
 			"http://localhost/api/bulletin-template",
 			{
 				method: "PUT",
 				headers: { ...adminHeaders, "Content-Type": "application/json" },
-				body: JSON.stringify(template),
+				body: JSON.stringify(validTemplate),
 			},
 			env,
 		);

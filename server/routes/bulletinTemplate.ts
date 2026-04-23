@@ -16,9 +16,33 @@ type TemplateItem = {
 	fields?: TemplateField[];
 };
 
-const VALID_INPUT_TYPES = ["text", "number", "member", "scripture", "none"];
+type SectionTemplate =
+	| {
+			id: string;
+			type: "worship-program";
+			label: string;
+			visible?: boolean;
+			config: { items: TemplateItem[] };
+	  }
+	| {
+			id: string;
+			type: "announcements";
+			label: string;
+			visible?: boolean;
+			config: { subHeadings?: string[] };
+	  }
+	| {
+			id: string;
+			type: "assignments";
+			label: string;
+			visible?: boolean;
+			config: { roles: string[] };
+	  };
 
-const DEFAULT_TEMPLATE: TemplateItem[] = [
+const VALID_INPUT_TYPES = ["text", "number", "member", "scripture", "none"];
+const VALID_SECTION_TYPES = ["worship-program", "announcements", "assignments"];
+
+const DEFAULT_WORSHIP_ITEMS: TemplateItem[] = [
 	{ type: "prelude", label: "前奏", inputType: "none" },
 	{ type: "hymn", label: "賛美歌", inputType: "text" },
 	{ type: "prayer", label: "祈り", inputType: "member" },
@@ -38,6 +62,16 @@ const DEFAULT_TEMPLATE: TemplateItem[] = [
 	{ type: "benediction", label: "祝祷", inputType: "none" },
 ];
 
+const DEFAULT_TEMPLATE: SectionTemplate[] = [
+	{
+		id: "worship",
+		type: "worship-program",
+		label: "礼拝プログラム",
+		visible: true,
+		config: { items: DEFAULT_WORSHIP_ITEMS },
+	},
+];
+
 type SettingsRow = {
 	key: string;
 	value: string;
@@ -46,7 +80,7 @@ type SettingsRow = {
 
 function isValidField(field: unknown): field is TemplateField {
 	if (typeof field !== "object" || field === null) return false;
-	const f = field as TemplateField;
+	const f = field as Record<string, unknown>;
 	return (
 		typeof f.key === "string" &&
 		f.key.length > 0 &&
@@ -57,11 +91,13 @@ function isValidField(field: unknown): field is TemplateField {
 	);
 }
 
-function isValidTemplate(body: unknown): body is TemplateItem[] {
-	if (!Array.isArray(body) || body.length === 0) return false;
-	return body.every((item: unknown) => {
+function isValidWorshipConfig(config: unknown): boolean {
+	if (typeof config !== "object" || config === null) return false;
+	const c = config as Record<string, unknown>;
+	if (!Array.isArray(c.items) || c.items.length === 0) return false;
+	return c.items.every((item: unknown) => {
 		if (typeof item !== "object" || item === null) return false;
-		const t = item as TemplateItem;
+		const t = item as Record<string, unknown>;
 		if (
 			typeof t.type !== "string" ||
 			t.type.length === 0 ||
@@ -69,7 +105,10 @@ function isValidTemplate(body: unknown): body is TemplateItem[] {
 			t.label.length === 0
 		)
 			return false;
-		if (t.inputType !== undefined && !VALID_INPUT_TYPES.includes(t.inputType))
+		if (
+			t.inputType !== undefined &&
+			!VALID_INPUT_TYPES.includes(t.inputType as string)
+		)
 			return false;
 		if (t.fields !== undefined) {
 			if (!Array.isArray(t.fields) || t.fields.length === 0) return false;
@@ -79,8 +118,49 @@ function isValidTemplate(body: unknown): body is TemplateItem[] {
 	});
 }
 
-function sanitizeTemplate(body: TemplateItem[]): TemplateItem[] {
-	return body.map((item) => {
+function isValidAnnouncementsConfig(config: unknown): boolean {
+	if (typeof config !== "object" || config === null) return false;
+	const c = config as Record<string, unknown>;
+	if (c.subHeadings !== undefined) {
+		if (!Array.isArray(c.subHeadings)) return false;
+		if (!c.subHeadings.every((s: unknown) => typeof s === "string"))
+			return false;
+	}
+	return true;
+}
+
+function isValidAssignmentsConfig(config: unknown): boolean {
+	if (typeof config !== "object" || config === null) return false;
+	const c = config as Record<string, unknown>;
+	if (!Array.isArray(c.roles) || c.roles.length === 0) return false;
+	return c.roles.every(
+		(r: unknown) => typeof r === "string" && (r as string).length > 0,
+	);
+}
+
+function isValidSection(section: unknown): section is SectionTemplate {
+	if (typeof section !== "object" || section === null) return false;
+	const s = section as Record<string, unknown>;
+	if (typeof s.id !== "string" || s.id.length === 0) return false;
+	if (typeof s.type !== "string" || !VALID_SECTION_TYPES.includes(s.type))
+		return false;
+	if (typeof s.label !== "string" || s.label.length === 0) return false;
+	if (s.visible !== undefined && typeof s.visible !== "boolean") return false;
+	if (s.type === "worship-program") return isValidWorshipConfig(s.config);
+	if (s.type === "announcements") return isValidAnnouncementsConfig(s.config);
+	if (s.type === "assignments") return isValidAssignmentsConfig(s.config);
+	return false;
+}
+
+function isValidTemplate(body: unknown): body is SectionTemplate[] {
+	if (!Array.isArray(body) || body.length === 0) return false;
+	if (!body.every(isValidSection)) return false;
+	const ids = body.map((s) => (s as Record<string, unknown>).id);
+	return new Set(ids).size === ids.length;
+}
+
+function sanitizeWorshipItems(items: TemplateItem[]): TemplateItem[] {
+	return items.map((item) => {
 		const sanitized: TemplateItem = { type: item.type, label: item.label };
 		if (item.fields && item.fields.length > 0) {
 			sanitized.fields = item.fields.map((f) => ({
@@ -95,24 +175,88 @@ function sanitizeTemplate(body: TemplateItem[]): TemplateItem[] {
 	});
 }
 
+function sanitizeTemplate(sections: SectionTemplate[]): SectionTemplate[] {
+	return sections.map((s) => {
+		const base = {
+			id: s.id,
+			type: s.type,
+			label: s.label,
+			visible: s.visible ?? true,
+		};
+		if (s.type === "worship-program") {
+			return {
+				...base,
+				type: "worship-program" as const,
+				config: { items: sanitizeWorshipItems(s.config.items) },
+			};
+		}
+		if (s.type === "announcements") {
+			return {
+				...base,
+				type: "announcements" as const,
+				config: { subHeadings: s.config.subHeadings ?? [] },
+			};
+		}
+		return {
+			...base,
+			type: "assignments" as const,
+			config: { roles: s.config.roles },
+		};
+	});
+}
+
+// Migrate an old TemplateItem[] value into a SectionTemplate[] wrapping it as worship-program
+function migrateOldTemplate(oldValue: string): SectionTemplate[] {
+	try {
+		const items = JSON.parse(oldValue) as TemplateItem[];
+		if (!Array.isArray(items)) return DEFAULT_TEMPLATE;
+		return [
+			{
+				id: "worship",
+				type: "worship-program",
+				label: "礼拝プログラム",
+				visible: true,
+				config: { items },
+			},
+		];
+	} catch {
+		return DEFAULT_TEMPLATE;
+	}
+}
+
 export const bulletinTemplateRoute = new Hono<AppEnv>();
 
 // GET — any authenticated user can read the template
 bulletinTemplateRoute.get("/", authMiddleware, async (c) => {
 	try {
-		const row = await c.env.DB.prepare(
-			"SELECT key, value, updated_at FROM settings WHERE key = ?",
+		const { results } = await c.env.DB.prepare(
+			"SELECT key, value FROM settings WHERE key IN (?, ?)",
 		)
-			.bind("worship_template")
-			.first<SettingsRow>();
+			.bind("bulletin_template", "worship_template")
+			.all<SettingsRow>();
 
-		if (!row) {
-			return c.json(DEFAULT_TEMPLATE);
+		const row = results.find((r) => r.key === "bulletin_template");
+		if (row) {
+			return c.json(JSON.parse(row.value));
 		}
 
-		return c.json(JSON.parse(row.value));
+		const oldRow = results.find((r) => r.key === "worship_template");
+
+		if (oldRow) {
+			const migrated = migrateOldTemplate(oldRow.value);
+			await c.env.DB.prepare(
+				"INSERT INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now')) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
+			)
+				.bind("bulletin_template", JSON.stringify(migrated))
+				.run();
+			await c.env.DB.prepare("DELETE FROM settings WHERE key = ?")
+				.bind("worship_template")
+				.run();
+			return c.json(migrated);
+		}
+
+		return c.json(DEFAULT_TEMPLATE);
 	} catch {
-		// Table may not exist yet — return default
 		return c.json(DEFAULT_TEMPLATE);
 	}
 });
@@ -123,28 +267,30 @@ bulletinTemplateRoute.put("/", authMiddleware, adminMiddleware, async (c) => {
 
 	if (!isValidTemplate(body)) {
 		return c.json(
-			{ error: "Template must be a non-empty array of { type, label }" },
+			{
+				error:
+					"Template must be a non-empty array of valid sections with unique ids",
+			},
 			400,
 		);
 	}
 
-	const items = sanitizeTemplate(body);
+	const sections = sanitizeTemplate(body);
 
 	try {
 		await c.env.DB.prepare(
 			"INSERT INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now')) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
 		)
-			.bind("worship_template", JSON.stringify(items))
+			.bind("bulletin_template", JSON.stringify(sections))
 			.run();
 	} catch {
-		// Table may not exist — create it and retry
 		await c.env.DB.exec(
 			"CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL DEFAULT (datetime('now')))",
 		);
 		await c.env.DB.prepare(
 			"INSERT INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now')) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
 		)
-			.bind("worship_template", JSON.stringify(items))
+			.bind("bulletin_template", JSON.stringify(sections))
 			.run();
 	}
 

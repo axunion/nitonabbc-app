@@ -6,9 +6,10 @@ import { Header } from "@/components/Header";
 import { ProgressBar } from "@/components/ProgressBar";
 import { useAuth } from "@/store/AuthContext.tsx";
 import { useLocale } from "@/store/LocaleContext.tsx";
-import { getMemberName, getTemplateItem } from "@/utils/bulletin.ts";
+import { hasMyUnfilledWorshipItems } from "@/utils/bulletin.ts";
 import { formatDate } from "@/utils/date.ts";
 import styles from "./BulletinDetail.module.css";
+import { SectionView } from "./components/SectionView.tsx";
 
 export function BulletinDetail() {
 	const params = useParams<{ id: string }>();
@@ -19,28 +20,17 @@ export function BulletinDetail() {
 	const navigate = useNavigate();
 	const { user } = useAuth();
 
-	function hasMyUnfilledItems(): boolean {
+	function hasUnfilledItems(): boolean {
 		const b = bulletin();
-		const uid = user().id;
-		if (!b || uid == null) return false;
-		return b.worship.some((item) => {
-			if (item.assigneeId !== uid) return false;
-			const tmpl = getTemplateItem(template(), item.type);
-			if (tmpl?.fields && tmpl.fields.length > 0) {
-				return tmpl.fields.some(
-					(f) => f.inputType !== "none" && !item.fieldValues?.[f.key]?.trim(),
-				);
-			}
-			const inputType = tmpl?.inputType ?? "text";
-			if (inputType === "none") return false;
-			return !item.details?.trim();
-		});
+		const t = template();
+		if (!b || !t) return false;
+		return hasMyUnfilledWorshipItems(b.sections, t, user().id);
 	}
 
 	return (
 		<>
 			<Header
-				title={t("bulletin.worship")}
+				title={t("bulletin.title")}
 				backTo="/bulletin"
 				rightAction={
 					<Show when={bulletin()}>
@@ -66,11 +56,9 @@ export function BulletinDetail() {
 						{(b) => (
 							<div class={styles.content}>
 								<h1 class={styles.title}>
-									{formatDate(b().serviceDate, locale())}{" "}
-									{t("bulletin.worship")}
+									{formatDate(b().serviceDate, locale())}
 								</h1>
 
-								{/* Progress bar */}
 								<Show when={b().totalItems > 0}>
 									<div class={styles.progressRow}>
 										<ProgressBar
@@ -84,8 +72,7 @@ export function BulletinDetail() {
 									</div>
 								</Show>
 
-								{/* My unfilled items CTA */}
-								<Show when={hasMyUnfilledItems()}>
+								<Show when={hasUnfilledItems()}>
 									<button
 										type="button"
 										class={styles.ctaButton}
@@ -95,126 +82,15 @@ export function BulletinDetail() {
 									</button>
 								</Show>
 
-								<Show when={b().worship.length > 0}>
-									<section class={styles.section}>
-										<h2 class={styles.sectionTitle}>
-											{t("bulletin.worshipProgram")}
-										</h2>
-										<ul class={styles.worshipList}>
-											<For each={b().worship}>
-												{(item) => {
-													const tmpl = getTemplateItem(template(), item.type);
-													const assigneeName = getMemberName(
-														members(),
-														item.assigneeId,
-													);
-
-													return (
-														<li class={styles.worshipItem}>
-															<div class={styles.worshipItemHeader}>
-																<span class={styles.worshipLabel}>
-																	{item.label}
-																</span>
-																<Show when={assigneeName}>
-																	<span class={styles.worshipAssignee}>
-																		{assigneeName}
-																	</span>
-																</Show>
-															</div>
-															<Show
-																when={tmpl?.fields && tmpl.fields.length > 0}
-															>
-																<div class={styles.compoundDetails}>
-																	<For each={tmpl?.fields ?? []}>
-																		{(field) => (
-																			<Show
-																				when={
-																					field.inputType !== "none" &&
-																					item.fieldValues?.[field.key]
-																				}
-																			>
-																				<div class={styles.compoundField}>
-																					<span
-																						class={styles.compoundFieldLabel}
-																					>
-																						{field.label}
-																					</span>
-																					<span
-																						class={styles.compoundFieldValue}
-																					>
-																						{field.inputType === "member"
-																							? (getMemberName(
-																									members(),
-																									Number(
-																										item.fieldValues?.[
-																											field.key
-																										],
-																									),
-																								) ??
-																								item.fieldValues?.[field.key])
-																							: item.fieldValues?.[field.key]}
-																					</span>
-																				</div>
-																			</Show>
-																		)}
-																	</For>
-																</div>
-															</Show>
-															<Show
-																when={
-																	!(tmpl?.fields && tmpl.fields.length > 0) &&
-																	item.details
-																}
-															>
-																<span class={styles.worshipDetails}>
-																	{tmpl?.inputType === "member"
-																		? (getMemberName(
-																				members(),
-																				Number(item.details),
-																			) ?? item.details)
-																		: item.details}
-																</span>
-															</Show>
-														</li>
-													);
-												}}
-											</For>
-										</ul>
-									</section>
-								</Show>
-
-								<Show when={b().announcements.length > 0}>
-									<section class={styles.section}>
-										<h2 class={styles.sectionTitle}>
-											{t("bulletin.announcements")}
-										</h2>
-										<ul class={styles.announcementList}>
-											<For each={b().announcements}>
-												{(a) => (
-													<li class={styles.announcementItem}>{a.content}</li>
-												)}
-											</For>
-										</ul>
-									</section>
-								</Show>
-
-								<Show when={Object.keys(b().assignments).length > 0}>
-									<section class={styles.section}>
-										<h2 class={styles.sectionTitle}>
-											{t("bulletin.assignments")}
-										</h2>
-										<dl class={styles.assignmentList}>
-											<For each={Object.entries(b().assignments)}>
-												{([role, person]) => (
-													<>
-														<dt class={styles.assignmentRole}>{role}</dt>
-														<dd class={styles.assignmentPerson}>{person}</dd>
-													</>
-												)}
-											</For>
-										</dl>
-									</section>
-								</Show>
+								<For each={b().sections}>
+									{(section) => (
+										<SectionView
+											section={section}
+											template={template() ?? []}
+											members={members()}
+										/>
+									)}
+								</For>
 							</div>
 						)}
 					</Show>

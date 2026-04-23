@@ -192,3 +192,18 @@
 .loading {
 	composes: loadingText from "../../styles/shared.module.css";
 }
+
+.sectionAddRow {
+	display: flex;
+	justify-content: flex-end;
+	margin-bottom: var(--space-2);
+}
+
+.assignmentRoleLabel {
+	font-size: var(--text-sm);
+	font-weight: var(--font-medium);
+	color: var(--color-gray-700);
+	min-width: 80px;
+	padding-top: 10px;
+	flex-shrink: 0;
+}

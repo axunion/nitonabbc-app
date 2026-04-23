@@ -5,9 +5,7 @@ import type { AppEnv } from "../types.ts";
 type BulletinRow = {
 	id: number;
 	service_date: string;
-	worship: string;
-	announcements: string;
-	assignments: string;
+	sections: string;
 	created_by: number;
 	updated_by: number;
 	created_at: string;
@@ -29,31 +27,95 @@ type TemplateItemData = {
 	fields?: { key: string; label: string; inputType: string }[];
 };
 
+type SectionTemplateData =
+	| {
+			id: string;
+			type: "worship-program";
+			label: string;
+			visible?: boolean;
+			config: { items: TemplateItemData[] };
+	  }
+	| {
+			id: string;
+			type: "announcements";
+			label: string;
+			visible?: boolean;
+			config: { subHeadings?: string[] };
+	  }
+	| {
+			id: string;
+			type: "assignments";
+			label: string;
+			visible?: boolean;
+			config: { roles: string[] };
+	  };
+
+type SectionData =
+	| {
+			id: string;
+			type: "worship-program";
+			label: string;
+			data: WorshipItemData[];
+	  }
+	| {
+			id: string;
+			type: "announcements";
+			label: string;
+			data: { heading?: string; content: string }[];
+	  }
+	| {
+			id: string;
+			type: "assignments";
+			label: string;
+			data: Record<string, string>;
+	  };
+
+function countWorshipProgress(
+	data: WorshipItemData[],
+	items: TemplateItemData[],
+) {
+	let total = 0;
+	let filled = 0;
+	for (const item of data) {
+		const tmpl = items.find((t) => t.type === item.type);
+		const inputType = tmpl?.inputType ?? "text";
+		if (tmpl?.fields && tmpl.fields.length > 0) {
+			for (const field of tmpl.fields) {
+				if (field.inputType === "none") continue;
+				total++;
+				if (item.fieldValues?.[field.key]?.trim()) filled++;
+			}
+		} else {
+			if (inputType === "none") continue;
+			total++;
+			if (item.details?.trim()) filled++;
+		}
+	}
+	return { total, filled };
+}
+
 function countProgress(
-	worship: WorshipItemData[],
-	template: TemplateItemData[],
+	sections: SectionData[],
+	template: SectionTemplateData[],
 ) {
 	let totalItems = 0;
 	let filledItems = 0;
 
-	for (let i = 0; i < worship.length; i++) {
-		const item = worship[i];
-		const tmpl = template.find((t) => t.type === item.type);
-		const inputType = tmpl?.inputType ?? "text";
-
-		if (tmpl?.fields && tmpl.fields.length > 0) {
-			for (const field of tmpl.fields) {
-				if (field.inputType === "none") continue;
-				totalItems++;
-				if (item.fieldValues?.[field.key]?.trim()) {
-					filledItems++;
-				}
-			}
-		} else {
-			if (inputType === "none") continue;
-			totalItems++;
-			if (item.details?.trim()) {
-				filledItems++;
+	for (const section of sections) {
+		const tmpl = template.find((t) => t.id === section.id);
+		if (section.type === "worship-program") {
+			const items = tmpl?.type === "worship-program" ? tmpl.config.items : [];
+			const { total, filled } = countWorshipProgress(section.data, items);
+			totalItems += total;
+			filledItems += filled;
+		} else if (section.type === "announcements") {
+			totalItems += 1;
+			if (section.data.length > 0) filledItems += 1;
+		} else if (section.type === "assignments") {
+			const roles = tmpl?.type === "assignments" ? tmpl.config.roles : [];
+			totalItems += roles.length;
+			for (const role of roles) {
+				if (section.data[role]?.trim()) filledItems++;
 			}
 		}
 	}
@@ -61,10 +123,9 @@ function countProgress(
 	return { totalItems, filledItems };
 }
 
-function toBulletinSummary(row: BulletinRow, template: TemplateItemData[]) {
-	const worship: WorshipItemData[] = JSON.parse(row.worship);
-	const { totalItems, filledItems } = countProgress(worship, template);
-
+function toBulletinDetail(row: BulletinRow, template: SectionTemplateData[]) {
+	const sections = JSON.parse(row.sections) as SectionData[];
+	const { totalItems, filledItems } = countProgress(sections, template);
 	return {
 		id: row.id,
 		serviceDate: row.service_date,
@@ -74,16 +135,13 @@ function toBulletinSummary(row: BulletinRow, template: TemplateItemData[]) {
 		updatedAt: row.updated_at,
 		totalItems,
 		filledItems,
+		sections,
 	};
 }
 
-function toBulletinDetail(row: BulletinRow, template: TemplateItemData[]) {
-	return {
-		...toBulletinSummary(row, template),
-		worship: JSON.parse(row.worship) as WorshipItemData[],
-		announcements: JSON.parse(row.announcements),
-		assignments: JSON.parse(row.assignments),
-	};
+function toBulletinSummary(row: BulletinRow, template: SectionTemplateData[]) {
+	const { sections: _s, ...summary } = toBulletinDetail(row, template);
+	return summary;
 }
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -98,11 +156,11 @@ function getNextSunday(): string {
 	return nextSunday.toISOString().slice(0, 10);
 }
 
-async function getTemplate(db: D1Database): Promise<TemplateItemData[]> {
+async function getTemplate(db: D1Database): Promise<SectionTemplateData[]> {
 	try {
 		const row = await db
 			.prepare("SELECT value FROM settings WHERE key = ?")
-			.bind("worship_template")
+			.bind("bulletin_template")
 			.first<{ value: string }>();
 		if (row) return JSON.parse(row.value);
 	} catch {
@@ -111,16 +169,44 @@ async function getTemplate(db: D1Database): Promise<TemplateItemData[]> {
 	return [];
 }
 
+function buildSectionsFromTemplate(
+	template: SectionTemplateData[],
+): SectionData[] {
+	return template
+		.filter((s) => s.visible !== false)
+		.map((s): SectionData => {
+			if (s.type === "worship-program") {
+				const data: WorshipItemData[] = s.config.items.map((t) => {
+					const item: WorshipItemData = { type: t.type, label: t.label };
+					if (t.fields && t.fields.length > 0) {
+						item.fieldValues = {};
+						for (const field of t.fields) {
+							item.fieldValues[field.key] = "";
+						}
+					}
+					return item;
+				});
+				return { id: s.id, type: "worship-program", label: s.label, data };
+			}
+			if (s.type === "announcements") {
+				return { id: s.id, type: "announcements", label: s.label, data: [] };
+			}
+			return { id: s.id, type: "assignments", label: s.label, data: {} };
+		});
+}
+
 export const bulletinRoute = new Hono<AppEnv>();
 
 bulletinRoute.use("/*", authMiddleware);
 
 // GET /api/bulletin — list all bulletins + next Sunday date
 bulletinRoute.get("/", async (c) => {
-	const template = await getTemplate(c.env.DB);
-	const { results } = await c.env.DB.prepare(
-		"SELECT id, service_date, worship, announcements, assignments, created_by, updated_by, created_at, updated_at FROM bulletins ORDER BY service_date DESC",
-	).all<BulletinRow>();
+	const [template, { results }] = await Promise.all([
+		getTemplate(c.env.DB),
+		c.env.DB.prepare(
+			"SELECT id, service_date, sections, created_by, updated_by, created_at, updated_at FROM bulletins ORDER BY service_date DESC",
+		).all<BulletinRow>(),
+	]);
 
 	return c.json({
 		bulletins: results.map((r) => toBulletinSummary(r, template)),
@@ -128,7 +214,7 @@ bulletinRoute.get("/", async (c) => {
 	});
 });
 
-// POST /api/bulletin/generate — auto-generate bulletin from template
+// POST /api/bulletin/generate — auto-generate bulletin for next Sunday from template
 bulletinRoute.post("/generate", async (c) => {
 	const user = c.get("user");
 	const template = await getTemplate(c.env.DB);
@@ -144,38 +230,18 @@ bulletinRoute.post("/generate", async (c) => {
 		serviceDate = getNextSunday();
 	}
 
-	// Build worship items from template
-	const worship: WorshipItemData[] = template.map((t) => {
-		const item: WorshipItemData = { type: t.type, label: t.label };
-		if (t.fields && t.fields.length > 0) {
-			item.fieldValues = {};
-			for (const field of t.fields) {
-				item.fieldValues[field.key] = "";
-			}
-		}
-		return item;
-	});
-
-	const worshipJson = JSON.stringify(worship);
-	const announcements = "[]";
-	const assignments = "{}";
+	// TODO: copy-forward repeated sections from most recent bulletin (future phase)
+	const sections = buildSectionsFromTemplate(template);
 
 	try {
 		const result = await c.env.DB.prepare(
-			"INSERT INTO bulletins (service_date, worship, announcements, assignments, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?)",
+			"INSERT INTO bulletins (service_date, sections, created_by, updated_by) VALUES (?, ?, ?, ?)",
 		)
-			.bind(
-				serviceDate,
-				worshipJson,
-				announcements,
-				assignments,
-				user.id,
-				user.id,
-			)
+			.bind(serviceDate, JSON.stringify(sections), user.id, user.id)
 			.run();
 
 		const newRow = await c.env.DB.prepare(
-			"SELECT id, service_date, worship, announcements, assignments, created_by, updated_by, created_at, updated_at FROM bulletins WHERE id = ?",
+			"SELECT id, service_date, sections, created_by, updated_by, created_at, updated_at FROM bulletins WHERE id = ?",
 		)
 			.bind(result.meta.last_row_id)
 			.first<BulletinRow>();
@@ -196,13 +262,14 @@ bulletinRoute.post("/generate", async (c) => {
 // GET /api/bulletin/:id — get single bulletin
 bulletinRoute.get("/:id", async (c) => {
 	const id = Number(c.req.param("id"));
-	const template = await getTemplate(c.env.DB);
-
-	const row = await c.env.DB.prepare(
-		"SELECT id, service_date, worship, announcements, assignments, created_by, updated_by, created_at, updated_at FROM bulletins WHERE id = ?",
-	)
-		.bind(id)
-		.first<BulletinRow>();
+	const [template, row] = await Promise.all([
+		getTemplate(c.env.DB),
+		c.env.DB.prepare(
+			"SELECT id, service_date, sections, created_by, updated_by, created_at, updated_at FROM bulletins WHERE id = ?",
+		)
+			.bind(id)
+			.first<BulletinRow>(),
+	]);
 
 	if (!row) {
 		return c.json({ error: "Bulletin not found" }, 404);
@@ -216,36 +283,28 @@ bulletinRoute.post("/", async (c) => {
 	const user = c.get("user");
 	const body = await c.req.json<{
 		serviceDate?: string;
-		worship?: unknown[];
-		announcements?: unknown[];
-		assignments?: Record<string, string>;
+		sections?: unknown[];
 	}>();
 
 	if (!body.serviceDate || !DATE_RE.test(body.serviceDate)) {
 		return c.json({ error: "serviceDate is required (YYYY-MM-DD)" }, 400);
 	}
 
-	const worship = JSON.stringify(body.worship ?? []);
-	const announcements = JSON.stringify(body.announcements ?? []);
-	const assignments = JSON.stringify(body.assignments ?? {});
+	const template = await getTemplate(c.env.DB);
+	const sections: SectionData[] =
+		Array.isArray(body.sections) && body.sections.length > 0
+			? (body.sections as SectionData[])
+			: buildSectionsFromTemplate(template);
 
 	try {
 		const result = await c.env.DB.prepare(
-			"INSERT INTO bulletins (service_date, worship, announcements, assignments, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?)",
+			"INSERT INTO bulletins (service_date, sections, created_by, updated_by) VALUES (?, ?, ?, ?)",
 		)
-			.bind(
-				body.serviceDate,
-				worship,
-				announcements,
-				assignments,
-				user.id,
-				user.id,
-			)
+			.bind(body.serviceDate, JSON.stringify(sections), user.id, user.id)
 			.run();
 
-		const template = await getTemplate(c.env.DB);
 		const newRow = await c.env.DB.prepare(
-			"SELECT id, service_date, worship, announcements, assignments, created_by, updated_by, created_at, updated_at FROM bulletins WHERE id = ?",
+			"SELECT id, service_date, sections, created_by, updated_by, created_at, updated_at FROM bulletins WHERE id = ?",
 		)
 			.bind(result.meta.last_row_id)
 			.first<BulletinRow>();
@@ -269,9 +328,7 @@ bulletinRoute.put("/:id", async (c) => {
 	const user = c.get("user");
 	const body = await c.req.json<{
 		serviceDate?: string;
-		worship?: unknown[];
-		announcements?: unknown[];
-		assignments?: Record<string, string>;
+		sections?: unknown[];
 	}>();
 
 	const existing = await c.env.DB.prepare(
@@ -295,17 +352,9 @@ bulletinRoute.put("/:id", async (c) => {
 		updates.push("service_date = ?");
 		values.push(body.serviceDate);
 	}
-	if (body.worship !== undefined) {
-		updates.push("worship = ?");
-		values.push(JSON.stringify(body.worship));
-	}
-	if (body.announcements !== undefined) {
-		updates.push("announcements = ?");
-		values.push(JSON.stringify(body.announcements));
-	}
-	if (body.assignments !== undefined) {
-		updates.push("assignments = ?");
-		values.push(JSON.stringify(body.assignments));
+	if (body.sections !== undefined) {
+		updates.push("sections = ?");
+		values.push(JSON.stringify(body.sections));
 	}
 
 	if (updates.length > 0) {
@@ -320,12 +369,14 @@ bulletinRoute.put("/:id", async (c) => {
 			.run();
 	}
 
-	const template = await getTemplate(c.env.DB);
-	const updated = await c.env.DB.prepare(
-		"SELECT id, service_date, worship, announcements, assignments, created_by, updated_by, created_at, updated_at FROM bulletins WHERE id = ?",
-	)
-		.bind(id)
-		.first<BulletinRow>();
+	const [template, updated] = await Promise.all([
+		getTemplate(c.env.DB),
+		c.env.DB.prepare(
+			"SELECT id, service_date, sections, created_by, updated_by, created_at, updated_at FROM bulletins WHERE id = ?",
+		)
+			.bind(id)
+			.first<BulletinRow>(),
+	]);
 
 	if (!updated) {
 		return c.json({ error: "Bulletin not found" }, 404);

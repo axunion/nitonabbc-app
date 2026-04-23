@@ -453,16 +453,16 @@ settings テーブルのキー: `church_profile`
 
 | 項目 | ステータス |
 |------|-----------|
-| `bulletins` テーブルスキーマ | 旧 3 カラム（`worship` / `announcements` / `assignments`）が現役。`sections` JSON への移行は未実施 |
-| settings テーブルのキー名 | 現状 `worship_template`（コード全体）。目標 `bulletin_template` への改名は未実施 |
-| `/settings/bulletin-template` ルート | 実装済み（旧モデル対応。目標パス `/settings/bulletin-template`、現実装と一致） |
-| `/settings/church-profile` ルート | 未実装 |
-| セクションブロックモデル（型定義・DB） | 未実装 |
-| マイグレーション（旧 3 カラム → sections） | 未実装 |
-| テンプレート API 更新（SectionTemplate[] 対応） | 未実装 |
-| 教会プロフィール API・画面 | 未実装 |
-| 既存 worship-program 入力・表示 | 旧モデルで実装済み（移植必要） |
-| 既存 announcements / assignments | 旧モデルで実装済み（移植必要） |
+| `bulletins` テーブルスキーマ | 実装済み（`sections TEXT` 列に移行済み。`db/migrations/0001_bulletins_to_sections.sql` で変換マイグレーション提供） |
+| settings テーブルのキー名 | 実装済み（`worship_template` → `bulletin_template` に改名。GET 時の安全移行ロジック実装済み） |
+| `/settings/bulletin-template` ルート | 実装済み（セクションブロックモデル対応） |
+| `/settings/church-profile` ルート | 未実装（将来フェーズ） |
+| セクションブロックモデル（型定義・DB） | 実装済み（`SectionTemplate[]` / `SectionData[]` 判別共用体、`UnknownSection` で前方互換対応） |
+| マイグレーション（旧 3 カラム → sections） | 実装済み（`db/migrations/0001_bulletins_to_sections.sql`） |
+| テンプレート API 更新（SectionTemplate[] 対応） | 実装済み（バリデーション・sanitize・安全移行含む） |
+| 教会プロフィール API・画面 | 未実装（将来フェーズ） |
+| 既存 worship-program 入力・表示 | 実装済み（セクションブロックモデルに移植済み） |
+| 既存 announcements / assignments | 実装済み（セクションブロックモデルに移植済み） |
 | service-meta セクション | 未実装 |
 | attendance セクション | 未実装 |
 | weekly-prayer セクション | 未実装 |
@@ -473,7 +473,7 @@ settings テーブルのキー: `church_profile`
 | financial-summary セクション | 未実装 |
 | scripture-quotes セクション | 未実装 |
 | text-block セクション | 未実装 |
-| BulletinDetail（セクションブロック対応） | 未実装 |
-| BulletinForm（セクション別エディタ） | 未実装 |
-| BulletinTemplate（セクション管理 UI） | 未実装 |
+| BulletinDetail（セクションブロック対応） | 実装済み（`SectionView` dispatcher + 3 種ビューア） |
+| BulletinForm（セクション別エディタ） | 実装済み（`SectionEditor` dispatcher + 3 種エディタ） |
+| BulletinTemplate（セクション管理 UI） | 実装済み（`SectionRow` + `AddSectionMenu` + 3 種 config エディタ） |
 | PDF 出力 | 未実装（将来フェーズ） |

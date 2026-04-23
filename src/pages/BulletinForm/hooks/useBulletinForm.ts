@@ -11,9 +11,12 @@ import {
 	fetchTemplate,
 	saveBulletin,
 } from "@/api/bulletin.ts";
-import type { Announcement, WorshipItem } from "@/types/bulletin.ts";
-
-export type Assignment = { role: string; person: string };
+import type {
+	AnnouncementsSectionData,
+	AssignmentsSectionData,
+	SectionData,
+	WorshipProgramSectionData,
+} from "@/types/bulletin.ts";
 
 export function useBulletinForm() {
 	const params = useParams<{ id?: string }>();
@@ -30,31 +33,48 @@ export function useBulletinForm() {
 	const [members] = createResource(fetchMembers);
 
 	const [serviceDate, setServiceDate] = createSignal("");
-	const [worship, setWorship] = createSignal<WorshipItem[]>([]);
-	const [announcements, setAnnouncements] = createSignal<Announcement[]>([]);
-	const [assignments, setAssignments] = createSignal<Assignment[]>([]);
+	const [sections, setSections] = createSignal<SectionData[]>([]);
 	const [submitting, setSubmitting] = createSignal(false);
 	const [error, setError] = createSignal("");
 	const [initialized, setInitialized] = createSignal(false);
 
 	// Initialize new bulletin from template
 	createEffect(() => {
-		const items = template();
-		if (!isEdit() && items && items.length > 0 && !initialized()) {
-			setWorship(
-				items.map((i) => {
-					const item: WorshipItem = { type: i.type, label: i.label };
-					if (i.fields && i.fields.length > 0) {
-						item.fieldValues = {};
-						for (const f of i.fields) {
-							item.fieldValues[f.key] = "";
-						}
+		const tmpl = template();
+		if (!isEdit() && tmpl && tmpl.length > 0 && !initialized()) {
+			const built: SectionData[] = tmpl
+				.filter((s) => s.visible !== false)
+				.map((s): SectionData => {
+					if (s.type === "worship-program") {
+						return {
+							id: s.id,
+							type: "worship-program",
+							label: s.label,
+							data: s.config.items.map((i) => {
+								const item = { type: i.type, label: i.label };
+								if (i.fields && i.fields.length > 0) {
+									return {
+										...item,
+										fieldValues: Object.fromEntries(
+											i.fields.map((f) => [f.key, ""]),
+										),
+									};
+								}
+								return item;
+							}),
+						};
 					}
-					return item;
-				}),
-			);
-			setAnnouncements([{ content: "" }]);
-			setAssignments([{ role: "", person: "" }]);
+					if (s.type === "announcements") {
+						return {
+							id: s.id,
+							type: "announcements",
+							label: s.label,
+							data: [],
+						};
+					}
+					return { id: s.id, type: "assignments", label: s.label, data: {} };
+				});
+			setSections(built);
 			if (searchParams.date) {
 				setServiceDate(searchParams.date);
 			}
@@ -67,121 +87,150 @@ export function useBulletinForm() {
 		const data = existing();
 		if (isEdit() && data && !initialized()) {
 			setServiceDate(data.serviceDate);
-			setWorship(data.worship.length > 0 ? data.worship : []);
-			setAnnouncements(
-				data.announcements.length > 0 ? data.announcements : [{ content: "" }],
+			const validSections = data.sections.filter(
+				(s): s is SectionData =>
+					s.type === "worship-program" ||
+					s.type === "announcements" ||
+					s.type === "assignments",
 			);
-			const entries = Object.entries(data.assignments);
-			setAssignments(
-				entries.length > 0
-					? entries.map(([role, person]) => ({ role, person }))
-					: [{ role: "", person: "" }],
-			);
+			setSections(validSections);
 			setInitialized(true);
 		}
 	});
 
-	function updateWorshipDetails(index: number, value: string) {
-		setWorship((prev) =>
-			prev.map((item, i) => (i === index ? { ...item, details: value } : item)),
+	function updateSection(
+		sectionId: string,
+		updater: (s: SectionData) => SectionData,
+	) {
+		setSections((prev) =>
+			prev.map((s) => (s.id === sectionId ? updater(s) : s)),
 		);
 	}
 
+	function updateWorshipItem(
+		sectionId: string,
+		index: number,
+		patch: Partial<{
+			details: string;
+			fieldValues: Record<string, string>;
+			assigneeId: number | null;
+		}>,
+	) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "worship-program") return s;
+			const data = s.data.map((item, i) =>
+				i === index ? { ...item, ...patch } : item,
+			);
+			return { ...s, data };
+		});
+	}
+
+	function updateWorshipDetails(
+		sectionId: string,
+		index: number,
+		value: string,
+	) {
+		updateWorshipItem(sectionId, index, { details: value });
+	}
+
 	function updateWorshipFieldValue(
+		sectionId: string,
 		index: number,
 		fieldKey: string,
 		value: string,
 	) {
-		setWorship((prev) =>
-			prev.map((item, i) => {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "worship-program") return s;
+			const data = s.data.map((item, i) => {
 				if (i !== index) return item;
 				return {
 					...item,
 					fieldValues: { ...(item.fieldValues ?? {}), [fieldKey]: value },
 				};
-			}),
-		);
+			});
+			return { ...s, data };
+		});
 	}
 
-	function updateWorshipAssignee(index: number, value: string) {
-		setWorship((prev) =>
-			prev.map((item, i) =>
-				i === index
-					? { ...item, assigneeId: value ? Number(value) : null }
-					: item,
-			),
-		);
-	}
-
-	function addAnnouncement() {
-		setAnnouncements((prev) => [...prev, { content: "" }]);
-	}
-
-	function removeAnnouncement(index: number) {
-		setAnnouncements((prev) => prev.filter((_, i) => i !== index));
-	}
-
-	function updateAnnouncement(index: number, value: string) {
-		setAnnouncements((prev) =>
-			prev.map((a, i) => (i === index ? { content: value } : a)),
-		);
-	}
-
-	function addAssignment() {
-		setAssignments((prev) => [...prev, { role: "", person: "" }]);
-	}
-
-	function removeAssignment(index: number) {
-		setAssignments((prev) => prev.filter((_, i) => i !== index));
-	}
-
-	function updateAssignment(
+	function updateWorshipAssignee(
+		sectionId: string,
 		index: number,
-		field: "role" | "person",
 		value: string,
 	) {
-		setAssignments((prev) =>
-			prev.map((a, i) => (i === index ? { ...a, [field]: value } : a)),
-		);
+		updateWorshipItem(sectionId, index, {
+			assigneeId: value ? Number(value) : null,
+		});
 	}
 
-	const hasContent = createMemo(
-		() =>
-			worship().some(
-				(w) =>
-					w.details?.trim() ||
-					w.assigneeId != null ||
-					(w.fieldValues && Object.values(w.fieldValues).some((v) => v.trim())),
-			) ||
-			announcements().some((a) => a.content.trim()) ||
-			assignments().some((a) => a.role.trim() || a.person.trim()),
-	);
+	function addAnnouncement(sectionId: string) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "announcements") return s;
+			return { ...s, data: [...s.data, { content: "" }] };
+		});
+	}
+
+	function removeAnnouncement(sectionId: string, index: number) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "announcements") return s;
+			return { ...s, data: s.data.filter((_, i) => i !== index) };
+		});
+	}
+
+	function updateAnnouncement(sectionId: string, index: number, value: string) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "announcements") return s;
+			return {
+				...s,
+				data: s.data.map((a, i) =>
+					i === index ? { ...a, content: value } : a,
+				),
+			};
+		});
+	}
+
+	function updateAssignment(sectionId: string, role: string, value: string) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "assignments") return s;
+			return { ...s, data: { ...s.data, [role]: value } };
+		});
+	}
+
+	const hasContent = createMemo(() => {
+		return sections().some((s) => {
+			if (s.type === "worship-program") {
+				const ws = s as WorshipProgramSectionData;
+				return ws.data.some(
+					(w) =>
+						w.details?.trim() ||
+						w.assigneeId != null ||
+						(w.fieldValues &&
+							Object.values(w.fieldValues).some((v) => v.trim())),
+				);
+			}
+			if (s.type === "announcements") {
+				return (s as AnnouncementsSectionData).data.some((a) =>
+					a.content.trim(),
+				);
+			}
+			if (s.type === "assignments") {
+				return Object.values((s as AssignmentsSectionData).data).some((v) =>
+					v.trim(),
+				);
+			}
+			return false;
+		});
+	});
 
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
 		setError("");
 		setSubmitting(true);
 
-		const worshipData = worship();
-		const announcementsData = announcements().filter(
-			(a) => a.content.trim() !== "",
-		);
-		const assignmentsData: Record<string, string> = {};
-		for (const a of assignments()) {
-			if (a.role.trim() && a.person.trim()) {
-				assignmentsData[a.role.trim()] = a.person.trim();
-			}
-		}
-
-		const body = {
-			serviceDate: serviceDate(),
-			worship: worshipData,
-			announcements: announcementsData,
-			assignments: assignmentsData,
-		};
-
 		try {
-			const result = await saveBulletin(params.id, body);
+			const result = await saveBulletin(params.id, {
+				serviceDate: serviceDate(),
+				sections: sections(),
+			});
 			if (!result.ok) {
 				setError(result.error ?? "Failed to save bulletin");
 				return;
@@ -197,9 +246,7 @@ export function useBulletinForm() {
 		members,
 		serviceDate,
 		setServiceDate,
-		worship,
-		announcements,
-		assignments,
+		sections,
 		submitting,
 		error,
 		initialized,
@@ -210,8 +257,6 @@ export function useBulletinForm() {
 		addAnnouncement,
 		removeAnnouncement,
 		updateAnnouncement,
-		addAssignment,
-		removeAssignment,
 		updateAssignment,
 		handleSubmit,
 	};
