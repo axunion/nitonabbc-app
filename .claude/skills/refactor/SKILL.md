@@ -1,8 +1,11 @@
 ---
 name: refactor
 description: >
-  プロジェクト全体または指定範囲のコードを分析し、品質・規約・パターンの問題を修正するスキル。「コードを整理して」「クリーンアップして」「品質改善して」「重複を直して」「リファクタリングして」など改善を求める場面で使用する。
-allowed-tools: Bash, Read, Edit, Write, Glob, Grep
+  プロジェクト全体または指定範囲のコードを分析し、品質・規約・パターンの問題を修正するスキル。
+  「コードを整理して」「クリーンアップして」「品質改善して」「重複を直して」「リファクタリングして」
+  など改善を求める場面では必ずこのスキルを使うこと。コードの品質向上・重複解消・規約違反の修正を
+  依頼されたときは迷わず起動すること。
+allowed-tools: Bash Read Edit Write Glob Grep
 ---
 
 引数なしの場合は `src/`・`server/`・`worker/` 全体、引数ありの場合は指定されたディレクトリ/ファイルのみを対象とする。
@@ -18,6 +21,7 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 
 @.claude/rules/frontend.md
 @.claude/rules/api.md
+@.claude/rules/testing.md
 
 ### 重複・デッドコード（refactor 固有の観点）
 - 共通ヘルパーに抽出すべき重複ロジックがないか
@@ -45,3 +49,4 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 - **Hono / Workers パターン**
 - **TypeScript**
 - **CSS Modules**
+- **テスト**

@@ -41,6 +41,12 @@ paths:
 - キーは flatCase（例: `bulletinTitle`）
 - UI テキストは直書きせず必ず `t()` 経由で出力する
 
+## ディレクトリ構造
+
+- `src/api/<resource>.ts` — API fetch 関数はここに集約する。ページがフェッチロジックを直書きしない
+- `src/pages/<Page>/hooks/use<PageName>.ts` — ページ固有の複雑なロジックはページディレクトリ内の `hooks/` に切り出す。グローバルな `src/hooks/` は存在しない
+- `src/styles/shared.module.css` — ページレベルのコンテナは `composes: pageContainer` を使う（直接書かない）
+
 ## デザイン詳細
 
 UIデザインの詳細は @docs/ui-guidelines.md を参照すること。

@@ -30,6 +30,10 @@ paths:
 - セッション: `session:{uuid}` → `{ userId, lineUserId, role }` JSON
 - OAuth state: `oauth_state:{uuid}` → `"1"` or `{ inviteToken: "..." }` JSON
 
+## テスト
+
+テスト対象・構成・モックユーティリティの詳細は `.claude/rules/testing.md` を参照。`pnpm test` の対象は `server/**/*.test.ts` のみ。新規ルート追加時は対応するテストファイルを先に作成する（TDD）。
+
 ## D1 スキーマ管理
 
 DB 運用手順（スキーマ変更・本番デプロイ）は CLAUDE.md の Database セクションを参照。

@@ -1,7 +1,7 @@
 ---
 name: ui-component
-description: Kobalte + CSS Modules の規約に沿ってUIコンポーネントを作成するエージェント。新しいコンポーネントの追加やスタイリングを依頼された際に使用。
-tools: Read, Write, Edit, Glob, Grep, Bash
+description: Use proactively when creating new Solid.js UI components or styling existing ones. Handles component scaffolding with Kobalte, CSS Modules, and i18n integration.
+tools: Read Write Edit Glob Grep Bash
 model: inherit
 permissionMode: acceptEdits
 maxTurns: 20
@@ -15,9 +15,10 @@ Solid.js + @kobalte/core + CSS Modules でUIコンポーネントを作成する
 
 ## 作業開始前
 
-必ず以下を Read して最新のデザイン規約とトークンを把握すること:
+必ず以下を Read して最新のデザイン規約・トークン・既存 i18n キーを把握すること:
 - `docs/ui-guidelines.md`
 - `src/styles/tokens.css`
+- `src/locales/ja.ts`（既存キーを確認してから新しいキーを追加する）
 
 ## ファイル構成
 
@@ -30,6 +31,7 @@ Solid.js + @kobalte/core + CSS Modules でUIコンポーネントを作成する
 ```tsx
 // Button/Button.tsx
 import { Button as KobalteButton } from "@kobalte/core/button";
+import { useI18n } from "@solid-primitives/i18n";
 import type { JSX } from "solid-js";
 import styles from "./Button.module.css";
 
@@ -42,6 +44,7 @@ type ButtonProps = {
 };
 
 export function Button(props: ButtonProps) {
+  const [t] = useI18n();
   return (
     <KobalteButton
       class={`${styles.button} ${styles[props.variant ?? "primary"]} ${styles[props.size ?? "md"]}`}
@@ -88,8 +91,21 @@ export function Button(props: ButtonProps) {
 }
 ```
 
+ページコンテナのフェードイン（ページレベルで必ず使う）:
+```css
+/* PageName.module.css */
+.container {
+  composes: pageContainer from "../../styles/shared.module.css";
+  /* 追加スタイル */
+}
+```
+
 ## チェックリスト
 - [ ] ファイル構成が上記パターンに従っているか（.tsx / .module.css / index.ts）
 - [ ] コード例のパターン（Kobalte import、class prop、data-* セレクタ）に従っているか
+- [ ] UI テキストは直書きせず `t()` 経由で出力しているか（`@solid-primitives/i18n`）
+- [ ] `src/locales/ja.ts` と `src/locales/en.ts` に新しいキーを追加したか
+- [ ] ページコンテナは `composes: pageContainer from "../../styles/shared.module.css"` を使っているか
+- [ ] アイコンは `stroke-width={1.5}` を設定しているか（lucide-solid）
 - [ ] TypeScript の型が適切か
 - [ ] Biome のフォーマットに準拠しているか（`pnpm check`）
