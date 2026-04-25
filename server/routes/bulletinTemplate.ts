@@ -37,10 +37,38 @@ type SectionTemplate =
 			label: string;
 			visible?: boolean;
 			config: { roles: string[] };
+	  }
+	| {
+			id: string;
+			type: "weekly-verse";
+			label: string;
+			visible?: boolean;
+			config: Record<never, never>;
+	  }
+	| {
+			id: string;
+			type: "monthly-song";
+			label: string;
+			visible?: boolean;
+			config: Record<never, never>;
+	  }
+	| {
+			id: string;
+			type: "text-block";
+			label: string;
+			visible?: boolean;
+			config: Record<never, never>;
 	  };
 
 const VALID_INPUT_TYPES = ["text", "number", "member", "scripture", "none"];
-const VALID_SECTION_TYPES = ["worship-program", "announcements", "assignments"];
+const VALID_SECTION_TYPES = [
+	"worship-program",
+	"announcements",
+	"assignments",
+	"weekly-verse",
+	"monthly-song",
+	"text-block",
+];
 
 const DEFAULT_WORSHIP_ITEMS: TemplateItem[] = [
 	{ type: "prelude", label: "前奏", inputType: "none" },
@@ -138,6 +166,12 @@ function isValidAssignmentsConfig(config: unknown): boolean {
 	);
 }
 
+function isValidEmptyConfig(config: unknown): boolean {
+	return (
+		typeof config === "object" && config !== null && !Array.isArray(config)
+	);
+}
+
 function isValidSection(section: unknown): section is SectionTemplate {
 	if (typeof section !== "object" || section === null) return false;
 	const s = section as Record<string, unknown>;
@@ -149,6 +183,12 @@ function isValidSection(section: unknown): section is SectionTemplate {
 	if (s.type === "worship-program") return isValidWorshipConfig(s.config);
 	if (s.type === "announcements") return isValidAnnouncementsConfig(s.config);
 	if (s.type === "assignments") return isValidAssignmentsConfig(s.config);
+	if (
+		s.type === "weekly-verse" ||
+		s.type === "monthly-song" ||
+		s.type === "text-block"
+	)
+		return isValidEmptyConfig(s.config);
 	return false;
 }
 
@@ -195,6 +235,27 @@ function sanitizeTemplate(sections: SectionTemplate[]): SectionTemplate[] {
 				...base,
 				type: "announcements" as const,
 				config: { subHeadings: s.config.subHeadings ?? [] },
+			};
+		}
+		if (s.type === "weekly-verse") {
+			return {
+				...base,
+				type: "weekly-verse" as const,
+				config: {},
+			};
+		}
+		if (s.type === "monthly-song") {
+			return {
+				...base,
+				type: "monthly-song" as const,
+				config: {},
+			};
+		}
+		if (s.type === "text-block") {
+			return {
+				...base,
+				type: "text-block" as const,
+				config: {},
 			};
 		}
 		return {

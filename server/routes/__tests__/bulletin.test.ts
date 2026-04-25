@@ -882,4 +882,257 @@ describe("progress counting via GET /api/bulletin/:id", () => {
 		const json = await res.json();
 		expect(json).toMatchObject({ totalItems: 3, filledItems: 2 });
 	});
+
+	it("does not count text-block in progress", async () => {
+		const templateValue = JSON.stringify([
+			{
+				id: "tb",
+				type: "text-block",
+				label: "汎用テキスト",
+				visible: true,
+				config: {},
+			},
+		]);
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({ value: templateValue }),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const bulletinRow = {
+			id: 1,
+			service_date: "2025-06-08",
+			sections: JSON.stringify([
+				{
+					id: "tb",
+					type: "text-block",
+					label: "汎用テキスト",
+					data: { heading: "見出し", body: "本文テキスト" },
+				},
+			]),
+			created_by: 1,
+			updated_by: 1,
+			created_at: "2025-06-01 00:00:00",
+			updated_at: "2025-06-01 00:00:00",
+		};
+		const firstStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue(bulletinRow),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, firstStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/1",
+			{ headers: memberHeaders },
+			env,
+		);
+		const json = await res.json();
+		expect(json).toMatchObject({ totalItems: 0, filledItems: 0 });
+	});
+
+	it("counts weekly-verse as 1/1 when text is filled", async () => {
+		const templateValue = JSON.stringify([
+			{
+				id: "verse",
+				type: "weekly-verse",
+				label: "今週のみことば",
+				visible: true,
+				config: {},
+			},
+		]);
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({ value: templateValue }),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const bulletinRow = {
+			id: 1,
+			service_date: "2025-06-08",
+			sections: JSON.stringify([
+				{
+					id: "verse",
+					type: "weekly-verse",
+					label: "今週のみことば",
+					data: {
+						reference: "ローマ人への手紙 8:28",
+						text: "神を愛する人たち...",
+					},
+				},
+			]),
+			created_by: 1,
+			updated_by: 1,
+			created_at: "2025-06-01 00:00:00",
+			updated_at: "2025-06-01 00:00:00",
+		};
+		const firstStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue(bulletinRow),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, firstStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/1",
+			{ headers: memberHeaders },
+			env,
+		);
+		const json = await res.json();
+		expect(json).toMatchObject({ totalItems: 1, filledItems: 1 });
+	});
+
+	it("counts monthly-song as 1/1 when title is filled", async () => {
+		const templateValue = JSON.stringify([
+			{
+				id: "song",
+				type: "monthly-song",
+				label: "今月の歌",
+				visible: true,
+				config: {},
+			},
+		]);
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({ value: templateValue }),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const bulletinRow = {
+			id: 1,
+			service_date: "2025-06-08",
+			sections: JSON.stringify([
+				{
+					id: "song",
+					type: "monthly-song",
+					label: "今月の歌",
+					data: { title: "暗闇 過ぎ去って", keywords: ["ハレルヤ"] },
+				},
+			]),
+			created_by: 1,
+			updated_by: 1,
+			created_at: "2025-06-01 00:00:00",
+			updated_at: "2025-06-01 00:00:00",
+		};
+		const firstStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue(bulletinRow),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, firstStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/1",
+			{ headers: memberHeaders },
+			env,
+		);
+		const json = await res.json();
+		expect(json).toMatchObject({ totalItems: 1, filledItems: 1 });
+	});
+
+	it("counts monthly-song as 0/1 when title is empty", async () => {
+		const templateValue = JSON.stringify([
+			{
+				id: "song",
+				type: "monthly-song",
+				label: "今月の歌",
+				visible: true,
+				config: {},
+			},
+		]);
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({ value: templateValue }),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const bulletinRow = {
+			id: 1,
+			service_date: "2025-06-08",
+			sections: JSON.stringify([
+				{
+					id: "song",
+					type: "monthly-song",
+					label: "今月の歌",
+					data: { title: "", keywords: [] },
+				},
+			]),
+			created_by: 1,
+			updated_by: 1,
+			created_at: "2025-06-01 00:00:00",
+			updated_at: "2025-06-01 00:00:00",
+		};
+		const firstStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue(bulletinRow),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, firstStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/1",
+			{ headers: memberHeaders },
+			env,
+		);
+		const json = await res.json();
+		expect(json).toMatchObject({ totalItems: 1, filledItems: 0 });
+	});
+
+	it("counts weekly-verse as 0/1 when text is empty", async () => {
+		const templateValue = JSON.stringify([
+			{
+				id: "verse",
+				type: "weekly-verse",
+				label: "今週のみことば",
+				visible: true,
+				config: {},
+			},
+		]);
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({ value: templateValue }),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const bulletinRow = {
+			id: 1,
+			service_date: "2025-06-08",
+			sections: JSON.stringify([
+				{
+					id: "verse",
+					type: "weekly-verse",
+					label: "今週のみことば",
+					data: { reference: "", text: "" },
+				},
+			]),
+			created_by: 1,
+			updated_by: 1,
+			created_at: "2025-06-01 00:00:00",
+			updated_at: "2025-06-01 00:00:00",
+		};
+		const firstStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue(bulletinRow),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, firstStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/1",
+			{ headers: memberHeaders },
+			env,
+		);
+		const json = await res.json();
+		expect(json).toMatchObject({ totalItems: 1, filledItems: 0 });
+	});
 });

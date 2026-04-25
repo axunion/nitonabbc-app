@@ -467,12 +467,12 @@ settings テーブルのキー: `church_profile`
 | attendance セクション | 未実装 |
 | weekly-prayer セクション | 未実装 |
 | upcoming-events セクション | 未実装 |
-| weekly-verse セクション | 未実装 |
-| monthly-song セクション | 未実装 |
+| weekly-verse セクション | 実装済み |
+| monthly-song セクション | 実装済み |
 | birthdays セクション | 未実装 |
 | financial-summary セクション | 未実装 |
 | scripture-quotes セクション | 未実装 |
-| text-block セクション | 未実装 |
+| text-block セクション | 実装済み |
 | BulletinDetail（セクションブロック対応） | 実装済み（`SectionView` dispatcher + 3 種ビューア） |
 | BulletinForm（セクション別エディタ） | 実装済み（`SectionEditor` dispatcher + 3 種エディタ） |
 | BulletinTemplate（セクション管理 UI） | 実装済み（`SectionRow` + `AddSectionMenu` + 3 種 config エディタ） |

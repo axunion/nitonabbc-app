@@ -362,6 +362,165 @@ describe("PUT /api/bulletin-template", () => {
 		expect(res.status).toBe(400);
 	});
 
+	it("accepts text-block section and returns 200", async () => {
+		const runStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn(),
+			all: vi.fn(),
+			run: vi.fn().mockResolvedValue({ success: true, meta: {}, results: [] }),
+		};
+		const db = createDbWithPrepare([runStmt]);
+		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
+
+		const res = await app.request(
+			"http://localhost/api/bulletin-template",
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify([
+					{
+						id: "tb",
+						type: "text-block",
+						label: "汎用テキスト",
+						visible: true,
+						config: {},
+					},
+				]),
+			},
+			env,
+		);
+		expect(res.status).toBe(200);
+	});
+
+	it("returns 400 when text-block config is an array", async () => {
+		const db = createDbWithPrepare([]);
+		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
+
+		const res = await app.request(
+			"http://localhost/api/bulletin-template",
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify([
+					{
+						id: "tb",
+						type: "text-block",
+						label: "汎用テキスト",
+						config: [],
+					},
+				]),
+			},
+			env,
+		);
+		expect(res.status).toBe(400);
+	});
+
+	it("accepts monthly-song section and returns 200", async () => {
+		const runStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn(),
+			all: vi.fn(),
+			run: vi.fn().mockResolvedValue({ success: true, meta: {}, results: [] }),
+		};
+		const db = createDbWithPrepare([runStmt]);
+		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
+
+		const res = await app.request(
+			"http://localhost/api/bulletin-template",
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify([
+					{
+						id: "song",
+						type: "monthly-song",
+						label: "今月の歌",
+						visible: true,
+						config: {},
+					},
+				]),
+			},
+			env,
+		);
+		expect(res.status).toBe(200);
+	});
+
+	it("returns 400 when monthly-song config is an array", async () => {
+		const db = createDbWithPrepare([]);
+		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
+
+		const res = await app.request(
+			"http://localhost/api/bulletin-template",
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify([
+					{
+						id: "song",
+						type: "monthly-song",
+						label: "今月の歌",
+						config: [],
+					},
+				]),
+			},
+			env,
+		);
+		expect(res.status).toBe(400);
+	});
+
+	it("accepts weekly-verse section and returns 200", async () => {
+		const runStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn(),
+			all: vi.fn(),
+			run: vi.fn().mockResolvedValue({ success: true, meta: {}, results: [] }),
+		};
+		const db = createDbWithPrepare([runStmt]);
+		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
+
+		const res = await app.request(
+			"http://localhost/api/bulletin-template",
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify([
+					{
+						id: "verse",
+						type: "weekly-verse",
+						label: "今週のみことば",
+						visible: true,
+						config: {},
+					},
+				]),
+			},
+			env,
+		);
+		expect(res.status).toBe(200);
+	});
+
+	it("returns 400 when weekly-verse config is an array", async () => {
+		const db = createDbWithPrepare([]);
+		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
+
+		const res = await app.request(
+			"http://localhost/api/bulletin-template",
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify([
+					{
+						id: "verse",
+						type: "weekly-verse",
+						label: "今週のみことば",
+						config: [],
+					},
+				]),
+			},
+			env,
+		);
+		expect(res.status).toBe(400);
+	});
+
 	it("saves SectionTemplate[] and returns 200", async () => {
 		const runStmt = {
 			bind: vi.fn().mockReturnThis(),

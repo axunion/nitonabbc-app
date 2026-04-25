@@ -61,6 +61,9 @@ export function BulletinForm() {
 										onRemoveAnnouncement={form.removeAnnouncement}
 										onUpdateAnnouncement={form.updateAnnouncement}
 										onUpdateAssignment={form.updateAssignment}
+										onUpdateWeeklyVerse={form.updateWeeklyVerse}
+										onUpdateMonthlySong={form.updateMonthlySong}
+										onUpdateTextBlock={form.updateTextBlock}
 									/>
 								</fieldset>
 							)}

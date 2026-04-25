@@ -48,6 +48,27 @@ type SectionTemplateData =
 			label: string;
 			visible?: boolean;
 			config: { roles: string[] };
+	  }
+	| {
+			id: string;
+			type: "weekly-verse";
+			label: string;
+			visible?: boolean;
+			config: Record<string, never>;
+	  }
+	| {
+			id: string;
+			type: "monthly-song";
+			label: string;
+			visible?: boolean;
+			config: Record<string, never>;
+	  }
+	| {
+			id: string;
+			type: "text-block";
+			label: string;
+			visible?: boolean;
+			config: Record<string, never>;
 	  };
 
 type SectionData =
@@ -68,6 +89,24 @@ type SectionData =
 			type: "assignments";
 			label: string;
 			data: Record<string, string>;
+	  }
+	| {
+			id: string;
+			type: "weekly-verse";
+			label: string;
+			data: { reference: string; text: string };
+	  }
+	| {
+			id: string;
+			type: "monthly-song";
+			label: string;
+			data: { title: string; keywords: string[] };
+	  }
+	| {
+			id: string;
+			type: "text-block";
+			label: string;
+			data: { heading: string; body: string };
 	  };
 
 function countWorshipProgress(
@@ -117,6 +156,12 @@ function countProgress(
 			for (const role of roles) {
 				if (section.data[role]?.trim()) filledItems++;
 			}
+		} else if (section.type === "weekly-verse") {
+			totalItems += 1;
+			if (section.data.text?.trim()) filledItems += 1;
+		} else if (section.type === "monthly-song") {
+			totalItems += 1;
+			if (section.data.title?.trim()) filledItems += 1;
 		}
 	}
 
@@ -190,6 +235,30 @@ function buildSectionsFromTemplate(
 			}
 			if (s.type === "announcements") {
 				return { id: s.id, type: "announcements", label: s.label, data: [] };
+			}
+			if (s.type === "weekly-verse") {
+				return {
+					id: s.id,
+					type: "weekly-verse",
+					label: s.label,
+					data: { reference: "", text: "" },
+				};
+			}
+			if (s.type === "monthly-song") {
+				return {
+					id: s.id,
+					type: "monthly-song",
+					label: s.label,
+					data: { title: "", keywords: [] },
+				};
+			}
+			if (s.type === "text-block") {
+				return {
+					id: s.id,
+					type: "text-block",
+					label: s.label,
+					data: { heading: "", body: "" },
+				};
 			}
 			return { id: s.id, type: "assignments", label: s.label, data: {} };
 		});

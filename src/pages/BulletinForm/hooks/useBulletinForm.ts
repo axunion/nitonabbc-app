@@ -14,7 +14,10 @@ import {
 import type {
 	AnnouncementsSectionData,
 	AssignmentsSectionData,
+	MonthlySongSectionData,
 	SectionData,
+	TextBlockSectionData,
+	WeeklyVerseSectionData,
 	WorshipProgramSectionData,
 } from "@/types/bulletin.ts";
 
@@ -72,6 +75,30 @@ export function useBulletinForm() {
 							data: [],
 						};
 					}
+					if (s.type === "weekly-verse") {
+						return {
+							id: s.id,
+							type: "weekly-verse",
+							label: s.label,
+							data: { reference: "", text: "" },
+						};
+					}
+					if (s.type === "monthly-song") {
+						return {
+							id: s.id,
+							type: "monthly-song",
+							label: s.label,
+							data: { title: "", keywords: [] },
+						};
+					}
+					if (s.type === "text-block") {
+						return {
+							id: s.id,
+							type: "text-block",
+							label: s.label,
+							data: { heading: "", body: "" },
+						};
+					}
 					return { id: s.id, type: "assignments", label: s.label, data: {} };
 				});
 			setSections(built);
@@ -91,7 +118,10 @@ export function useBulletinForm() {
 				(s): s is SectionData =>
 					s.type === "worship-program" ||
 					s.type === "announcements" ||
-					s.type === "assignments",
+					s.type === "assignments" ||
+					s.type === "weekly-verse" ||
+					s.type === "monthly-song" ||
+					s.type === "text-block",
 			);
 			setSections(validSections);
 			setInitialized(true);
@@ -195,6 +225,36 @@ export function useBulletinForm() {
 		});
 	}
 
+	function updateWeeklyVerse(
+		sectionId: string,
+		data: { reference: string; text: string },
+	) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "weekly-verse") return s;
+			return { ...s, data };
+		});
+	}
+
+	function updateMonthlySong(
+		sectionId: string,
+		data: { title: string; keywords: string[] },
+	) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "monthly-song") return s;
+			return { ...s, data };
+		});
+	}
+
+	function updateTextBlock(
+		sectionId: string,
+		data: { heading: string; body: string },
+	) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "text-block") return s;
+			return { ...s, data };
+		});
+	}
+
 	const hasContent = createMemo(() => {
 		return sections().some((s) => {
 			if (s.type === "worship-program") {
@@ -216,6 +276,18 @@ export function useBulletinForm() {
 				return Object.values((s as AssignmentsSectionData).data).some((v) =>
 					v.trim(),
 				);
+			}
+			if (s.type === "weekly-verse") {
+				const wv = s as WeeklyVerseSectionData;
+				return wv.data.reference.trim() !== "" || wv.data.text.trim() !== "";
+			}
+			if (s.type === "monthly-song") {
+				const ms = s as MonthlySongSectionData;
+				return ms.data.title.trim() !== "" || ms.data.keywords.length > 0;
+			}
+			if (s.type === "text-block") {
+				const tb = s as TextBlockSectionData;
+				return tb.data.heading.trim() !== "" || tb.data.body.trim() !== "";
 			}
 			return false;
 		});
@@ -258,6 +330,9 @@ export function useBulletinForm() {
 		removeAnnouncement,
 		updateAnnouncement,
 		updateAssignment,
+		updateWeeklyVerse,
+		updateMonthlySong,
+		updateTextBlock,
 		handleSubmit,
 	};
 }

@@ -2,12 +2,18 @@ import type {
 	AnnouncementsSectionData,
 	AssignmentsSectionData,
 	Member,
+	MonthlySongSectionData,
 	SectionData,
 	SectionTemplate,
+	TextBlockSectionData,
+	WeeklyVerseSectionData,
 	WorshipProgramSectionData,
 } from "@/types/bulletin.ts";
 import { AnnouncementsEditor } from "./AnnouncementsEditor.tsx";
 import { AssignmentsEditor } from "./AssignmentsEditor.tsx";
+import { MonthlySongEditor } from "./MonthlySongEditor.tsx";
+import { TextBlockEditor } from "./TextBlockEditor.tsx";
+import { WeeklyVerseEditor } from "./WeeklyVerseEditor.tsx";
 import { WorshipProgramEditor } from "./WorshipProgramEditor.tsx";
 
 type Props = {
@@ -30,6 +36,18 @@ type Props = {
 		value: string,
 	) => void;
 	onUpdateAssignment: (sectionId: string, role: string, value: string) => void;
+	onUpdateWeeklyVerse: (
+		sectionId: string,
+		data: { reference: string; text: string },
+	) => void;
+	onUpdateMonthlySong: (
+		sectionId: string,
+		data: { title: string; keywords: string[] },
+	) => void;
+	onUpdateTextBlock: (
+		sectionId: string,
+		data: { heading: string; body: string },
+	) => void;
 };
 
 export function SectionEditor(props: Props) {
@@ -61,6 +79,30 @@ export function SectionEditor(props: Props) {
 				section={props.section as AssignmentsSectionData}
 				template={props.template}
 				onUpdate={props.onUpdateAssignment}
+			/>
+		);
+	}
+	if (props.section.type === "weekly-verse") {
+		return (
+			<WeeklyVerseEditor
+				section={props.section as WeeklyVerseSectionData}
+				onUpdate={(data) => props.onUpdateWeeklyVerse(props.section.id, data)}
+			/>
+		);
+	}
+	if (props.section.type === "monthly-song") {
+		return (
+			<MonthlySongEditor
+				section={props.section as MonthlySongSectionData}
+				onUpdate={(data) => props.onUpdateMonthlySong(props.section.id, data)}
+			/>
+		);
+	}
+	if (props.section.type === "text-block") {
+		return (
+			<TextBlockEditor
+				section={props.section as TextBlockSectionData}
+				onUpdate={(data) => props.onUpdateTextBlock(props.section.id, data)}
 			/>
 		);
 	}

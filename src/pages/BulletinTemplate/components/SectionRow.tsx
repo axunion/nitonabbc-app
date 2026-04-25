@@ -65,6 +65,12 @@ export function SectionRow(props: Props) {
 			return t("bulletinTemplate.sectionTypeWorship");
 		if (props.section.type === "announcements")
 			return t("bulletinTemplate.sectionTypeAnnouncements");
+		if (props.section.type === "weekly-verse")
+			return t("bulletinTemplate.sectionTypeWeeklyVerse");
+		if (props.section.type === "monthly-song")
+			return t("bulletinTemplate.sectionTypeMonthlySong");
+		if (props.section.type === "text-block")
+			return t("bulletinTemplate.sectionTypeTextBlock");
 		return t("bulletinTemplate.sectionTypeAssignments");
 	};
 

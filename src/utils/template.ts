@@ -8,16 +8,28 @@ export const INPUT_TYPES: InputType[] = [
 	"none",
 ];
 
-export type SectionType = "worship-program" | "announcements" | "assignments";
+export type SectionType =
+	| "worship-program"
+	| "announcements"
+	| "assignments"
+	| "weekly-verse"
+	| "monthly-song"
+	| "text-block";
 
 export const SECTION_TYPES: SectionType[] = [
 	"worship-program",
 	"announcements",
 	"assignments",
+	"weekly-verse",
+	"monthly-song",
+	"text-block",
 ];
 
 export function defaultConfigFor(type: SectionType): SectionTemplate["config"] {
 	if (type === "worship-program") return { items: [] };
 	if (type === "announcements") return { subHeadings: [] };
+	if (type === "weekly-verse") return {};
+	if (type === "monthly-song") return {};
+	if (type === "text-block") return {};
 	return { roles: [] };
 }

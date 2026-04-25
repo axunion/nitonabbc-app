@@ -1,0 +1,14 @@
+.heading {
+	font-size: var(--text-sm);
+	font-weight: var(--font-semibold);
+	color: var(--color-gray-700);
+	margin: 0 0 var(--space-2) 0;
+}
+
+.body {
+	font-size: var(--text-sm);
+	color: var(--color-gray-700);
+	line-height: var(--leading-relaxed);
+	white-space: pre-wrap;
+	margin: 0;
+}

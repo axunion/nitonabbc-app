@@ -52,10 +52,37 @@ export type AssignmentsSectionTemplate = {
 	config: { roles: string[] };
 };
 
+export type WeeklyVerseSectionTemplate = {
+	id: string;
+	type: "weekly-verse";
+	label: string;
+	visible?: boolean;
+	config: Record<never, never>;
+};
+
+export type MonthlySongSectionTemplate = {
+	id: string;
+	type: "monthly-song";
+	label: string;
+	visible?: boolean;
+	config: Record<never, never>;
+};
+
+export type TextBlockSectionTemplate = {
+	id: string;
+	type: "text-block";
+	label: string;
+	visible?: boolean;
+	config: Record<never, never>;
+};
+
 export type SectionTemplate =
 	| WorshipProgramSectionTemplate
 	| AnnouncementsSectionTemplate
-	| AssignmentsSectionTemplate;
+	| AssignmentsSectionTemplate
+	| WeeklyVerseSectionTemplate
+	| MonthlySongSectionTemplate
+	| TextBlockSectionTemplate;
 
 // Section data types (values)
 
@@ -80,10 +107,34 @@ export type AssignmentsSectionData = {
 	data: Record<string, string>;
 };
 
+export type WeeklyVerseSectionData = {
+	id: string;
+	type: "weekly-verse";
+	label: string;
+	data: { reference: string; text: string };
+};
+
+export type MonthlySongSectionData = {
+	id: string;
+	type: "monthly-song";
+	label: string;
+	data: { title: string; keywords: string[] };
+};
+
+export type TextBlockSectionData = {
+	id: string;
+	type: "text-block";
+	label: string;
+	data: { heading: string; body: string };
+};
+
 export type SectionData =
 	| WorshipProgramSectionData
 	| AnnouncementsSectionData
-	| AssignmentsSectionData;
+	| AssignmentsSectionData
+	| WeeklyVerseSectionData
+	| MonthlySongSectionData
+	| TextBlockSectionData;
 
 // Forward-compat: unknown section types are passed through without crashing
 export type UnknownSection = {
