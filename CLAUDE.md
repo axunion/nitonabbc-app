@@ -79,8 +79,10 @@ UI・CSS・APIサーバー・テストの詳細規約は `.claude/rules/` のパ
 
 ### スキーマ変更時の手順
 
+`/db-migrate` スキルを使うと以下の手順をガイドしてくれる。
+
 1. `db/schema.sql` を編集
-2. ローカル DB をリセット: `rm -rf .wrangler/state/`
+2. ローカル DB をリセット: `rm -rf .wrangler/state/`（セキュリティポリシーによりユーザーが手動実行）
 3. `pnpm dev` で再起動（空の DB が自動作成される）
 4. 必要に応じてスキーマを適用: `wrangler d1 execute nitonabbc-db --file=db/schema.sql --local`
 
@@ -88,6 +90,33 @@ UI・CSS・APIサーバー・テストの詳細規約は `.claude/rules/` のパ
 
 - **初回**: `wrangler d1 execute nitonabbc-db --file=db/schema.sql --remote` で全テーブルを作成
 - **運用開始後のスキーマ変更**: `CREATE TABLE IF NOT EXISTS` は既存テーブルに影響しないため、`ALTER TABLE` 等の差分 SQL を手動実行するか、マイグレーションツールを導入する
+
+## Claude Code Automation
+
+詳細規約は `.claude/rules/`、エージェント・スキルは `.claude/agents/` / `.claude/skills/` を参照。
+
+### Agents（サブエージェント）
+
+| エージェント | 起動タイミング |
+|-------------|--------------|
+| `api-route` | Hono APIルート・テストの新規追加時 |
+| `section-type` | 週報セクション種別の新規追加時（全レイヤー対応） |
+| `ui-component` | Solid.js UIコンポーネントの新規作成・スタイリング時 |
+| `security-reviewer` | 認証・セッション・招待リンク・管理者ルートの変更時 |
+
+### Skills（スラッシュコマンド）
+
+| スキル | 用途 |
+|--------|------|
+| `/verify` | lint・ビルド・テストの一括確認。実装後・コミット前に必ず実行 |
+| `/spec-update` | docs/spec.md と個別ドキュメントの同期 |
+| `/refactor` | コード品質・規約・重複の修正 |
+| `/db-migrate` | D1スキーマ変更時の手順ガイド |
+
+### Hooks（自動実行）
+
+- **PostToolUse（Edit/Write後）**: `pnpm check:write` を自動実行。手動での Biome 修正は不要
+- **PreToolUse（Edit/Write前）**: `.dev.vars` への書き込みをブロック
 
 ## Key Conventions
 
