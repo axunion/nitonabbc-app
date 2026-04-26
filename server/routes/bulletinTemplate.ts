@@ -58,6 +58,57 @@ type SectionTemplate =
 			label: string;
 			visible?: boolean;
 			config: Record<never, never>;
+	  }
+	| {
+			id: string;
+			type: "weekly-prayer";
+			label: string;
+			visible?: boolean;
+			config: Record<never, never>;
+	  }
+	| {
+			id: string;
+			type: "upcoming-events";
+			label: string;
+			visible?: boolean;
+			config: Record<never, never>;
+	  }
+	| {
+			id: string;
+			type: "birthdays";
+			label: string;
+			visible?: boolean;
+			config: Record<never, never>;
+	  }
+	| {
+			id: string;
+			type: "scripture-quotes";
+			label: string;
+			visible?: boolean;
+			config: Record<never, never>;
+	  }
+	| {
+			id: string;
+			type: "attendance";
+			label: string;
+			visible?: boolean;
+			config: { meetings: { key: string; label: string }[] };
+	  }
+	| {
+			id: string;
+			type: "service-meta";
+			label: string;
+			visible?: boolean;
+			config: {
+				fieldDefs: { key: string; label: string; inputType: string }[];
+			};
+	  }
+	| {
+			id: string;
+			type: "financial-summary";
+			label: string;
+			visible?: boolean;
+			config: { items: { key: string; label: string; unit?: string }[] };
 	  };
 
 const VALID_INPUT_TYPES = ["text", "number", "member", "scripture", "none"];
@@ -68,6 +119,13 @@ const VALID_SECTION_TYPES = [
 	"weekly-verse",
 	"monthly-song",
 	"text-block",
+	"weekly-prayer",
+	"upcoming-events",
+	"birthdays",
+	"scripture-quotes",
+	"attendance",
+	"service-meta",
+	"financial-summary",
 ];
 
 const DEFAULT_WORSHIP_ITEMS: TemplateItem[] = [
@@ -186,10 +244,65 @@ function isValidSection(section: unknown): section is SectionTemplate {
 	if (
 		s.type === "weekly-verse" ||
 		s.type === "monthly-song" ||
-		s.type === "text-block"
+		s.type === "text-block" ||
+		s.type === "weekly-prayer" ||
+		s.type === "upcoming-events" ||
+		s.type === "birthdays" ||
+		s.type === "scripture-quotes"
 	)
 		return isValidEmptyConfig(s.config);
+	if (s.type === "attendance") return isValidAttendanceConfig(s.config);
+	if (s.type === "service-meta") return isValidServiceMetaConfig(s.config);
+	if (s.type === "financial-summary")
+		return isValidFinancialSummaryConfig(s.config);
 	return false;
+}
+
+function isValidAttendanceConfig(config: unknown): boolean {
+	if (typeof config !== "object" || config === null) return false;
+	const c = config as Record<string, unknown>;
+	if (!Array.isArray(c.meetings)) return false;
+	return c.meetings.every(
+		(m: unknown) =>
+			typeof m === "object" &&
+			m !== null &&
+			typeof (m as Record<string, unknown>).key === "string" &&
+			typeof (m as Record<string, unknown>).label === "string",
+	);
+}
+
+function isValidServiceMetaConfig(config: unknown): boolean {
+	if (typeof config !== "object" || config === null) return false;
+	const c = config as Record<string, unknown>;
+	if (!Array.isArray(c.fieldDefs)) return false;
+	const validInputTypes = ["text", "member", "time"];
+	return c.fieldDefs.every(
+		(f: unknown) =>
+			typeof f === "object" &&
+			f !== null &&
+			typeof (f as Record<string, unknown>).key === "string" &&
+			(f as Record<string, unknown>).key !== "" &&
+			typeof (f as Record<string, unknown>).label === "string" &&
+			(f as Record<string, unknown>).label !== "" &&
+			validInputTypes.includes(
+				(f as Record<string, unknown>).inputType as string,
+			),
+	);
+}
+
+function isValidFinancialSummaryConfig(config: unknown): boolean {
+	if (typeof config !== "object" || config === null) return false;
+	const c = config as Record<string, unknown>;
+	if (!Array.isArray(c.items)) return false;
+	return c.items.every(
+		(item: unknown) =>
+			typeof item === "object" &&
+			item !== null &&
+			typeof (item as Record<string, unknown>).key === "string" &&
+			(item as Record<string, unknown>).key !== "" &&
+			typeof (item as Record<string, unknown>).label === "string" &&
+			(item as Record<string, unknown>).label !== "",
+	);
 }
 
 function isValidTemplate(body: unknown): body is SectionTemplate[] {
@@ -256,6 +369,72 @@ function sanitizeTemplate(sections: SectionTemplate[]): SectionTemplate[] {
 				...base,
 				type: "text-block" as const,
 				config: {},
+			};
+		}
+		if (s.type === "weekly-prayer") {
+			return {
+				...base,
+				type: "weekly-prayer" as const,
+				config: {},
+			};
+		}
+		if (s.type === "upcoming-events") {
+			return {
+				...base,
+				type: "upcoming-events" as const,
+				config: {},
+			};
+		}
+		if (s.type === "birthdays") {
+			return {
+				...base,
+				type: "birthdays" as const,
+				config: {},
+			};
+		}
+		if (s.type === "scripture-quotes") {
+			return {
+				...base,
+				type: "scripture-quotes" as const,
+				config: {},
+			};
+		}
+		if (s.type === "attendance") {
+			return {
+				...base,
+				type: "attendance" as const,
+				config: {
+					meetings: s.config.meetings.map((m) => ({
+						key: m.key,
+						label: m.label,
+					})),
+				},
+			};
+		}
+		if (s.type === "service-meta") {
+			return {
+				...base,
+				type: "service-meta" as const,
+				config: {
+					fieldDefs: s.config.fieldDefs.map((f) => ({
+						key: f.key,
+						label: f.label,
+						inputType: f.inputType,
+					})),
+				},
+			};
+		}
+		if (s.type === "financial-summary") {
+			return {
+				...base,
+				type: "financial-summary" as const,
+				config: {
+					items: s.config.items.map((item) => ({
+						key: item.key,
+						label: item.label,
+						...(item.unit !== undefined ? { unit: item.unit } : {}),
+					})),
+				},
 			};
 		}
 		return {

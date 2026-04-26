@@ -463,17 +463,17 @@ settings テーブルのキー: `church_profile`
 | 教会プロフィール API・画面 | 未実装（将来フェーズ） |
 | 既存 worship-program 入力・表示 | 実装済み（セクションブロックモデルに移植済み） |
 | 既存 announcements / assignments | 実装済み（セクションブロックモデルに移植済み） |
-| service-meta セクション | 未実装 |
-| attendance セクション | 未実装 |
-| weekly-prayer セクション | 未実装 |
-| upcoming-events セクション | 未実装 |
+| service-meta セクション | 実装済み |
+| attendance セクション | 実装済み |
+| weekly-prayer セクション | 実装済み |
+| upcoming-events セクション | 実装済み |
 | weekly-verse セクション | 実装済み |
 | monthly-song セクション | 実装済み |
-| birthdays セクション | 未実装 |
-| financial-summary セクション | 未実装 |
-| scripture-quotes セクション | 未実装 |
+| birthdays セクション | 実装済み |
+| financial-summary セクション | 実装済み |
+| scripture-quotes セクション | 実装済み |
 | text-block セクション | 実装済み |
-| BulletinDetail（セクションブロック対応） | 実装済み（`SectionView` dispatcher + 3 種ビューア） |
-| BulletinForm（セクション別エディタ） | 実装済み（`SectionEditor` dispatcher + 3 種エディタ） |
-| BulletinTemplate（セクション管理 UI） | 実装済み（`SectionRow` + `AddSectionMenu` + 3 種 config エディタ） |
+| BulletinDetail（セクションブロック対応） | 実装済み（`SectionView` dispatcher + 全 13 種ビューア） |
+| BulletinForm（セクション別エディタ） | 実装済み（`SectionEditor` dispatcher + 全 13 種エディタ） |
+| BulletinTemplate（セクション管理 UI） | 実装済み（`SectionRow` + `AddSectionMenu` + 全 13 種対応。config あり 5 種は専用 ConfigEditor） |
 | PDF 出力 | 未実装（将来フェーズ） |

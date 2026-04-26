@@ -64,6 +64,19 @@ export function BulletinForm() {
 										onUpdateWeeklyVerse={form.updateWeeklyVerse}
 										onUpdateMonthlySong={form.updateMonthlySong}
 										onUpdateTextBlock={form.updateTextBlock}
+										onUpdateWeeklyPrayer={form.updateWeeklyPrayer}
+										onAddUpcomingEvent={form.addUpcomingEvent}
+										onRemoveUpcomingEvent={form.removeUpcomingEvent}
+										onUpdateUpcomingEvent={form.updateUpcomingEvent}
+										onAddBirthday={form.addBirthday}
+										onRemoveBirthday={form.removeBirthday}
+										onUpdateBirthday={form.updateBirthday}
+										onAddScriptureQuote={form.addScriptureQuote}
+										onRemoveScriptureQuote={form.removeScriptureQuote}
+										onUpdateScriptureQuote={form.updateScriptureQuote}
+										onUpdateAttendance={form.updateAttendance}
+										onUpdateServiceMeta={form.updateServiceMeta}
+										onUpdateFinancialSummary={form.updateFinancialSummary}
 									/>
 								</fieldset>
 							)}

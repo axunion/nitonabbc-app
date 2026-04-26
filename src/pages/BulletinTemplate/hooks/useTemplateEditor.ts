@@ -103,6 +103,36 @@ export function useTemplateEditor() {
 		});
 	}
 
+	function updateMeetings(
+		id: string,
+		meetings: { key: string; label: string }[],
+	) {
+		updateSection(id, (s) => {
+			if (s.type !== "attendance") return s;
+			return { ...s, config: { meetings } };
+		});
+	}
+
+	function updateFieldDefs(
+		id: string,
+		fieldDefs: import("@/types/bulletin.ts").ServiceMetaFieldDef[],
+	) {
+		updateSection(id, (s) => {
+			if (s.type !== "service-meta") return s;
+			return { ...s, config: { fieldDefs } };
+		});
+	}
+
+	function updateFinancialItems(
+		id: string,
+		items: import("@/types/bulletin.ts").FinancialSummaryItem[],
+	) {
+		updateSection(id, (s) => {
+			if (s.type !== "financial-summary") return s;
+			return { ...s, config: { items } };
+		});
+	}
+
 	function updateWorshipItem(
 		sectionId: string,
 		itemIndex: number,
@@ -307,6 +337,7 @@ export function useTemplateEditor() {
 		moveSection,
 		updateSubHeadings,
 		updateRoles,
+		updateMeetings,
 		updateWorshipItem,
 		toggleWorshipFieldMode,
 		addWorshipField,
@@ -315,6 +346,8 @@ export function useTemplateEditor() {
 		addWorshipItem,
 		removeWorshipItem,
 		moveWorshipItem,
+		updateFieldDefs,
+		updateFinancialItems,
 		handleSave,
 	};
 }

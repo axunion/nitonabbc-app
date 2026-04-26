@@ -14,9 +14,22 @@ import {
 import type {
 	AnnouncementsSectionData,
 	AssignmentsSectionData,
+	AttendanceSectionData,
+	AttendanceSectionTemplate,
+	Birthday,
+	BirthdaysSectionData,
+	FinancialSummarySectionData,
+	FinancialSummarySectionTemplate,
 	MonthlySongSectionData,
+	ScriptureQuote,
+	ScriptureQuotesSectionData,
 	SectionData,
+	ServiceMetaSectionData,
+	ServiceMetaSectionTemplate,
 	TextBlockSectionData,
+	UpcomingEvent,
+	UpcomingEventsSectionData,
+	WeeklyPrayerSectionData,
 	WeeklyVerseSectionData,
 	WorshipProgramSectionData,
 } from "@/types/bulletin.ts";
@@ -99,6 +112,76 @@ export function useBulletinForm() {
 							data: { heading: "", body: "" },
 						};
 					}
+					if (s.type === "weekly-prayer") {
+						return {
+							id: s.id,
+							type: "weekly-prayer",
+							label: s.label,
+							data: {},
+						};
+					}
+					if (s.type === "upcoming-events") {
+						return {
+							id: s.id,
+							type: "upcoming-events",
+							label: s.label,
+							data: [],
+						};
+					}
+					if (s.type === "birthdays") {
+						return {
+							id: s.id,
+							type: "birthdays",
+							label: s.label,
+							data: [],
+						};
+					}
+					if (s.type === "scripture-quotes") {
+						return {
+							id: s.id,
+							type: "scripture-quotes",
+							label: s.label,
+							data: [],
+						};
+					}
+					if (s.type === "attendance") {
+						const data: Record<string, { adults: string }> = {};
+						for (const m of (s as AttendanceSectionTemplate).config.meetings) {
+							data[m.key] = { adults: "" };
+						}
+						return {
+							id: s.id,
+							type: "attendance",
+							label: s.label,
+							data,
+						};
+					}
+					if (s.type === "service-meta") {
+						const fieldValues: Record<string, string> = {};
+						for (const def of (s as ServiceMetaSectionTemplate).config
+							.fieldDefs) {
+							fieldValues[def.key] = "";
+						}
+						return {
+							id: s.id,
+							type: "service-meta",
+							label: s.label,
+							data: { fieldValues },
+						};
+					}
+					if (s.type === "financial-summary") {
+						const data: Record<string, { amount: string }> = {};
+						for (const item of (s as FinancialSummarySectionTemplate).config
+							.items) {
+							data[item.key] = { amount: "" };
+						}
+						return {
+							id: s.id,
+							type: "financial-summary",
+							label: s.label,
+							data,
+						};
+					}
 					return { id: s.id, type: "assignments", label: s.label, data: {} };
 				});
 			setSections(built);
@@ -121,7 +204,14 @@ export function useBulletinForm() {
 					s.type === "assignments" ||
 					s.type === "weekly-verse" ||
 					s.type === "monthly-song" ||
-					s.type === "text-block",
+					s.type === "text-block" ||
+					s.type === "weekly-prayer" ||
+					s.type === "upcoming-events" ||
+					s.type === "birthdays" ||
+					s.type === "scripture-quotes" ||
+					s.type === "attendance" ||
+					s.type === "service-meta" ||
+					s.type === "financial-summary",
 			);
 			setSections(validSections);
 			setInitialized(true);
@@ -255,6 +345,135 @@ export function useBulletinForm() {
 		});
 	}
 
+	function updateWeeklyPrayer(sectionId: string, data: Record<string, string>) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "weekly-prayer") return s;
+			return { ...s, data };
+		});
+	}
+
+	function addUpcomingEvent(sectionId: string) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "upcoming-events") return s;
+			return { ...s, data: [...s.data, { date: "", description: "" }] };
+		});
+	}
+
+	function removeUpcomingEvent(sectionId: string, index: number) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "upcoming-events") return s;
+			return { ...s, data: s.data.filter((_, i) => i !== index) };
+		});
+	}
+
+	function updateUpcomingEvent(
+		sectionId: string,
+		index: number,
+		value: UpcomingEvent,
+	) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "upcoming-events") return s;
+			return {
+				...s,
+				data: s.data.map((e, i) => (i === index ? value : e)),
+			};
+		});
+	}
+
+	function addBirthday(sectionId: string) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "birthdays") return s;
+			return { ...s, data: [...s.data, { day: "", name: "" }] };
+		});
+	}
+
+	function removeBirthday(sectionId: string, index: number) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "birthdays") return s;
+			return { ...s, data: s.data.filter((_, i) => i !== index) };
+		});
+	}
+
+	function updateBirthday(sectionId: string, index: number, value: Birthday) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "birthdays") return s;
+			return {
+				...s,
+				data: s.data.map((b, i) => (i === index ? value : b)),
+			};
+		});
+	}
+
+	function addScriptureQuote(sectionId: string) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "scripture-quotes") return s;
+			return { ...s, data: [...s.data, { reference: "", text: "" }] };
+		});
+	}
+
+	function removeScriptureQuote(sectionId: string, index: number) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "scripture-quotes") return s;
+			return { ...s, data: s.data.filter((_, i) => i !== index) };
+		});
+	}
+
+	function updateScriptureQuote(
+		sectionId: string,
+		index: number,
+		value: ScriptureQuote,
+	) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "scripture-quotes") return s;
+			return {
+				...s,
+				data: s.data.map((q, i) => (i === index ? value : q)),
+			};
+		});
+	}
+
+	function updateAttendance(
+		sectionId: string,
+		key: string,
+		field: "adults" | "children",
+		value: string,
+	) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "attendance") return s;
+			const prev = s.data[key] ?? { adults: "" };
+			return {
+				...s,
+				data: { ...s.data, [key]: { ...prev, [field]: value } },
+			};
+		});
+	}
+
+	function updateServiceMeta(sectionId: string, key: string, value: string) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "service-meta") return s;
+			return {
+				...s,
+				data: { fieldValues: { ...s.data.fieldValues, [key]: value } },
+			};
+		});
+	}
+
+	function updateFinancialSummary(
+		sectionId: string,
+		key: string,
+		field: "amount" | "note",
+		value: string,
+	) {
+		updateSection(sectionId, (s) => {
+			if (s.type !== "financial-summary") return s;
+			const prev = s.data[key] ?? { amount: "" };
+			return {
+				...s,
+				data: { ...s.data, [key]: { ...prev, [field]: value } },
+			};
+		});
+	}
+
 	const hasContent = createMemo(() => {
 		return sections().some((s) => {
 			if (s.type === "worship-program") {
@@ -288,6 +507,40 @@ export function useBulletinForm() {
 			if (s.type === "text-block") {
 				const tb = s as TextBlockSectionData;
 				return tb.data.heading.trim() !== "" || tb.data.body.trim() !== "";
+			}
+			if (s.type === "weekly-prayer") {
+				const wp = s as WeeklyPrayerSectionData;
+				return Object.values(wp.data).some((v) => v.trim() !== "");
+			}
+			if (s.type === "upcoming-events") {
+				const ue = s as UpcomingEventsSectionData;
+				return ue.data.some(
+					(e) => e.date.trim() !== "" || e.description.trim() !== "",
+				);
+			}
+			if (s.type === "birthdays") {
+				const bd = s as BirthdaysSectionData;
+				return bd.data.some((b) => b.day.trim() !== "" || b.name.trim() !== "");
+			}
+			if (s.type === "scripture-quotes") {
+				const sq = s as ScriptureQuotesSectionData;
+				return sq.data.some(
+					(q) => q.reference.trim() !== "" || q.text.trim() !== "",
+				);
+			}
+			if (s.type === "attendance") {
+				const att = s as AttendanceSectionData;
+				return Object.values(att.data).some(
+					(e) => e.adults.trim() !== "" || (e.children ?? "").trim() !== "",
+				);
+			}
+			if (s.type === "service-meta") {
+				const sm = s as ServiceMetaSectionData;
+				return Object.values(sm.data.fieldValues).some((v) => v.trim() !== "");
+			}
+			if (s.type === "financial-summary") {
+				const fs = s as FinancialSummarySectionData;
+				return Object.values(fs.data).some((e) => e.amount.trim() !== "");
 			}
 			return false;
 		});
@@ -333,6 +586,19 @@ export function useBulletinForm() {
 		updateWeeklyVerse,
 		updateMonthlySong,
 		updateTextBlock,
+		updateWeeklyPrayer,
+		addUpcomingEvent,
+		removeUpcomingEvent,
+		updateUpcomingEvent,
+		addBirthday,
+		removeBirthday,
+		updateBirthday,
+		addScriptureQuote,
+		removeScriptureQuote,
+		updateScriptureQuote,
+		updateAttendance,
+		updateServiceMeta,
+		updateFinancialSummary,
 		handleSubmit,
 	};
 }

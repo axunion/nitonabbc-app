@@ -69,6 +69,57 @@ type SectionTemplateData =
 			label: string;
 			visible?: boolean;
 			config: Record<string, never>;
+	  }
+	| {
+			id: string;
+			type: "weekly-prayer";
+			label: string;
+			visible?: boolean;
+			config: Record<string, never>;
+	  }
+	| {
+			id: string;
+			type: "upcoming-events";
+			label: string;
+			visible?: boolean;
+			config: Record<string, never>;
+	  }
+	| {
+			id: string;
+			type: "birthdays";
+			label: string;
+			visible?: boolean;
+			config: Record<string, never>;
+	  }
+	| {
+			id: string;
+			type: "scripture-quotes";
+			label: string;
+			visible?: boolean;
+			config: Record<string, never>;
+	  }
+	| {
+			id: string;
+			type: "attendance";
+			label: string;
+			visible?: boolean;
+			config: { meetings: { key: string; label: string }[] };
+	  }
+	| {
+			id: string;
+			type: "service-meta";
+			label: string;
+			visible?: boolean;
+			config: {
+				fieldDefs: { key: string; label: string; inputType: string }[];
+			};
+	  }
+	| {
+			id: string;
+			type: "financial-summary";
+			label: string;
+			visible?: boolean;
+			config: { items: { key: string; label: string; unit?: string }[] };
 	  };
 
 type SectionData =
@@ -107,6 +158,51 @@ type SectionData =
 			type: "text-block";
 			label: string;
 			data: { heading: string; body: string };
+	  }
+	| {
+			id: string;
+			type: "weekly-prayer";
+			label: string;
+			data: Record<string, string>;
+	  }
+	| {
+			id: string;
+			type: "upcoming-events";
+			label: string;
+			data: { date: string; description: string }[];
+	  }
+	| {
+			id: string;
+			type: "birthdays";
+			label: string;
+			data: { day: string; name: string }[];
+	  }
+	| {
+			id: string;
+			type: "scripture-quotes";
+			label: string;
+			data: { reference: string; text: string }[];
+	  }
+	| {
+			id: string;
+			type: "attendance";
+			label: string;
+			data: Record<
+				string,
+				{ adults: string; children?: string; note?: string }
+			>;
+	  }
+	| {
+			id: string;
+			type: "service-meta";
+			label: string;
+			data: { fieldValues: Record<string, string> };
+	  }
+	| {
+			id: string;
+			type: "financial-summary";
+			label: string;
+			data: Record<string, { amount: string; note?: string }>;
 	  };
 
 function countWorshipProgress(
@@ -162,6 +258,28 @@ function countProgress(
 		} else if (section.type === "monthly-song") {
 			totalItems += 1;
 			if (section.data.title?.trim()) filledItems += 1;
+		} else if (section.type === "weekly-prayer") {
+			const days = ["日", "月", "火", "水", "木", "金", "土"];
+			totalItems += days.length;
+			for (const day of days) {
+				if (section.data[day]?.trim()) filledItems++;
+			}
+		} else if (section.type === "upcoming-events") {
+			totalItems += 0;
+		} else if (section.type === "birthdays") {
+			totalItems += 0;
+		} else if (section.type === "scripture-quotes") {
+			totalItems += 0;
+		} else if (section.type === "attendance") {
+			totalItems += 0;
+		} else if (section.type === "service-meta") {
+			const defs = tmpl?.type === "service-meta" ? tmpl.config.fieldDefs : [];
+			totalItems += defs.length;
+			for (const def of defs) {
+				if (section.data.fieldValues[def.key]?.trim()) filledItems++;
+			}
+		} else if (section.type === "financial-summary") {
+			totalItems += 0;
 		}
 	}
 
@@ -259,6 +377,64 @@ function buildSectionsFromTemplate(
 					label: s.label,
 					data: { heading: "", body: "" },
 				};
+			}
+			if (s.type === "weekly-prayer") {
+				return {
+					id: s.id,
+					type: "weekly-prayer",
+					label: s.label,
+					data: { 日: "", 月: "", 火: "", 水: "", 木: "", 金: "", 土: "" },
+				};
+			}
+			if (s.type === "upcoming-events") {
+				return {
+					id: s.id,
+					type: "upcoming-events",
+					label: s.label,
+					data: [],
+				};
+			}
+			if (s.type === "birthdays") {
+				return {
+					id: s.id,
+					type: "birthdays",
+					label: s.label,
+					data: [],
+				};
+			}
+			if (s.type === "scripture-quotes") {
+				return {
+					id: s.id,
+					type: "scripture-quotes",
+					label: s.label,
+					data: [],
+				};
+			}
+			if (s.type === "attendance") {
+				const data: Record<string, { adults: string }> = {};
+				for (const m of s.config.meetings) {
+					data[m.key] = { adults: "" };
+				}
+				return { id: s.id, type: "attendance", label: s.label, data };
+			}
+			if (s.type === "service-meta") {
+				const fieldValues: Record<string, string> = {};
+				for (const def of s.config.fieldDefs) {
+					fieldValues[def.key] = "";
+				}
+				return {
+					id: s.id,
+					type: "service-meta",
+					label: s.label,
+					data: { fieldValues },
+				};
+			}
+			if (s.type === "financial-summary") {
+				const data: Record<string, { amount: string }> = {};
+				for (const item of s.config.items) {
+					data[item.key] = { amount: "" };
+				}
+				return { id: s.id, type: "financial-summary", label: s.label, data };
 			}
 			return { id: s.id, type: "assignments", label: s.label, data: {} };
 		});

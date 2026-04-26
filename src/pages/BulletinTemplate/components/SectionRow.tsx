@@ -11,13 +11,21 @@ import { useLocale } from "@/store/LocaleContext.tsx";
 import type {
 	AnnouncementsSectionTemplate,
 	AssignmentsSectionTemplate,
+	AttendanceSectionTemplate,
+	FinancialSummaryItem,
+	FinancialSummarySectionTemplate,
 	SectionTemplate,
+	ServiceMetaFieldDef,
+	ServiceMetaSectionTemplate,
 	TemplateField,
 	WorshipProgramSectionTemplate,
 } from "@/types/bulletin.ts";
 import styles from "../BulletinTemplate.module.css";
 import { AnnouncementsConfigEditor } from "./AnnouncementsConfigEditor.tsx";
 import { AssignmentsConfigEditor } from "./AssignmentsConfigEditor.tsx";
+import { AttendanceConfigEditor } from "./AttendanceConfigEditor.tsx";
+import { FinancialSummaryConfigEditor } from "./FinancialSummaryConfigEditor.tsx";
+import { ServiceMetaConfigEditor } from "./ServiceMetaConfigEditor.tsx";
 import { WorshipProgramConfigEditor } from "./WorshipProgramConfigEditor.tsx";
 
 type Props = {
@@ -54,6 +62,15 @@ type Props = {
 	onUpdateSubHeadings: (sid: string, subHeadings: string[]) => void;
 	// Assignments callbacks
 	onUpdateRoles: (sid: string, roles: string[]) => void;
+	// Attendance callbacks
+	onUpdateMeetings: (
+		sid: string,
+		meetings: { key: string; label: string }[],
+	) => void;
+	// ServiceMeta callbacks
+	onUpdateFieldDefs: (sid: string, fieldDefs: ServiceMetaFieldDef[]) => void;
+	// FinancialSummary callbacks
+	onUpdateFinancialItems: (sid: string, items: FinancialSummaryItem[]) => void;
 };
 
 export function SectionRow(props: Props) {
@@ -65,13 +82,29 @@ export function SectionRow(props: Props) {
 			return t("bulletinTemplate.sectionTypeWorship");
 		if (props.section.type === "announcements")
 			return t("bulletinTemplate.sectionTypeAnnouncements");
+		if (props.section.type === "assignments")
+			return t("bulletinTemplate.sectionTypeAssignments");
 		if (props.section.type === "weekly-verse")
 			return t("bulletinTemplate.sectionTypeWeeklyVerse");
 		if (props.section.type === "monthly-song")
 			return t("bulletinTemplate.sectionTypeMonthlySong");
 		if (props.section.type === "text-block")
 			return t("bulletinTemplate.sectionTypeTextBlock");
-		return t("bulletinTemplate.sectionTypeAssignments");
+		if (props.section.type === "weekly-prayer")
+			return t("bulletinTemplate.sectionTypeWeeklyPrayer");
+		if (props.section.type === "upcoming-events")
+			return t("bulletinTemplate.sectionTypeUpcomingEvents");
+		if (props.section.type === "birthdays")
+			return t("bulletinTemplate.sectionTypeBirthdays");
+		if (props.section.type === "scripture-quotes")
+			return t("bulletinTemplate.sectionTypeScriptureQuotes");
+		if (props.section.type === "attendance")
+			return t("bulletinTemplate.sectionTypeAttendance");
+		if (props.section.type === "service-meta")
+			return t("bulletinTemplate.sectionTypeServiceMeta");
+		if (props.section.type === "financial-summary")
+			return t("bulletinTemplate.sectionTypeFinancialSummary");
+		return (props.section as { type: string }).type;
 	};
 
 	return (
@@ -179,6 +212,27 @@ export function SectionRow(props: Props) {
 						<AssignmentsConfigEditor
 							section={props.section as AssignmentsSectionTemplate}
 							onUpdateRoles={props.onUpdateRoles}
+						/>
+					</Show>
+
+					<Show when={props.section.type === "attendance"}>
+						<AttendanceConfigEditor
+							section={props.section as AttendanceSectionTemplate}
+							onUpdateMeetings={props.onUpdateMeetings}
+						/>
+					</Show>
+
+					<Show when={props.section.type === "service-meta"}>
+						<ServiceMetaConfigEditor
+							section={props.section as ServiceMetaSectionTemplate}
+							onUpdateFieldDefs={props.onUpdateFieldDefs}
+						/>
+					</Show>
+
+					<Show when={props.section.type === "financial-summary"}>
+						<FinancialSummaryConfigEditor
+							section={props.section as FinancialSummarySectionTemplate}
+							onUpdateFinancialItems={props.onUpdateFinancialItems}
 						/>
 					</Show>
 

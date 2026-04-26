@@ -63,6 +63,9 @@ export function BulletinTemplate() {
 										onMoveWorshipItem={editor.moveWorshipItem}
 										onUpdateSubHeadings={editor.updateSubHeadings}
 										onUpdateRoles={editor.updateRoles}
+										onUpdateMeetings={editor.updateMeetings}
+										onUpdateFieldDefs={editor.updateFieldDefs}
+										onUpdateFinancialItems={editor.updateFinancialItems}
 									/>
 								)}
 							</For>

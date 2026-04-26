@@ -18,7 +18,19 @@ export function AddSectionMenu(props: Props) {
 			return t("bulletinTemplate.sectionTypeWorship");
 		if (type === "announcements")
 			return t("bulletinTemplate.sectionTypeAnnouncements");
-		return t("bulletinTemplate.sectionTypeAssignments");
+		if (type === "assignments")
+			return t("bulletinTemplate.sectionTypeAssignments");
+		if (type === "weekly-verse")
+			return t("bulletinTemplate.sectionTypeWeeklyVerse");
+		if (type === "monthly-song")
+			return t("bulletinTemplate.sectionTypeMonthlySong");
+		if (type === "text-block")
+			return t("bulletinTemplate.sectionTypeTextBlock");
+		if (type === "weekly-prayer")
+			return t("bulletinTemplate.sectionTypeWeeklyPrayer");
+		if (type === "upcoming-events")
+			return t("bulletinTemplate.sectionTypeUpcomingEvents");
+		return type as string;
 	};
 
 	return (

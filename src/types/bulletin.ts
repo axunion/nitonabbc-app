@@ -76,13 +76,88 @@ export type TextBlockSectionTemplate = {
 	config: Record<never, never>;
 };
 
+export type WeeklyPrayerSectionTemplate = {
+	id: string;
+	type: "weekly-prayer";
+	label: string;
+	visible?: boolean;
+	config: Record<never, never>;
+};
+
+export type UpcomingEventsSectionTemplate = {
+	id: string;
+	type: "upcoming-events";
+	label: string;
+	visible?: boolean;
+	config: Record<never, never>;
+};
+
+export type BirthdaysSectionTemplate = {
+	id: string;
+	type: "birthdays";
+	label: string;
+	visible?: boolean;
+	config: Record<never, never>;
+};
+
+export type ScriptureQuotesSectionTemplate = {
+	id: string;
+	type: "scripture-quotes";
+	label: string;
+	visible?: boolean;
+	config: Record<never, never>;
+};
+
+export type AttendanceSectionTemplate = {
+	id: string;
+	type: "attendance";
+	label: string;
+	visible?: boolean;
+	config: { meetings: { key: string; label: string }[] };
+};
+
+export type ServiceMetaFieldDef = {
+	key: string;
+	label: string;
+	inputType: "text" | "member" | "time";
+};
+
+export type ServiceMetaSectionTemplate = {
+	id: string;
+	type: "service-meta";
+	label: string;
+	visible?: boolean;
+	config: { fieldDefs: ServiceMetaFieldDef[] };
+};
+
+export type FinancialSummaryItem = {
+	key: string;
+	label: string;
+	unit?: string;
+};
+
+export type FinancialSummarySectionTemplate = {
+	id: string;
+	type: "financial-summary";
+	label: string;
+	visible?: boolean;
+	config: { items: FinancialSummaryItem[] };
+};
+
 export type SectionTemplate =
 	| WorshipProgramSectionTemplate
 	| AnnouncementsSectionTemplate
 	| AssignmentsSectionTemplate
 	| WeeklyVerseSectionTemplate
 	| MonthlySongSectionTemplate
-	| TextBlockSectionTemplate;
+	| TextBlockSectionTemplate
+	| WeeklyPrayerSectionTemplate
+	| UpcomingEventsSectionTemplate
+	| BirthdaysSectionTemplate
+	| ScriptureQuotesSectionTemplate
+	| AttendanceSectionTemplate
+	| ServiceMetaSectionTemplate
+	| FinancialSummarySectionTemplate;
 
 // Section data types (values)
 
@@ -128,13 +203,84 @@ export type TextBlockSectionData = {
 	data: { heading: string; body: string };
 };
 
+export type WeeklyPrayerSectionData = {
+	id: string;
+	type: "weekly-prayer";
+	label: string;
+	data: Record<string, string>;
+};
+
+export type UpcomingEvent = {
+	date: string;
+	description: string;
+};
+
+export type UpcomingEventsSectionData = {
+	id: string;
+	type: "upcoming-events";
+	label: string;
+	data: UpcomingEvent[];
+};
+
+export type Birthday = {
+	day: string;
+	name: string;
+};
+
+export type BirthdaysSectionData = {
+	id: string;
+	type: "birthdays";
+	label: string;
+	data: Birthday[];
+};
+
+export type ScriptureQuote = {
+	reference: string;
+	text: string;
+};
+
+export type ScriptureQuotesSectionData = {
+	id: string;
+	type: "scripture-quotes";
+	label: string;
+	data: ScriptureQuote[];
+};
+
+export type AttendanceSectionData = {
+	id: string;
+	type: "attendance";
+	label: string;
+	data: Record<string, { adults: string; children?: string; note?: string }>;
+};
+
+export type ServiceMetaSectionData = {
+	id: string;
+	type: "service-meta";
+	label: string;
+	data: { fieldValues: Record<string, string> };
+};
+
+export type FinancialSummarySectionData = {
+	id: string;
+	type: "financial-summary";
+	label: string;
+	data: Record<string, { amount: string; note?: string }>;
+};
+
 export type SectionData =
 	| WorshipProgramSectionData
 	| AnnouncementsSectionData
 	| AssignmentsSectionData
 	| WeeklyVerseSectionData
 	| MonthlySongSectionData
-	| TextBlockSectionData;
+	| TextBlockSectionData
+	| WeeklyPrayerSectionData
+	| UpcomingEventsSectionData
+	| BirthdaysSectionData
+	| ScriptureQuotesSectionData
+	| AttendanceSectionData
+	| ServiceMetaSectionData
+	| FinancialSummarySectionData;
 
 // Forward-compat: unknown section types are passed through without crashing
 export type UnknownSection = {

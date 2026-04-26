@@ -121,7 +121,7 @@
 |------|-------------|-----------|
 | 認証 | [auth.md](./auth.md) | 実装済み |
 | 管理画面 | [admin.md](./admin.md) | 実装済み |
-| 週報 | [bulletin.md](./bulletin.md) | セクションブロックモデルへ再設計中（旧 worship/announcements/assignments は移植待ち） |
+| 週報 | [bulletin.md](./bulletin.md) | 実装済み（全 13 セクション種別対応済み。教会プロフィール・PDF 出力は将来フェーズ） |
 
 ## 今後の拡張候補（未定）
 

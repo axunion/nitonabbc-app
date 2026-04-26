@@ -691,6 +691,81 @@ describe("POST /api/bulletin/generate", () => {
 		expect(json.sections).toHaveLength(2);
 	});
 
+	it("generates bulletin with weekly-prayer section initialized to 7 empty days", async () => {
+		const templateValue = JSON.stringify([
+			{
+				id: "prayer",
+				type: "weekly-prayer",
+				label: "今週の祈り",
+				visible: true,
+				config: {},
+			},
+		]);
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({ value: templateValue }),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const runStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn(),
+			all: vi.fn(),
+			run: vi.fn().mockResolvedValue({
+				success: true,
+				meta: { last_row_id: 20 },
+				results: [],
+			}),
+		};
+		const generatedSections = [
+			{
+				id: "prayer",
+				type: "weekly-prayer",
+				label: "今週の祈り",
+				data: { 日: "", 月: "", 火: "", 水: "", 木: "", 金: "", 土: "" },
+			},
+		];
+		const selectStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({
+				id: 20,
+				service_date: "2026-04-27",
+				sections: JSON.stringify(generatedSections),
+				created_by: 1,
+				updated_by: 1,
+				created_at: "2026-04-23 00:00:00",
+				updated_at: "2026-04-23 00:00:00",
+			}),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, runStmt, selectStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/generate",
+			{ method: "POST", headers: memberHeaders },
+			env,
+		);
+		expect(res.status).toBe(201);
+		const json = (await res.json()) as {
+			id: number;
+			sections: { type: string; data: Record<string, string> }[];
+		};
+		expect(json.id).toBe(20);
+		expect(json.sections).toHaveLength(1);
+		expect(json.sections[0].type).toBe("weekly-prayer");
+		expect(json.sections[0].data).toEqual({
+			日: "",
+			月: "",
+			火: "",
+			水: "",
+			木: "",
+			金: "",
+			土: "",
+		});
+	});
+
 	it("returns 409 when next Sunday already exists", async () => {
 		const templateStmt = {
 			bind: vi.fn().mockReturnThis(),
@@ -1086,6 +1161,114 @@ describe("progress counting via GET /api/bulletin/:id", () => {
 		expect(json).toMatchObject({ totalItems: 1, filledItems: 0 });
 	});
 
+	it("counts weekly-prayer as filled/7 based on non-empty day values", async () => {
+		const templateValue = JSON.stringify([
+			{
+				id: "prayer",
+				type: "weekly-prayer",
+				label: "今週の祈り",
+				visible: true,
+				config: {},
+			},
+		]);
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({ value: templateValue }),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const bulletinRow = {
+			id: 1,
+			service_date: "2025-06-08",
+			sections: JSON.stringify([
+				{
+					id: "prayer",
+					type: "weekly-prayer",
+					label: "今週の祈り",
+					data: {
+						日: "牧師の働き",
+						月: "兄弟姉妹の健康",
+						火: "",
+						水: "求道者の救い",
+						木: "",
+						金: "宣教師の働き",
+						土: "礼拝の準備",
+					},
+				},
+			]),
+			created_by: 1,
+			updated_by: 1,
+			created_at: "2025-06-01 00:00:00",
+			updated_at: "2025-06-01 00:00:00",
+		};
+		const firstStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue(bulletinRow),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, firstStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/1",
+			{ headers: memberHeaders },
+			env,
+		);
+		const json = await res.json();
+		expect(json).toMatchObject({ totalItems: 7, filledItems: 5 });
+	});
+
+	it("counts weekly-prayer as 0/7 when all days are empty", async () => {
+		const templateValue = JSON.stringify([
+			{
+				id: "prayer",
+				type: "weekly-prayer",
+				label: "今週の祈り",
+				visible: true,
+				config: {},
+			},
+		]);
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({ value: templateValue }),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const bulletinRow = {
+			id: 1,
+			service_date: "2025-06-08",
+			sections: JSON.stringify([
+				{
+					id: "prayer",
+					type: "weekly-prayer",
+					label: "今週の祈り",
+					data: { 日: "", 月: "", 火: "", 水: "", 木: "", 金: "", 土: "" },
+				},
+			]),
+			created_by: 1,
+			updated_by: 1,
+			created_at: "2025-06-01 00:00:00",
+			updated_at: "2025-06-01 00:00:00",
+		};
+		const firstStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue(bulletinRow),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, firstStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/1",
+			{ headers: memberHeaders },
+			env,
+		);
+		const json = await res.json();
+		expect(json).toMatchObject({ totalItems: 7, filledItems: 0 });
+	});
+
 	it("counts weekly-verse as 0/1 when text is empty", async () => {
 		const templateValue = JSON.stringify([
 			{
@@ -1134,5 +1317,491 @@ describe("progress counting via GET /api/bulletin/:id", () => {
 		);
 		const json = await res.json();
 		expect(json).toMatchObject({ totalItems: 1, filledItems: 0 });
+	});
+
+	it("does not count upcoming-events in progress (0/0)", async () => {
+		const templateValue = JSON.stringify([
+			{
+				id: "events",
+				type: "upcoming-events",
+				label: "今後の予定",
+				visible: true,
+				config: {},
+			},
+		]);
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({ value: templateValue }),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const bulletinRow = {
+			id: 1,
+			service_date: "2025-06-08",
+			sections: JSON.stringify([
+				{
+					id: "events",
+					type: "upcoming-events",
+					label: "今後の予定",
+					data: [
+						{ date: "2026-05-04〜06", description: "全国青年キャンプ" },
+						{ date: "2026-05-10", description: "母の日合同礼拝" },
+					],
+				},
+			]),
+			created_by: 1,
+			updated_by: 1,
+			created_at: "2025-06-01 00:00:00",
+			updated_at: "2025-06-01 00:00:00",
+		};
+		const firstStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue(bulletinRow),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, firstStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/1",
+			{ headers: memberHeaders },
+			env,
+		);
+		const json = await res.json();
+		expect(json).toMatchObject({ totalItems: 0, filledItems: 0 });
+	});
+});
+
+// --- birthdays section ---
+
+describe("birthdays section progress and generation", () => {
+	it("does not count birthdays in progress (0/0)", async () => {
+		const templateValue = JSON.stringify([
+			{
+				id: "bdays",
+				type: "birthdays",
+				label: "今月の誕生日",
+				visible: true,
+				config: {},
+			},
+		]);
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({ value: templateValue }),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const bulletinRow = {
+			id: 1,
+			service_date: "2025-06-08",
+			sections: JSON.stringify([
+				{
+					id: "bdays",
+					type: "birthdays",
+					label: "今月の誕生日",
+					data: [
+						{ day: "2日", name: "勇人兄" },
+						{ day: "6日", name: "太秀師" },
+					],
+				},
+			]),
+			created_by: 1,
+			updated_by: 1,
+			created_at: "2025-06-01 00:00:00",
+			updated_at: "2025-06-01 00:00:00",
+		};
+		const firstStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue(bulletinRow),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, firstStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/1",
+			{ headers: memberHeaders },
+			env,
+		);
+		const json = await res.json();
+		expect(json).toMatchObject({ totalItems: 0, filledItems: 0 });
+	});
+
+	it("generates bulletin with birthdays section initialized to empty array", async () => {
+		const templateValue = JSON.stringify([
+			{
+				id: "bdays",
+				type: "birthdays",
+				label: "今月の誕生日",
+				visible: true,
+				config: {},
+			},
+		]);
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({ value: templateValue }),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const runStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn(),
+			all: vi.fn(),
+			run: vi.fn().mockResolvedValue({
+				success: true,
+				meta: { last_row_id: 40 },
+				results: [],
+			}),
+		};
+		const generatedSections = [
+			{
+				id: "bdays",
+				type: "birthdays",
+				label: "今月の誕生日",
+				data: [],
+			},
+		];
+		const selectStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({
+				id: 40,
+				service_date: "2026-04-27",
+				sections: JSON.stringify(generatedSections),
+				created_by: 1,
+				updated_by: 1,
+				created_at: "2026-04-23 00:00:00",
+				updated_at: "2026-04-23 00:00:00",
+			}),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, runStmt, selectStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/generate",
+			{ method: "POST", headers: memberHeaders },
+			env,
+		);
+		expect(res.status).toBe(201);
+		const json = (await res.json()) as {
+			id: number;
+			sections: { type: string; data: unknown[] }[];
+		};
+		expect(json.id).toBe(40);
+		expect(json.sections).toHaveLength(1);
+		expect(json.sections[0].type).toBe("birthdays");
+		expect(json.sections[0].data).toEqual([]);
+	});
+
+	it("returns birthdays section data when fetching a bulletin by id", async () => {
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue(null),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const bulletinRow = {
+			id: 5,
+			service_date: "2026-04-27",
+			sections: JSON.stringify([
+				{
+					id: "bdays",
+					type: "birthdays",
+					label: "今月の誕生日",
+					data: [{ day: "2日", name: "勇人兄" }],
+				},
+			]),
+			created_by: 1,
+			updated_by: 1,
+			created_at: "2026-04-23 00:00:00",
+			updated_at: "2026-04-23 00:00:00",
+		};
+		const firstStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue(bulletinRow),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, firstStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/5",
+			{ headers: memberHeaders },
+			env,
+		);
+		expect(res.status).toBe(200);
+		const json = await res.json();
+		expect(json).toMatchObject({
+			id: 5,
+			sections: [
+				{
+					id: "bdays",
+					type: "birthdays",
+					data: [{ day: "2日", name: "勇人兄" }],
+				},
+			],
+		});
+	});
+});
+
+// --- scripture-quotes section ---
+
+describe("scripture-quotes section progress and generation", () => {
+	it("does not count scripture-quotes in progress (0/0)", async () => {
+		const templateValue = JSON.stringify([
+			{
+				id: "sq",
+				type: "scripture-quotes",
+				label: "引用聖句",
+				visible: true,
+				config: {},
+			},
+		]);
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({ value: templateValue }),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const bulletinRow = {
+			id: 1,
+			service_date: "2025-06-08",
+			sections: JSON.stringify([
+				{
+					id: "sq",
+					type: "scripture-quotes",
+					label: "引用聖句",
+					data: [
+						{
+							reference: "ガラテヤ人への手紙 6:2",
+							text: "互いの重荷を負い合いなさい。",
+						},
+					],
+				},
+			]),
+			created_by: 1,
+			updated_by: 1,
+			created_at: "2025-06-01 00:00:00",
+			updated_at: "2025-06-01 00:00:00",
+		};
+		const firstStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue(bulletinRow),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, firstStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/1",
+			{ headers: memberHeaders },
+			env,
+		);
+		const json = await res.json();
+		expect(json).toMatchObject({ totalItems: 0, filledItems: 0 });
+	});
+
+	it("generates bulletin with scripture-quotes section initialized to empty array", async () => {
+		const templateValue = JSON.stringify([
+			{
+				id: "sq",
+				type: "scripture-quotes",
+				label: "引用聖句",
+				visible: true,
+				config: {},
+			},
+		]);
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({ value: templateValue }),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const runStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn(),
+			all: vi.fn(),
+			run: vi.fn().mockResolvedValue({
+				success: true,
+				meta: { last_row_id: 50 },
+				results: [],
+			}),
+		};
+		const generatedSections = [
+			{
+				id: "sq",
+				type: "scripture-quotes",
+				label: "引用聖句",
+				data: [],
+			},
+		];
+		const selectStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({
+				id: 50,
+				service_date: "2026-04-27",
+				sections: JSON.stringify(generatedSections),
+				created_by: 1,
+				updated_by: 1,
+				created_at: "2026-04-23 00:00:00",
+				updated_at: "2026-04-23 00:00:00",
+			}),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, runStmt, selectStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/generate",
+			{ method: "POST", headers: memberHeaders },
+			env,
+		);
+		expect(res.status).toBe(201);
+		const json = (await res.json()) as {
+			id: number;
+			sections: { type: string; data: unknown[] }[];
+		};
+		expect(json.id).toBe(50);
+		expect(json.sections).toHaveLength(1);
+		expect(json.sections[0].type).toBe("scripture-quotes");
+		expect(json.sections[0].data).toEqual([]);
+	});
+
+	it("returns scripture-quotes section data when fetching a bulletin by id", async () => {
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue(null),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const bulletinRow = {
+			id: 6,
+			service_date: "2026-04-27",
+			sections: JSON.stringify([
+				{
+					id: "sq",
+					type: "scripture-quotes",
+					label: "引用聖句",
+					data: [
+						{
+							reference: "ガラテヤ人への手紙 6:2",
+							text: "互いの重荷を負い合いなさい。",
+						},
+					],
+				},
+			]),
+			created_by: 1,
+			updated_by: 1,
+			created_at: "2026-04-23 00:00:00",
+			updated_at: "2026-04-23 00:00:00",
+		};
+		const firstStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue(bulletinRow),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, firstStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/6",
+			{ headers: memberHeaders },
+			env,
+		);
+		expect(res.status).toBe(200);
+		const json = await res.json();
+		expect(json).toMatchObject({
+			id: 6,
+			sections: [
+				{
+					id: "sq",
+					type: "scripture-quotes",
+					data: [
+						{
+							reference: "ガラテヤ人への手紙 6:2",
+							text: "互いの重荷を負い合いなさい。",
+						},
+					],
+				},
+			],
+		});
+	});
+});
+
+// --- upcoming-events section generation ---
+
+describe("upcoming-events section via POST /api/bulletin/generate", () => {
+	it("generates bulletin with upcoming-events section initialized to empty array", async () => {
+		const templateValue = JSON.stringify([
+			{
+				id: "events",
+				type: "upcoming-events",
+				label: "今後の予定",
+				visible: true,
+				config: {},
+			},
+		]);
+		const templateStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({ value: templateValue }),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const runStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn(),
+			all: vi.fn(),
+			run: vi.fn().mockResolvedValue({
+				success: true,
+				meta: { last_row_id: 30 },
+				results: [],
+			}),
+		};
+		const generatedSections = [
+			{
+				id: "events",
+				type: "upcoming-events",
+				label: "今後の予定",
+				data: [],
+			},
+		];
+		const selectStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn().mockResolvedValue({
+				id: 30,
+				service_date: "2026-04-27",
+				sections: JSON.stringify(generatedSections),
+				created_by: 1,
+				updated_by: 1,
+				created_at: "2026-04-23 00:00:00",
+				updated_at: "2026-04-23 00:00:00",
+			}),
+			all: vi.fn(),
+			run: vi.fn(),
+		};
+		const db = createDbWithPrepare([templateStmt, runStmt, selectStmt]);
+		const env = createEnvWithDb(db);
+
+		const res = await app.request(
+			"http://localhost/api/bulletin/generate",
+			{ method: "POST", headers: memberHeaders },
+			env,
+		);
+		expect(res.status).toBe(201);
+		const json = (await res.json()) as {
+			id: number;
+			sections: { type: string; data: unknown[] }[];
+		};
+		expect(json.id).toBe(30);
+		expect(json.sections).toHaveLength(1);
+		expect(json.sections[0].type).toBe("upcoming-events");
+		expect(json.sections[0].data).toEqual([]);
 	});
 });

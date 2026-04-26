@@ -321,7 +321,60 @@ describe("PUT /api/bulletin-template", () => {
 				method: "PUT",
 				headers: { ...adminHeaders, "Content-Type": "application/json" },
 				body: JSON.stringify([
-					{ id: "unknown", type: "weekly-prayer", label: "祈り", config: {} },
+					{ id: "s1", type: "unsupported-type", label: "未知", config: {} },
+				]),
+			},
+			env,
+		);
+		expect(res.status).toBe(400);
+	});
+
+	it("accepts weekly-prayer section and returns 200", async () => {
+		const runStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn(),
+			all: vi.fn(),
+			run: vi.fn().mockResolvedValue({ success: true, meta: {}, results: [] }),
+		};
+		const db = createDbWithPrepare([runStmt]);
+		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
+
+		const res = await app.request(
+			"http://localhost/api/bulletin-template",
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify([
+					{
+						id: "prayer",
+						type: "weekly-prayer",
+						label: "今週の祈り",
+						visible: true,
+						config: {},
+					},
+				]),
+			},
+			env,
+		);
+		expect(res.status).toBe(200);
+	});
+
+	it("returns 400 when weekly-prayer config is an array", async () => {
+		const db = createDbWithPrepare([]);
+		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
+
+		const res = await app.request(
+			"http://localhost/api/bulletin-template",
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify([
+					{
+						id: "prayer",
+						type: "weekly-prayer",
+						label: "今週の祈り",
+						config: [],
+					},
 				]),
 			},
 			env,
@@ -512,6 +565,112 @@ describe("PUT /api/bulletin-template", () => {
 						id: "verse",
 						type: "weekly-verse",
 						label: "今週のみことば",
+						config: [],
+					},
+				]),
+			},
+			env,
+		);
+		expect(res.status).toBe(400);
+	});
+
+	it("accepts upcoming-events section and returns 200", async () => {
+		const runStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn(),
+			all: vi.fn(),
+			run: vi.fn().mockResolvedValue({ success: true, meta: {}, results: [] }),
+		};
+		const db = createDbWithPrepare([runStmt]);
+		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
+
+		const res = await app.request(
+			"http://localhost/api/bulletin-template",
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify([
+					{
+						id: "events",
+						type: "upcoming-events",
+						label: "今後の予定",
+						visible: true,
+						config: {},
+					},
+				]),
+			},
+			env,
+		);
+		expect(res.status).toBe(200);
+	});
+
+	it("returns 400 when upcoming-events config is an array", async () => {
+		const db = createDbWithPrepare([]);
+		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
+
+		const res = await app.request(
+			"http://localhost/api/bulletin-template",
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify([
+					{
+						id: "events",
+						type: "upcoming-events",
+						label: "今後の予定",
+						config: [],
+					},
+				]),
+			},
+			env,
+		);
+		expect(res.status).toBe(400);
+	});
+
+	it("accepts scripture-quotes section and returns 200", async () => {
+		const runStmt = {
+			bind: vi.fn().mockReturnThis(),
+			first: vi.fn(),
+			all: vi.fn(),
+			run: vi.fn().mockResolvedValue({ success: true, meta: {}, results: [] }),
+		};
+		const db = createDbWithPrepare([runStmt]);
+		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
+
+		const res = await app.request(
+			"http://localhost/api/bulletin-template",
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify([
+					{
+						id: "sq",
+						type: "scripture-quotes",
+						label: "引用聖句",
+						visible: true,
+						config: {},
+					},
+				]),
+			},
+			env,
+		);
+		expect(res.status).toBe(200);
+	});
+
+	it("returns 400 when scripture-quotes config is an array", async () => {
+		const db = createDbWithPrepare([]);
+		const env = createEnv({ SESSION_KV: createAdminKV(), DB: db });
+
+		const res = await app.request(
+			"http://localhost/api/bulletin-template",
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify([
+					{
+						id: "sq",
+						type: "scripture-quotes",
+						label: "引用聖句",
 						config: [],
 					},
 				]),
