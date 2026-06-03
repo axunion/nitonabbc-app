@@ -1,17 +1,16 @@
 ---
 name: verify
 description: >
-  lint・ビルド・テストを一括検証するスキル。実装後・コミット前の品質確認に必ず使うこと。
-  「ビルド通る？」「エラーないか確認して」「チェックして」「テスト走らせて」「lint エラーある？」
-  など検証を求める場面はもちろん、コード変更が完了した後は積極的にこのスキルを呼び出すこと。
+  Run lint, build, and tests together to verify code quality.
+  Use after implementation or before committing: "does the build pass?", "check for errors", "run tests", "any lint errors?".
 allowed-tools: Bash
 ---
 
-lint（Biome）、ビルド（tsc + Vite）、テスト（Vitest）を順番に実行し、結果を報告してください。
+Run lint (Biome), build (tsc + Vite), and tests (Vitest) in order and report the results.
 
-1. `pnpm check` を実行
-   - エラーがあれば `pnpm check:write` で自動修正を試み、再度 `pnpm check` で確認
-2. `pnpm build` を実行
-3. `pnpm test` を実行
+1. Run `pnpm check`
+   - If there are errors, try auto-fixing with `pnpm check:write`, then re-run `pnpm check`
+2. Run `pnpm build`
+3. Run `pnpm test`
 
-すべて成功した場合は簡潔に報告。失敗した場合はエラー内容と修正方針を提示してください。
+Report concisely if everything passes. If something fails, show the error output and suggest a fix.

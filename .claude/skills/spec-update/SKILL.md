@@ -1,41 +1,39 @@
 ---
 name: spec-update
 description: >
-  機能ドキュメントの追加・更新時に docs/spec.md の機能テーブルと個別ドキュメントを同期するスキル。
-  「仕様書を更新して」「ドキュメントに追加して」「spec.md に反映して」「実装ステータスを更新して」
-  など仕様ドキュメントの同期を求める場面では必ずこのスキルを使うこと。新機能の実装完了後や
-  仕様変更時も積極的に呼び出すこと。
+  Sync docs/spec.md and individual feature documents when documentation is added or updated.
+  Use for requests like "update the spec", "add to the docs", "reflect in spec.md", or "update implementation status".
 allowed-tools: Read Edit Write Glob Grep
 ---
 
-機能ドキュメントを最新状態に保つ。
+Keep feature documents up to date.
 
 @.claude/rules/docs.md
 
-## 手順
+## Steps
 
-### 新機能ドキュメントを作成する場合
+### Creating a new feature document
 
-1. `docs/<feature-name>.md` を作成する。セクション構成:
-   1. **概要** — 機能の目的・対象ユーザー
-   2. **データモデル** — DB テーブル定義・フィールド説明
-   3. **API** — エンドポイント一覧・リクエスト/レスポンス形式
-   4. **UI** — 画面構成・コンポーネント・操作フロー
-   5. **実装ステータス** — 各機能項目の実装状況
-   6. **備考** — 制約・既知の制限・将来の拡張ポイント
+1. Create `docs/<feature-name>.md` with the following sections:
+   1. **Overview** — purpose and target users
+   2. **Data model** — DB table definitions and field descriptions
+   3. **API** — endpoint list, request/response format
+   4. **UI** — screen layout, components, interaction flow
+   5. **Implementation status** — current status of each feature item
+   6. **Notes** — constraints, known limitations, future extension points
 
-2. `docs/spec.md` の機能テーブルにリンクを追加:
+2. Add a link to the feature table in `docs/spec.md`:
    ```
-   | 機能名 | [feature-name.md](./feature-name.md) | ステータス |
+   | Feature name | [feature-name.md](./feature-name.md) | Status |
    ```
 
-### 既存ドキュメントを更新する場合
+### Updating an existing document
 
-1. 変更内容に応じて `docs/<feature-name>.md` を編集する
-2. 実装ステータスが変わった場合は対応する行を更新する
-3. `docs/spec.md` のステータス列も必要に応じて更新する
+1. Edit `docs/<feature-name>.md` according to the changes
+2. If implementation status changed, update the corresponding row
+3. Update the status column in `docs/spec.md` if needed
 
-## チェックリスト
-- [ ] ドキュメントのセクション構成が上記に従っているか
-- [ ] `docs/spec.md` の機能テーブルにリンクが追加 / 更新されているか
-- [ ] 実装ステータスが現在の実装状態を正確に反映しているか
+## Checklist
+- [ ] Document section structure follows the format above
+- [ ] Link added or updated in the `docs/spec.md` feature table
+- [ ] Implementation status accurately reflects the current state

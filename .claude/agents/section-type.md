@@ -9,62 +9,62 @@ maxTurns: 40
 
 # Section Type Agent
 
-週報の新しいセクション種別を追加する。型定義・viewer・editor・テンプレート UI・server 側処理・テスト・ドキュメント更新までを一貫して行う。
+Add a new bulletin section type covering type definitions, viewer, editor, template UI, server processing, tests, and documentation.
 
 @.claude/rules/bulletin.md
 @.claude/rules/frontend.md
 @.claude/rules/api.md
 @.claude/rules/testing.md
 
-## 作業開始前
+## Before starting
 
-必ず以下を Read して現状の実装パターンを把握すること:
-- `docs/bulletin.md` の §5（追加対象セクションの仕様）と §13（実装ステータス）
-- `src/types/bulletin.ts`（既存の共用体型）
-- `src/pages/BulletinDetail/components/SectionView.tsx`（viewer dispatcher）
-- `src/pages/BulletinForm/components/SectionEditor.tsx`（editor dispatcher）
-- `src/pages/BulletinTemplate/components/SectionRow.tsx`（template UI dispatcher）
-- `server/routes/bulletin.ts`（sanitize と `countProgress` の実装）
-- `server/routes/__tests__/bulletin.test.ts`（既存テストパターン）
+Read the following files to understand current implementation patterns:
+- `docs/bulletin.md` §5 (spec for the section to add) and §13 (implementation status)
+- `src/types/bulletin.ts` (existing union types)
+- `src/pages/BulletinDetail/components/SectionView.tsx` (viewer dispatcher)
+- `src/pages/BulletinForm/components/SectionEditor.tsx` (editor dispatcher)
+- `src/pages/BulletinTemplate/components/SectionRow.tsx` (template UI dispatcher)
+- `server/routes/bulletin.ts` (sanitize and `countProgress` implementation)
+- `server/routes/__tests__/bulletin.test.ts` (existing test patterns)
 
-## 追加手順
+## Steps
 
-### 1. 型定義（`src/types/bulletin.ts`）
-- `<Name>SectionTemplate` 型を追加（`id`, `type`, `label`, `visible?`, `config`）
-- `<Name>SectionData` 型を追加（`id`, `type`, `label`, `data`）
-- `SectionTemplate` / `SectionData` の共用体に追加
+### 1. Type definitions (`src/types/bulletin.ts`)
+- Add `<Name>SectionTemplate` type (`id`, `type`, `label`, `visible?`, `config`)
+- Add `<Name>SectionData` type (`id`, `type`, `label`, `data`)
+- Add both to the `SectionTemplate` / `SectionData` unions
 
-### 2. Viewer（`src/pages/BulletinDetail/components/SectionView.tsx`）
-- dispatcher に `props.section.type === "<type>"` の分岐を追加
-- 閲覧専用の表示コンポーネントを実装（同ディレクトリ内に配置）
+### 2. Viewer (`src/pages/BulletinDetail/components/SectionView.tsx`)
+- Add `props.section.type === "<type>"` branch to the dispatcher
+- Implement a read-only display component in the same directory
 
-### 3. Editor（`src/pages/BulletinForm/components/SectionEditor.tsx`）
-- dispatcher に対応する分岐を追加
-- 入力専用のエディタコンポーネントを実装（同ディレクトリ内に配置）
+### 3. Editor (`src/pages/BulletinForm/components/SectionEditor.tsx`)
+- Add corresponding branch to the dispatcher
+- Implement an input-only editor component in the same directory
 
-### 4. Template UI（`src/pages/BulletinTemplate/components/SectionRow.tsx`）
-- config 編集 UI が必要な場合は dispatcher に分岐を追加
-- config なし（例: `weekly-prayer`, `weekly-verse`）は既存の汎用表示のままでよい
+### 4. Template UI (`src/pages/BulletinTemplate/components/SectionRow.tsx`)
+- If the section has config fields, add a dispatcher branch for the config edit UI
+- If no config (e.g. `weekly-prayer`, `weekly-verse`), the generic display is sufficient
 
-### 5. Server: sanitize（`server/routes/bulletin.ts`）
-- `VALID_SECTION_TYPES` 配列に新しい type 文字列を追加
+### 5. Server: sanitize (`server/routes/bulletin.ts`)
+- Add the new type string to the `VALID_SECTION_TYPES` array
 
-### 6. Server: 進捗算出（`server/routes/bulletin.ts` の `countProgress`）
-- `docs/bulletin.md` §5 の「進捗」欄に従ってカウントロジックを追加
-- 進捗対象外のセクションは `totalItems += 0` で OK
+### 6. Server: progress counting (`server/routes/bulletin.ts` `countProgress`)
+- Add counting logic per the "Progress" column in `docs/bulletin.md` §5
+- If the section does not count toward progress, use `totalItems += 0`
 
-### 7. テスト（`server/routes/__tests__/bulletin.test.ts`）
-- 新しいセクション種別を含む週報の作成・取得・進捗算出のテストを追加
+### 7. Tests (`server/routes/__tests__/bulletin.test.ts`)
+- Add tests for creating, fetching, and counting progress for the new section type
 
-### 8. ドキュメント更新（`docs/bulletin.md`）
-- §13 実装ステータスの該当行を「実装済み」に更新
+### 8. Documentation (`docs/bulletin.md`)
+- Update §13 implementation status row to "implemented"
 
-## チェックリスト
-- [ ] `src/types/bulletin.ts` の共用体に追加したか
-- [ ] `SectionView` / `SectionEditor` / `SectionRow` の全 dispatcher に分岐を追加したか
-- [ ] server 側 sanitize の `VALID_SECTION_TYPES` に追加したか
-- [ ] `countProgress` に進捗ロジックを追加したか（対象外なら 0/0 で明示）
-- [ ] テストを追加して `pnpm test` が通るか
-- [ ] `docs/bulletin.md` §13 を更新したか
-- [ ] i18n キーを `src/locales/ja.ts` と `src/locales/en.ts` に追加したか
-- [ ] Biome のフォーマットに準拠しているか（`pnpm check`）
+## Checklist
+- [ ] Added to `src/types/bulletin.ts` unions
+- [ ] Added branches to all three dispatchers: `SectionView`, `SectionEditor`, `SectionRow`
+- [ ] Added to `VALID_SECTION_TYPES` in server sanitize
+- [ ] Added progress counting logic to `countProgress` (or explicit 0 if not counted)
+- [ ] Tests added and `pnpm test` passes
+- [ ] `docs/bulletin.md` §13 updated
+- [ ] i18n keys added to `src/locales/ja.ts` and `src/locales/en.ts`
+- [ ] Code passes Biome formatting (`pnpm check`)

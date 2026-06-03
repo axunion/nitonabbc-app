@@ -7,36 +7,36 @@ paths:
 
 # API Rules
 
-## Hono サーバー構成
+## Server structure
 
-- ルート定義: `server/routes/<resource>.ts`（1ファイル1リソース）
-- ルート登録: `server/index.ts` で `.route("/api/<resource>", resourceRoute)` で追加
-- ミドルウェア: `server/middleware/<name>.ts`
-- 型定義: `server/types.ts` の `AppEnv` で Bindings と Variables を一元管理
-- Worker エントリ: `worker/index.ts` で Hono app を re-export
-- 型チェック: `tsconfig.server.json`（`@cloudflare/workers-types` 使用）
+- Route definitions: `server/routes/<resource>.ts` (one file per resource)
+- Route registration: add `.route("/api/<resource>", resourceRoute)` in `server/index.ts`
+- Middleware: `server/middleware/<name>.ts`
+- Type definitions: manage `Bindings` and `Variables` centrally in `server/types.ts` as `AppEnv`
+- Worker entry: re-export Hono app from `worker/index.ts`
+- Type checking: `tsconfig.server.json` (uses `@cloudflare/workers-types`)
 
-## レスポンス規約
+## Response conventions
 
-- 成功: `c.json(data)` または `c.json(data, statusCode)`
-- エラー: `c.json({ error: "message" }, statusCode)`
-- 空レスポンス: `c.body(null, 204)`
+- Success: `c.json(data)` or `c.json(data, statusCode)`
+- Error: `c.json({ error: "message" }, statusCode)`
+- Empty response: `c.body(null, 204)`
 
-## Cloudflare Workers 環境
+## Cloudflare Workers environment
 
-- Node.js API 使用不可（`fs`, `path` 等）
-- 環境変数・Bindings は `c.env` 経由でアクセス
-- D1 バインディング: `DB`、KV バインディング: `SESSION_KV`
-- セッション: `session:{uuid}` → `{ userId, lineUserId, role }` JSON
+- Node.js APIs are not available (`fs`, `path`, etc.)
+- Access env vars and bindings via `c.env`
+- D1 binding: `DB` · KV binding: `SESSION_KV`
+- Session: `session:{uuid}` → `{ userId, lineUserId, role }` JSON
 - OAuth state: `oauth_state:{uuid}` → `"1"` or `{ inviteToken: "..." }` JSON
 
-## テスト
+## Testing
 
-テスト対象・構成・モックユーティリティの詳細は `.claude/rules/testing.md` を参照。`pnpm test` の対象は `server/**/*.test.ts` のみ。新規ルート追加時は対応するテストファイルを先に作成する（TDD）。
+See `.claude/rules/testing.md` for test targets, structure, and mock utilities. `pnpm test` targets `server/**/*.test.ts` only. Create the test file before implementing a new route (TDD).
 
-## D1 スキーマ管理
+## D1 schema management
 
-DB 運用手順（スキーマ変更・本番デプロイ）は CLAUDE.md の Database セクションを参照。
+See the Database section in CLAUDE.md for schema change and production deploy procedures.
 
-- 外部キー制約あり（例: `bulletins.created_by` → `users.id`）。INSERT 時は参照先のレコードが存在すること
-- DEV_AUTH モードでは `auth.ts` の `getOrCreateDevUser()` が dev ユーザーを自動作成するため、外部キー制約を満たす
+- Foreign key constraints exist (e.g. `bulletins.created_by` → `users.id`). Ensure referenced records exist before INSERT.
+- In DEV_AUTH mode, `getOrCreateDevUser()` in `auth.ts` automatically creates a dev user, satisfying foreign key constraints.

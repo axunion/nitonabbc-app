@@ -10,40 +10,40 @@ paths:
 
 # Bulletin Rules
 
-週報のセクションブロックモデルに関する規約。
+Conventions for the bulletin section block model.
 
 @docs/bulletin.md
 
-## 型システム
+## Type system
 
-- `SectionTemplate` / `SectionData` は判別共用体（`type` フィールドで narrow する）
-- 未知の `type` は `UnknownSection` で受け取り、表示・編集ともにスキップする（前方互換）
-- `AnySection = SectionData | UnknownSection` を使い、`unknown` のままにしない
-- 新しいセクション種別を追加する場合は `src/types/bulletin.ts` の共用体に追加し、全ての dispatch 箇所に case を追加する
+- `SectionTemplate` / `SectionData` are discriminated unions (narrow via the `type` field)
+- Unknown `type` values are received as `UnknownSection`; skip rendering and editing for forward compatibility
+- Use `AnySection = SectionData | UnknownSection` — do not leave values as `unknown`
+- When adding a new section type, add it to the unions in `src/types/bulletin.ts` and add a case to every dispatcher
 
-## Dispatcher パターン
+## Dispatcher pattern
 
-セクション種別ごとの UI は 3 つの dispatcher を通じて提供する。新しい種別を追加する際は **全て** に対応する分岐を追加すること:
+Section-type-specific UI is provided through three dispatchers. When adding a new type, add a branch to **all** of them:
 
-| ファイル | 役割 |
-|---------|------|
-| `src/pages/BulletinDetail/components/SectionView.tsx` | 閲覧 UI |
-| `src/pages/BulletinForm/components/SectionEditor.tsx` | 入力 UI |
-| `src/pages/BulletinTemplate/components/SectionRow.tsx` | テンプレート管理 UI |
+| File | Role |
+|------|------|
+| `src/pages/BulletinDetail/components/SectionView.tsx` | Read-only UI |
+| `src/pages/BulletinForm/components/SectionEditor.tsx` | Input UI |
+| `src/pages/BulletinTemplate/components/SectionRow.tsx` | Template management UI |
 
-## サーバー側の制約
+## Server-side constraints
 
-- テンプレート保存時（`PUT /api/bulletin-template`）は必ず sanitize する:
-  - `id` の重複を 400 で弾く
-  - `type` が有効値であることを検証する（想定外の type は保存しない）
-- 進捗算出（`countProgress`）は `server/routes/bulletin.ts` で管理。新しい種別を追加したら対応するカウントロジックを追加する
+- Always sanitize on template save (`PUT /api/bulletin-template`):
+  - Reject duplicate `id` values with 400
+  - Validate that `type` is a known value (do not save unknown types)
+- Progress counting (`countProgress`) is managed in `server/routes/bulletin.ts`. Add counting logic for every new type.
 
-## セクション追加の手順（概略）
+## Steps to add a section type (summary)
 
-1. `src/types/bulletin.ts` に `<Name>SectionTemplate` / `<Name>SectionData` 型を追加し、共用体に追加
-2. `SectionView` / `SectionEditor` / `SectionRow` の dispatcher に case 追加
-3. server 側 sanitize と `countProgress` に対応ロジック追加
-4. テスト（`server/routes/__tests__/bulletin.test.ts`）に新しい種別のケースを追加
-5. `docs/bulletin.md` の §13 実装ステータスを更新
+1. Add `<Name>SectionTemplate` / `<Name>SectionData` types to `src/types/bulletin.ts` unions
+2. Add cases to the `SectionView` / `SectionEditor` / `SectionRow` dispatchers
+3. Add sanitize and `countProgress` logic on the server side
+4. Add test cases for the new type to `server/routes/__tests__/bulletin.test.ts`
+5. Update the §13 implementation status in `docs/bulletin.md`
 
-詳細なセクション種別の仕様（config / data 形式）は `@docs/bulletin.md` の §5 カタログを参照。
+For detailed section type specs (config / data format), see the §5 catalog in `@docs/bulletin.md`.

@@ -9,27 +9,27 @@ maxTurns: 25
 
 # API Route Agent
 
-Hono で API ルートを作成し、Cloudflare Workers として動作させる。
+Create API routes with Hono running on Cloudflare Workers.
 
 @.claude/rules/api.md
 @.claude/rules/testing.md
 
-## 作業開始前
+## Before starting
 
-必ず以下を Read して既存の型定義・ルートパターン・テスト構造を把握すること:
+Read the following files to understand existing type definitions, route patterns, and test structure:
 - `server/types.ts`
-- `server/index.ts`（ルート登録パターンを確認）
-- 既存ルートファイル1つ（`server/routes/` 配下）
-- `server/__tests__/helpers.ts`（モックユーティリティ）
+- `server/index.ts` (check route registration patterns)
+- One existing route file under `server/routes/`
+- `server/__tests__/helpers.ts` (mock utilities)
 
-## ファイル構成
+## File layout
 
-- ルート定義: `server/routes/<resource>.ts`
-- テスト: `server/routes/__tests__/<resource>.test.ts`
-- アプリ登録: `server/index.ts` にルートを追加
-- ミドルウェア（共通処理が必要な場合）: `server/middleware/<name>.ts`
+- Route definition: `server/routes/<resource>.ts`
+- Tests: `server/routes/__tests__/<resource>.test.ts`
+- Registration: add route to `server/index.ts`
+- Middleware (if shared logic needed): `server/middleware/<name>.ts`
 
-## コード例
+## Code examples
 
 ```ts
 // server/routes/users.ts
@@ -48,20 +48,20 @@ usersRoute.post("/", async (c) => {
 ```
 
 ```ts
-// server/index.ts での登録
+// Registration in server/index.ts
 import { usersRoute } from "./routes/users";
 app.route("/api/users", usersRoute);
 ```
 
-## TDD の進め方
+## TDD workflow
 
-1. `server/routes/__tests__/<resource>.test.ts` を **先に** 作成する
-2. `server/__tests__/helpers.ts` の `createMockKV` / `createMockD1` / `createEnv` を使う
-3. `app.request(url, init?, env?)` でエンドポイントをテスト
-4. `pnpm test` で Red を確認してから実装する（Green → Refactor）
+1. Create `server/routes/__tests__/<resource>.test.ts` **first**
+2. Use `createMockKV` / `createMockD1` / `createEnv` from `server/__tests__/helpers.ts`
+3. Test endpoints with `app.request(url, init?, env?)`
+4. Run `pnpm test` to confirm Red before implementing (Green → Refactor)
 
-## チェックリスト
-- [ ] テストファイル（`server/routes/__tests__/<name>.test.ts`）を先に作成したか
-- [ ] ファイル配置とルート登録が上記コード例に従っているか
-- [ ] レスポンス形式・Workers 環境の制約が @.claude/rules/api.md に沿っているか
-- [ ] Biome のフォーマットに準拠しているか（`pnpm check`）
+## Checklist
+- [ ] Test file (`server/routes/__tests__/<name>.test.ts`) created first
+- [ ] File layout and route registration follow the code examples above
+- [ ] Response format and Workers constraints follow @.claude/rules/api.md
+- [ ] Code passes Biome formatting (`pnpm check`)

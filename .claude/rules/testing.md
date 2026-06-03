@@ -7,41 +7,41 @@ paths:
 
 # Testing Rules (TDD)
 
-APIルートを中心にTDDで開発する。
+Develop API routes using TDD.
 
-## テスト対象の方針
+## Testing scope
 
-**バックエンド（`server/`）のみをテスト対象とする。これは意図的な設計判断。**
+**Test only the backend (`server/`). This is an intentional design decision.**
 
-- ビジネスロジックの大半はサーバー側にある
-- フロントエンドは小規模（約30名）で管理者が常駐しており、目視確認で十分カバーできる
-- Solid.js hooksのテストはランタイム依存が強く、費用対効果が低い
-- フロントの純粋ユーティリティ（`src/utils/`）もバックエンドテストで間接的にカバーされる
+- The majority of business logic resides on the server side
+- The frontend is small scale (~30 users) with an admin always present; visual inspection is sufficient coverage
+- Testing Solid.js hooks has a high runtime dependency cost relative to the benefit
+- Pure frontend utilities (`src/utils/`) are indirectly covered by the backend tests
 
-## テスト構成
+## Test structure
 
-- **テストランナー**: Vitest（設定: `vitest.config.ts`）
-- **対象**: `server/**/*.test.ts`（APIルート・ミドルウェア）のみ
-- **環境**: Node.js（`@cloudflare/vitest-pool-workers` は不使用、D1/KV はモック）
+- **Test runner**: Vitest (config: `vitest.config.ts`)
+- **Scope**: `server/**/*.test.ts` (API routes and middleware) only
+- **Environment**: Node.js (`@cloudflare/vitest-pool-workers` is not used; D1/KV are mocked)
 
-## テストファイルの配置
+## File layout
 
 ```
 server/
-  __tests__/helpers.ts          # KV/D1 モックユーティリティ（共通）
-  routes/__tests__/<name>.test.ts  # 各ルートのテスト
+  __tests__/helpers.ts                   # Shared KV/D1 mock utilities
+  routes/__tests__/<name>.test.ts        # Tests per route
   middleware/__tests__/<name>.test.ts
 ```
 
-## モックユーティリティ (`server/__tests__/helpers.ts`)
+## Mock utilities (`server/__tests__/helpers.ts`)
 
-- `createMockKV(initial?)` - KVNamespace のモック（in-memory Map）
-- `createMockD1(rows?)` - D1Database のモック（固定 rows を返す）
-- `createEnv(overrides?)` - Bindings を組み立てる。テストごとに必要なモックだけ上書き
+- `createMockKV(initial?)` — in-memory Map mock for KVNamespace
+- `createMockD1(rows?)` — D1Database mock returning fixed rows
+- `createEnv(overrides?)` — assembles Bindings; override only what each test needs
 
-## Hono のテスト方法
+## Testing Hono routes
 
-`app.request(url, init?, env?)` を使う。第3引数に `createEnv()` を渡して Bindings を注入する。
+Use `app.request(url, init?, env?)`. Pass `createEnv()` as the third argument to inject Bindings.
 
 ```typescript
 const env = createEnv({ SESSION_KV: createMockKV({ "session:sid": "..." }) });
@@ -51,14 +51,14 @@ const res = await app.request("http://localhost/api/auth/me",
 );
 ```
 
-## TDD の進め方
+## TDD workflow
 
-1. **テストを先に書く** - 期待する動作をテストで記述する
-2. **テストを失敗させる（Red）** - `pnpm test` で失敗を確認
-3. **実装する（Green）** - テストがパスする最小限のコードを書く
-4. **リファクタリング** - テストを維持しながらコードを整理
+1. **Write the test first** — describe the expected behavior in the test
+2. **Make it fail (Red)** — run `pnpm test` and confirm failure
+3. **Implement (Green)** — write the minimum code to make the test pass
+4. **Refactor** — clean up the code while keeping tests green
 
-## 外部 fetch のモック
+## Mocking external fetch
 
-LINE API など外部 HTTP 呼び出しは `vi.spyOn(global, "fetch")` でモックする。
-`afterEach(() => vi.restoreAllMocks())` を忘れずに。
+Mock external HTTP calls like the LINE API with `vi.spyOn(global, "fetch")`.
+Do not forget `afterEach(() => vi.restoreAllMocks())`.

@@ -5,15 +5,15 @@ paths:
 
 # Docs Rules
 
-## 仕様ドキュメントの管理
+## Managing specification documents
 
-- 新機能は `docs/<feature-name>.md` に個別ドキュメントを作成する
-- 作成後、`docs/spec.md` の機能テーブルにリンクを追加する
+- Create an individual document at `docs/<feature-name>.md` for each new feature
+- After creating it, add a link to the feature table in `docs/spec.md`
 
-## ドキュメントのセクション構成
+## Document section structure
 
-1. **概要** — 機能の目的・対象ユーザー
-2. **データモデル** — DB テーブル定義・フィールド説明
-3. **API** — エンドポイント一覧・リクエスト/レスポンス形式
-4. **UI** — 画面構成・コンポーネント・操作フロー
-5. **備考** — 制約・既知の制限・将来の拡張ポイント
+1. **Overview** — purpose and target users
+2. **Data model** — DB table definitions and field descriptions
+3. **API** — endpoint list, request/response format
+4. **UI** — screen layout, components, interaction flow
+5. **Notes** — constraints, known limitations, future extension points

@@ -5,48 +5,48 @@ paths:
 
 # Frontend Rules
 
-## UI ライブラリ
+## UI library
 
-- **@kobalte/core** ヘッドレスUIプリミティブを使用（Tailwind 不使用）
-- `@kobalte/core/<component>` から個別インポート
-- `class` prop に CSS Modules クラスを渡す
-- 状態スタイルは `data-*` 属性セレクタで定義:
+- Use **@kobalte/core** headless UI primitives (no Tailwind)
+- Import individually from `@kobalte/core/<component>`
+- Pass CSS Modules classes via the `class` prop
+- Define state styles with `data-*` attribute selectors:
   - `[data-disabled]`, `[data-pressed]`, `[data-hover]`, `[data-focus-visible]`, `[data-expanded]`, `[data-checked]`
 
 ## CSS Modules
 
-- ファイル拡張子: `.module.css`、コンポーネントと同ディレクトリに配置
-- デザイントークン (`src/styles/tokens.css`) の CSS 変数を必ず使用（ハードコード禁止）:
-  - 色: `var(--color-*)`, フォーカス: `var(--focus-ring)`, タイポ: `var(--text-*)`, `var(--font-*)`, `var(--tracking-*)`
-  - スペーシング: `var(--space-*)`, 角丸: `var(--radius-*)`, 影: `var(--shadow-*)`
-  - トランジション: `var(--duration-*)`, `var(--ease-*)`, z-index: `var(--z-*)`
-  - レイアウト: `var(--app-max-width)`（TabBar とページコンテンツの幅を揃える共通値）
-- ページコンテナには fadeIn アニメーションを適用
-- 複数ページで共通のスタイルは `src/styles/shared.module.css` に定義し、各ページで `composes` で適用する（例: `composes: pairedCancel from "../../styles/shared.module.css";`）
+- File extension: `.module.css`, placed in the same directory as the component
+- Always use CSS variables from `src/styles/tokens.css` (no hardcoded values):
+  - Colors: `var(--color-*)`, focus: `var(--focus-ring)`, typography: `var(--text-*)`, `var(--font-*)`, `var(--tracking-*)`
+  - Spacing: `var(--space-*)`, border-radius: `var(--radius-*)`, shadows: `var(--shadow-*)`
+  - Transitions: `var(--duration-*)`, `var(--ease-*)`, z-index: `var(--z-*)`
+  - Layout: `var(--app-max-width)` (shared value to align TabBar and page content widths)
+- Apply a fadeIn animation to page containers
+- Define shared styles in `src/styles/shared.module.css` and apply them via `composes` in each page (e.g. `composes: pairedCancel from "../../styles/shared.module.css";`)
 
-## アイコン
+## Icons
 
-- **lucide-solid** を使用。`stroke-width={1.5}` を標準とする
-- サイズ: ダッシュボード ウィジェット 24px / タブバー・メニュー 20px
+- Use **lucide-solid**. Standard `stroke-width={1.5}`.
+- Size: 24px for dashboard widgets / 20px for tab bar and menus
 
-## アクションボタン・空状態
+## Action buttons & empty states
 
-- ヘッダーの `rightAction` は基本的に使わず、ページ内コンテナにアクションボタンを配置する
-- 空状態テキスト（「○○がありません」）は表示しない。追加/生成ボタンのみで統一
+- Avoid using the header `rightAction`; place action buttons inside the page container instead
+- Do not show empty-state text ("No items found" etc.). Use only an add/create button.
 
 ## i18n
 
-- `@solid-primitives/i18n` を使用
-- ロケールファイル: `src/locales/{ja,en}.ts`
-- キーは flatCase（例: `bulletinTitle`）
-- UI テキストは直書きせず必ず `t()` 経由で出力する
+- Use `@solid-primitives/i18n`
+- Locale files: `src/locales/{ja,en}.ts`
+- Keys use flatCase (e.g. `bulletinTitle`)
+- Never hardcode UI text — always render through `t()`
 
-## ディレクトリ構造
+## Directory structure
 
-- `src/api/<resource>.ts` — API fetch 関数はここに集約する。ページがフェッチロジックを直書きしない
-- `src/pages/<Page>/hooks/use<PageName>.ts` — ページ固有の複雑なロジックはページディレクトリ内の `hooks/` に切り出す。グローバルな `src/hooks/` は存在しない
-- `src/styles/shared.module.css` — ページレベルのコンテナは `composes: pageContainer` を使う（直接書かない）
+- `src/api/<resource>.ts` — centralize API fetch functions here; pages do not write fetch logic inline
+- `src/pages/<Page>/hooks/use<PageName>.ts` — extract complex page-specific logic into `hooks/` within the page directory; there is no global `src/hooks/`
+- `src/styles/shared.module.css` — page-level containers use `composes: pageContainer` (do not write it inline)
 
-## デザイン詳細
+## Design details
 
-UIデザインの詳細は @docs/ui-guidelines.md を参照すること。
+See @docs/ui-guidelines.md for UI design specifics.

@@ -1,52 +1,50 @@
 ---
 name: refactor
 description: >
-  プロジェクト全体または指定範囲のコードを分析し、品質・規約・パターンの問題を修正するスキル。
-  「コードを整理して」「クリーンアップして」「品質改善して」「重複を直して」「リファクタリングして」
-  など改善を求める場面では必ずこのスキルを使うこと。コードの品質向上・重複解消・規約違反の修正を
-  依頼されたときは迷わず起動すること。
+  Analyze and fix code quality, convention, and pattern issues across the project or a specified scope.
+  Use for requests like "clean up the code", "fix duplicates", "improve quality", or "refactor".
 allowed-tools: Bash Read Edit Write Glob Grep
 ---
 
-引数なしの場合は `src/`・`server/`・`worker/` 全体、引数ありの場合は指定されたディレクトリ/ファイルのみを対象とする。
+Target `src/`, `server/`, and `worker/` when called without arguments; target only the specified directory or file when an argument is provided.
 
-## 1. 対象の決定
+## 1. Determine scope
 
-- 引数なし → `src/`・`server/`・`worker/` 配下の全ファイルを分析
-- 引数あり → 指定されたパスのみ対象
+- No argument → analyze all files under `src/`, `server/`, `worker/`
+- Argument provided → target the specified path only
 
-## 2. レビューチェックリスト
+## 2. Review checklist
 
-各領域の規約は以下を参照:
+See the following rules for conventions:
 
 @.claude/rules/frontend.md
 @.claude/rules/api.md
 @.claude/rules/testing.md
 
-### 重複・デッドコード（refactor 固有の観点）
-- 共通ヘルパーに抽出すべき重複ロジックがないか
-- 使われていない関数・コンポーネント・エクスポートがないか
-- `src/` や `server/` に同じ役割の既存ユーティリティがないか
+### Duplication & dead code (refactor-specific)
+- Is there duplicated logic that should be extracted into a shared helper?
+- Are there unused functions, components, or exports?
+- Does `src/` or `server/` already have a utility that serves the same purpose?
 
 ### TypeScript
-- `any` 型は不可 — 適切な型または `unknown` + 型絞り込みを使用
-- 未使用の import・変数・パラメータを削除
-- strict mode との整合性
+- No `any` — use proper types or `unknown` with type narrowing
+- Remove unused imports, variables, and parameters
+- Ensure compatibility with strict mode
 
-## 3. 修正の適用
+## 3. Apply fixes
 
-問題を列挙するだけでなく、直接ファイルを編集して修正すること。
+Do not just list issues — edit the files directly to fix them.
 
-## 4. 検証
+## 4. Verify
 
-`/verify` スキルを実行して lint・ビルド・テストを一括確認する。
+Run the `/verify` skill to confirm lint, build, and tests all pass.
 
-## 5. 報告
+## 5. Report
 
-変更内容と理由をカテゴリ別にグループ化して報告する:
-- **重複・デッドコード**
-- **Solid.js パターン**
-- **Hono / Workers パターン**
+Group changes by category:
+- **Duplication & dead code**
+- **Solid.js patterns**
+- **Hono / Workers patterns**
 - **TypeScript**
 - **CSS Modules**
-- **テスト**
+- **Tests**
