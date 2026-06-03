@@ -36,7 +36,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm build` - TypeScriptビルド + Viteプロダクションビルド (`tsc -b && vite build`)
 - `pnpm serve` - ビルド済み出力を workerd でローカル起動 (`vite preview`)
 - `pnpm check` - Biomeによるlint/format チェック
-- `pnpm check:write` - Biomeによるlint/format 自動修正
+- `pnpm fix` - Biomeによるlint/format 自動修正
 - `pnpm test` - テスト実行 (Vitest、対象: `server/**/*.test.ts` のみ)
 - `pnpm test:watch` - テストをwatchモードで実行
 - `pnpm deploy` - Cloudflare Workersへデプロイ
@@ -115,8 +115,7 @@ UI・CSS・APIサーバー・テストの詳細規約は `.claude/rules/` のパ
 
 ### Hooks（自動実行）
 
-- **PostToolUse（Edit/Write後）**: `pnpm check:write` を自動実行。手動での Biome 修正は不要
-- **PreToolUse（Edit/Write前）**: `.dev.vars` への書き込みをブロック
+- **git pre-commit（lefthook）**: `pnpm biome check --write` をステージ済みファイルに自動実行。修正後に自動で再ステージ
 
 ## Key Conventions
 
