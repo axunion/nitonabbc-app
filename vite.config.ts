@@ -1,5 +1,5 @@
-import { cloudflare } from "@cloudflare/vite-plugin";
 import { fileURLToPath, URL } from "node:url";
+import { cloudflare } from "@cloudflare/vite-plugin";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import solid from "vite-plugin-solid";
