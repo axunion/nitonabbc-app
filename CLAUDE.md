@@ -66,14 +66,19 @@ UI・CSS・APIサーバー・テストの詳細規約は `.claude/rules/` のパ
 - `src/styles/` - グローバルスタイル (tokens.css, reset.css) + 共通CSS Modulesクラス (shared.module.css)
 - `server/routes/` - Hono APIルート（1ファイル1リソース）
 - `server/middleware/` - 共通ミドルウェア
+- `server/db/schema.ts` - Drizzle スキーマ定義（唯一の正）
+- `server/db/types.ts` - 週報セクション共有型（`SectionData`, `SectionTemplate` 等）
+- `server/db/index.ts` - `createDb()` と `Db` 型エクスポート
 - `server/types.ts` - `AppEnv`・`User`・`SessionData` などサーバー共通型
 - `worker/index.ts` - Workerエントリポイント（Hono app を re-export）
-- `db/schema.sql` - D1 テーブル定義
+- `drizzle/` - drizzle-kit 生成マイグレーション SQL（コミット管理）
 - `.dev.vars` - ローカル環境変数（git管理外）、`.dev.vars.example` を参照
 
-## Database (Cloudflare D1)
+## Database (Cloudflare D1 + Drizzle)
 
-- **スキーマ定義**: `db/schema.sql` が唯一の正（マイグレーションツールは未導入）
+- **スキーマ定義**: `server/db/schema.ts` が唯一の正。`drizzle-orm` で型安全にアクセス
+- **マイグレーション管理**: `drizzle-kit generate` → `drizzle/` に SQL 生成 → `wrangler d1 migrations apply` で適用
+- **DBアクセス**: ルート/ミドルウェアでは必ず `c.get("db")` を使用（`c.env.DB` を直接呼ばない）
 - **ローカルデータ**: `.wrangler/state/v3/` 内の SQLite ファイルに永続化される（`pnpm dev` 再起動後も維持）
 - **本番データ**: Cloudflare エッジ上の D1 インスタンス（ローカルとは完全に分離）
 
@@ -81,15 +86,15 @@ UI・CSS・APIサーバー・テストの詳細規約は `.claude/rules/` のパ
 
 `/db-migrate` スキルを使うと以下の手順をガイドしてくれる。
 
-1. `db/schema.sql` を編集
-2. ローカル DB をリセット: `rm -rf .wrangler/state/`（セキュリティポリシーによりユーザーが手動実行）
-3. `pnpm dev` で再起動（空の DB が自動作成される）
-4. 必要に応じてスキーマを適用: `wrangler d1 execute nitonabbc-db --file=db/schema.sql --local`
+1. `server/db/schema.ts` を編集
+2. マイグレーション生成: `node_modules/.bin/drizzle-kit generate`
+3. ローカル DB リセット（破壊的変更がある場合）: `rm -rf .wrangler/state/`（セキュリティポリシーによりユーザーが手動実行）
+4. `pnpm dev` で再起動
+5. ローカルに適用: `wrangler d1 migrations apply nitonabbc-db --local`
 
 ### 本番デプロイ時
 
-- **初回**: `wrangler d1 execute nitonabbc-db --file=db/schema.sql --remote` で全テーブルを作成
-- **運用開始後のスキーマ変更**: `CREATE TABLE IF NOT EXISTS` は既存テーブルに影響しないため、`ALTER TABLE` 等の差分 SQL を手動実行するか、マイグレーションツールを導入する
+- `wrangler d1 migrations apply nitonabbc-db --remote` でマイグレーションを適用
 
 ## Claude Code Automation
 

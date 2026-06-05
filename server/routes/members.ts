@@ -1,4 +1,6 @@
+import { asc, eq } from "drizzle-orm";
 import { Hono } from "hono";
+import { users } from "../db/schema.ts";
 import { authMiddleware } from "../middleware/auth.ts";
 import type { AppEnv } from "../types.ts";
 
@@ -8,9 +10,11 @@ membersRoute.use("/*", authMiddleware);
 
 // GET /api/members — list active members
 membersRoute.get("/", async (c) => {
-	const { results } = await c.env.DB.prepare(
-		"SELECT id, name FROM users WHERE is_active = 1 ORDER BY name",
-	).all<{ id: number; name: string }>();
-
-	return c.json(results);
+	const db = c.get("db");
+	const rows = await db
+		.select({ id: users.id, name: users.name })
+		.from(users)
+		.where(eq(users.isActive, true))
+		.orderBy(asc(users.name));
+	return c.json(rows);
 });

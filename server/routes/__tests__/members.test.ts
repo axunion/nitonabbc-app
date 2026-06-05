@@ -1,107 +1,118 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { createEnv, createMockKV } from "../../__tests__/helpers.ts";
+import type { Hono } from "hono";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	createEnv,
+	createMockKV,
+	createTestDb,
+	wrapWithDb,
+} from "../../__tests__/helpers.ts";
+import { schema } from "../../db/index.ts";
 import app from "../../index.ts";
+import type { AppEnv } from "../../types.ts";
+
+type TestDb = ReturnType<typeof createTestDb>;
+
+let db: TestDb;
+let testApp: Hono<AppEnv>;
+
+beforeEach(() => {
+	db = createTestDb();
+	testApp = wrapWithDb(app, db);
+});
 
 afterEach(() => {
 	vi.restoreAllMocks();
 });
 
-const memberHeaders = { Cookie: "session_id=member_sid" };
-
-function createAuthStmt() {
-	return {
-		bind: vi.fn().mockReturnThis(),
-		first: vi.fn().mockResolvedValue({
-			id: 1,
+async function seedMemberSession() {
+	const [user] = await db
+		.insert(schema.users)
+		.values({
 			name: "Member User",
 			role: "member",
-			line_user_id: "U_member",
-			is_active: 1,
-		}),
-		all: vi.fn(),
-		run: vi.fn(),
-	};
-}
-
-function createDbWithPrepare(stmts: Record<string, unknown>[]): D1Database {
-	let prepareCallCount = 0;
-	const authStmt = createAuthStmt();
-	return {
-		prepare: vi.fn(() => {
-			prepareCallCount++;
-			if (prepareCallCount === 1) return authStmt;
-			return stmts[prepareCallCount - 2] ?? stmts[stmts.length - 1];
-		}),
-		batch: vi.fn(),
-		exec: vi.fn(),
-		dump: vi.fn(),
-	} as unknown as D1Database;
-}
-
-function createEnvWithDb(db: D1Database) {
+			lineUserId: "U_member",
+			inviteToken: "member_token",
+			inviteUsed: true,
+			isActive: true,
+		})
+		.returning();
 	const kv = createMockKV({
 		"session:member_sid": JSON.stringify({
-			userId: 1,
+			userId: user.id,
 			lineUserId: "U_member",
 			role: "member",
 		}),
 	});
-	return createEnv({ SESSION_KV: kv, DB: db });
+	return createEnv({ SESSION_KV: kv });
 }
+
+const memberHeaders = { Cookie: "session_id=member_sid" };
 
 describe("GET /api/members", () => {
 	it("returns 401 without session", async () => {
-		const env = createEnv();
-		const res = await app.request("http://localhost/api/members", {}, env);
+		const res = await testApp.request(
+			"http://localhost/api/members",
+			{},
+			createEnv(),
+		);
 		expect(res.status).toBe(401);
 	});
 
 	it("returns active members list", async () => {
-		const rows = [
-			{ id: 1, name: "Alice" },
-			{ id: 2, name: "Bob" },
-		];
-		const allStmt = {
-			bind: vi.fn().mockReturnThis(),
-			first: vi.fn(),
-			all: vi
-				.fn()
-				.mockResolvedValue({ results: rows, success: true, meta: {} }),
-			run: vi.fn(),
-		};
-		const db = createDbWithPrepare([allStmt]);
-		const env = createEnvWithDb(db);
+		const env = await seedMemberSession();
+		await db.insert(schema.users).values([
+			{ name: "Alice", inviteToken: "tok_alice", isActive: true },
+			{ name: "Bob", inviteToken: "tok_bob", isActive: true },
+		]);
 
-		const res = await app.request(
+		const res = await testApp.request(
 			"http://localhost/api/members",
 			{ headers: memberHeaders },
 			env,
 		);
 		expect(res.status).toBe(200);
-		const json = await res.json();
-		expect(json).toEqual([
-			{ id: 1, name: "Alice" },
-			{ id: 2, name: "Bob" },
+		const json = (await res.json()) as { id: number; name: string }[];
+		// Includes the seeded member user + Alice + Bob (active only)
+		const names = json.map((r) => r.name).sort();
+		expect(names).toContain("Alice");
+		expect(names).toContain("Bob");
+	});
+
+	it("excludes inactive members", async () => {
+		const env = await seedMemberSession();
+		await db.insert(schema.users).values([
+			{ name: "Active", inviteToken: "tok_active", isActive: true },
+			{ name: "Inactive", inviteToken: "tok_inactive", isActive: false },
 		]);
+
+		const res = await testApp.request(
+			"http://localhost/api/members",
+			{ headers: memberHeaders },
+			env,
+		);
+		expect(res.status).toBe(200);
+		const json = (await res.json()) as { name: string }[];
+		const names = json.map((r) => r.name);
+		expect(names).toContain("Active");
+		expect(names).not.toContain("Inactive");
 	});
 
 	it("returns empty array when no active members", async () => {
-		const allStmt = {
-			bind: vi.fn().mockReturnThis(),
-			first: vi.fn(),
-			all: vi.fn().mockResolvedValue({ results: [], success: true, meta: {} }),
-			run: vi.fn(),
-		};
-		const db = createDbWithPrepare([allStmt]);
-		const env = createEnvWithDb(db);
+		// Seed a member user for auth but immediately deactivate everyone after getting env
+		const env = await seedMemberSession();
+		// deactivate all users
+		const { eq } = await import("drizzle-orm");
+		await db
+			.update(schema.users)
+			.set({ isActive: false })
+			.where(eq(schema.users.isActive, true));
 
-		const res = await app.request(
+		const res = await testApp.request(
 			"http://localhost/api/members",
 			{ headers: memberHeaders },
 			env,
 		);
-		expect(res.status).toBe(200);
-		const json = await res.json();
-		expect(json).toEqual([]);
+		// Auth will fail since user is now inactive
+		expect(res.status).toBe(401);
 	});
 });

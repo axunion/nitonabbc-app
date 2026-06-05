@@ -1,3 +1,5 @@
+import type { Db } from "./db/index.ts";
+
 export type UserRole = "admin" | "member";
 
 export type User = {
@@ -24,5 +26,6 @@ export type AppEnv = {
 	};
 	Variables: {
 		user: User;
+		db: Db;
 	};
 };

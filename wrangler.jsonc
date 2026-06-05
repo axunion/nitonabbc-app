@@ -11,7 +11,8 @@
 		{
 			"binding": "DB",
 			"database_name": "nitonabbc-db",
-			"database_id": "YOUR_D1_DATABASE_ID"
+			"database_id": "YOUR_D1_DATABASE_ID",
+			"migrations_dir": "drizzle"
 		}
 	],
 	"kv_namespaces": [

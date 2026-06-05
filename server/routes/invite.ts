@@ -1,32 +1,27 @@
+import { eq } from "drizzle-orm";
 import { Hono } from "hono";
+import { users } from "../db/schema.ts";
 import type { AppEnv } from "../types.ts";
 
 export const inviteRoute = new Hono<AppEnv>();
 
 inviteRoute.get("/:token", async (c) => {
+	const db = c.get("db");
 	const token = c.req.param("token");
 
-	const row = await c.env.DB.prepare(
-		"SELECT id, name, invite_used, line_user_id, is_active FROM users WHERE invite_token = ?",
-	)
-		.bind(token)
-		.first<{
-			id: number;
-			name: string;
-			invite_used: number;
-			line_user_id: string | null;
-			is_active: number;
-		}>();
+	const row = await db.query.users.findFirst({
+		where: eq(users.inviteToken, token),
+	});
 
-	if (!row || !row.is_active) {
+	if (!row?.isActive) {
 		return c.json({ error: "Invalid invite token" }, 404);
 	}
 
-	if (row.invite_used) {
+	if (row.inviteUsed) {
 		return c.json({ error: "Invite already used" }, 400);
 	}
 
-	if (row.line_user_id) {
+	if (row.lineUserId) {
 		return c.json({ error: "LINE account already linked" }, 400);
 	}
 

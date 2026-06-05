@@ -1,4 +1,7 @@
+import { eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
+import type { SectionTemplate } from "../db/index.ts";
+import { settings } from "../db/schema.ts";
 import { adminMiddleware } from "../middleware/admin.ts";
 import { authMiddleware } from "../middleware/auth.ts";
 import type { AppEnv } from "../types.ts";
@@ -15,101 +18,6 @@ type TemplateItem = {
 	inputType?: string;
 	fields?: TemplateField[];
 };
-
-type SectionTemplate =
-	| {
-			id: string;
-			type: "worship-program";
-			label: string;
-			visible?: boolean;
-			config: { items: TemplateItem[] };
-	  }
-	| {
-			id: string;
-			type: "announcements";
-			label: string;
-			visible?: boolean;
-			config: { subHeadings?: string[] };
-	  }
-	| {
-			id: string;
-			type: "assignments";
-			label: string;
-			visible?: boolean;
-			config: { roles: string[] };
-	  }
-	| {
-			id: string;
-			type: "weekly-verse";
-			label: string;
-			visible?: boolean;
-			config: Record<never, never>;
-	  }
-	| {
-			id: string;
-			type: "monthly-song";
-			label: string;
-			visible?: boolean;
-			config: Record<never, never>;
-	  }
-	| {
-			id: string;
-			type: "text-block";
-			label: string;
-			visible?: boolean;
-			config: Record<never, never>;
-	  }
-	| {
-			id: string;
-			type: "weekly-prayer";
-			label: string;
-			visible?: boolean;
-			config: Record<never, never>;
-	  }
-	| {
-			id: string;
-			type: "upcoming-events";
-			label: string;
-			visible?: boolean;
-			config: Record<never, never>;
-	  }
-	| {
-			id: string;
-			type: "birthdays";
-			label: string;
-			visible?: boolean;
-			config: Record<never, never>;
-	  }
-	| {
-			id: string;
-			type: "scripture-quotes";
-			label: string;
-			visible?: boolean;
-			config: Record<never, never>;
-	  }
-	| {
-			id: string;
-			type: "attendance";
-			label: string;
-			visible?: boolean;
-			config: { meetings: { key: string; label: string }[] };
-	  }
-	| {
-			id: string;
-			type: "service-meta";
-			label: string;
-			visible?: boolean;
-			config: {
-				fieldDefs: { key: string; label: string; inputType: string }[];
-			};
-	  }
-	| {
-			id: string;
-			type: "financial-summary";
-			label: string;
-			visible?: boolean;
-			config: { items: { key: string; label: string; unit?: string }[] };
-	  };
 
 const VALID_INPUT_TYPES = ["text", "number", "member", "scripture", "none"];
 const VALID_SECTION_TYPES = [
@@ -157,12 +65,6 @@ const DEFAULT_TEMPLATE: SectionTemplate[] = [
 		config: { items: DEFAULT_WORSHIP_ITEMS },
 	},
 ];
-
-type SettingsRow = {
-	key: string;
-	value: string;
-	updated_at: string;
-};
 
 function isValidField(field: unknown): field is TemplateField {
 	if (typeof field !== "object" || field === null) return false;
@@ -230,34 +132,6 @@ function isValidEmptyConfig(config: unknown): boolean {
 	);
 }
 
-function isValidSection(section: unknown): section is SectionTemplate {
-	if (typeof section !== "object" || section === null) return false;
-	const s = section as Record<string, unknown>;
-	if (typeof s.id !== "string" || s.id.length === 0) return false;
-	if (typeof s.type !== "string" || !VALID_SECTION_TYPES.includes(s.type))
-		return false;
-	if (typeof s.label !== "string" || s.label.length === 0) return false;
-	if (s.visible !== undefined && typeof s.visible !== "boolean") return false;
-	if (s.type === "worship-program") return isValidWorshipConfig(s.config);
-	if (s.type === "announcements") return isValidAnnouncementsConfig(s.config);
-	if (s.type === "assignments") return isValidAssignmentsConfig(s.config);
-	if (
-		s.type === "weekly-verse" ||
-		s.type === "monthly-song" ||
-		s.type === "text-block" ||
-		s.type === "weekly-prayer" ||
-		s.type === "upcoming-events" ||
-		s.type === "birthdays" ||
-		s.type === "scripture-quotes"
-	)
-		return isValidEmptyConfig(s.config);
-	if (s.type === "attendance") return isValidAttendanceConfig(s.config);
-	if (s.type === "service-meta") return isValidServiceMetaConfig(s.config);
-	if (s.type === "financial-summary")
-		return isValidFinancialSummaryConfig(s.config);
-	return false;
-}
-
 function isValidAttendanceConfig(config: unknown): boolean {
 	if (typeof config !== "object" || config === null) return false;
 	const c = config as Record<string, unknown>;
@@ -303,6 +177,34 @@ function isValidFinancialSummaryConfig(config: unknown): boolean {
 			typeof (item as Record<string, unknown>).label === "string" &&
 			(item as Record<string, unknown>).label !== "",
 	);
+}
+
+function isValidSection(section: unknown): section is SectionTemplate {
+	if (typeof section !== "object" || section === null) return false;
+	const s = section as Record<string, unknown>;
+	if (typeof s.id !== "string" || s.id.length === 0) return false;
+	if (typeof s.type !== "string" || !VALID_SECTION_TYPES.includes(s.type))
+		return false;
+	if (typeof s.label !== "string" || s.label.length === 0) return false;
+	if (s.visible !== undefined && typeof s.visible !== "boolean") return false;
+	if (s.type === "worship-program") return isValidWorshipConfig(s.config);
+	if (s.type === "announcements") return isValidAnnouncementsConfig(s.config);
+	if (s.type === "assignments") return isValidAssignmentsConfig(s.config);
+	if (
+		s.type === "weekly-verse" ||
+		s.type === "monthly-song" ||
+		s.type === "text-block" ||
+		s.type === "weekly-prayer" ||
+		s.type === "upcoming-events" ||
+		s.type === "birthdays" ||
+		s.type === "scripture-quotes"
+	)
+		return isValidEmptyConfig(s.config);
+	if (s.type === "attendance") return isValidAttendanceConfig(s.config);
+	if (s.type === "service-meta") return isValidServiceMetaConfig(s.config);
+	if (s.type === "financial-summary")
+		return isValidFinancialSummaryConfig(s.config);
+	return false;
 }
 
 function isValidTemplate(body: unknown): body is SectionTemplate[] {
@@ -351,53 +253,25 @@ function sanitizeTemplate(sections: SectionTemplate[]): SectionTemplate[] {
 			};
 		}
 		if (s.type === "weekly-verse") {
-			return {
-				...base,
-				type: "weekly-verse" as const,
-				config: {},
-			};
+			return { ...base, type: "weekly-verse" as const, config: {} };
 		}
 		if (s.type === "monthly-song") {
-			return {
-				...base,
-				type: "monthly-song" as const,
-				config: {},
-			};
+			return { ...base, type: "monthly-song" as const, config: {} };
 		}
 		if (s.type === "text-block") {
-			return {
-				...base,
-				type: "text-block" as const,
-				config: {},
-			};
+			return { ...base, type: "text-block" as const, config: {} };
 		}
 		if (s.type === "weekly-prayer") {
-			return {
-				...base,
-				type: "weekly-prayer" as const,
-				config: {},
-			};
+			return { ...base, type: "weekly-prayer" as const, config: {} };
 		}
 		if (s.type === "upcoming-events") {
-			return {
-				...base,
-				type: "upcoming-events" as const,
-				config: {},
-			};
+			return { ...base, type: "upcoming-events" as const, config: {} };
 		}
 		if (s.type === "birthdays") {
-			return {
-				...base,
-				type: "birthdays" as const,
-				config: {},
-			};
+			return { ...base, type: "birthdays" as const, config: {} };
 		}
 		if (s.type === "scripture-quotes") {
-			return {
-				...base,
-				type: "scripture-quotes" as const,
-				config: {},
-			};
+			return { ...base, type: "scripture-quotes" as const, config: {} };
 		}
 		if (s.type === "attendance") {
 			return {
@@ -445,7 +319,7 @@ function sanitizeTemplate(sections: SectionTemplate[]): SectionTemplate[] {
 	});
 }
 
-// Migrate an old TemplateItem[] value into a SectionTemplate[] wrapping it as worship-program
+// Migrate old TemplateItem[] (worship_template) into SectionTemplate[] format
 function migrateOldTemplate(oldValue: string): SectionTemplate[] {
 	try {
 		const items = JSON.parse(oldValue) as TemplateItem[];
@@ -468,41 +342,44 @@ export const bulletinTemplateRoute = new Hono<AppEnv>();
 
 // GET — any authenticated user can read the template
 bulletinTemplateRoute.get("/", authMiddleware, async (c) => {
-	try {
-		const { results } = await c.env.DB.prepare(
-			"SELECT key, value FROM settings WHERE key IN (?, ?)",
-		)
-			.bind("bulletin_template", "worship_template")
-			.all<SettingsRow>();
-
-		const row = results.find((r) => r.key === "bulletin_template");
-		if (row) {
-			return c.json(JSON.parse(row.value));
-		}
-
-		const oldRow = results.find((r) => r.key === "worship_template");
-
-		if (oldRow) {
-			const migrated = migrateOldTemplate(oldRow.value);
-			await c.env.DB.prepare(
-				"INSERT INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now')) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
-			)
-				.bind("bulletin_template", JSON.stringify(migrated))
-				.run();
-			await c.env.DB.prepare("DELETE FROM settings WHERE key = ?")
-				.bind("worship_template")
-				.run();
-			return c.json(migrated);
-		}
-
-		return c.json(DEFAULT_TEMPLATE);
-	} catch {
-		return c.json(DEFAULT_TEMPLATE);
+	const db = c.get("db");
+	const row = await db.query.settings.findFirst({
+		where: eq(settings.key, "bulletin_template"),
+	});
+	if (row) {
+		return c.json(JSON.parse(row.value));
 	}
+
+	// Migrate legacy worship_template key if bulletin_template is missing
+	const legacyRow = await db.query.settings.findFirst({
+		where: eq(settings.key, "worship_template"),
+	});
+	if (legacyRow) {
+		const migrated = migrateOldTemplate(legacyRow.value);
+		await db
+			.insert(settings)
+			.values({
+				key: "bulletin_template",
+				value: JSON.stringify(migrated),
+				updatedAt: sql`(datetime('now'))`,
+			})
+			.onConflictDoUpdate({
+				target: settings.key,
+				set: {
+					value: JSON.stringify(migrated),
+					updatedAt: sql`(datetime('now'))`,
+				},
+			});
+		await db.delete(settings).where(eq(settings.key, "worship_template"));
+		return c.json(migrated);
+	}
+
+	return c.json(DEFAULT_TEMPLATE);
 });
 
 // PUT — admin only
 bulletinTemplateRoute.put("/", authMiddleware, adminMiddleware, async (c) => {
+	const db = c.get("db");
 	const body = await c.req.json();
 
 	if (!isValidTemplate(body)) {
@@ -517,22 +394,20 @@ bulletinTemplateRoute.put("/", authMiddleware, adminMiddleware, async (c) => {
 
 	const sections = sanitizeTemplate(body);
 
-	try {
-		await c.env.DB.prepare(
-			"INSERT INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now')) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
-		)
-			.bind("bulletin_template", JSON.stringify(sections))
-			.run();
-	} catch {
-		await c.env.DB.exec(
-			"CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL DEFAULT (datetime('now')))",
-		);
-		await c.env.DB.prepare(
-			"INSERT INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now')) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
-		)
-			.bind("bulletin_template", JSON.stringify(sections))
-			.run();
-	}
+	await db
+		.insert(settings)
+		.values({
+			key: "bulletin_template",
+			value: JSON.stringify(sections),
+			updatedAt: sql`(datetime('now'))`,
+		})
+		.onConflictDoUpdate({
+			target: settings.key,
+			set: {
+				value: JSON.stringify(sections),
+				updatedAt: sql`(datetime('now'))`,
+			},
+		});
 
 	return c.json({ ok: true });
 });

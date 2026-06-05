@@ -2,7 +2,7 @@
 paths:
   - "server/**"
   - "worker/**"
-  - "db/**"
+  - "drizzle/**"
 ---
 
 # API Rules
@@ -15,6 +15,23 @@ paths:
 - Type definitions: manage `Bindings` and `Variables` centrally in `server/types.ts` as `AppEnv`
 - Worker entry: re-export Hono app from `worker/index.ts`
 - Type checking: `tsconfig.server.json` (uses `@cloudflare/workers-types`)
+
+## DB access
+
+- **All DB access goes through `c.get("db")`** — a drizzle instance injected by `dbMiddleware`
+- Schema tables: `import { users, bulletins, settings } from "../db/schema.ts"`
+- Query helpers: `import { eq, sql, asc, desc } from "drizzle-orm"`
+- Never access `c.env.DB` directly in route handlers or middleware
+- `dbMiddleware` is idempotent: if `db` is already set (e.g. by a test wrapper), it skips re-initialisation
+
+## Schema management
+
+- Schema definition: `server/db/schema.ts` is the single source of truth
+- Shared bulletin types: `server/db/types.ts` (`SectionData`, `SectionTemplate`, `WorshipItemData`, etc.)
+- Generate migration: `node_modules/.bin/drizzle-kit generate`
+- Migration output: `drizzle/` directory (committed; applied by wrangler)
+- Apply local: `wrangler d1 migrations apply nitonabbc-db --local`
+- Apply remote: `wrangler d1 migrations apply nitonabbc-db --remote`
 
 ## Response conventions
 
@@ -32,11 +49,12 @@ paths:
 
 ## Testing
 
-See `.claude/rules/testing.md` for test targets, structure, and mock utilities. `pnpm test` targets `server/**/*.test.ts` only. Create the test file before implementing a new route (TDD).
+See `.claude/rules/testing.md` for test targets, structure, and utilities.
+`node_modules/.bin/vitest run` targets `server/**/*.test.ts` only.
+Create the test file before implementing a new route (TDD).
 
-## D1 schema management
+## FK constraints
 
-See the Database section in CLAUDE.md for schema change and production deploy procedures.
-
-- Foreign key constraints exist (e.g. `bulletins.created_by` → `users.id`). Ensure referenced records exist before INSERT.
-- In DEV_AUTH mode, `getOrCreateDevUser()` in `auth.ts` automatically creates a dev user, satisfying foreign key constraints.
+Foreign key constraints exist (`bulletins.created_by` → `users.id`).
+In DEV_AUTH mode, `getOrCreateDevUser()` in `middleware/auth.ts` automatically
+creates a dev user, satisfying FK constraints.

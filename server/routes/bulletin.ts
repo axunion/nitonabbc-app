@@ -1,214 +1,16 @@
+import { desc, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
+import { bulletins, settings } from "../db/schema.ts";
+import type {
+	SectionData,
+	SectionTemplate,
+	TemplateItem,
+	WorshipItemData,
+} from "../db/types.ts";
 import { authMiddleware } from "../middleware/auth.ts";
 import type { AppEnv } from "../types.ts";
 
-type BulletinRow = {
-	id: number;
-	service_date: string;
-	sections: string;
-	created_by: number;
-	updated_by: number;
-	created_at: string;
-	updated_at: string;
-};
-
-type WorshipItemData = {
-	type: string;
-	label: string;
-	details?: string;
-	fieldValues?: Record<string, string>;
-	assigneeId?: number | null;
-};
-
-type TemplateItemData = {
-	type: string;
-	label: string;
-	inputType?: string;
-	fields?: { key: string; label: string; inputType: string }[];
-};
-
-type SectionTemplateData =
-	| {
-			id: string;
-			type: "worship-program";
-			label: string;
-			visible?: boolean;
-			config: { items: TemplateItemData[] };
-	  }
-	| {
-			id: string;
-			type: "announcements";
-			label: string;
-			visible?: boolean;
-			config: { subHeadings?: string[] };
-	  }
-	| {
-			id: string;
-			type: "assignments";
-			label: string;
-			visible?: boolean;
-			config: { roles: string[] };
-	  }
-	| {
-			id: string;
-			type: "weekly-verse";
-			label: string;
-			visible?: boolean;
-			config: Record<string, never>;
-	  }
-	| {
-			id: string;
-			type: "monthly-song";
-			label: string;
-			visible?: boolean;
-			config: Record<string, never>;
-	  }
-	| {
-			id: string;
-			type: "text-block";
-			label: string;
-			visible?: boolean;
-			config: Record<string, never>;
-	  }
-	| {
-			id: string;
-			type: "weekly-prayer";
-			label: string;
-			visible?: boolean;
-			config: Record<string, never>;
-	  }
-	| {
-			id: string;
-			type: "upcoming-events";
-			label: string;
-			visible?: boolean;
-			config: Record<string, never>;
-	  }
-	| {
-			id: string;
-			type: "birthdays";
-			label: string;
-			visible?: boolean;
-			config: Record<string, never>;
-	  }
-	| {
-			id: string;
-			type: "scripture-quotes";
-			label: string;
-			visible?: boolean;
-			config: Record<string, never>;
-	  }
-	| {
-			id: string;
-			type: "attendance";
-			label: string;
-			visible?: boolean;
-			config: { meetings: { key: string; label: string }[] };
-	  }
-	| {
-			id: string;
-			type: "service-meta";
-			label: string;
-			visible?: boolean;
-			config: {
-				fieldDefs: { key: string; label: string; inputType: string }[];
-			};
-	  }
-	| {
-			id: string;
-			type: "financial-summary";
-			label: string;
-			visible?: boolean;
-			config: { items: { key: string; label: string; unit?: string }[] };
-	  };
-
-type SectionData =
-	| {
-			id: string;
-			type: "worship-program";
-			label: string;
-			data: WorshipItemData[];
-	  }
-	| {
-			id: string;
-			type: "announcements";
-			label: string;
-			data: { heading?: string; content: string }[];
-	  }
-	| {
-			id: string;
-			type: "assignments";
-			label: string;
-			data: Record<string, string>;
-	  }
-	| {
-			id: string;
-			type: "weekly-verse";
-			label: string;
-			data: { reference: string; text: string };
-	  }
-	| {
-			id: string;
-			type: "monthly-song";
-			label: string;
-			data: { title: string; keywords: string[] };
-	  }
-	| {
-			id: string;
-			type: "text-block";
-			label: string;
-			data: { heading: string; body: string };
-	  }
-	| {
-			id: string;
-			type: "weekly-prayer";
-			label: string;
-			data: Record<string, string>;
-	  }
-	| {
-			id: string;
-			type: "upcoming-events";
-			label: string;
-			data: { date: string; description: string }[];
-	  }
-	| {
-			id: string;
-			type: "birthdays";
-			label: string;
-			data: { day: string; name: string }[];
-	  }
-	| {
-			id: string;
-			type: "scripture-quotes";
-			label: string;
-			data: { reference: string; text: string }[];
-	  }
-	| {
-			id: string;
-			type: "attendance";
-			label: string;
-			data: Record<
-				string,
-				{ adults: string; children?: string; note?: string }
-			>;
-	  }
-	| {
-			id: string;
-			type: "service-meta";
-			label: string;
-			data: { fieldValues: Record<string, string> };
-	  }
-	| {
-			id: string;
-			type: "financial-summary";
-			label: string;
-			data: Record<string, { amount: string; note?: string }>;
-	  };
-
-function countWorshipProgress(
-	data: WorshipItemData[],
-	items: TemplateItemData[],
-) {
+function countWorshipProgress(data: WorshipItemData[], items: TemplateItem[]) {
 	let total = 0;
 	let filled = 0;
 	for (const item of data) {
@@ -229,10 +31,7 @@ function countWorshipProgress(
 	return { total, filled };
 }
 
-function countProgress(
-	sections: SectionData[],
-	template: SectionTemplateData[],
-) {
+function countProgress(sections: SectionData[], template: SectionTemplate[]) {
 	let totalItems = 0;
 	let filledItems = 0;
 
@@ -264,45 +63,41 @@ function countProgress(
 			for (const day of days) {
 				if (section.data[day]?.trim()) filledItems++;
 			}
-		} else if (section.type === "upcoming-events") {
-			totalItems += 0;
-		} else if (section.type === "birthdays") {
-			totalItems += 0;
-		} else if (section.type === "scripture-quotes") {
-			totalItems += 0;
-		} else if (section.type === "attendance") {
-			totalItems += 0;
 		} else if (section.type === "service-meta") {
 			const defs = tmpl?.type === "service-meta" ? tmpl.config.fieldDefs : [];
 			totalItems += defs.length;
 			for (const def of defs) {
 				if (section.data.fieldValues[def.key]?.trim()) filledItems++;
 			}
-		} else if (section.type === "financial-summary") {
-			totalItems += 0;
 		}
+		// upcoming-events, birthdays, scripture-quotes, attendance, financial-summary: no required items
 	}
 
 	return { totalItems, filledItems };
 }
 
-function toBulletinDetail(row: BulletinRow, template: SectionTemplateData[]) {
-	const sections = JSON.parse(row.sections) as SectionData[];
-	const { totalItems, filledItems } = countProgress(sections, template);
+function toBulletinDetail(
+	row: typeof bulletins.$inferSelect,
+	template: SectionTemplate[],
+) {
+	const { totalItems, filledItems } = countProgress(row.sections, template);
 	return {
 		id: row.id,
-		serviceDate: row.service_date,
-		createdBy: row.created_by,
-		updatedBy: row.updated_by,
-		createdAt: row.created_at,
-		updatedAt: row.updated_at,
+		serviceDate: row.serviceDate,
+		createdBy: row.createdBy,
+		updatedBy: row.updatedBy,
+		createdAt: row.createdAt,
+		updatedAt: row.updatedAt,
 		totalItems,
 		filledItems,
-		sections,
+		sections: row.sections,
 	};
 }
 
-function toBulletinSummary(row: BulletinRow, template: SectionTemplateData[]) {
+function toBulletinSummary(
+	row: typeof bulletins.$inferSelect,
+	template: SectionTemplate[],
+) {
 	const { sections: _s, ...summary } = toBulletinDetail(row, template);
 	return summary;
 }
@@ -319,27 +114,22 @@ function getNextSunday(): string {
 	return nextSunday.toISOString().slice(0, 10);
 }
 
-async function getTemplate(db: D1Database): Promise<SectionTemplateData[]> {
-	try {
-		const row = await db
-			.prepare("SELECT value FROM settings WHERE key = ?")
-			.bind("bulletin_template")
-			.first<{ value: string }>();
-		if (row) return JSON.parse(row.value);
-	} catch {
-		// Table may not exist — return default
-	}
-	return [];
+async function getTemplate(
+	db: AppEnv["Variables"]["db"],
+): Promise<SectionTemplate[]> {
+	const row = await db.query.settings.findFirst({
+		where: eq(settings.key, "bulletin_template"),
+	});
+	if (!row) return [];
+	return JSON.parse(row.value) as SectionTemplate[];
 }
 
-function buildSectionsFromTemplate(
-	template: SectionTemplateData[],
-): SectionData[] {
+function buildSectionsFromTemplate(template: SectionTemplate[]): SectionData[] {
 	return template
 		.filter((s) => s.visible !== false)
 		.map((s): SectionData => {
 			if (s.type === "worship-program") {
-				const data: WorshipItemData[] = s.config.items.map((t) => {
+				const data = s.config.items.map((t) => {
 					const item: WorshipItemData = { type: t.type, label: t.label };
 					if (t.fields && t.fields.length > 0) {
 						item.fieldValues = {};
@@ -395,12 +185,7 @@ function buildSectionsFromTemplate(
 				};
 			}
 			if (s.type === "birthdays") {
-				return {
-					id: s.id,
-					type: "birthdays",
-					label: s.label,
-					data: [],
-				};
+				return { id: s.id, type: "birthdays", label: s.label, data: [] };
 			}
 			if (s.type === "scripture-quotes") {
 				return {
@@ -434,7 +219,12 @@ function buildSectionsFromTemplate(
 				for (const item of s.config.items) {
 					data[item.key] = { amount: "" };
 				}
-				return { id: s.id, type: "financial-summary", label: s.label, data };
+				return {
+					id: s.id,
+					type: "financial-summary",
+					label: s.label,
+					data,
+				};
 			}
 			return { id: s.id, type: "assignments", label: s.label, data: {} };
 		});
@@ -446,23 +236,23 @@ bulletinRoute.use("/*", authMiddleware);
 
 // GET /api/bulletin — list all bulletins + next Sunday date
 bulletinRoute.get("/", async (c) => {
-	const [template, { results }] = await Promise.all([
-		getTemplate(c.env.DB),
-		c.env.DB.prepare(
-			"SELECT id, service_date, sections, created_by, updated_by, created_at, updated_at FROM bulletins ORDER BY service_date DESC",
-		).all<BulletinRow>(),
+	const db = c.get("db");
+	const [template, rows] = await Promise.all([
+		getTemplate(db),
+		db.select().from(bulletins).orderBy(desc(bulletins.serviceDate)),
 	]);
 
 	return c.json({
-		bulletins: results.map((r) => toBulletinSummary(r, template)),
+		bulletins: rows.map((r) => toBulletinSummary(r, template)),
 		nextSunday: getNextSunday(),
 	});
 });
 
 // POST /api/bulletin/generate — auto-generate bulletin for next Sunday from template
 bulletinRoute.post("/generate", async (c) => {
+	const db = c.get("db");
 	const user = c.get("user");
-	const template = await getTemplate(c.env.DB);
+	const template = await getTemplate(db);
 
 	const body = await c.req
 		.json<{ serviceDate?: string }>()
@@ -475,25 +265,18 @@ bulletinRoute.post("/generate", async (c) => {
 		serviceDate = getNextSunday();
 	}
 
-	// TODO: copy-forward repeated sections from most recent bulletin (future phase)
 	const sections = buildSectionsFromTemplate(template);
 
 	try {
-		const result = await c.env.DB.prepare(
-			"INSERT INTO bulletins (service_date, sections, created_by, updated_by) VALUES (?, ?, ?, ?)",
-		)
-			.bind(serviceDate, JSON.stringify(sections), user.id, user.id)
-			.run();
-
-		const newRow = await c.env.DB.prepare(
-			"SELECT id, service_date, sections, created_by, updated_by, created_at, updated_at FROM bulletins WHERE id = ?",
-		)
-			.bind(result.meta.last_row_id)
-			.first<BulletinRow>();
-
-		if (!newRow) {
-			return c.json({ error: "Failed to retrieve created bulletin" }, 500);
-		}
+		const [newRow] = await db
+			.insert(bulletins)
+			.values({
+				serviceDate,
+				sections,
+				createdBy: user.id,
+				updatedBy: user.id,
+			})
+			.returning();
 
 		return c.json(toBulletinDetail(newRow, template), 201);
 	} catch (e) {
@@ -506,14 +289,14 @@ bulletinRoute.post("/generate", async (c) => {
 
 // GET /api/bulletin/:id — get single bulletin
 bulletinRoute.get("/:id", async (c) => {
+	const db = c.get("db");
 	const id = Number(c.req.param("id"));
+	if (!Number.isInteger(id) || id <= 0) {
+		return c.json({ error: "Invalid id" }, 400);
+	}
 	const [template, row] = await Promise.all([
-		getTemplate(c.env.DB),
-		c.env.DB.prepare(
-			"SELECT id, service_date, sections, created_by, updated_by, created_at, updated_at FROM bulletins WHERE id = ?",
-		)
-			.bind(id)
-			.first<BulletinRow>(),
+		getTemplate(db),
+		db.query.bulletins.findFirst({ where: eq(bulletins.id, id) }),
 	]);
 
 	if (!row) {
@@ -525,6 +308,7 @@ bulletinRoute.get("/:id", async (c) => {
 
 // POST /api/bulletin — create a new bulletin
 bulletinRoute.post("/", async (c) => {
+	const db = c.get("db");
 	const user = c.get("user");
 	const body = await c.req.json<{
 		serviceDate?: string;
@@ -535,28 +319,22 @@ bulletinRoute.post("/", async (c) => {
 		return c.json({ error: "serviceDate is required (YYYY-MM-DD)" }, 400);
 	}
 
-	const template = await getTemplate(c.env.DB);
+	const template = await getTemplate(db);
 	const sections: SectionData[] =
 		Array.isArray(body.sections) && body.sections.length > 0
 			? (body.sections as SectionData[])
 			: buildSectionsFromTemplate(template);
 
 	try {
-		const result = await c.env.DB.prepare(
-			"INSERT INTO bulletins (service_date, sections, created_by, updated_by) VALUES (?, ?, ?, ?)",
-		)
-			.bind(body.serviceDate, JSON.stringify(sections), user.id, user.id)
-			.run();
-
-		const newRow = await c.env.DB.prepare(
-			"SELECT id, service_date, sections, created_by, updated_by, created_at, updated_at FROM bulletins WHERE id = ?",
-		)
-			.bind(result.meta.last_row_id)
-			.first<BulletinRow>();
-
-		if (!newRow) {
-			return c.json({ error: "Failed to retrieve created bulletin" }, 500);
-		}
+		const [newRow] = await db
+			.insert(bulletins)
+			.values({
+				serviceDate: body.serviceDate,
+				sections,
+				createdBy: user.id,
+				updatedBy: user.id,
+			})
+			.returning();
 
 		return c.json(toBulletinDetail(newRow, template), 201);
 	} catch (e) {
@@ -569,19 +347,20 @@ bulletinRoute.post("/", async (c) => {
 
 // PUT /api/bulletin/:id — update a bulletin
 bulletinRoute.put("/:id", async (c) => {
+	const db = c.get("db");
 	const id = Number(c.req.param("id"));
+	if (!Number.isInteger(id) || id <= 0) {
+		return c.json({ error: "Invalid id" }, 400);
+	}
 	const user = c.get("user");
 	const body = await c.req.json<{
 		serviceDate?: string;
 		sections?: unknown[];
 	}>();
 
-	const existing = await c.env.DB.prepare(
-		"SELECT id FROM bulletins WHERE id = ?",
-	)
-		.bind(id)
-		.first();
-
+	const existing = await db.query.bulletins.findFirst({
+		where: eq(bulletins.id, id),
+	});
 	if (!existing) {
 		return c.json({ error: "Bulletin not found" }, 404);
 	}
@@ -590,37 +369,23 @@ bulletinRoute.put("/:id", async (c) => {
 		return c.json({ error: "serviceDate must be YYYY-MM-DD" }, 400);
 	}
 
-	const updates: string[] = [];
-	const values: unknown[] = [];
-
-	if (body.serviceDate !== undefined) {
-		updates.push("service_date = ?");
-		values.push(body.serviceDate);
-	}
-	if (body.sections !== undefined) {
-		updates.push("sections = ?");
-		values.push(JSON.stringify(body.sections));
-	}
-
-	if (updates.length > 0) {
-		updates.push("updated_by = ?");
-		values.push(user.id);
-		updates.push("updated_at = datetime('now')");
-		values.push(id);
-		await c.env.DB.prepare(
-			`UPDATE bulletins SET ${updates.join(", ")} WHERE id = ?`,
-		)
-			.bind(...values)
-			.run();
-	}
+	await db
+		.update(bulletins)
+		.set({
+			...(body.serviceDate !== undefined
+				? { serviceDate: body.serviceDate }
+				: {}),
+			...(body.sections !== undefined
+				? { sections: body.sections as SectionData[] }
+				: {}),
+			updatedBy: user.id,
+			updatedAt: sql`(datetime('now'))`,
+		})
+		.where(eq(bulletins.id, id));
 
 	const [template, updated] = await Promise.all([
-		getTemplate(c.env.DB),
-		c.env.DB.prepare(
-			"SELECT id, service_date, sections, created_by, updated_by, created_at, updated_at FROM bulletins WHERE id = ?",
-		)
-			.bind(id)
-			.first<BulletinRow>(),
+		getTemplate(db),
+		db.query.bulletins.findFirst({ where: eq(bulletins.id, id) }),
 	]);
 
 	if (!updated) {
@@ -632,19 +397,20 @@ bulletinRoute.put("/:id", async (c) => {
 
 // DELETE /api/bulletin/:id — delete a bulletin
 bulletinRoute.delete("/:id", async (c) => {
+	const db = c.get("db");
 	const id = Number(c.req.param("id"));
+	if (!Number.isInteger(id) || id <= 0) {
+		return c.json({ error: "Invalid id" }, 400);
+	}
 
-	const existing = await c.env.DB.prepare(
-		"SELECT id FROM bulletins WHERE id = ?",
-	)
-		.bind(id)
-		.first();
-
+	const existing = await db.query.bulletins.findFirst({
+		where: eq(bulletins.id, id),
+	});
 	if (!existing) {
 		return c.json({ error: "Bulletin not found" }, 404);
 	}
 
-	await c.env.DB.prepare("DELETE FROM bulletins WHERE id = ?").bind(id).run();
+	await db.delete(bulletins).where(eq(bulletins.id, id));
 
 	return c.json({ ok: true });
 });

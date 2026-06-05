@@ -1,4 +1,11 @@
+import { fileURLToPath } from "node:url";
+import Database from "better-sqlite3";
+import { drizzle } from "drizzle-orm/better-sqlite3";
+import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import { Hono } from "hono";
 import { vi } from "vitest";
+import type { Db } from "../db/index.ts";
+import * as schema from "../db/schema.ts";
 import type { AppEnv } from "../types.ts";
 
 export function createMockKV(
@@ -29,33 +36,44 @@ export function createMockKV(
 	} as unknown as KVNamespace;
 }
 
-type D1Row = Record<string, unknown>;
-
-export function createMockD1(rows: D1Row[] = []): D1Database {
-	const stmt = {
-		bind: vi.fn().mockReturnThis(),
-		first: vi.fn(() => Promise.resolve(rows[0] ?? null)),
-		all: vi.fn(() =>
-			Promise.resolve({ results: rows, success: true, meta: {} }),
-		),
-		run: vi.fn(() => Promise.resolve({ success: true, meta: {}, results: [] })),
-	};
-	return {
-		prepare: vi.fn(() => stmt),
-		batch: vi.fn(),
-		exec: vi.fn(),
-		dump: vi.fn(),
-	} as unknown as D1Database;
-}
-
 export function createEnv(
 	overrides: Partial<AppEnv["Bindings"]> = {},
 ): AppEnv["Bindings"] {
 	return {
-		DB: createMockD1(),
+		DB: {} as D1Database, // not used directly; db is injected via wrapWithDb
 		SESSION_KV: createMockKV(),
 		LINE_CHANNEL_ID: "test_channel_id",
 		LINE_CHANNEL_SECRET: "test_channel_secret",
 		...overrides,
 	};
+}
+
+export type TestDb = ReturnType<typeof createTestDb>;
+
+/** Create an in-memory SQLite database with migrations applied. */
+export function createTestDb() {
+	const sqlite = new Database(":memory:");
+	const db = drizzle(sqlite, { schema });
+	const migrationsFolder = fileURLToPath(
+		new URL("../../drizzle", import.meta.url).href,
+	);
+	migrate(db, { migrationsFolder });
+	return db;
+}
+
+/**
+ * Wrap a Hono app with a middleware that injects the test db into the context.
+ * The real dbMiddleware is idempotent and will skip if db is already set.
+ */
+export function wrapWithDb<T extends Hono<AppEnv>>(
+	app: T,
+	db: TestDb,
+): Hono<AppEnv> {
+	const wrapper = new Hono<AppEnv>();
+	wrapper.use("*", (c, next) => {
+		c.set("db", db as unknown as Db);
+		return next();
+	});
+	wrapper.route("/", app);
+	return wrapper;
 }

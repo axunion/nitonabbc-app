@@ -1,7 +1,33 @@
+import { and, eq, sql } from "drizzle-orm";
+import type { Context } from "hono";
 import { Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
+import { users } from "../db/schema.ts";
 import { authMiddleware } from "../middleware/auth.ts";
 import type { AppEnv } from "../types.ts";
+
+const SESSION_TTL = 60 * 60 * 24 * 30;
+
+async function issueSession(
+	c: Context<AppEnv>,
+	userId: number,
+	lineUserId: string,
+	role: "admin" | "member",
+): Promise<void> {
+	const sessionId = crypto.randomUUID();
+	await c.env.SESSION_KV.put(
+		`session:${sessionId}`,
+		JSON.stringify({ userId, lineUserId, role }),
+		{ expirationTtl: SESSION_TTL },
+	);
+	setCookie(c, "session_id", sessionId, {
+		httpOnly: true,
+		secure: true,
+		sameSite: "Lax",
+		path: "/",
+		maxAge: SESSION_TTL,
+	});
+}
 
 export const authRoute = new Hono<AppEnv>();
 
@@ -26,6 +52,7 @@ authRoute.get("/login", async (c) => {
 });
 
 authRoute.get("/callback", async (c) => {
+	const db = c.get("db");
 	const { code, state } = c.req.query();
 
 	if (!code || !state) {
@@ -80,100 +107,51 @@ authRoute.get("/callback", async (c) => {
 	const profile = (await profileRes.json()) as { userId: string };
 
 	if (inviteToken) {
-		// Invite flow: link LINE account to pre-registered user
-		const inviteRow = await c.env.DB.prepare(
-			"SELECT id, name, role, invite_used, line_user_id, is_active FROM users WHERE invite_token = ?",
-		)
-			.bind(inviteToken)
-			.first<{
-				id: number;
-				name: string;
-				role: string;
-				invite_used: number;
-				line_user_id: string | null;
-				is_active: number;
-			}>();
-
-		if (!inviteRow || !inviteRow.is_active || inviteRow.invite_used) {
-			return c.redirect("/?error=invalid_invite");
-		}
-
 		// Check if LINE user ID is already linked to another user
-		const existing = await c.env.DB.prepare(
-			"SELECT id FROM users WHERE line_user_id = ?",
-		)
-			.bind(profile.userId)
-			.first<{ id: number }>();
-
+		const existing = await db.query.users.findFirst({
+			where: eq(users.lineUserId, profile.userId),
+		});
 		if (existing) {
 			return c.redirect("/?error=line_already_linked");
 		}
 
-		// Link LINE account and mark invite as used
-		await c.env.DB.prepare(
-			"UPDATE users SET line_user_id = ?, invite_used = 1, updated_at = datetime('now') WHERE invite_token = ?",
-		)
-			.bind(profile.userId, inviteToken)
-			.run();
+		// Atomic claim: only succeeds if invite is still valid (active + unused).
+		// The WHERE condition prevents a race where two concurrent callbacks both
+		// pass the inviteUsed check and both create sessions for the same account.
+		const [claimed] = await db
+			.update(users)
+			.set({
+				lineUserId: profile.userId,
+				inviteUsed: true,
+				updatedAt: sql`(datetime('now'))`,
+			})
+			.where(
+				and(
+					eq(users.inviteToken, inviteToken),
+					eq(users.inviteUsed, false),
+					eq(users.isActive, true),
+				),
+			)
+			.returning();
 
-		const sessionId = crypto.randomUUID();
-		const sessionData = JSON.stringify({
-			userId: inviteRow.id,
-			lineUserId: profile.userId,
-			role: inviteRow.role,
-		});
+		if (!claimed) {
+			return c.redirect("/?error=invalid_invite");
+		}
 
-		await c.env.SESSION_KV.put(`session:${sessionId}`, sessionData, {
-			expirationTtl: 60 * 60 * 24 * 30,
-		});
-
-		setCookie(c, "session_id", sessionId, {
-			httpOnly: true,
-			secure: true,
-			sameSite: "Lax",
-			path: "/",
-			maxAge: 60 * 60 * 24 * 30,
-		});
-
+		await issueSession(c, claimed.id, profile.userId, claimed.role);
 		return c.redirect("/");
 	}
 
 	// Normal login flow
-	const row = await c.env.DB.prepare(
-		"SELECT id, name, role, line_user_id, is_active FROM users WHERE line_user_id = ? AND is_active = 1",
-	)
-		.bind(profile.userId)
-		.first<{
-			id: number;
-			name: string;
-			role: string;
-			line_user_id: string;
-			is_active: number;
-		}>();
+	const row = await db.query.users.findFirst({
+		where: eq(users.lineUserId, profile.userId),
+	});
 
-	if (!row) {
+	if (!row?.isActive) {
 		return c.redirect("/?error=not_registered");
 	}
 
-	const sessionId = crypto.randomUUID();
-	const sessionData = JSON.stringify({
-		userId: row.id,
-		lineUserId: row.line_user_id,
-		role: row.role,
-	});
-
-	await c.env.SESSION_KV.put(`session:${sessionId}`, sessionData, {
-		expirationTtl: 60 * 60 * 24 * 30,
-	});
-
-	setCookie(c, "session_id", sessionId, {
-		httpOnly: true,
-		secure: true,
-		sameSite: "Lax",
-		path: "/",
-		maxAge: 60 * 60 * 24 * 30,
-	});
-
+	await issueSession(c, row.id, row.lineUserId ?? profile.userId, row.role);
 	return c.redirect("/");
 });
 
