@@ -37,10 +37,6 @@
 	background: var(--color-primary-400);
 }
 
-.menuList + .menuList {
-	margin-top: var(--space-4);
-}
-
 .menuList {
 	background: var(--glass-bg);
 	backdrop-filter: var(--glass-blur) var(--glass-saturate);
@@ -49,6 +45,10 @@
 	border-radius: var(--radius-lg);
 	overflow: hidden;
 	box-shadow: var(--glass-shadow-sm);
+}
+
+.menuList + .menuList {
+	margin-top: var(--space-4);
 }
 
 .menuItem {
