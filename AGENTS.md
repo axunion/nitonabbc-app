@@ -1,8 +1,8 @@
-# CLAUDE.md
+# AGENTS.md
 
 This file provides guidance to Claude Code when working with this repository.
 
-> **Keep in sync**: `CLAUDE.md` and `AGENTS.md` must always have identical content. When editing this file, apply the same changes to `AGENTS.md`.
+> **Keep in sync**: `CLAUDE.md` and `AGENTS.md` must always have identical content. When editing this file, apply the same changes to `CLAUDE.md`.
 
 ## Project Overview
 

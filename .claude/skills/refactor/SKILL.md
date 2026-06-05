@@ -37,7 +37,7 @@ Do not just list issues — edit the files directly to fix them.
 
 ## 4. Verify
 
-Run the `/verify` skill to confirm lint, build, and tests all pass.
+Run `pnpm check && node_modules/.bin/vitest run` to confirm lint and tests pass.
 
 ## 5. Report
 
