@@ -21,7 +21,7 @@ async function getOrCreateDevUser(
 		};
 	}
 
-	const [inserted] = await db
+	const [upserted] = await db
 		.insert(users)
 		.values({
 			name: "Dev Admin",
@@ -31,14 +31,18 @@ async function getOrCreateDevUser(
 			inviteUsed: true,
 			isActive: true,
 		})
+		.onConflictDoUpdate({
+			target: users.lineUserId,
+			set: { name: "Dev Admin", role: "admin" },
+		})
 		.returning();
 
 	return {
-		id: inserted.id,
-		name: inserted.name,
-		role: inserted.role,
-		lineUserId: inserted.lineUserId ?? "",
-		isActive: inserted.isActive,
+		id: upserted.id,
+		name: upserted.name,
+		role: upserted.role,
+		lineUserId: upserted.lineUserId ?? "",
+		isActive: upserted.isActive,
 	};
 }
 

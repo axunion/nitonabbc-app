@@ -4,7 +4,6 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { Hono } from "hono";
 import { vi } from "vitest";
-import type { Db } from "../db/index.ts";
 import * as schema from "../db/schema.ts";
 import type { AppEnv } from "../types.ts";
 
@@ -71,7 +70,7 @@ export function wrapWithDb<T extends Hono<AppEnv>>(
 ): Hono<AppEnv> {
 	const wrapper = new Hono<AppEnv>();
 	wrapper.use("*", (c, next) => {
-		c.set("db", db as unknown as Db);
+		c.set("db", db);
 		return next();
 	});
 	wrapper.route("/", app);
