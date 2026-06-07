@@ -25,10 +25,11 @@
 		"fix": "biome check --write .",
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"deploy": "wrangler deploy",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate:local": "wrangler d1 migrations apply nitonabbc-db --local",
-		"db:migrate:remote": "wrangler d1 migrations apply nitonabbc-db --remote"
+		"db:reset": "rm -rf .wrangler/state/v3/d1 && wrangler d1 migrations apply nitonabbc-db --local",
+		"db:seed": "wrangler d1 execute nitonabbc-db --local --file=./scripts/seed.sql",
+		"db:fresh": "pnpm db:reset && pnpm db:seed"
 	},
 	"dependencies": {
 		"@kobalte/core": "^0.13.11",

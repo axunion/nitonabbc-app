@@ -26,15 +26,22 @@ Add a new doc in `docs/` and link it from `spec.md` when adding features.
 
 ## Safety: Deployment and Production Data
 
+Production deployments and remote DB migrations run exclusively via GitHub Actions.
+The npm scripts `deploy` and `db:migrate:remote` are **intentionally not defined** in
+`package.json` to prevent accidental local execution.
+
 **Never run the following from a local machine:**
 
-- `pnpm deploy` / `wrangler deploy` — production deployments are handled exclusively by GitHub Actions (push to `main` auto-deploys; push to any other branch auto-deploys to Preview)
-- `pnpm db:migrate:remote` / `wrangler d1 migrations apply ... --remote` — production DB migrations run via GitHub Actions only
-- Any `wrangler` command targeting production with `--remote`
+- `wrangler deploy` — production deployments are triggered by push to `main` (or any branch for Preview)
+- `wrangler d1 migrations apply ... --remote` — production DB migrations run via GitHub Actions only
+- Any other `wrangler` command targeting production with `--remote`
 
 **Allowed locally:**
 
-- `pnpm db:migrate:local` / `wrangler d1 migrations apply ... --local` — local D1 only
+- `pnpm db:migrate:local` — apply pending migrations to local D1
+- `pnpm db:reset` — wipe local D1 and re-apply all migrations from scratch
+- `pnpm db:seed` — insert sample data from `scripts/seed.sql`
+- `pnpm db:fresh` — `db:reset` + `db:seed` in one step
 - All other local dev operations: `pnpm dev`, `pnpm build`, `pnpm check`, `pnpm test`, etc.
 
 ## Architecture
@@ -85,8 +92,13 @@ KV / D1 bindings are isolated per environment. LINE Login callback URLs must be 
 
 - Schema: `server/db/schema.ts` is the single source of truth
 - Access DB via `c.get("db")` — never use `c.env.DB` directly in routes or middleware
-- Migrations: `drizzle-kit generate` → `drizzle/` → apply locally with `pnpm db:migrate:local`
+- Migrations: `pnpm db:generate` → commit `drizzle/` → `pnpm db:migrate:local`
+- Local DB commands:
+  - `pnpm db:reset` — wipe local D1 + re-apply all migrations
+  - `pnpm db:seed` — insert sample data (`scripts/seed.sql`)
+  - `pnpm db:fresh` — `db:reset` + `db:seed` in one step
 - Use `/db-migrate` skill for guided schema change workflow
+- Production migrations run via GitHub Actions only (never `--remote` locally)
 
 ## Code Structure
 

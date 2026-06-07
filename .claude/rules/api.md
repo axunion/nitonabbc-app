@@ -28,10 +28,13 @@ paths:
 
 - Schema definition: `server/db/schema.ts` is the single source of truth
 - Shared bulletin types: `server/db/types.ts` (`SectionData`, `SectionTemplate`, `WorshipItemData`, etc.)
-- Generate migration: `node_modules/.bin/drizzle-kit generate`
+- Generate migration: `pnpm db:generate` (`drizzle-kit generate` → new SQL under `drizzle/`)
 - Migration output: `drizzle/` directory (committed; applied by wrangler)
-- Apply local: `wrangler d1 migrations apply nitonabbc-db --local`
-- Apply remote: `wrangler d1 migrations apply nitonabbc-db --remote`
+- Apply local: `pnpm db:migrate:local`
+- Reset local DB (wipe D1 + re-apply all migrations): `pnpm db:reset`
+- Seed local DB with sample data: `pnpm db:seed`
+- Reset + seed in one step: `pnpm db:fresh`
+- Production migrations run via GitHub Actions only — never apply `--remote` locally
 
 ## Response conventions
 
