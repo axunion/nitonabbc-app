@@ -24,24 +24,18 @@ Add a new doc in `docs/` and link it from `spec.md` when adding features.
 
 @docs/spec.md
 
-## Environments
+## Safety: Deployment and Production Data
 
-| Env | Description |
-|-----|-------------|
-| Local | `pnpm dev` starts Vite (HMR) + workerd together via `@cloudflare/vite-plugin`. Set `DEV_AUTH=true` in `.dev.vars` to skip LINE auth and auto-login as admin |
-| Preview | Auto-deployed on non-`main` branch push |
-| Production | Auto-deployed on `main` branch push |
+**Never run the following from a local machine:**
 
-KV / D1 bindings are isolated per environment. LINE Login callback URLs must be configured per environment.
+- `pnpm deploy` / `wrangler deploy` — production deployments are handled exclusively by GitHub Actions (push to `main` auto-deploys; push to any other branch auto-deploys to Preview)
+- `pnpm db:migrate:remote` / `wrangler d1 migrations apply ... --remote` — production DB migrations run via GitHub Actions only
+- Any `wrangler` command targeting production with `--remote`
 
-## Commands
+**Allowed locally:**
 
-- `pnpm dev` — full-stack dev: Vite + workerd (http://localhost:5173)
-- `pnpm build` — TypeScript + Vite production build
-- `pnpm check` — Biome lint/format check
-- `pnpm fix` — Biome lint/format auto-fix
-- `pnpm test` — run tests (Vitest, `server/**/*.test.ts` only)
-- `pnpm deploy` — deploy to Cloudflare Workers
+- `pnpm db:migrate:local` / `wrangler d1 migrations apply ... --local` — local D1 only
+- All other local dev operations: `pnpm dev`, `pnpm build`, `pnpm check`, `pnpm test`, etc.
 
 ## Architecture
 
@@ -52,7 +46,6 @@ KV / D1 bindings are isolated per environment. LINE Login callback URLs must be 
 - **Path alias**: `@/` → `./src` (configured in both `vite.config.ts` and `tsconfig.app.json`)
 - **Auth context**: `useAuth()` from `src/store/AuthContext.tsx` — provides user info and `logout`
 - **JSX**: Solid.js transform (`jsxImportSource: solid-js`)
-- **PWA**: vite-plugin-pwa (generateSw mode, Workbox auto-generated)
 - **Deploy**: Cloudflare Workers + static assets
 
 See `.claude/rules/` for detailed conventions per area (UI, CSS, API, testing).
@@ -73,21 +66,60 @@ See `.claude/rules/` for detailed conventions per area (UI, CSS, API, testing).
 - `worker/index.ts` — Worker entry point (re-exports the Hono app)
 - `drizzle/` — drizzle-kit generated migration SQL (committed)
 
+## Environments
+
+| Env | Description |
+|-----|-------------|
+| Local | `pnpm dev` starts Vite (HMR) + workerd together via `@cloudflare/vite-plugin`. Set `DEV_AUTH=true` in `.dev.vars` to skip LINE auth and auto-login as admin |
+| Preview | Auto-deployed on non-`main` branch push |
+| Production | Auto-deployed on `main` branch push |
+
+KV / D1 bindings are isolated per environment. LINE Login callback URLs must be configured per environment.
+
+## Commands
+
+- `pnpm check` — Biome lint/format + TypeScript check
+- `pnpm test` — run tests (Vitest, `server/**/*.test.ts` only)
+
 ## Database (Cloudflare D1 + Drizzle)
 
 - Schema: `server/db/schema.ts` is the single source of truth
 - Access DB via `c.get("db")` — never use `c.env.DB` directly in routes or middleware
-- Migrations: `drizzle-kit generate` → `drizzle/` → `wrangler d1 migrations apply`
+- Migrations: `drizzle-kit generate` → `drizzle/` → apply locally with `pnpm db:migrate:local`
 - Use `/db-migrate` skill for guided schema change workflow
 
-## Code Quality
+## Code Structure
+
+- Name variables, functions, and files to communicate intent.
+- Extract a helper only when used in 3+ places; otherwise inline it.
+- One concern per file; split when a file exceeds ~300 lines.
+- Delete dead code; never comment it out.
+- Biome default settings for lint/format (no custom config file)
+
+## Testing
 
 - **TDD**: write the test first (Red → Green → Refactor). See `.claude/rules/testing.md`
-- **Simplicity**: write the simplest code that satisfies the requirement — no premature abstractions
-- **Efficiency**: avoid redundant work; reuse existing utilities and patterns
-- Biome default settings for lint/format (no custom config file)
-- TypeScript strict mode; unused variables and parameters are errors
-- Targets: ES2022 (app) / ES2023 (tooling)
+- Test observable outcomes and edge cases, not implementation details.
+- Each test must be fully self-contained; no shared mutable state between tests.
+
+## Commits
+
+Format:
+
+```
+<one-line summary>
+
+<Why: one sentence — motivation or problem>
+
+- <change 1>
+- <change 2>
+```
+
+- Summary: imperative mood, ≤70 chars, no trailing period, no prefix tags (`feat:`, `fix:`, etc.).
+- Why line: include only when motivation is not evident from the diff alone.
+- Bullets: include only for 2+ distinct changes.
+- Never commit secrets (`*.key`, `*.pem`, `credentials*`).
+- Never use `--no-verify` or `--amend`; always create a new commit.
 
 ## Claude Code Automation
 
@@ -109,7 +141,3 @@ Configs in `.claude/rules/`, agents in `.claude/agents/`, skills in `.claude/ski
 | `/spec-update` | Sync `docs/spec.md` and individual feature docs |
 | `/refactor` | Fix code quality, convention, and duplication issues |
 | `/db-migrate` | Guided workflow for D1 schema changes |
-
-### Hooks
-
-- **git pre-commit (lefthook)**: auto-runs `pnpm biome check --write` on staged files and re-stages fixes
