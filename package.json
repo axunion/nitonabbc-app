@@ -11,7 +11,7 @@
 		},
 		"packageManager": {
 			"name": "pnpm",
-			"version": "11.5.1",
+			"version": "11.5.2",
 			"onFail": "warn"
 		}
 	},
@@ -21,9 +21,8 @@
 		"dev:api": "wrangler dev",
 		"build": "tsc -b && vite build",
 		"serve": "vite preview",
-		"check": "biome check ./src ./server ./worker",
-		"fix": "biome check --write ./src ./server ./worker",
-		"typecheck": "tsc -b --noEmit",
+		"check": "biome check . && tsc -b --noEmit",
+		"fix": "biome check --write .",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"deploy": "wrangler deploy",
