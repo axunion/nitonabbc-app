@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>操作確認ガイド | 仁戸名ABBC メンバーアプリ</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9A84C;--gold-bg:rgba(201,168,76,0.1);--gold-border:rgba(201,168,76,0.35);
+  --admin:#3B5BDB;--admin-bg:#EDF2FF;
+  --all:#2F9E44;--all-bg:#EBFBEE;
+  --text:#1C1C2E;--muted:#6B7280;--border:#E5E7EB;
+  --surface:#FFFFFF;--bg:#F4F5F7;--danger:#DC2626;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN','Yu Gothic UI','Noto Sans JP',sans-serif;color:var(--text);background:var(--bg);line-height:1.75;font-size:15px}
+.wrap{max-width:980px;margin:0 auto;padding:0 24px 80px}
+
+/* Header */
+.hd{background:linear-gradient(135deg,#1C1C2E 0%,#2C2C4E 100%);color:#fff;padding:48px 40px 40px;margin-bottom:36px;border-radius:0 0 20px 20px;position:relative;overflow:hidden}
+.hd::after{content:'';position:absolute;top:-60px;right:-60px;width:360px;height:360px;background:radial-gradient(circle,rgba(201,168,76,.18) 0%,transparent 70%);pointer-events:none}
+.hd-tag{display:inline-block;background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.4);color:var(--gold);font-size:11px;padding:3px 10px;border-radius:20px;letter-spacing:.08em;margin-bottom:14px;text-transform:uppercase}
+.hd h1{font-size:26px;font-weight:700;margin-bottom:6px}
+.hd .sub{color:rgba(255,255,255,.65);font-size:14px;margin-bottom:4px}
+.hd .meta{color:rgba(255,255,255,.4);font-size:12px;margin-top:16px}
+.hd .env-note{display:inline-block;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 14px;font-size:13px;color:rgba(255,255,255,.8);margin-top:14px}
+.hd .env-note code{background:rgba(201,168,76,.3);padding:1px 6px;border-radius:4px;color:var(--gold);font-size:12px}
+
+/* TOC */
+.toc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px 28px;margin-bottom:40px}
+.toc-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:14px}
+.toc ol{padding-left:20px;columns:2;column-gap:32px}
+.toc li{margin-bottom:6px;break-inside:avoid}
+.toc a{color:var(--text);text-decoration:none;font-size:14px}
+.toc a:hover{color:var(--gold)}
+
+/* Section titles */
+h2{font-size:20px;font-weight:700;color:var(--text);margin:40px 0 18px;padding-bottom:10px;border-bottom:2px solid var(--gold);display:flex;align-items:center;gap:10px}
+h2 .num{font-size:12px;font-weight:800;color:var(--gold);background:var(--gold-bg);border:1px solid var(--gold-border);padding:2px 8px;border-radius:20px;letter-spacing:.05em}
+h3{font-size:16px;font-weight:600;color:var(--text);margin:22px 0 10px}
+h4{font-size:14px;font-weight:600;color:var(--muted);margin:16px 0 8px;text-transform:uppercase;letter-spacing:.05em}
+
+/* Diagram container */
+.diagram{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px 16px 20px;margin:18px 0;overflow-x:auto}
+.diagram-title{font-size:12px;font-weight:700;color:var(--muted);text-align:center;margin-bottom:14px;text-transform:uppercase;letter-spacing:.07em}
+.diagram svg{display:block;margin:0 auto;max-width:100%}
+
+/* Page cards */
+.page-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px 24px;margin-bottom:24px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.page-card.admin{border-left:4px solid var(--admin)}
+.page-card.all{border-left:4px solid var(--all)}
+.page-meta{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.page-meta h3{margin:0;font-size:18px}
+.url{font-family:'SF Mono','Fira Code',monospace;font-size:11px;color:var(--muted);background:var(--bg);padding:2px 8px;border-radius:4px;border:1px solid var(--border)}
+.badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.badge.admin{background:var(--admin-bg);color:var(--admin)}
+.badge.all{background:var(--all-bg);color:var(--all)}
+.page-desc{color:var(--muted);font-size:14px;margin-bottom:14px}
+
+/* Checklist */
+.checklist{background:var(--bg);border-radius:8px;padding:14px 18px;margin:10px 0}
+.checklist-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px}
+.check-list{list-style:none;padding:0}
+.check-list li{display:flex;gap:10px;margin-bottom:8px;font-size:14px;line-height:1.5}
+.check-list li::before{content:'□';color:var(--gold);font-size:16px;flex-shrink:0;line-height:1.3}
+.check-list li.sub{padding-left:24px;color:var(--muted)}
+.check-list li.sub::before{content:'◦';color:var(--border);font-size:14px}
+
+/* Notes */
+.note{border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14px}
+.note.tip{background:var(--gold-bg);border:1px solid var(--gold-border)}
+.note.tip strong{display:block;color:var(--gold);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.note.info{background:#EFF6FF;border:1px solid #BFDBFE}
+.note.info strong{display:block;color:#2563EB;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.note.warn{background:#FFFBEB;border:1px solid #FDE68A}
+.note.warn strong{display:block;color:#D97706;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}
+th{background:var(--bg);padding:9px 14px;text-align:left;font-size:12px;font-weight:700;border-bottom:2px solid var(--border);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:hover td{background:var(--gold-bg)}
+code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;background:var(--bg);padding:1px 6px;border-radius:4px;border:1px solid var(--border)}
+
+/* Section grid */
+.sec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:14px 0}
+.sec-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:13px 15px}
+.sec-card .sc-type{font-size:11px;font-family:monospace;color:var(--muted);margin-bottom:3px}
+.sec-card .sc-name{font-weight:600;font-size:14px;margin-bottom:3px}
+.sec-card .sc-desc{font-size:12px;color:var(--muted)}
+.sec-card .sc-count{font-size:11px;color:var(--admin);margin-top:4px}
+
+/* Improve table */
+.improve-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:14px 0}
+.improve-header{background:var(--bg);padding:12px 16px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);display:grid;grid-template-columns:40px 140px 1fr 100px;gap:12px}
+.improve-row{padding:12px 16px;border-top:1px solid var(--border);display:grid;grid-template-columns:40px 140px 1fr 100px;gap:12px;font-size:14px;align-items:start}
+.improve-row:nth-child(even){background:rgba(0,0,0,.015)}
+
+/* Grid 2 */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}.toc ol{columns:1}}
+
+/* Print */
+@media print{body{background:#fff}.page-card{break-inside:avoid}.diagram{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ヘッダー -->
+<header class="hd">
+  <div class="hd-tag">操作確認ガイド</div>
+  <h1>仁戸名聖書バプテスト教会<br>メンバーアプリ</h1>
+  <div class="sub">全画面・全機能の確認手順と改善点記録</div>
+  <div class="meta">作成日: 2026年6月8日 ／ 対象: 全メンバー・管理者</div>
+  <div class="env-note">
+    ローカル確認時は <code>DEV_AUTH=true</code> を <code>.dev.vars</code> に設定すると LINE 認証をスキップして自動ログインできます
+  </div>
+</header>
+
+<!-- 目次 -->
+<nav class="toc">
+  <div class="toc-title">目次</div>
+  <ol>
+    <li><a href="#overview">全体像・画面構成</a></li>
+    <li><a href="#permissions">権限モデル</a></li>
+    <li><a href="#login">ログイン画面</a></li>
+    <li><a href="#dashboard">ダッシュボード</a></li>
+    <li><a href="#bulletin-list">週報一覧</a></li>
+    <li><a href="#bulletin-detail">週報詳細</a></li>
+    <li><a href="#bulletin-form">週報作成・編集フォーム</a></li>
+    <li><a href="#settings">設定画面</a></li>
+    <li><a href="#management">メンバー管理（管理者）</a></li>
+    <li><a href="#template">テンプレート設定（管理者）</a></li>
+    <li><a href="#invite-flow">招待フロー</a></li>
+    <li><a href="#section-types">セクション種別一覧</a></li>
+    <li><a href="#improvements">改善メモ欄</a></li>
+  </ol>
+</nav>
+
+<!-- ===== 1. 全体像 ===== -->
+<section id="overview">
+  <h2><span class="num">1</span>全体像・画面構成</h2>
+  <p>このアプリは LINE 認証のみで利用できる教会メンバー向け PWA です。下部のタブバーで「教会」「設定」の 2 タブを切り替え、タブごとに独立した画面階層を持ちます。</p>
+
+  <div class="diagram">
+    <div class="diagram-title">画面遷移図</div>
+    <svg viewBox="0 0 820 470" xmlns="http://www.w3.org/2000/svg" width="820">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M0,1 L9,5 L0,9 Z" fill="#94A3B8"/>
+        </marker>
+        <marker id="arr-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M0,1 L9,5 L0,9 Z" fill="#C9A84C"/>
+        </marker>
+      </defs>
+
+      <!-- Login area (pre-auth) -->
+      <rect x="310" y="8" width="200" height="54" rx="10" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="410" y="22" text-anchor="middle" font-size="10" fill="#94A3B8" font-family="sans-serif">認証前</text>
+      <rect x="330" y="26" width="160" height="34" rx="8" fill="#1C1C2E"/>
+      <text x="410" y="48" text-anchor="middle" font-size="13" fill="white" font-family="sans-serif" font-weight="600">ログイン画面</text>
+
+      <!-- Arrow: Login → TabBar -->
+      <line x1="410" y1="62" x2="410" y2="96" stroke="#C9A84C" stroke-width="2" marker-end="url(#arr-g)"/>
+      <text x="418" y="83" font-size="10" fill="#C9A84C" font-family="sans-serif">LINE認証成功</text>
+
+      <!-- TabBar -->
+      <rect x="20" y="100" width="780" height="34" rx="6" fill="#1C1C2E"/>
+      <rect x="36" y="104" width="160" height="26" rx="13" fill="#C9A84C"/>
+      <text x="116" y="121" text-anchor="middle" font-size="12" fill="white" font-family="sans-serif" font-weight="600">⛪ 教会タブ</text>
+      <rect x="624" y="104" width="160" height="26" rx="13" fill="rgba(255,255,255,0.12)"/>
+      <text x="704" y="121" text-anchor="middle" font-size="12" fill="rgba(255,255,255,0.75)" font-family="sans-serif">⚙ 設定タブ</text>
+
+      <!-- Vertical divider -->
+      <line x1="460" y1="138" x2="460" y2="460" stroke="#E5E7EB" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+      <!-- ===== 教会タブ ===== -->
+      <!-- Dashboard -->
+      <path d="M116,134 L116,158" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+      <rect x="46" y="158" width="140" height="38" rx="8" fill="#FFFBF0" stroke="#C9A84C" stroke-width="1.5"/>
+      <text x="116" y="180" text-anchor="middle" font-size="13" fill="#1C1C2E" font-family="sans-serif" font-weight="600">ダッシュボード</text>
+      <text x="116" y="192" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">/</text>
+
+      <!-- Dashboard → IframeViewer -->
+      <path d="M80,196 L80,228 L55,228 L55,260" stroke="#94A3B8" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+      <!-- Dashboard → BulletinList -->
+      <path d="M155,196 L155,228 L330,228 L330,260" stroke="#94A3B8" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+      <!-- IframeViewer -->
+      <rect x="16" y="260" width="130" height="44" rx="8" fill="#F0F9FF" stroke="#7DD3FC" stroke-width="1.5"/>
+      <text x="81" y="279" text-anchor="middle" font-size="12" fill="#1C1C2E" font-family="sans-serif" font-weight="600">iframe 表示</text>
+      <text x="81" y="294" text-anchor="middle" font-size="10" fill="#6B7280" font-family="sans-serif">経費 / ファイル</text>
+
+      <!-- BulletinList -->
+      <rect x="260" y="260" width="140" height="38" rx="8" fill="#FFFBF0" stroke="#C9A84C" stroke-width="1.5"/>
+      <text x="330" y="281" text-anchor="middle" font-size="13" fill="#1C1C2E" font-family="sans-serif" font-weight="600">週報一覧</text>
+      <text x="330" y="293" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">/bulletin</text>
+
+      <!-- BulletinList → BulletinDetail -->
+      <path d="M295,298 L295,334 L230,334 L230,362" stroke="#94A3B8" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+      <!-- BulletinList → BulletinForm/new (dashed) -->
+      <path d="M365,298 L365,334 L410,334 L410,362" stroke="#94A3B8" stroke-width="1.5" fill="none" marker-end="url(#arr)" stroke-dasharray="5,3"/>
+
+      <!-- BulletinDetail -->
+      <rect x="155" y="362" width="150" height="38" rx="8" fill="#FFFBF0" stroke="#C9A84C" stroke-width="1.5"/>
+      <text x="230" y="382" text-anchor="middle" font-size="13" fill="#1C1C2E" font-family="sans-serif" font-weight="600">週報詳細</text>
+      <text x="230" y="394" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">/bulletin/:id</text>
+
+      <!-- BulletinDetail → BulletinForm/edit -->
+      <path d="M305,381 L360,381" stroke="#94A3B8" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+      <!-- BulletinForm -->
+      <rect x="360" y="355" width="82" height="54" rx="8" fill="#F5F3FF" stroke="#A78BFA" stroke-width="1.5"/>
+      <text x="401" y="373" text-anchor="middle" font-size="11" fill="#1C1C2E" font-family="sans-serif" font-weight="600">週報フォーム</text>
+      <text x="401" y="386" text-anchor="middle" font-size="9" fill="#7C3AED" font-family="sans-serif">/bulletin/new</text>
+      <text x="401" y="398" text-anchor="middle" font-size="9" fill="#7C3AED" font-family="sans-serif">/:id/edit</text>
+
+      <!-- ===== 設定タブ ===== -->
+      <!-- Settings -->
+      <path d="M704,134 L704,158" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#arr)"/>
+      <rect x="634" y="158" width="140" height="38" rx="8" fill="#FFFBF0" stroke="#C9A84C" stroke-width="1.5"/>
+      <text x="704" y="180" text-anchor="middle" font-size="13" fill="#1C1C2E" font-family="sans-serif" font-weight="600">設定画面</text>
+      <text x="704" y="192" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">/settings</text>
+
+      <!-- Settings → Management -->
+      <path d="M670,196 L670,240 L620,240 L620,268" stroke="#94A3B8" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+      <!-- Settings → BulletinTemplate -->
+      <path d="M738,196 L738,240 L762,240 L762,268" stroke="#94A3B8" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+      <!-- Management (admin) -->
+      <rect x="538" y="268" width="164" height="42" rx="8" fill="#EDF2FF" stroke="#3B5BDB" stroke-width="1.5"/>
+      <text x="620" y="287" text-anchor="middle" font-size="12" fill="#1C1C2E" font-family="sans-serif" font-weight="600">メンバー管理</text>
+      <text x="620" y="300" text-anchor="middle" font-size="10" fill="#3B5BDB" font-family="sans-serif">👑 管理者のみ</text>
+      <text x="620" y="311" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">/settings/members</text>
+
+      <!-- BulletinTemplate (admin) -->
+      <rect x="710" y="268" width="88" height="42" rx="8" fill="#EDF2FF" stroke="#3B5BDB" stroke-width="1.5"/>
+      <text x="754" y="287" text-anchor="middle" font-size="10" fill="#1C1C2E" font-family="sans-serif" font-weight="600">テンプレ</text>
+      <text x="754" y="300" text-anchor="middle" font-size="9" fill="#3B5BDB" font-family="sans-serif">👑 管理者</text>
+      <text x="754" y="312" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">/bulletin-template</text>
+
+      <!-- Legend -->
+      <rect x="20" y="430" width="14" height="14" rx="3" fill="#FFFBF0" stroke="#C9A84C" stroke-width="1.5"/>
+      <text x="38" y="442" font-size="11" fill="#6B7280" font-family="sans-serif">全ユーザー</text>
+      <rect x="115" y="430" width="14" height="14" rx="3" fill="#EDF2FF" stroke="#3B5BDB" stroke-width="1.5"/>
+      <text x="133" y="442" font-size="11" fill="#6B7280" font-family="sans-serif">管理者のみ</text>
+      <rect x="220" y="430" width="14" height="14" rx="3" fill="#F0F9FF" stroke="#7DD3FC" stroke-width="1.5"/>
+      <text x="238" y="442" font-size="11" fill="#6B7280" font-family="sans-serif">iframe（外部サービス）</text>
+      <rect x="380" y="430" width="14" height="14" rx="3" fill="#F5F3FF" stroke="#A78BFA" stroke-width="1.5"/>
+      <text x="398" y="442" font-size="11" fill="#6B7280" font-family="sans-serif">作成・編集フォーム</text>
+      <line x1="510" y1="437" x2="540" y2="437" stroke="#94A3B8" stroke-width="1.5"/>
+      <text x="545" y="442" font-size="11" fill="#6B7280" font-family="sans-serif">通常遷移</text>
+      <line x1="615" y1="437" x2="645" y2="437" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <text x="650" y="442" font-size="11" fill="#6B7280" font-family="sans-serif">新規作成</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ===== 2. 権限モデル ===== -->
+<section id="permissions">
+  <h2><span class="num">2</span>権限モデル</h2>
+
+  <div class="diagram">
+    <div class="diagram-title">アクセス可能画面</div>
+    <svg viewBox="0 0 700 310" xmlns="http://www.w3.org/2000/svg" width="700">
+      <!-- Admin column -->
+      <rect x="20" y="10" width="300" height="290" rx="10" fill="#EDF2FF" stroke="#3B5BDB" stroke-width="1.5"/>
+      <rect x="20" y="10" width="300" height="44" rx="10" fill="#3B5BDB"/>
+      <rect x="20" y="44" width="300" height="10" fill="#3B5BDB"/>
+      <text x="170" y="38" text-anchor="middle" font-size="15" fill="white" font-family="sans-serif" font-weight="700">👑 管理者 (admin)</text>
+
+      <text x="48" y="76" font-size="13" fill="#1C1C2E" font-family="sans-serif">✓  ダッシュボード</text>
+      <text x="48" y="98" font-size="13" fill="#1C1C2E" font-family="sans-serif">✓  週報一覧 / 詳細 / 作成 / 編集</text>
+      <text x="48" y="120" font-size="13" fill="#1C1C2E" font-family="sans-serif">✓  設定画面</text>
+      <text x="48" y="142" font-size="13" fill="#1C1C2E" font-family="sans-serif">✓  言語切替 / PWAインストール案内</text>
+      <line x1="36" y1="155" x2="304" y2="155" stroke="#BFDBFE" stroke-width="1" stroke-dasharray="4,2"/>
+      <text x="48" y="174" font-size="12" fill="#3B5BDB" font-family="sans-serif" font-weight="700">管理者のみ</text>
+      <text x="48" y="196" font-size="13" fill="#1C1C2E" font-family="sans-serif">✓  メンバー管理</text>
+      <text x="68" y="214" font-size="11" fill="#3B5BDB" font-family="sans-serif">メンバー追加 / 編集 / 無効化</text>
+      <text x="68" y="230" font-size="11" fill="#3B5BDB" font-family="sans-serif">招待リンク発行 / LINE連携リセット</text>
+      <text x="48" y="252" font-size="13" fill="#1C1C2E" font-family="sans-serif">✓  週報テンプレート設定</text>
+      <text x="68" y="270" font-size="11" fill="#3B5BDB" font-family="sans-serif">セクション追加 / 並替 / 項目編集</text>
+      <text x="68" y="286" font-size="11" fill="#3B5BDB" font-family="sans-serif">表示/非表示切替</text>
+
+      <!-- Member column -->
+      <rect x="380" y="10" width="300" height="290" rx="10" fill="#EBFBEE" stroke="#2F9E44" stroke-width="1.5"/>
+      <rect x="380" y="10" width="300" height="44" rx="10" fill="#2F9E44"/>
+      <rect x="380" y="44" width="300" height="10" fill="#2F9E44"/>
+      <text x="530" y="38" text-anchor="middle" font-size="15" fill="white" font-family="sans-serif" font-weight="700">👤 メンバー (member)</text>
+
+      <text x="408" y="76" font-size="13" fill="#1C1C2E" font-family="sans-serif">✓  ダッシュボード</text>
+      <text x="408" y="98" font-size="13" fill="#1C1C2E" font-family="sans-serif">✓  週報一覧 / 詳細 / 作成 / 編集</text>
+      <text x="408" y="120" font-size="13" fill="#1C1C2E" font-family="sans-serif">✓  設定画面</text>
+      <text x="408" y="142" font-size="13" fill="#1C1C2E" font-family="sans-serif">✓  言語切替 / PWAインストール案内</text>
+      <line x1="396" y1="155" x2="664" y2="155" stroke="#BBF7D0" stroke-width="1" stroke-dasharray="4,2"/>
+      <text x="408" y="180" font-size="13" fill="#6B7280" font-family="sans-serif">✗  メンバー管理（非表示）</text>
+      <text x="408" y="204" font-size="13" fill="#6B7280" font-family="sans-serif">✗  テンプレート設定（リダイレクト）</text>
+      <text x="408" y="240" font-size="12" fill="#2F9E44" font-family="sans-serif">※ 週報の作成・編集はメンバーも可</text>
+    </svg>
+  </div>
+
+  <div class="note tip">
+    <strong>サーバー側チェック</strong>
+    メンバー管理API（<code>/api/admin/*</code>）とテンプレート保存（<code>PUT /api/bulletin-template</code>）はサーバー側でも管理者チェックが行われます。フロントエンドの制御とは独立して機能します。
+  </div>
+</section>
+
+<!-- ===== 3. ログイン ===== -->
+<section id="login">
+  <h2><span class="num">3</span>各画面の確認</h2>
+
+  <div class="page-card all">
+    <div class="page-meta">
+      <h3>ログイン画面</h3>
+      <span class="url">/login（認証前のみ表示）</span>
+      <span class="badge all">全員</span>
+    </div>
+    <p class="page-desc">未認証ユーザーが最初に見る画面。LINE ログインボタンのみが表示されます。</p>
+
+    <div class="diagram">
+      <div class="diagram-title">ログインフロー</div>
+      <svg viewBox="0 0 640 80" xmlns="http://www.w3.org/2000/svg" width="640">
+        <defs>
+          <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+            <path d="M0,1 L9,5 L0,9 Z" fill="#94A3B8"/>
+          </marker>
+        </defs>
+        <rect x="10" y="20" width="120" height="36" rx="8" fill="#1C1C2E"/>
+        <text x="70" y="43" text-anchor="middle" font-size="12" fill="white" font-family="sans-serif" font-weight="600">ログイン画面</text>
+        <line x1="130" y1="38" x2="165" y2="38" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#ar2)"/>
+        <text x="148" y="30" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">ボタンタップ</text>
+        <rect x="165" y="20" width="120" height="36" rx="8" fill="#06C755"/>
+        <text x="225" y="43" text-anchor="middle" font-size="12" fill="white" font-family="sans-serif" font-weight="600">LINE 認証</text>
+        <line x1="285" y1="38" x2="320" y2="38" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#ar2)"/>
+        <text x="303" y="30" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">認証成功</text>
+        <rect x="320" y="20" width="130" height="36" rx="8" fill="#FFFBF0" stroke="#C9A84C" stroke-width="1.5"/>
+        <text x="385" y="43" text-anchor="middle" font-size="12" fill="#1C1C2E" font-family="sans-serif" font-weight="600">ダッシュボード</text>
+        <line x1="450" y1="38" x2="485" y2="38" stroke="#DC2626" stroke-width="1.5" marker-end="url(#ar2)" stroke-dasharray="4,2"/>
+        <text x="468" y="30" text-anchor="middle" font-size="9" fill="#DC2626" font-family="sans-serif">認証失敗</text>
+        <rect x="485" y="20" width="120" height="36" rx="8" fill="#FEF2F2" stroke="#FECACA" stroke-width="1.5"/>
+        <text x="545" y="39" text-anchor="middle" font-size="11" fill="#DC2626" font-family="sans-serif" font-weight="600">エラー表示</text>
+        <text x="545" y="52" text-anchor="middle" font-size="9" fill="#DC2626" font-family="sans-serif">（未招待など）</text>
+      </svg>
+    </div>
+
+    <div class="checklist">
+      <div class="checklist-title">確認項目</div>
+      <ul class="check-list">
+        <li>LINE ログインボタンが中央に表示されている</li>
+        <li>ボタンをタップすると LINE の認証画面に遷移する</li>
+        <li>LINE 認証後、ダッシュボード（<code>/</code>）にリダイレクトされる</li>
+        <li>すでにログイン済みの場合、このページは表示されない（ダッシュボードへ自動遷移）</li>
+        <li>招待されていない LINE アカウントでログインした場合のエラーハンドリングを確認</li>
+      </ul>
+    </div>
+    <div class="note info">
+      <strong>ローカル開発</strong>
+      <code>DEV_AUTH=true</code> の場合、LINE 認証をスキップして「Dev Admin」として自動ログインします。
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="page-card all" id="dashboard">
+    <div class="page-meta">
+      <h3>ダッシュボード</h3>
+      <span class="url">/</span>
+      <span class="badge all">全員</span>
+    </div>
+    <p class="page-desc">ログイン後の最初の画面。3 つの機能ウィジェットへのエントリポイントです。</p>
+
+    <div class="diagram">
+      <div class="diagram-title">ダッシュボードのレイアウト構成</div>
+      <svg viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" width="480">
+        <!-- Phone frame -->
+        <rect x="160" y="5" width="160" height="250" rx="16" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="2"/>
+        <!-- Status bar -->
+        <rect x="160" y="5" width="160" height="22" rx="16" fill="#1C1C2E"/>
+        <rect x="160" y="18" width="160" height="9" fill="#1C1C2E"/>
+        <!-- Header -->
+        <rect x="162" y="27" width="156" height="36" fill="#F8FAFC"/>
+        <text x="240" y="50" text-anchor="middle" font-size="11" fill="#1C1C2E" font-family="sans-serif" font-weight="600">仁戸名聖書バプテスト教会</text>
+        <!-- Grid 2-col -->
+        <!-- Week report widget (full width) -->
+        <rect x="170" y="68" width="62" height="62" rx="8" fill="#FFFBF0" stroke="#C9A84C" stroke-width="1.5"/>
+        <text x="201" y="96" text-anchor="middle" font-size="18" font-family="sans-serif">📋</text>
+        <text x="201" y="112" text-anchor="middle" font-size="9" fill="#1C1C2E" font-family="sans-serif" font-weight="600">週報</text>
+        <!-- Expense widget -->
+        <rect x="240" y="68" width="62" height="62" rx="8" fill="#F0FFF4" stroke="#86EFAC" stroke-width="1.5"/>
+        <text x="271" y="96" text-anchor="middle" font-size="18" font-family="sans-serif">🧾</text>
+        <text x="271" y="112" text-anchor="middle" font-size="9" fill="#1C1C2E" font-family="sans-serif" font-weight="600">経費</text>
+        <!-- File widget -->
+        <rect x="170" y="138" width="62" height="62" rx="8" fill="#EFF6FF" stroke="#93C5FD" stroke-width="1.5"/>
+        <text x="201" y="166" text-anchor="middle" font-size="18" font-family="sans-serif">📁</text>
+        <text x="201" y="182" text-anchor="middle" font-size="9" fill="#1C1C2E" font-family="sans-serif" font-weight="600">ファイル</text>
+        <!-- TabBar -->
+        <rect x="162" y="218" width="156" height="37" rx="0" fill="#F8FAFC" stroke="#E5E7EB" stroke-width="0.5"/>
+        <rect x="162" y="246" width="156" height="9" rx="0" fill="#F8FAFC"/>
+        <rect x="175" y="221" width="56" height="30" rx="15" fill="#C9A84C"/>
+        <text x="203" y="240" text-anchor="middle" font-size="9" fill="white" font-family="sans-serif" font-weight="600">⛪ 教会</text>
+        <text x="290" y="240" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">⚙ 設定</text>
+        <!-- Labels -->
+        <text x="100" y="99" text-anchor="end" font-size="11" fill="#6B7280" font-family="sans-serif">ウィジェット</text>
+        <line x1="104" y1="99" x2="166" y2="99" stroke="#E5E7EB" stroke-width="1"/>
+        <text x="100" y="236" text-anchor="end" font-size="11" fill="#6B7280" font-family="sans-serif">タブバー</text>
+        <line x1="104" y1="236" x2="160" y2="236" stroke="#E5E7EB" stroke-width="1"/>
+      </svg>
+    </div>
+
+    <div class="checklist">
+      <div class="checklist-title">確認項目</div>
+      <ul class="check-list">
+        <li>「週報」ウィジェットをタップすると <code>/bulletin</code>（週報一覧）へ遷移する</li>
+        <li>「経費」ウィジェットをタップすると iframe オーバーレイが開く</li>
+        <li>「ファイル」ウィジェットをタップすると iframe オーバーレイが開く</li>
+        <li>iframe は画面を下にスワイプ、または Escape キーで閉じられる</li>
+        <li>タブバーが画面下部に常時表示されている</li>
+        <li>「教会」タブがアクティブ（ゴールド色）になっている</li>
+        <li>「設定」タブをタップすると設定画面へ遷移する</li>
+        <li>セーフエリア（iPhone ノッチ・ホームインジケーター）を侵食していない</li>
+        <li>ウィジェットのグリッドレイアウトが崩れていない</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- BulletinList -->
+  <div class="page-card all" id="bulletin-list">
+    <div class="page-meta">
+      <h3>週報一覧</h3>
+      <span class="url">/bulletin</span>
+      <span class="badge all">全員</span>
+    </div>
+    <p class="page-desc">礼拝プログラム（週報）の一覧。年月セレクターで表示月を切り替え、各日曜日のカードを表示します。</p>
+
+    <div class="checklist">
+      <div class="checklist-title">確認項目</div>
+      <ul class="check-list">
+        <li>ヘッダー左に戻るボタン（← 丸形ガラスボタン）が表示され、タップするとダッシュボードに戻る</li>
+        <li>年・月のセレクターが表示され、切り替えると対象月の週報一覧が更新される</li>
+        <li>その月の日曜日ごとにカードが表示される</li>
+        <li>作成済みの週報カードにプログレスバーが表示される（filled / total）</li>
+        <li>作成済みカードをタップすると週報詳細（<code>/bulletin/:id</code>）へ遷移する</li>
+        <li>未作成の日曜日カードをタップすると週報作成フォーム（<code>/bulletin/new?date=...</code>）へ遷移する</li>
+        <li>次回日曜日は未作成でもカードが表示される</li>
+        <li>スクロール時にヘッダーのフロスト背景が出現する</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- BulletinDetail -->
+  <div class="page-card all" id="bulletin-detail">
+    <div class="page-meta">
+      <h3>週報詳細</h3>
+      <span class="url">/bulletin/:id</span>
+      <span class="badge all">全員</span>
+    </div>
+    <p class="page-desc">特定の週報の全セクションを閲覧します。自分が未記入の項目があると「記入する」CTA が表示されます。</p>
+
+    <div class="checklist">
+      <div class="checklist-title">確認項目</div>
+      <ul class="check-list">
+        <li>礼拝日（サービス日付）が大見出しで表示される</li>
+        <li>ページ上部に全体の進捗プログレスバーが表示される（例: 7/12）</li>
+        <li>未記入の担当項目がある場合「記入する」ボタンが表示され、タップすると編集フォームへ遷移する</li>
+        <li>ヘッダー右に「編集」ボタンがあり、タップすると <code>/bulletin/:id/edit</code> へ遷移する</li>
+        <li>各セクションが正しい種別に応じたレイアウトで表示される（以下のセクション種別一覧を参照）</li>
+        <li>worship-program: 礼拝プログラム項目が一覧表示される</li>
+        <li>assignments: 役割と担当者名が表示される</li>
+        <li>weekly-verse / monthly-song: 聖句・賛美歌情報が表示される</li>
+        <li>attendance: 各集会の出席数が表示される</li>
+        <li>戻るボタンで週報一覧に戻る</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- BulletinForm -->
+  <div class="page-card all" id="bulletin-form">
+    <div class="page-meta">
+      <h3>週報作成・編集フォーム</h3>
+      <span class="url">/bulletin/new &nbsp;／&nbsp; /bulletin/:id/edit</span>
+      <span class="badge all">全員</span>
+    </div>
+    <p class="page-desc">週報を新規作成または既存の週報を編集します。テンプレートに定義されたセクションがすべて表示されます。</p>
+
+    <div class="checklist">
+      <div class="checklist-title">確認項目（新規作成）</div>
+      <ul class="check-list">
+        <li>一覧から「未作成日曜日」をタップした場合、日付フィールドがプリフィルされている</li>
+        <li>テンプレートで定義した全セクションがフォームに表示される</li>
+        <li>各セクション種別ごとの入力UIが正しく機能する（後述のセクション種別を参照）</li>
+        <li>worship-program: 各項目のフィールドに値を入力できる</li>
+        <li>assignments: ドロップダウンからメンバーを選択できる</li>
+        <li>announcements: 「追加」ボタンで項目を増やせる</li>
+        <li>保存ボタンをタップすると週報詳細ページへ遷移する</li>
+      </ul>
+    </div>
+    <div class="checklist">
+      <div class="checklist-title">確認項目（編集）</div>
+      <ul class="check-list">
+        <li>既存データが各フィールドに正しく読み込まれている</li>
+        <li>変更を保存すると詳細ページに反映される</li>
+        <li>別のメンバーが入力済みの項目も閲覧・編集できる（権限制限なし）</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="page-card all" id="settings">
+    <div class="page-meta">
+      <h3>設定画面</h3>
+      <span class="url">/settings</span>
+      <span class="badge all">全員</span>
+    </div>
+    <p class="page-desc">ユーザー情報の確認、言語切替、PWA インストール案内、管理者向けメニューを集約します。</p>
+
+    <div class="checklist">
+      <div class="checklist-title">確認項目（全員）</div>
+      <ul class="check-list">
+        <li>ユーザー名（表示名）が正しく表示されている</li>
+        <li>言語セレクト（日本語 / English）が表示され、切り替えるとUI全体の表示言語が変わる</li>
+        <li>PWA 未インストール時のみ「ホーム画面に追加」案内セクションが表示される</li>
+        <li class="sub">Android/Chrome: ボタンをタップするとインストールプロンプトが表示される</li>
+        <li class="sub">iOS Safari: 手順テキスト（共有ボタン → ホーム画面に追加）が表示される</li>
+        <li>PWA インストール済みの場合、インストール案内セクションが非表示になる</li>
+      </ul>
+    </div>
+    <div class="checklist">
+      <div class="checklist-title">確認項目（管理者のみ）</div>
+      <ul class="check-list">
+        <li>「メンバー管理」リンクが表示され、タップすると <code>/settings/members</code> へ遷移する</li>
+        <li>「週報テンプレート設定」リンクが表示され、タップすると <code>/settings/bulletin-template</code> へ遷移する</li>
+        <li>メンバーロールでログインした場合、これらのリンクは表示されない</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Management -->
+  <div class="page-card admin" id="management">
+    <div class="page-meta">
+      <h3>メンバー管理</h3>
+      <span class="url">/settings/members</span>
+      <span class="badge admin">👑 管理者のみ</span>
+    </div>
+    <p class="page-desc">メンバーの追加・編集・招待リンク発行・LINE 連携状態の管理を行います。</p>
+
+    <div class="checklist">
+      <div class="checklist-title">確認項目</div>
+      <ul class="check-list">
+        <li>メンバー一覧がカード形式で表示される</li>
+        <li>各カードに名前・ロール（Admin/Member）・LINE連携状態・アクティブ状態が表示される</li>
+        <li>「メンバーを追加」ボタンをタップするとフォームダイアログが開く</li>
+        <li class="sub">名前・ロールを入力して保存するとメンバーが追加される</li>
+        <li class="sub">追加後、一覧に新しいカードが表示される</li>
+        <li>各メンバーカードの「編集」ボタンで名前・ロール変更ダイアログが開く</li>
+        <li>「招待リンクをコピー」ボタンをタップするとクリップボードに招待URLがコピーされる</li>
+        <li>LINE 連携済みメンバーに「再招待」ボタンが表示され、タップすると連携リセット＋新トークン発行される</li>
+        <li>「無効化」ボタンで該当メンバーが非アクティブになる（自分自身は無効化できない）</li>
+        <li>メンバーロールのユーザーがこのページを開こうとするとダッシュボードにリダイレクトされる</li>
+      </ul>
+    </div>
+    <div class="note warn">
+      <strong>注意</strong>
+      無効化は取り消せます（管理者が再度有効化できます）が、操作前に確認ダイアログが出るか確認してください。
+    </div>
+  </div>
+
+  <!-- BulletinTemplate -->
+  <div class="page-card admin" id="template">
+    <div class="page-meta">
+      <h3>週報テンプレート設定</h3>
+      <span class="url">/settings/bulletin-template</span>
+      <span class="badge admin">👑 管理者のみ</span>
+    </div>
+    <p class="page-desc">週報に含まれるセクションの構成・順序・表示設定をカスタマイズします。変更後に作成された週報に反映されます。</p>
+
+    <div class="checklist">
+      <div class="checklist-title">確認項目（セクション操作）</div>
+      <ul class="check-list">
+        <li>既存セクションが縦に並んで表示される</li>
+        <li>各セクション行を展開/折り畳みできる（タップで詳細設定エリアが表示される）</li>
+        <li>表示/非表示トグルで週報フォームへの表示を切り替えられる</li>
+        <li>↑↓ ボタンでセクションの順序を入れ替えられる</li>
+        <li>セクションラベル（見出し名）を編集できる</li>
+        <li>削除ボタンでセクションを削除できる（確認不要か確認）</li>
+        <li>「セクションを追加」ボタンをタップすると種別選択メニューが表示される</li>
+        <li>新しいセクションを追加すると一覧の末尾に追加される</li>
+      </ul>
+    </div>
+    <div class="checklist">
+      <div class="checklist-title">確認項目（種別別の設定）</div>
+      <ul class="check-list">
+        <li>worship-program: テンプレートアイテム（説教・賛美歌など）の追加/編集/削除、フィールド設定</li>
+        <li>announcements: サブヘッディング（見出し候補）の編集</li>
+        <li>assignments: 役割名リストの編集（例: 礼拝司会、奏楽）</li>
+        <li>attendance: 集会・会議種別の追加/削除</li>
+        <li>service-meta: カスタムフィールドの追加/削除（key・label・inputType）</li>
+        <li>financial-summary: 収支項目の追加/削除（key・label・unit）</li>
+      </ul>
+    </div>
+    <div class="checklist">
+      <div class="checklist-title">確認項目（保存と反映）</div>
+      <ul class="check-list">
+        <li>「保存」ボタンをタップするとサーバーにテンプレートが保存される</li>
+        <li>保存後、新規作成フォームを開くと変更が反映されている</li>
+        <li>既存の週報詳細は変更されない（テンプレートは新規作成時のみ参照）</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 4. 機能フロー ===== -->
+<section id="invite-flow">
+  <h2><span class="num">4</span>機能フロー</h2>
+
+  <h3>招待フロー（メンバー登録の流れ）</h3>
+  <div class="diagram">
+    <div class="diagram-title">招待リンクによる LINE 連携フロー</div>
+    <svg viewBox="0 0 740 120" xmlns="http://www.w3.org/2000/svg" width="740">
+      <defs>
+        <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M0,1 L9,5 L0,9 Z" fill="#94A3B8"/>
+        </marker>
+      </defs>
+      <!-- Step boxes -->
+      <rect x="10" y="30" width="100" height="50" rx="8" fill="#EDF2FF" stroke="#3B5BDB" stroke-width="1.5"/>
+      <text x="60" y="52" text-anchor="middle" font-size="11" fill="#3B5BDB" font-family="sans-serif" font-weight="600">① 管理者</text>
+      <text x="60" y="68" text-anchor="middle" font-size="10" fill="#1C1C2E" font-family="sans-serif">メンバー追加</text>
+
+      <line x1="110" y1="55" x2="140" y2="55" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#ar3)"/>
+
+      <rect x="140" y="30" width="110" height="50" rx="8" fill="#F5F5F5" stroke="#CBD5E1" stroke-width="1.5"/>
+      <text x="195" y="52" text-anchor="middle" font-size="11" fill="#6B7280" font-family="sans-serif" font-weight="600">② 招待リンク</text>
+      <text x="195" y="68" text-anchor="middle" font-size="10" fill="#1C1C2E" font-family="sans-serif">コピー → LINE共有</text>
+
+      <line x1="250" y1="55" x2="280" y2="55" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#ar3)"/>
+
+      <rect x="280" y="30" width="110" height="50" rx="8" fill="#F5F5F5" stroke="#CBD5E1" stroke-width="1.5"/>
+      <text x="335" y="52" text-anchor="middle" font-size="11" fill="#6B7280" font-family="sans-serif" font-weight="600">③ メンバー</text>
+      <text x="335" y="68" text-anchor="middle" font-size="10" fill="#1C1C2E" font-family="sans-serif">リンクをタップ</text>
+
+      <line x1="390" y1="55" x2="420" y2="55" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#ar3)"/>
+
+      <rect x="420" y="30" width="110" height="50" rx="8" fill="#DCFCE7" stroke="#86EFAC" stroke-width="1.5"/>
+      <text x="475" y="52" text-anchor="middle" font-size="11" fill="#166534" font-family="sans-serif" font-weight="600">④ LINE認証</text>
+      <text x="475" y="68" text-anchor="middle" font-size="10" fill="#1C1C2E" font-family="sans-serif">アカウント連携</text>
+
+      <line x1="530" y1="55" x2="560" y2="55" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#ar3)"/>
+
+      <rect x="560" y="30" width="110" height="50" rx="8" fill="#FFFBF0" stroke="#C9A84C" stroke-width="1.5"/>
+      <text x="615" y="52" text-anchor="middle" font-size="11" fill="#C9A84C" font-family="sans-serif" font-weight="600">⑤ ログイン完了</text>
+      <text x="615" y="68" text-anchor="middle" font-size="10" fill="#1C1C2E" font-family="sans-serif">ダッシュボードへ</text>
+
+      <!-- Step labels -->
+      <text x="60" y="15" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">メンバー管理画面</text>
+      <text x="615" y="15" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">初回のみ</text>
+    </svg>
+  </div>
+
+  <div class="checklist">
+    <div class="checklist-title">招待フローの確認項目</div>
+    <ul class="check-list">
+      <li>管理者がメンバーを追加し、招待リンクをコピーできる</li>
+      <li>招待リンク（<code>/api/invite/:token</code>）をブラウザで開くと LINE 認証にリダイレクトされる</li>
+      <li>LINE 認証後、ユーザーレコードに LINE アカウントが紐付けられログイン完了する</li>
+      <li>同じ招待リンクを 2 回使えないことを確認（inviteUsed フラグ）</li>
+      <li>「再招待」操作で LINE 連携がリセットされ、新しい招待トークンが発行される</li>
+    </ul>
+  </div>
+
+  <h3 style="margin-top:32px">週報作成フロー</h3>
+  <div class="diagram">
+    <div class="diagram-title">週報作成・確認の流れ</div>
+    <svg viewBox="0 0 740 140" xmlns="http://www.w3.org/2000/svg" width="740">
+      <defs>
+        <marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M0,1 L9,5 L0,9 Z" fill="#94A3B8"/>
+        </marker>
+      </defs>
+      <rect x="10" y="40" width="100" height="50" rx="8" fill="#FFFBF0" stroke="#C9A84C" stroke-width="1.5"/>
+      <text x="60" y="62" text-anchor="middle" font-size="11" fill="#1C1C2E" font-family="sans-serif" font-weight="600">週報一覧</text>
+      <text x="60" y="78" text-anchor="middle" font-size="10" fill="#6B7280" font-family="sans-serif">未作成をタップ</text>
+
+      <line x1="110" y1="65" x2="140" y2="65" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <rect x="140" y="20" width="110" height="90" rx="8" fill="#F5F3FF" stroke="#A78BFA" stroke-width="1.5"/>
+      <text x="195" y="50" text-anchor="middle" font-size="11" fill="#7C3AED" font-family="sans-serif" font-weight="600">週報フォーム</text>
+      <text x="195" y="66" text-anchor="middle" font-size="10" fill="#1C1C2E" font-family="sans-serif">テンプレートから</text>
+      <text x="195" y="80" text-anchor="middle" font-size="10" fill="#1C1C2E" font-family="sans-serif">セクション生成</text>
+      <text x="195" y="98" text-anchor="middle" font-size="10" fill="#6B7280" font-family="sans-serif">各自が入力・保存</text>
+
+      <line x1="250" y1="65" x2="280" y2="65" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <rect x="280" y="40" width="110" height="50" rx="8" fill="#FFFBF0" stroke="#C9A84C" stroke-width="1.5"/>
+      <text x="335" y="62" text-anchor="middle" font-size="11" fill="#1C1C2E" font-family="sans-serif" font-weight="600">週報詳細</text>
+      <text x="335" y="78" text-anchor="middle" font-size="10" fill="#6B7280" font-family="sans-serif">進捗バー表示</text>
+
+      <!-- Edit loop -->
+      <path d="M335,90 L335,125 L195,125 L195,110" stroke="#94A3B8" stroke-width="1.5" fill="none" marker-end="url(#ar4)" stroke-dasharray="4,3"/>
+      <text x="265" y="122" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">「記入する」CTA / ヘッダー編集ボタン</text>
+
+      <line x1="390" y1="65" x2="420" y2="65" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <rect x="420" y="30" width="130" height="70" rx="8" fill="#ECFDF5" stroke="#6EE7B7" stroke-width="1.5"/>
+      <text x="485" y="58" text-anchor="middle" font-size="11" fill="#065F46" font-family="sans-serif" font-weight="600">完成・共有</text>
+      <text x="485" y="74" text-anchor="middle" font-size="10" fill="#1C1C2E" font-family="sans-serif">全項目埋まり</text>
+      <text x="485" y="88" text-anchor="middle" font-size="10" fill="#6B7280" font-family="sans-serif">進捗 100%</text>
+
+      <text x="485" y="15" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">将来: PDF出力予定</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ===== 5. セクション種別 ===== -->
+<section id="section-types">
+  <h2><span class="num">5</span>セクション種別一覧</h2>
+  <p>週報テンプレートで設定できるセクション種別は全 13 種類です。テンプレート設定画面で追加・並替・設定変更ができます。</p>
+
+  <div class="sec-grid">
+    <div class="sec-card">
+      <div class="sc-type">worship-program</div>
+      <div class="sc-name">礼拝プログラム</div>
+      <div class="sc-desc">説教・賛美歌などの礼拝項目と担当者</div>
+      <div class="sc-count">進捗カウント対象 ✓</div>
+    </div>
+    <div class="sec-card">
+      <div class="sc-type">announcements</div>
+      <div class="sc-name">お知らせ</div>
+      <div class="sc-desc">複数項目のお知らせ（サブヘッディング付き）</div>
+      <div class="sc-count">進捗カウント対象 ✓</div>
+    </div>
+    <div class="sec-card">
+      <div class="sc-type">assignments</div>
+      <div class="sc-name">奉仕当番</div>
+      <div class="sc-desc">役割ごとの担当者割当</div>
+      <div class="sc-count">進捗カウント対象 ✓</div>
+    </div>
+    <div class="sec-card">
+      <div class="sc-type">weekly-verse</div>
+      <div class="sc-name">今週の聖句</div>
+      <div class="sc-desc">聖書箇所の参照とテキスト</div>
+      <div class="sc-count">進捗カウント対象 ✓</div>
+    </div>
+    <div class="sec-card">
+      <div class="sc-type">monthly-song</div>
+      <div class="sc-name">今月の賛美歌</div>
+      <div class="sc-desc">タイトルとキーワード</div>
+      <div class="sc-count">進捗カウント対象 ✓</div>
+    </div>
+    <div class="sec-card">
+      <div class="sc-type">weekly-prayer</div>
+      <div class="sc-name">週間祈り</div>
+      <div class="sc-desc">日～土の各曜日の祈り</div>
+      <div class="sc-count">進捗カウント対象 ✓（7日分）</div>
+    </div>
+    <div class="sec-card">
+      <div class="sc-type">text-block</div>
+      <div class="sc-name">テキストブロック</div>
+      <div class="sc-desc">自由記述（見出し＋本文）</div>
+      <div class="sc-count" style="color:var(--muted)">進捗カウント対象外</div>
+    </div>
+    <div class="sec-card">
+      <div class="sc-type">upcoming-events</div>
+      <div class="sc-name">予定行事</div>
+      <div class="sc-desc">日付と説明の複数行</div>
+      <div class="sc-count" style="color:var(--muted)">進捗カウント対象外</div>
+    </div>
+    <div class="sec-card">
+      <div class="sc-type">birthdays</div>
+      <div class="sc-name">誕生日</div>
+      <div class="sc-desc">日付と名前の複数行</div>
+      <div class="sc-count" style="color:var(--muted)">進捗カウント対象外</div>
+    </div>
+    <div class="sec-card">
+      <div class="sc-type">scripture-quotes</div>
+      <div class="sc-name">聖句引用</div>
+      <div class="sc-desc">複数の聖書引用（参照＋テキスト）</div>
+      <div class="sc-count" style="color:var(--muted)">進捗カウント対象外</div>
+    </div>
+    <div class="sec-card">
+      <div class="sc-type">attendance</div>
+      <div class="sc-name">出席数</div>
+      <div class="sc-desc">集会別の大人・子供数</div>
+      <div class="sc-count" style="color:var(--muted)">進捗カウント対象外</div>
+    </div>
+    <div class="sec-card">
+      <div class="sc-type">service-meta</div>
+      <div class="sc-name">礼拝情報（自由項目）</div>
+      <div class="sc-desc">カスタムフィールド（説教タイトル等）</div>
+      <div class="sc-count">進捗カウント対象 ✓</div>
+    </div>
+    <div class="sec-card">
+      <div class="sc-type">financial-summary</div>
+      <div class="sc-name">会計サマリー</div>
+      <div class="sc-desc">献金・支出などの金額項目</div>
+      <div class="sc-count" style="color:var(--muted)">進捗カウント対象外</div>
+    </div>
+  </div>
+
+  <div class="note tip">
+    <strong>進捗カウントについて</strong>
+    週報詳細のプログレスバーは「進捗カウント対象」セクションの入力済み項目数 / 全項目数で計算されます。対象外セクションはカウントされませんが表示・入力は可能です。
+  </div>
+</section>
+
+<!-- ===== 6. 改善メモ欄 ===== -->
+<section id="improvements">
+  <h2><span class="num">6</span>改善メモ欄</h2>
+  <p>確認中に気づいた改善点をこの欄に記録してください。画面名・操作手順・期待動作・実際の動作を明確にすると修正が進めやすくなります。</p>
+
+  <div class="improve-wrap">
+    <div class="improve-header">
+      <span>#</span>
+      <span>画面</span>
+      <span>内容（操作手順 → 気になった点）</span>
+      <span>優先度</span>
+    </div>
+    <div class="improve-row">
+      <span>1</span>
+      <span></span>
+      <span>&nbsp;</span>
+      <span></span>
+    </div>
+    <div class="improve-row">
+      <span>2</span>
+      <span></span>
+      <span>&nbsp;</span>
+      <span></span>
+    </div>
+    <div class="improve-row">
+      <span>3</span>
+      <span></span>
+      <span>&nbsp;</span>
+      <span></span>
+    </div>
+    <div class="improve-row">
+      <span>4</span>
+      <span></span>
+      <span>&nbsp;</span>
+      <span></span>
+    </div>
+    <div class="improve-row">
+      <span>5</span>
+      <span></span>
+      <span>&nbsp;</span>
+      <span></span>
+    </div>
+    <div class="improve-row">
+      <span>6</span>
+      <span></span>
+      <span>&nbsp;</span>
+      <span></span>
+    </div>
+    <div class="improve-row">
+      <span>7</span>
+      <span></span>
+      <span>&nbsp;</span>
+      <span></span>
+    </div>
+    <div class="improve-row">
+      <span>8</span>
+      <span></span>
+      <span>&nbsp;</span>
+      <span></span>
+    </div>
+  </div>
+
+  <h3>確認時の環境メモ</h3>
+  <table>
+    <thead>
+      <tr><th>項目</th><th>内容</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>確認日</td><td>&nbsp;</td></tr>
+      <tr><td>確認者</td><td>&nbsp;</td></tr>
+      <tr><td>端末</td><td>&nbsp;</td></tr>
+      <tr><td>ブラウザ</td><td>&nbsp;</td></tr>
+      <tr><td>環境</td><td>ローカル（DEV_AUTH） / Preview / 本番</td></tr>
+      <tr><td>管理者アカウント</td><td>&nbsp;</td></tr>
+      <tr><td>メンバーアカウント</td><td>&nbsp;</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:28px">API エンドポイント早見表</h3>
+  <table>
+    <thead>
+      <tr><th>メソッド</th><th>パス</th><th>説明</th><th>認可</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>GET</td><td><code>/api/auth/me</code></td><td>現在のユーザー情報</td><td>全員</td></tr>
+      <tr><td>POST</td><td><code>/api/auth/logout</code></td><td>ログアウト</td><td>全員</td></tr>
+      <tr><td>GET</td><td><code>/api/members</code></td><td>メンバー一覧（簡易）</td><td>全員</td></tr>
+      <tr><td>GET</td><td><code>/api/bulletin</code></td><td>週報一覧</td><td>全員</td></tr>
+      <tr><td>POST</td><td><code>/api/bulletin</code></td><td>週報作成</td><td>全員</td></tr>
+      <tr><td>GET</td><td><code>/api/bulletin/:id</code></td><td>週報詳細</td><td>全員</td></tr>
+      <tr><td>PUT</td><td><code>/api/bulletin/:id</code></td><td>週報更新</td><td>全員</td></tr>
+      <tr><td>GET</td><td><code>/api/bulletin-template</code></td><td>テンプレート取得</td><td>全員</td></tr>
+      <tr><td>PUT</td><td><code>/api/bulletin-template</code></td><td>テンプレート保存</td><td>管理者</td></tr>
+      <tr><td>GET</td><td><code>/api/admin/members</code></td><td>メンバー詳細一覧</td><td>管理者</td></tr>
+      <tr><td>POST</td><td><code>/api/admin/members</code></td><td>メンバー追加</td><td>管理者</td></tr>
+      <tr><td>PUT</td><td><code>/api/admin/members/:id</code></td><td>メンバー更新</td><td>管理者</td></tr>
+      <tr><td>DELETE</td><td><code>/api/admin/members/:id</code></td><td>メンバー無効化</td><td>管理者</td></tr>
+      <tr><td>POST</td><td><code>/api/admin/members/:id/reinvite</code></td><td>再招待</td><td>管理者</td></tr>
+      <tr><td>GET</td><td><code>/api/invite/:token</code></td><td>招待トークン検証</td><td>不要</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</div><!-- .wrap -->
+</body>
+</html>
