@@ -106,7 +106,7 @@
 | `src/store/auth.ts` | `/api/auth/me` を `createResource` で取得する認証ストア |
 | `src/store/AuthContext.tsx` | `AuthProvider` と `useAuth()` フック（コンポーネントが利用） |
 | `src/pages/Login/` | ログイン画面（LINE ボタン） |
-| `db/schema.sql` | D1 users テーブル定義（`invite_token NOT NULL UNIQUE`, `invite_used`, `is_active` 含む） |
+| `server/db/schema.ts` | D1 users テーブル定義（Drizzle スキーマ）（`invite_token NOT NULL UNIQUE`, `invite_used`, `is_active` 含む） |
 | `wrangler.jsonc` | D1（`DB`）・KV（`SESSION_KV`）バインディング設定 |
 
 ### ローカル開発用ダミーユーザー

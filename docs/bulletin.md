@@ -289,8 +289,6 @@ settings テーブルのキー: `church_profile`
 
 ## 7. DB スキーマ
 
-> **現状**: `db/schema.sql` は旧 3 カラム（`worship` / `announcements` / `assignments`）のまま。本節は目標形を示す。§12 のマイグレーションが未実施のため、現時点では旧スキーマで動作している。
-
 ### `bulletins` テーブル
 
 | カラム | 型 | 説明 |
@@ -303,7 +301,7 @@ settings テーブルのキー: `church_profile`
 | created_at | TEXT | 作成日時 |
 | updated_at | TEXT | 更新日時 |
 
-旧カラム（`worship` / `announcements` / `assignments`）は廃止予定。スキーマの正は `db/schema.sql`（現状は旧カラムのまま）。
+スキーマの正は `server/db/schema.ts`（Drizzle）。
 
 ### `settings` テーブルの利用キー
 
@@ -453,12 +451,12 @@ settings テーブルのキー: `church_profile`
 
 | 項目 | ステータス |
 |------|-----------|
-| `bulletins` テーブルスキーマ | 実装済み（`sections TEXT` 列に移行済み。`db/migrations/0001_bulletins_to_sections.sql` で変換マイグレーション提供） |
+| `bulletins` テーブルスキーマ | 実装済み（`sections TEXT` 列へ移行済み。Drizzle スキーマ `server/db/schema.ts` に反映済み） |
 | settings テーブルのキー名 | 実装済み（`worship_template` → `bulletin_template` に改名。GET 時の安全移行ロジック実装済み） |
 | `/settings/bulletin-template` ルート | 実装済み（セクションブロックモデル対応） |
 | `/settings/church-profile` ルート | 未実装（将来フェーズ） |
 | セクションブロックモデル（型定義・DB） | 実装済み（`SectionTemplate[]` / `SectionData[]` 判別共用体、`UnknownSection` で前方互換対応） |
-| マイグレーション（旧 3 カラム → sections） | 実装済み（`db/migrations/0001_bulletins_to_sections.sql`） |
+| マイグレーション（旧 3 カラム → sections） | 実装済み（Drizzle マイグレーション `drizzle/` に反映済み） |
 | テンプレート API 更新（SectionTemplate[] 対応） | 実装済み（バリデーション・sanitize・安全移行含む） |
 | 教会プロフィール API・画面 | 未実装（将来フェーズ） |
 | 既存 worship-program 入力・表示 | 実装済み（セクションブロックモデルに移植済み） |
