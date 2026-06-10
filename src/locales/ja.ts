@@ -21,10 +21,15 @@ export const ja = {
 		church: "教会",
 		settings: "設定",
 	},
+	admin: {
+		title: "管理画面",
+		members: "メンバー管理",
+		bulletinTemplate: "週報テンプレート",
+		logout: "ログアウト",
+		backToApp: "アプリに戻る",
+	},
 	settings: {
 		title: "設定",
-		memberManagement: "メンバー管理",
-		worshipTemplate: "礼拝テンプレート",
 		language: "言語",
 		installApp: "アプリをインストール",
 		installDescription: "ホーム画面に追加すると、アプリのように使えます",
@@ -106,6 +111,7 @@ export const ja = {
 	},
 	bulletinTemplate: {
 		title: "週報テンプレート",
+		confirmDiscard: "保存されていない変更があります。破棄して移動しますか？",
 		addSection: "セクションを追加",
 		sectionTypeWorship: "礼拝プログラム",
 		sectionTypeAnnouncements: "お知らせ",

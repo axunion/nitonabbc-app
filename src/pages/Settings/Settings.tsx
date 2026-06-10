@@ -1,10 +1,9 @@
 import { useNavigate } from "@solidjs/router";
 import {
 	ChevronRight,
-	FileText,
 	Languages,
+	LayoutDashboard,
 	Smartphone,
-	Users,
 } from "lucide-solid";
 import { createSignal, onCleanup, onMount, Show } from "solid-js";
 import { Header } from "@/components/Header";
@@ -61,19 +60,10 @@ export function Settings() {
 							<button
 								type="button"
 								class={styles.menuItem}
-								onClick={() => navigate("/settings/members")}
+								onClick={() => navigate("/admin")}
 							>
-								<Users size={20} stroke-width={1.5} />
-								<span>{t("settings.memberManagement")}</span>
-								<ChevronRight size={16} class={styles.chevron} />
-							</button>
-							<button
-								type="button"
-								class={styles.menuItem}
-								onClick={() => navigate("/settings/bulletin-template")}
-							>
-								<FileText size={20} stroke-width={1.5} />
-								<span>{t("settings.worshipTemplate")}</span>
+								<LayoutDashboard size={20} stroke-width={1.5} />
+								<span>{t("admin.title")}</span>
 								<ChevronRight size={16} class={styles.chevron} />
 							</button>
 						</div>

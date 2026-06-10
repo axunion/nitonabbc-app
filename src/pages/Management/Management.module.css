@@ -2,6 +2,10 @@
 	composes: pageContainer from "../../styles/shared.module.css";
 }
 
+.pageTitle {
+	composes: pageTitle from "../../styles/shared.module.css";
+}
+
 .addButton {
 	composes: dashedAction from "../../styles/shared.module.css";
 }

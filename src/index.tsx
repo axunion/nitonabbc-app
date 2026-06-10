@@ -1,6 +1,6 @@
 /* @refresh reload */
 
-import { Route, Router } from "@solidjs/router";
+import { Navigate, Route, Router } from "@solidjs/router";
 import { lazy } from "solid-js";
 import { render } from "solid-js/web";
 import "./index.css";
@@ -22,11 +22,12 @@ if (root) {
 			<Router root={App}>
 				<Route path="/" component={Dashboard} />
 				<Route path="/settings" component={Settings} />
-				<Route path="/settings/members" component={Management} />
 				<Route
-					path="/settings/bulletin-template"
-					component={BulletinTemplate}
+					path="/admin"
+					component={() => <Navigate href="/admin/members" />}
 				/>
+				<Route path="/admin/members" component={Management} />
+				<Route path="/admin/bulletin-template" component={BulletinTemplate} />
 				<Route path="/bulletin" component={BulletinList} />
 				<Route path="/bulletin/new" component={BulletinForm} />
 				<Route path="/bulletin/:id" component={BulletinDetail} />

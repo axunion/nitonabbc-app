@@ -14,10 +14,7 @@
 }
 
 .scrolled {
-	background: var(--glass-bg-chrome);
-	backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	border-bottom: var(--glass-border);
+	composes: scrolledHeader from "../../styles/shared.module.css";
 }
 
 .spacer {

@@ -17,6 +17,23 @@
 	animation: fadeIn var(--duration-normal) var(--ease-out);
 }
 
+.pageTitle {
+	width: 100%;
+	max-width: var(--app-max-width);
+	font-size: var(--text-xl);
+	font-weight: var(--font-semibold);
+	color: var(--color-gray-900);
+	letter-spacing: var(--tracking-tight);
+	margin: 0 0 var(--space-4) 0;
+}
+
+.scrolledHeader {
+	background: var(--glass-bg-chrome);
+	backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	border-bottom: var(--glass-border);
+}
+
 .loadingText {
 	text-align: center;
 	padding: var(--space-8);

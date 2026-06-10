@@ -29,14 +29,20 @@ export function useTemplateEditor() {
 		type: "success" | "error";
 		text: string;
 	} | null>(null);
+	const [savedSnapshot, setSavedSnapshot] = createSignal("");
 
 	createEffect(() => {
 		const data = templateData();
 		if (data && !initialized()) {
 			setSections(data);
+			setSavedSnapshot(JSON.stringify(data));
 			setInitialized(true);
 		}
 	});
+
+	const isDirty = createMemo(
+		() => initialized() && JSON.stringify(sections()) !== savedSnapshot(),
+	);
 
 	function updateSection(
 		id: string,
@@ -314,6 +320,7 @@ export function useTemplateEditor() {
 				});
 				return;
 			}
+			setSavedSnapshot(JSON.stringify(sections()));
 			setMessage({ type: "success", text: t("worshipTemplate.saved") });
 		} catch {
 			setMessage({ type: "error", text: t("worshipTemplate.saveError") });
@@ -329,6 +336,7 @@ export function useTemplateEditor() {
 		expandedSectionId,
 		message,
 		isValid,
+		isDirty,
 		toggleExpand,
 		updateLabel,
 		toggleVisible,

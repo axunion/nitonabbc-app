@@ -23,10 +23,15 @@ export const en: Dictionary = {
 		church: "Church",
 		settings: "Settings",
 	},
+	admin: {
+		title: "Admin",
+		members: "Members",
+		bulletinTemplate: "Bulletin Template",
+		logout: "Log out",
+		backToApp: "Back to app",
+	},
 	settings: {
 		title: "Settings",
-		memberManagement: "Member Management",
-		worshipTemplate: "Worship Template",
 		language: "Language",
 		installApp: "Install App",
 		installDescription: "Add to home screen to use it like an app",
@@ -107,6 +112,7 @@ export const en: Dictionary = {
 	},
 	bulletinTemplate: {
 		title: "Bulletin Template",
+		confirmDiscard: "You have unsaved changes. Discard them and leave?",
 		addSection: "Add Section",
 		sectionTypeWorship: "Worship Program",
 		sectionTypeAnnouncements: "Announcements",
