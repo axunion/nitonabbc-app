@@ -15,6 +15,7 @@
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN','Yu Gothic UI','Noto Sans JP',sans-serif;color:var(--text);background:var(--bg);line-height:1.75;font-size:15px}
 .wrap{max-width:980px;margin:0 auto;padding:0 24px 80px}
+code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;background:var(--bg);padding:1px 6px;border-radius:4px;border:1px solid var(--border)}
 
 /* Header */
 .hd{background:linear-gradient(135deg,#1C1C2E 0%,#2C2C4E 100%);color:#fff;padding:48px 40px 40px;margin-bottom:36px;border-radius:0 0 20px 20px;position:relative;overflow:hidden}
@@ -80,7 +81,6 @@ table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}
 th{background:var(--bg);padding:9px 14px;text-align:left;font-size:12px;font-weight:700;border-bottom:2px solid var(--border);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:top}
 tr:hover td{background:var(--gold-bg)}
-code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;background:var(--bg);padding:1px 6px;border-radius:4px;border:1px solid var(--border)}
 
 /* Section grid */
 .sec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:14px 0}
@@ -146,6 +146,7 @@ code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;background:var(-
   <div class="diagram">
     <div class="diagram-title">画面遷移図</div>
     <svg viewBox="0 0 820 470" xmlns="http://www.w3.org/2000/svg" width="820">
+      <title>画面遷移図</title>
       <defs>
         <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
           <path d="M0,1 L9,5 L0,9 Z" fill="#94A3B8"/>
@@ -264,6 +265,7 @@ code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;background:var(-
   <div class="diagram">
     <div class="diagram-title">アクセス可能画面</div>
     <svg viewBox="0 0 700 310" xmlns="http://www.w3.org/2000/svg" width="700">
+      <title>アクセス可能画面</title>
       <!-- Admin column -->
       <rect x="20" y="10" width="300" height="290" rx="10" fill="#EDF2FF" stroke="#3B5BDB" stroke-width="1.5"/>
       <rect x="20" y="10" width="300" height="44" rx="10" fill="#3B5BDB"/>
@@ -321,6 +323,7 @@ code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;background:var(-
     <div class="diagram">
       <div class="diagram-title">ログインフロー</div>
       <svg viewBox="0 0 640 80" xmlns="http://www.w3.org/2000/svg" width="640">
+        <title>ログインフロー</title>
         <defs>
           <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
             <path d="M0,1 L9,5 L0,9 Z" fill="#94A3B8"/>
@@ -372,6 +375,7 @@ code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;background:var(-
     <div class="diagram">
       <div class="diagram-title">ダッシュボードのレイアウト構成</div>
       <svg viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg" width="480">
+        <title>ダッシュボードのレイアウト構成</title>
         <!-- Phone frame -->
         <rect x="160" y="5" width="160" height="250" rx="16" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="2"/>
         <!-- Status bar -->
@@ -616,6 +620,7 @@ code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;background:var(-
   <div class="diagram">
     <div class="diagram-title">招待リンクによる LINE 連携フロー</div>
     <svg viewBox="0 0 740 120" xmlns="http://www.w3.org/2000/svg" width="740">
+      <title>招待リンクによる LINE 連携フロー</title>
       <defs>
         <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
           <path d="M0,1 L9,5 L0,9 Z" fill="#94A3B8"/>
@@ -671,6 +676,7 @@ code{font-family:'SF Mono','Fira Code',monospace;font-size:12px;background:var(-
   <div class="diagram">
     <div class="diagram-title">週報作成・確認の流れ</div>
     <svg viewBox="0 0 740 140" xmlns="http://www.w3.org/2000/svg" width="740">
+      <title>週報作成・確認の流れ</title>
       <defs>
         <marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
           <path d="M0,1 L9,5 L0,9 Z" fill="#94A3B8"/>
