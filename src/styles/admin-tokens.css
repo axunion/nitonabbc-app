@@ -1,0 +1,50 @@
+/*
+ * PC admin theme: flat neutral surfaces (shadcn-style) with the Deep Gold
+ * brand accent. Namespaced --admin-* so they coexist with the mobile tokens
+ * in tokens.css and resolve inside Kobalte portals mounted on document.body.
+ */
+:root {
+	/* --- Surfaces (neutral zinc) --- */
+	--admin-background: #fafafa;
+	--admin-foreground: #18181b;
+	--admin-card: #ffffff;
+	--admin-card-foreground: #18181b;
+
+	/* --- Brand accent: Deep Gold --- */
+	--admin-primary: #a67c1a;
+	--admin-primary-hover: #8c6815;
+	--admin-primary-foreground: #ffffff;
+	--admin-primary-soft: rgba(166, 124, 26, 0.1);
+	--admin-primary-soft-foreground: #8c6815;
+
+	/* --- Neutral interaction --- */
+	--admin-muted: #f4f4f5;
+	--admin-muted-foreground: #71717a;
+	--admin-accent: #f4f4f5;
+	--admin-accent-foreground: #18181b;
+
+	/* --- Status --- */
+	--admin-destructive: #dc3535;
+	--admin-destructive-hover: #c53030;
+	--admin-destructive-soft: rgba(220, 53, 53, 0.08);
+	--admin-success: #22863a;
+	--admin-success-soft: rgba(46, 160, 67, 0.12);
+
+	/* --- Lines & focus --- */
+	--admin-border: #e4e4e7;
+	--admin-input: #d4d4d8;
+	--admin-ring: rgba(166, 124, 26, 0.45);
+	--admin-focus-ring:
+		0 0 0 2px var(--admin-background), 0 0 0 4px var(--admin-ring);
+
+	/* --- Geometry & elevation (desktop-subtle, neutral) --- */
+	--admin-radius: 0.5rem;
+	--admin-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+	--admin-shadow-md:
+		0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+	--admin-shadow-lg:
+		0 8px 24px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.05);
+
+	/* --- Icons (zinc-500 chevron) --- */
+	--admin-icon-chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}

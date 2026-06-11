@@ -24,6 +24,12 @@ paths:
 - Apply a fadeIn animation to page containers
 - Define shared styles in `src/styles/shared.module.css` and apply them via `composes` in each page (e.g. `composes: pairedCancel from "../../styles/shared.module.css";`)
 
+### Admin theme (`/admin` pages)
+
+- Admin pages (AdminLayout, Management, BulletinTemplate) use the flat PC theme: `--admin-*` tokens from `src/styles/admin-tokens.css` plus shared patterns in `src/styles/admin.module.css` (e.g. `composes: card from "../../styles/admin.module.css";`)
+- Never use `--glass-*` tokens, `backdrop-filter`, or the mesh gradient in admin CSS — surfaces are opaque white with 1px `--admin-border` and `--admin-shadow-*`
+- Device-agnostic tokens (typography, spacing, radius steps, durations, z-index) are shared with `tokens.css`
+
 ## Icons
 
 - Use **lucide-solid**. Standard `stroke-width={1.5}`.

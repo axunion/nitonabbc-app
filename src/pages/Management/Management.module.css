@@ -3,11 +3,11 @@
 }
 
 .pageTitle {
-	composes: pageTitle from "../../styles/shared.module.css";
+	composes: pageTitle from "../../styles/admin.module.css";
 }
 
 .addButton {
-	composes: dashedAction from "../../styles/shared.module.css";
+	composes: dashedAction from "../../styles/admin.module.css";
 }
 
 .list {
@@ -22,13 +22,8 @@
 }
 
 .card {
-	background: var(--glass-bg);
-	backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	border: var(--glass-border);
-	border-radius: var(--radius-lg);
+	composes: card from "../../styles/admin.module.css";
 	padding: var(--space-4);
-	box-shadow: var(--glass-shadow-sm);
 }
 
 .cardHeader {
@@ -41,7 +36,7 @@
 .memberName {
 	font-size: var(--text-base);
 	font-weight: var(--font-semibold);
-	color: var(--color-gray-900);
+	color: var(--admin-card-foreground);
 	margin: 0;
 }
 
@@ -63,32 +58,32 @@
 
 .badgeAdmin {
 	composes: badge;
-	background-color: var(--color-primary-100);
-	color: var(--color-primary-300);
+	background-color: var(--admin-primary-soft);
+	color: var(--admin-primary-soft-foreground);
 }
 
 .badgeMember {
 	composes: badge;
-	background-color: rgba(0, 0, 0, 0.05);
-	color: var(--color-gray-600);
+	background-color: var(--admin-muted);
+	color: var(--admin-muted-foreground);
 }
 
 .badgeLinked {
 	composes: badge;
-	background-color: var(--color-success-100);
-	color: var(--color-success-700);
+	background-color: var(--admin-success-soft);
+	color: var(--admin-success);
 }
 
 .badgeUnlinked {
 	composes: badge;
-	background-color: rgba(0, 0, 0, 0.05);
-	color: var(--color-gray-500);
+	background-color: var(--admin-muted);
+	color: var(--admin-muted-foreground);
 }
 
 .badgeInactive {
 	composes: badge;
-	background-color: var(--color-destructive-100);
-	color: var(--color-destructive-700);
+	background-color: var(--admin-destructive-soft);
+	color: var(--admin-destructive);
 }
 
 .cardActions {
@@ -99,93 +94,40 @@
 }
 
 .actionButton {
+	composes: buttonOutline from "../../styles/admin.module.css";
 	display: flex;
 	align-items: center;
 	gap: var(--space-1);
 	height: 36px;
 	padding: 0 var(--space-3);
-	border-radius: var(--radius-md);
-	border: var(--glass-border);
-	background: var(--glass-bg);
-	color: var(--color-gray-700);
-	font-size: var(--text-sm);
-	cursor: pointer;
-	outline: none;
-	transition:
-		background var(--duration-fast) var(--ease-default),
-		border var(--duration-fast) var(--ease-default);
-}
-
-.actionButton:hover {
-	background: var(--glass-bg-hover);
-	border: var(--glass-border-hover);
-}
-
-.actionButton:focus-visible {
-	box-shadow: var(--focus-ring);
+	font-weight: var(--font-normal);
 }
 
 .destructiveButton {
-	composes: actionButton;
-	color: var(--color-destructive);
-	border-color: var(--color-destructive-100);
-}
-
-.destructiveButton:hover {
-	background-color: var(--color-destructive-50);
+	composes: buttonOutlineDestructive from "../../styles/admin.module.css";
+	display: flex;
+	align-items: center;
+	gap: var(--space-1);
+	height: 36px;
+	padding: 0 var(--space-3);
+	font-weight: var(--font-normal);
 }
 
 /* Dialog styles */
 .overlay {
-	position: fixed;
-	inset: 0;
-	z-index: var(--z-modal);
-	background-color: rgba(0, 0, 0, 0.3);
-	animation: dialogFadeIn var(--duration-fast) var(--ease-default);
+	composes: dialogOverlay from "../../styles/admin.module.css";
 }
 
 .dialogContent {
-	position: fixed;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	z-index: var(--z-modal);
-	background: rgba(255, 255, 255, 0.95);
-	backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	border: var(--glass-border);
-	border-radius: var(--radius-lg);
-	box-shadow: var(--glass-shadow-lg);
-	padding: var(--space-6);
+	composes: dialogContent from "../../styles/admin.module.css";
 	width: calc(100% - var(--space-8));
 	max-width: 400px;
-	animation: slideUp var(--duration-normal) var(--ease-default);
-}
-
-@keyframes dialogFadeIn {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
-}
-
-@keyframes slideUp {
-	from {
-		opacity: 0;
-		transform: translate(-50%, -48%);
-	}
-	to {
-		opacity: 1;
-		transform: translate(-50%, -50%);
-	}
 }
 
 .dialogTitle {
 	font-size: var(--text-lg);
 	font-weight: var(--font-semibold);
-	color: var(--color-gray-900);
+	color: var(--admin-foreground);
 	margin: 0 0 var(--space-4) 0;
 	letter-spacing: var(--tracking-tight);
 }
@@ -198,36 +140,16 @@
 	display: block;
 	font-size: var(--text-sm);
 	font-weight: var(--font-medium);
-	color: var(--color-gray-700);
+	color: var(--admin-foreground);
 	margin-bottom: var(--space-1);
 }
 
 .input {
-	width: 100%;
-	height: 44px;
-	padding: 0 var(--space-3);
-	border: 1px solid var(--input-border);
-	border-radius: var(--radius-md);
-	font-size: var(--text-base);
-	color: var(--color-text);
-	background: var(--input-bg);
-	outline: none;
-	transition: border-color var(--duration-fast) var(--ease-default);
-	box-sizing: border-box;
-}
-
-.input:focus {
-	border-color: var(--input-border-focus);
-	box-shadow: var(--focus-ring);
+	composes: input from "../../styles/admin.module.css";
 }
 
 .select {
-	composes: input;
-	appearance: none;
-	background-image: var(--icon-chevron-down);
-	background-repeat: no-repeat;
-	background-position: right var(--space-3) center;
-	padding-right: var(--space-8);
+	composes: select from "../../styles/admin.module.css";
 }
 
 .dialogActions {
@@ -236,19 +158,20 @@
 }
 
 .cancelButton {
-	composes: pairedCancel from "../../styles/shared.module.css";
+	composes: buttonOutline from "../../styles/admin.module.css";
+	min-width: 7rem;
 }
 
 .submitButton {
-	composes: pairedSubmit from "../../styles/shared.module.css";
+	composes: buttonPrimary from "../../styles/admin.module.css";
 }
 
 .loading {
-	composes: loadingText from "../../styles/shared.module.css";
+	composes: loadingText from "../../styles/admin.module.css";
 }
 
 .copySuccess {
-	color: var(--color-success);
+	color: var(--admin-success);
 	font-size: var(--text-xs);
 	margin-left: var(--space-1);
 }

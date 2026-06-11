@@ -1,0 +1,188 @@
+/* Shared patterns for PC admin pages. Flat shadcn-style surfaces built on
+ * the --admin-* tokens (admin-tokens.css). No glass tokens here. */
+
+.pageTitle {
+	width: 100%;
+	max-width: var(--app-max-width);
+	font-size: var(--text-xl);
+	font-weight: var(--font-semibold);
+	color: var(--admin-foreground);
+	letter-spacing: var(--tracking-tight);
+	margin: 0 0 var(--space-4) 0;
+}
+
+.loadingText {
+	text-align: center;
+	padding: var(--space-8);
+	color: var(--admin-muted-foreground);
+	font-size: var(--text-sm);
+}
+
+.card {
+	background: var(--admin-card);
+	border: 1px solid var(--admin-border);
+	border-radius: var(--admin-radius);
+	box-shadow: var(--admin-shadow-sm);
+}
+
+.input {
+	width: 100%;
+	height: 44px;
+	padding: 0 var(--space-3);
+	border: 1px solid var(--admin-input);
+	border-radius: var(--radius-md);
+	font-size: var(--text-base);
+	color: var(--admin-foreground);
+	background: var(--admin-card);
+	outline: none;
+	transition: border-color var(--duration-fast) var(--ease-default);
+	box-sizing: border-box;
+}
+
+.input:focus {
+	border-color: var(--admin-primary);
+	box-shadow: var(--admin-focus-ring);
+}
+
+.select {
+	composes: input;
+	appearance: none;
+	background-image: var(--admin-icon-chevron-down);
+	background-repeat: no-repeat;
+	background-position: right var(--space-3) center;
+	padding-right: var(--space-8);
+}
+
+.buttonPrimary {
+	height: 44px;
+	min-width: 7rem;
+	padding: 0 var(--space-4);
+	border-radius: var(--radius-md);
+	border: none;
+	background-color: var(--admin-primary);
+	color: var(--admin-primary-foreground);
+	font-size: var(--text-sm);
+	font-weight: var(--font-medium);
+	cursor: pointer;
+	outline: none;
+	transition: background-color var(--duration-fast) var(--ease-default);
+}
+
+.buttonPrimary:hover {
+	background-color: var(--admin-primary-hover);
+}
+
+.buttonPrimary:focus-visible {
+	box-shadow: var(--admin-focus-ring);
+}
+
+.buttonPrimary:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.buttonOutline {
+	height: 44px;
+	padding: 0 var(--space-4);
+	border-radius: var(--radius-md);
+	border: 1px solid var(--admin-border);
+	background: var(--admin-card);
+	color: var(--admin-foreground);
+	font-size: var(--text-sm);
+	font-weight: var(--font-medium);
+	cursor: pointer;
+	outline: none;
+	transition:
+		background var(--duration-fast) var(--ease-default),
+		border-color var(--duration-fast) var(--ease-default);
+}
+
+.buttonOutline:hover {
+	background: var(--admin-accent);
+}
+
+.buttonOutline:focus-visible {
+	box-shadow: var(--admin-focus-ring);
+}
+
+.buttonOutlineDestructive {
+	composes: buttonOutline;
+	color: var(--admin-destructive);
+}
+
+.buttonOutlineDestructive:hover {
+	background: var(--admin-destructive-soft);
+}
+
+.dashedAction {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-2);
+	width: 100%;
+	max-width: var(--app-max-width);
+	height: 56px;
+	border-radius: var(--admin-radius);
+	border: 1px dashed var(--admin-input);
+	background: transparent;
+	color: var(--admin-muted-foreground);
+	font-size: var(--text-base);
+	font-weight: var(--font-medium);
+	cursor: pointer;
+	outline: none;
+	margin-bottom: var(--space-4);
+	transition:
+		border-color var(--duration-fast) var(--ease-default),
+		color var(--duration-fast) var(--ease-default);
+}
+
+.dashedAction:hover {
+	border-color: var(--admin-primary);
+	color: var(--admin-primary);
+}
+
+.dashedAction:focus-visible {
+	box-shadow: var(--admin-focus-ring);
+}
+
+@keyframes dialogFadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes dialogSlideUp {
+	from {
+		opacity: 0;
+		transform: translate(-50%, -48%);
+	}
+	to {
+		opacity: 1;
+		transform: translate(-50%, -50%);
+	}
+}
+
+.dialogOverlay {
+	position: fixed;
+	inset: 0;
+	z-index: var(--z-modal);
+	background-color: rgba(0, 0, 0, 0.4);
+	animation: dialogFadeIn var(--duration-fast) var(--ease-default);
+}
+
+.dialogContent {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: var(--z-modal);
+	background: var(--admin-card);
+	border: 1px solid var(--admin-border);
+	border-radius: var(--admin-radius);
+	box-shadow: var(--admin-shadow-lg);
+	padding: var(--space-6);
+	animation: dialogSlideUp var(--duration-normal) var(--ease-default);
+}

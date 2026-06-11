@@ -3,12 +3,12 @@
 }
 
 .pageTitle {
-	composes: pageTitle from "../../styles/shared.module.css";
+	composes: pageTitle from "../../styles/admin.module.css";
 }
 
 .description {
 	font-size: var(--text-sm);
-	color: var(--color-gray-500);
+	color: var(--admin-muted-foreground);
 	margin: 0 0 var(--space-4) 0;
 	width: 100%;
 	max-width: var(--app-max-width);
@@ -31,12 +31,7 @@
 }
 
 .item {
-	background: var(--glass-bg);
-	backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	border: var(--glass-border);
-	border-radius: var(--radius-lg);
-	box-shadow: var(--glass-shadow-sm);
+	composes: card from "../../styles/admin.module.css";
 	overflow: hidden;
 }
 
@@ -66,7 +61,7 @@
 	border-radius: var(--radius-sm);
 	border: none;
 	background: transparent;
-	color: var(--color-gray-400);
+	color: var(--admin-muted-foreground);
 	cursor: pointer;
 	outline: none;
 	padding: 0;
@@ -74,11 +69,11 @@
 }
 
 .orderButton:hover {
-	color: var(--color-gray-700);
+	color: var(--admin-foreground);
 }
 
 .orderButton:focus-visible {
-	box-shadow: var(--focus-ring);
+	box-shadow: var(--admin-focus-ring);
 }
 
 .orderButton:disabled {
@@ -103,14 +98,14 @@
 }
 
 .itemSummary:focus-visible {
-	box-shadow: var(--focus-ring);
+	box-shadow: var(--admin-focus-ring);
 	border-radius: var(--radius-sm);
 }
 
 .itemLabel {
 	font-size: var(--text-sm);
 	font-weight: var(--font-medium);
-	color: var(--color-gray-800);
+	color: var(--admin-foreground);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -123,7 +118,7 @@
 
 .itemMeta {
 	font-size: var(--text-xs);
-	color: var(--color-gray-400);
+	color: var(--admin-muted-foreground);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -139,7 +134,7 @@
 	border-radius: var(--radius-md);
 	border: none;
 	background: transparent;
-	color: var(--color-gray-400);
+	color: var(--admin-muted-foreground);
 	cursor: pointer;
 	outline: none;
 	flex-shrink: 0;
@@ -147,18 +142,18 @@
 }
 
 .expandButton:hover {
-	color: var(--color-gray-700);
+	color: var(--admin-foreground);
 }
 
 .expandButton:focus-visible {
-	box-shadow: var(--focus-ring);
+	box-shadow: var(--admin-focus-ring);
 }
 
 /* --- Expanded detail --- */
 
 .itemDetail {
 	padding: 0 var(--space-3) var(--space-3);
-	border-top: 1px solid var(--color-gray-100);
+	border-top: 1px solid var(--admin-border);
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-3);
@@ -173,11 +168,11 @@
 .input {
 	height: 40px;
 	padding: 0 var(--space-3);
-	border: 1px solid var(--input-border);
+	border: 1px solid var(--admin-input);
 	border-radius: var(--radius-md);
 	font-size: var(--text-sm);
-	color: var(--color-text);
-	background: var(--input-bg);
+	color: var(--admin-foreground);
+	background: var(--admin-card);
 	outline: none;
 	transition: border-color var(--duration-fast) var(--ease-default);
 	box-sizing: border-box;
@@ -186,8 +181,8 @@
 }
 
 .input:focus {
-	border-color: var(--input-border-focus);
-	box-shadow: var(--focus-ring);
+	border-color: var(--admin-primary);
+	box-shadow: var(--admin-focus-ring);
 }
 
 .inputSmall {
@@ -207,9 +202,9 @@
 	height: 30px;
 	padding: 0 var(--space-2);
 	border-radius: var(--radius-full);
-	border: 1px solid var(--color-gray-200);
+	border: 1px solid var(--admin-border);
 	background: transparent;
-	color: var(--color-gray-500);
+	color: var(--admin-muted-foreground);
 	font-size: var(--text-xs);
 	cursor: pointer;
 	outline: none;
@@ -220,24 +215,24 @@
 }
 
 .chip:hover {
-	border-color: var(--color-primary-300);
-	color: var(--color-primary);
+	border-color: var(--admin-primary);
+	color: var(--admin-primary);
 }
 
 .chip:focus-visible {
-	box-shadow: var(--focus-ring);
+	box-shadow: var(--admin-focus-ring);
 }
 
 .chipActive {
-	background: var(--color-primary);
-	border-color: var(--color-primary);
-	color: white;
+	background: var(--admin-primary);
+	border-color: var(--admin-primary);
+	color: var(--admin-primary-foreground);
 }
 
 .chipActive:hover {
-	background: var(--color-primary-700);
-	border-color: var(--color-primary-700);
-	color: white;
+	background: var(--admin-primary-hover);
+	border-color: var(--admin-primary-hover);
+	color: var(--admin-primary-foreground);
 }
 
 /* --- Mode toggle --- */
@@ -249,7 +244,7 @@
 	border: none;
 	border-radius: var(--radius-sm);
 	background: transparent;
-	color: var(--color-primary);
+	color: var(--admin-primary);
 	font-size: var(--text-xs);
 	cursor: pointer;
 	outline: none;
@@ -257,11 +252,11 @@
 }
 
 .modeToggle:hover {
-	background: rgba(var(--color-primary-rgb, 59, 130, 246), 0.06);
+	background: var(--admin-primary-soft);
 }
 
 .modeToggle:focus-visible {
-	box-shadow: var(--focus-ring);
+	box-shadow: var(--admin-focus-ring);
 }
 
 /* --- Sub-fields --- */
@@ -271,7 +266,7 @@
 	flex-direction: column;
 	gap: var(--space-2);
 	padding-left: var(--space-2);
-	border-left: 2px solid var(--color-gray-100);
+	border-left: 2px solid var(--admin-border);
 }
 
 .fieldRow {
@@ -283,11 +278,11 @@
 .fieldInput {
 	height: 36px;
 	padding: 0 var(--space-2);
-	border: 1px solid var(--input-border);
+	border: 1px solid var(--admin-input);
 	border-radius: var(--radius-sm);
 	font-size: var(--text-sm);
-	color: var(--color-text);
-	background: var(--input-bg);
+	color: var(--admin-foreground);
+	background: var(--admin-card);
 	outline: none;
 	flex: 1;
 	min-width: 0;
@@ -295,25 +290,25 @@
 }
 
 .fieldInput:focus {
-	border-color: var(--input-border-focus);
-	box-shadow: var(--focus-ring);
+	border-color: var(--admin-primary);
+	box-shadow: var(--admin-focus-ring);
 }
 
 .fieldSelect {
 	height: 36px;
 	padding: 0 var(--space-1);
-	border: 1px solid var(--input-border);
+	border: 1px solid var(--admin-input);
 	border-radius: var(--radius-sm);
 	font-size: var(--text-xs);
-	color: var(--color-text);
-	background: var(--input-bg);
+	color: var(--admin-foreground);
+	background: var(--admin-card);
 	outline: none;
 	min-width: 68px;
 }
 
 .fieldSelect:focus {
-	border-color: var(--input-border-focus);
-	box-shadow: var(--focus-ring);
+	border-color: var(--admin-primary);
+	box-shadow: var(--admin-focus-ring);
 }
 
 .fieldRemoveButton {
@@ -325,7 +320,7 @@
 	border-radius: var(--radius-full);
 	border: none;
 	background: transparent;
-	color: var(--color-gray-400);
+	color: var(--admin-muted-foreground);
 	cursor: pointer;
 	outline: none;
 	padding: 0;
@@ -334,11 +329,11 @@
 }
 
 .fieldRemoveButton:hover {
-	color: var(--color-destructive);
+	color: var(--admin-destructive);
 }
 
 .fieldRemoveButton:focus-visible {
-	box-shadow: var(--focus-ring);
+	box-shadow: var(--admin-focus-ring);
 }
 
 .addFieldButton {
@@ -350,7 +345,7 @@
 	border: none;
 	border-radius: var(--radius-sm);
 	background: transparent;
-	color: var(--color-gray-400);
+	color: var(--admin-muted-foreground);
 	font-size: var(--text-xs);
 	cursor: pointer;
 	outline: none;
@@ -358,11 +353,11 @@
 }
 
 .addFieldButton:hover {
-	color: var(--color-primary);
+	color: var(--admin-primary);
 }
 
 .addFieldButton:focus-visible {
-	box-shadow: var(--focus-ring);
+	box-shadow: var(--admin-focus-ring);
 }
 
 /* --- Delete --- */
@@ -377,7 +372,7 @@
 	border: none;
 	border-radius: var(--radius-sm);
 	background: transparent;
-	color: var(--color-destructive);
+	color: var(--admin-destructive);
 	font-size: var(--text-xs);
 	cursor: pointer;
 	outline: none;
@@ -390,7 +385,7 @@
 }
 
 .deleteButton:focus-visible {
-	box-shadow: var(--focus-ring);
+	box-shadow: var(--admin-focus-ring);
 }
 
 /* --- Add item / actions --- */
@@ -402,9 +397,9 @@
 	height: 44px;
 	padding: 0 var(--space-3);
 	border-radius: var(--radius-md);
-	border: 1px dashed rgba(0, 0, 0, 0.12);
+	border: 1px dashed var(--admin-input);
 	background: transparent;
-	color: var(--color-gray-500);
+	color: var(--admin-muted-foreground);
 	font-size: var(--text-sm);
 	cursor: pointer;
 	outline: none;
@@ -417,12 +412,12 @@
 }
 
 .addButton:hover {
-	border-color: var(--color-primary);
-	color: var(--color-primary);
+	border-color: var(--admin-primary);
+	color: var(--admin-primary);
 }
 
 .addButton:focus-visible {
-	box-shadow: var(--focus-ring);
+	box-shadow: var(--admin-focus-ring);
 }
 
 .actions {
@@ -431,7 +426,7 @@
 }
 
 .saveButton {
-	composes: pairedSubmit from "../../styles/shared.module.css";
+	composes: buttonPrimary from "../../styles/admin.module.css";
 }
 
 /* --- Messages --- */
@@ -445,5 +440,5 @@
 }
 
 .loading {
-	composes: loadingText from "../../styles/shared.module.css";
+	composes: loadingText from "../../styles/admin.module.css";
 }

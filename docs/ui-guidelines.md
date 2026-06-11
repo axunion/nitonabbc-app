@@ -205,6 +205,16 @@ import { FileText } from "lucide-solid";
 - ウィジェットはグラスカードスタイル + `--shadow-md` を適用
 - 各ウィジェットの `grid-column` span はアイテム数に応じて調整する
 
+## 管理画面テーマ（`/admin`）
+
+管理画面は PC 操作が前提のため、モバイルの "God's Glory" テーマとは別の **フラットなニュートラルテーマ**（shadcn/ui 風、ライブラリ不使用）を使用する。
+
+- **トークン**: `src/styles/admin-tokens.css` の `--admin-*`（`:root` 定義。名前空間が分かれているためモバイルトークンと共存し、Kobalte の Portal 内でも解決される）
+- **共有パターン**: `src/styles/admin.module.css`（`.card`, `.input`, `.buttonPrimary`, `.buttonOutline`, `.dialogContent` 等を `composes:` で利用）
+- **カラー**: 背景 `#fafafa` / カード `#ffffff` + 1px `#e4e4e7` ボーダー / テキスト `#18181b` / muted `#71717a`（zinc 系ニュートラル）。アクセントは Deep Gold (`--admin-primary: #a67c1a`) を継続
+- **グラスモーフィズム不使用**: `--glass-*` トークン・`backdrop-filter`・メッシュグラデーションは管理画面では使わない。サーフェスは不透明白 + 細ボーダー + 控えめなニュートラルシャドウ（`--admin-shadow-*`）
+- typography / spacing / radius ステップ / duration / z-index はデバイス非依存のため `tokens.css` のものを共用する
+
 ## Favicon / PWA アイコン
 
 - **favicon.svg**: ベージュグラデーション背景にゴールドグラデーション十字架（角丸四角形）
