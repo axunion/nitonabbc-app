@@ -1,4 +1,4 @@
-import { Minus, Plus } from "lucide-solid";
+import { Plus, X } from "lucide-solid";
 import { For } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type { AttendanceSectionTemplate } from "@/types/bulletin.ts";
@@ -44,28 +44,28 @@ export function AttendanceConfigEditor(props: Props) {
 					<div class={styles.fieldRow}>
 						<input
 							type="text"
-							class={styles.fieldInput}
-							placeholder={t(
-								"bulletinTemplate.attendanceMeetingKeyPlaceholder",
-							)}
-							value={meeting.key}
-							onInput={(e) => update(index(), "key", e.currentTarget.value)}
-						/>
-						<input
-							type="text"
-							class={styles.fieldInput}
+							class={styles.input}
 							placeholder={t(
 								"bulletinTemplate.attendanceMeetingLabelPlaceholder",
 							)}
 							value={meeting.label}
 							onInput={(e) => update(index(), "label", e.currentTarget.value)}
 						/>
+						<input
+							type="text"
+							class={styles.input}
+							placeholder={t(
+								"bulletinTemplate.attendanceMeetingKeyPlaceholder",
+							)}
+							value={meeting.key}
+							onInput={(e) => update(index(), "key", e.currentTarget.value)}
+						/>
 						<button
 							type="button"
-							class={styles.fieldRemoveButton}
+							class={styles.removeButton}
 							onClick={() => remove(index())}
 						>
-							<Minus size={14} stroke-width={1.5} />
+							<X size={14} stroke-width={1.5} />
 						</button>
 					</div>
 				)}

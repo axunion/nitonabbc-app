@@ -19,11 +19,11 @@ Add a new bulletin section type covering type definitions, viewer, editor, templ
 ## Before starting
 
 Read the following files to understand current implementation patterns:
-- `docs/bulletin.md` §5 (spec for the section to add) and §13 (implementation status)
+- `docs/bulletin.md` §5 (spec for the section to add)
 - `src/types/bulletin.ts` (existing union types)
 - `src/pages/BulletinDetail/components/SectionView.tsx` (viewer dispatcher)
 - `src/pages/BulletinForm/components/SectionEditor.tsx` (editor dispatcher)
-- `src/pages/BulletinTemplate/components/SectionRow.tsx` (template UI dispatcher)
+- `src/pages/BulletinTemplate/components/SectionCard.tsx` (template UI dispatcher)
 - `server/routes/bulletin.ts` (sanitize and `countProgress` implementation)
 - `server/routes/__tests__/bulletin.test.ts` (existing test patterns)
 
@@ -42,9 +42,10 @@ Read the following files to understand current implementation patterns:
 - Add corresponding branch to the dispatcher
 - Implement an input-only editor component in the same directory
 
-### 4. Template UI (`src/pages/BulletinTemplate/components/SectionRow.tsx`)
+### 4. Template UI (`src/pages/BulletinTemplate/components/SectionCard.tsx`)
 - If the section has config fields, add a dispatcher branch for the config edit UI
 - If no config (e.g. `weekly-prayer`, `weekly-verse`), the generic display is sufficient
+- Add the section to `DEFAULT_TEMPLATE` in `server/routes/bulletinTemplateDefaults.ts` (sections cannot be added from the UI)
 
 ### 5. Server: sanitize (`server/routes/bulletin.ts`)
 - Add the new type string to the `VALID_SECTION_TYPES` array
@@ -57,14 +58,14 @@ Read the following files to understand current implementation patterns:
 - Add tests for creating, fetching, and counting progress for the new section type
 
 ### 8. Documentation (`docs/bulletin.md`)
-- Update §13 implementation status row to "implemented"
+- Add the new type to the §5 catalog and the §8 default template listing
 
 ## Checklist
 - [ ] Added to `src/types/bulletin.ts` unions
-- [ ] Added branches to all three dispatchers: `SectionView`, `SectionEditor`, `SectionRow`
+- [ ] Added branches to all three dispatchers: `SectionView`, `SectionEditor`, `SectionCard`
 - [ ] Added to `VALID_SECTION_TYPES` in server sanitize
 - [ ] Added progress counting logic to `countProgress` (or explicit 0 if not counted)
 - [ ] Tests added and `pnpm test` passes
-- [ ] `docs/bulletin.md` §13 updated
+- [ ] `docs/bulletin.md` updated (§5 catalog, §8 default template)
 - [ ] i18n keys added to `src/locales/ja.ts` and `src/locales/en.ts`
 - [ ] Code passes Biome formatting (`pnpm check`)

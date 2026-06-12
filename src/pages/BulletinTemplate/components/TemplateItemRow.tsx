@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, Minus, Plus, Settings } from "lucide-solid";
+import { ChevronDown, ChevronUp, Plus, X } from "lucide-solid";
 import { For, type JSX, Show } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type {
@@ -9,12 +9,13 @@ import type {
 import { INPUT_TYPES } from "@/utils/template.ts";
 import styles from "../BulletinTemplate.module.css";
 
+// Sentinel value in the input-type select that switches an item to compound fields
+const FIELDS_MODE = "fields";
+
 interface TemplateItemRowProps {
 	item: TemplateItem;
 	index: number;
 	total: number;
-	isExpanded: boolean;
-	onToggle: (index: number) => void;
 	onMoveUp: (index: number) => void;
 	onMoveDown: (index: number) => void;
 	onUpdateItem: (
@@ -38,27 +39,26 @@ export function TemplateItemRow(props: TemplateItemRowProps): JSX.Element {
 	const { t } = useLocale();
 
 	function inputTypeLabel(it: InputType): string {
-		const labels: Record<InputType, string> = {
-			text: t("worshipTemplate.inputTypeText"),
-			number: t("worshipTemplate.inputTypeNumber"),
-			member: t("worshipTemplate.inputTypeMember"),
-			scripture: t("worshipTemplate.inputTypeScripture"),
-			none: t("worshipTemplate.inputTypeNone"),
-		};
-		return labels[it];
+		if (it === "member") return t("worshipTemplate.inputTypeMember");
+		if (it === "none") return t("worshipTemplate.inputTypeNone");
+		return t("worshipTemplate.inputTypeText");
 	}
 
-	function itemSummary(): string {
-		if (props.item.fields && props.item.fields.length > 0) {
-			return props.item.fields.map((f) => f.label || f.key).join(" / ");
+	const selectValue = () =>
+		props.item.fields ? FIELDS_MODE : (props.item.inputType ?? "text");
+
+	function handleTypeChange(value: string) {
+		if (value === FIELDS_MODE) {
+			props.onToggleFieldMode(props.index);
+			return;
 		}
-		return inputTypeLabel((props.item.inputType ?? "text") as InputType);
+		if (props.item.fields) props.onToggleFieldMode(props.index);
+		props.onUpdateItem(props.index, "inputType", value);
 	}
 
 	return (
-		<li class={styles.item}>
-			{/* Collapsed row */}
-			<div class={styles.itemHeader}>
+		<li class={styles.programItem}>
+			<div class={styles.programRow}>
 				<div class={styles.orderButtons}>
 					<button
 						type="button"
@@ -80,167 +80,115 @@ export function TemplateItemRow(props: TemplateItemRowProps): JSX.Element {
 					</button>
 				</div>
 
+				<input
+					type="text"
+					class={styles.input}
+					placeholder={t("worshipTemplate.labelPlaceholder")}
+					value={props.item.label}
+					onInput={(e) =>
+						props.onUpdateItem(props.index, "label", e.currentTarget.value)
+					}
+				/>
+				<input
+					type="text"
+					class={styles.input}
+					placeholder={t("worshipTemplate.typePlaceholder")}
+					value={props.item.type}
+					onInput={(e) =>
+						props.onUpdateItem(props.index, "type", e.currentTarget.value)
+					}
+				/>
+				<select
+					class={styles.select}
+					value={selectValue()}
+					onChange={(e) => handleTypeChange(e.currentTarget.value)}
+					aria-label={t("worshipTemplate.inputType")}
+				>
+					<For each={INPUT_TYPES}>
+						{(it) => <option value={it}>{inputTypeLabel(it)}</option>}
+					</For>
+					<option value={FIELDS_MODE}>{t("worshipTemplate.useFields")}</option>
+				</select>
 				<button
 					type="button"
-					class={styles.itemSummary}
-					onClick={() => props.onToggle(props.index)}
+					class={styles.removeButton}
+					onClick={() => props.onRemoveItem(props.index)}
+					title={t("worshipTemplate.deleteItem")}
 				>
-					<span class={styles.itemLabel}>
-						{props.item.label || props.item.type || "..."}
-					</span>
-					<span class={styles.itemMeta}>{itemSummary()}</span>
-				</button>
-
-				<button
-					type="button"
-					class={styles.expandButton}
-					onClick={() => props.onToggle(props.index)}
-					title={t("worshipTemplate.templateSettings")}
-				>
-					<Settings size={16} stroke-width={1.5} />
+					<X size={14} stroke-width={1.5} />
 				</button>
 			</div>
 
-			{/* Expanded detail */}
-			<Show when={props.isExpanded}>
-				<div class={styles.itemDetail}>
-					<div class={styles.detailRow}>
-						<input
-							type="text"
-							class={styles.input}
-							placeholder={t("worshipTemplate.labelPlaceholder")}
-							value={props.item.label}
-							onInput={(e) =>
-								props.onUpdateItem(props.index, "label", e.currentTarget.value)
-							}
-						/>
-						<input
-							type="text"
-							class={styles.inputSmall}
-							placeholder={t("worshipTemplate.typePlaceholder")}
-							value={props.item.type}
-							onInput={(e) =>
-								props.onUpdateItem(props.index, "type", e.currentTarget.value)
-							}
-						/>
-					</div>
-
-					{/* Input type selector */}
-					<Show when={!props.item.fields}>
-						<div class={styles.chipRow}>
-							<For each={INPUT_TYPES}>
-								{(it) => (
+			<Show when={props.item.fields}>
+				<div class={styles.programFields}>
+					<For each={props.item.fields}>
+						{(field, fi) => (
+							<div class={styles.fieldRow}>
+								<input
+									type="text"
+									class={styles.input}
+									placeholder={t("worshipTemplate.fieldLabelPlaceholder")}
+									value={field.label}
+									onInput={(e) =>
+										props.onUpdateField(
+											props.index,
+											fi(),
+											"label",
+											e.currentTarget.value,
+										)
+									}
+								/>
+								<input
+									type="text"
+									class={styles.input}
+									placeholder={t("worshipTemplate.fieldKeyPlaceholder")}
+									value={field.key}
+									onInput={(e) =>
+										props.onUpdateField(
+											props.index,
+											fi(),
+											"key",
+											e.currentTarget.value,
+										)
+									}
+								/>
+								<select
+									class={styles.select}
+									value={field.inputType}
+									onChange={(e) =>
+										props.onUpdateField(
+											props.index,
+											fi(),
+											"inputType",
+											e.currentTarget.value,
+										)
+									}
+									aria-label={t("worshipTemplate.inputType")}
+								>
+									<For each={INPUT_TYPES}>
+										{(it) => <option value={it}>{inputTypeLabel(it)}</option>}
+									</For>
+								</select>
+								<Show when={(props.item.fields?.length ?? 0) > 1}>
 									<button
 										type="button"
-										class={styles.chip}
-										classList={{
-											[styles.chipActive]:
-												(props.item.inputType ?? "text") === it,
-										}}
-										onClick={() =>
-											props.onUpdateItem(props.index, "inputType", it)
-										}
+										class={styles.removeButton}
+										onClick={() => props.onRemoveField(props.index, fi())}
+										title={t("worshipTemplate.deleteItem")}
 									>
-										{inputTypeLabel(it)}
+										<X size={14} stroke-width={1.5} />
 									</button>
-								)}
-							</For>
-						</div>
-					</Show>
-
-					{/* Compound fields toggle */}
+								</Show>
+							</div>
+						)}
+					</For>
 					<button
 						type="button"
-						class={styles.modeToggle}
-						onClick={() => props.onToggleFieldMode(props.index)}
+						class={styles.addFieldButton}
+						onClick={() => props.onAddField(props.index)}
 					>
-						{props.item.fields
-							? t("worshipTemplate.inputType")
-							: t("worshipTemplate.useFields")}
-					</button>
-
-					{/* Sub-fields */}
-					<Show when={props.item.fields}>
-						<div class={styles.fieldsSection}>
-							<For each={props.item.fields}>
-								{(field, fi) => (
-									<div class={styles.fieldRow}>
-										<input
-											type="text"
-											class={styles.fieldInput}
-											placeholder={t("worshipTemplate.fieldKeyPlaceholder")}
-											value={field.key}
-											onInput={(e) =>
-												props.onUpdateField(
-													props.index,
-													fi(),
-													"key",
-													e.currentTarget.value,
-												)
-											}
-										/>
-										<input
-											type="text"
-											class={styles.fieldInput}
-											placeholder={t("worshipTemplate.fieldLabelPlaceholder")}
-											value={field.label}
-											onInput={(e) =>
-												props.onUpdateField(
-													props.index,
-													fi(),
-													"label",
-													e.currentTarget.value,
-												)
-											}
-										/>
-										<select
-											class={styles.fieldSelect}
-											value={field.inputType}
-											onChange={(e) =>
-												props.onUpdateField(
-													props.index,
-													fi(),
-													"inputType",
-													e.currentTarget.value,
-												)
-											}
-										>
-											<For each={INPUT_TYPES}>
-												{(it) => (
-													<option value={it}>{inputTypeLabel(it)}</option>
-												)}
-											</For>
-										</select>
-										<Show when={(props.item.fields?.length ?? 0) > 1}>
-											<button
-												type="button"
-												class={styles.fieldRemoveButton}
-												onClick={() => props.onRemoveField(props.index, fi())}
-											>
-												<Minus size={14} stroke-width={1.5} />
-											</button>
-										</Show>
-									</div>
-								)}
-							</For>
-							<button
-								type="button"
-								class={styles.addFieldButton}
-								onClick={() => props.onAddField(props.index)}
-							>
-								<Plus size={14} stroke-width={1.5} />
-								{t("worshipTemplate.addField")}
-							</button>
-						</div>
-					</Show>
-
-					<button
-						type="button"
-						class={styles.deleteButton}
-						onClick={() => props.onRemoveItem(props.index)}
-					>
-						<Minus size={14} stroke-width={1.5} />
-						{t("worshipTemplate.deleteItem")}
+						<Plus size={14} stroke-width={1.5} />
+						{t("worshipTemplate.addField")}
 					</button>
 				</div>
 			</Show>

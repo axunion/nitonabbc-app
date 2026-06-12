@@ -38,6 +38,18 @@ export async function saveTemplate(
 	return {};
 }
 
+export async function resetTemplate(): Promise<{
+	template?: SectionTemplate[];
+	error?: string;
+}> {
+	const res = await fetch("/api/bulletin-template", { method: "DELETE" });
+	if (!res.ok) {
+		const data = (await res.json()) as ApiError;
+		return { error: data.error };
+	}
+	return { template: (await res.json()) as SectionTemplate[] };
+}
+
 type BulletinPayload = {
 	serviceDate: string;
 	sections: SectionData[];

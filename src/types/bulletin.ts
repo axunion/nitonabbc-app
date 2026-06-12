@@ -1,4 +1,4 @@
-export type InputType = "text" | "number" | "member" | "scripture" | "none";
+export type InputType = "text" | "member" | "none";
 
 export type TemplateField = {
 	key: string;

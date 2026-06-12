@@ -287,6 +287,30 @@ describe("POST /api/bulletin/generate", () => {
 		expect(json).toMatchObject({ serviceDate: "2025-06-01" });
 	});
 
+	it("generates from the default template when none is saved", async () => {
+		const { env } = await seedMemberAndEnv();
+		const res = await testApp.request(
+			"http://localhost/api/bulletin/generate",
+			{
+				method: "POST",
+				headers: { ...memberHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify({ serviceDate: "2025-06-08" }),
+			},
+			env,
+		);
+		expect(res.status).toBe(201);
+		const created = (await res.json()) as { id: number };
+
+		const detailRes = await testApp.request(
+			`http://localhost/api/bulletin/${created.id}`,
+			{ headers: memberHeaders },
+			env,
+		);
+		const detail = (await detailRes.json()) as { sections: { id: string }[] };
+		expect(detail.sections).toHaveLength(14);
+		expect(detail.sections[0].id).toBe("morning");
+	});
+
 	it("returns 409 for duplicate service date on generate", async () => {
 		const { user, env } = await seedMemberAndEnv();
 		await db.insert(schema.bulletins).values({

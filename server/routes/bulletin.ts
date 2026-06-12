@@ -9,6 +9,7 @@ import type {
 } from "../db/types.ts";
 import { authMiddleware } from "../middleware/auth.ts";
 import type { AppEnv } from "../types.ts";
+import { DEFAULT_TEMPLATE } from "./bulletinTemplateDefaults.ts";
 
 function countWorshipProgress(data: WorshipItemData[], items: TemplateItem[]) {
 	let total = 0;
@@ -120,7 +121,7 @@ async function getTemplate(
 	const row = await db.query.settings.findFirst({
 		where: eq(settings.key, "bulletin_template"),
 	});
-	if (!row) return [];
+	if (!row) return DEFAULT_TEMPLATE;
 	return JSON.parse(row.value) as SectionTemplate[];
 }
 

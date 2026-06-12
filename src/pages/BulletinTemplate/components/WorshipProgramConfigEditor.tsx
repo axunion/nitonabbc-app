@@ -41,15 +41,13 @@ export function WorshipProgramConfigEditor(props: Props) {
 
 	return (
 		<>
-			<ul class={styles.itemList}>
+			<ul class={styles.programList}>
 				<For each={props.section.config.items}>
 					{(item, index) => (
 						<TemplateItemRow
 							item={item}
 							index={index()}
 							total={props.section.config.items.length}
-							isExpanded={false}
-							onToggle={() => {}}
 							onMoveUp={(i) => props.onMoveItem(sid(), i, -1)}
 							onMoveDown={(i) => props.onMoveItem(sid(), i, 1)}
 							onUpdateItem={(i, field, value) =>

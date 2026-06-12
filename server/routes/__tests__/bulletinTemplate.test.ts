@@ -96,7 +96,7 @@ describe("GET /api/bulletin-template", () => {
 		expect(res.status).toBe(401);
 	});
 
-	it("returns default template when not set in DB", async () => {
+	it("returns the full default template when not set in DB", async () => {
 		const env = await seedAdminEnv();
 		const res = await testApp.request(
 			"http://localhost/api/bulletin-template",
@@ -108,12 +108,52 @@ describe("GET /api/bulletin-template", () => {
 			id: string;
 			type: string;
 			label: string;
+			visible: boolean;
 		}[];
-		expect(Array.isArray(json)).toBe(true);
-		expect(json.length).toBeGreaterThan(0);
-		expect(json[0]).toHaveProperty("id");
-		expect(json[0]).toHaveProperty("type");
-		expect(json[0].type).toBe("worship-program");
+		expect(json.map((s) => s.id)).toEqual([
+			"morning",
+			"afternoon",
+			"news",
+			"assignments-this",
+			"assignments-next",
+			"attendance",
+			"weekly-prayer",
+			"upcoming-events",
+			"weekly-verse",
+			"monthly-song",
+			"birthdays",
+			"financial-summary",
+			"scripture-quotes",
+			"text-block",
+		]);
+		const typeCounts = json.reduce<Record<string, number>>((acc, s) => {
+			acc[s.type] = (acc[s.type] ?? 0) + 1;
+			return acc;
+		}, {});
+		expect(typeCounts["worship-program"]).toBe(2);
+		expect(typeCounts.assignments).toBe(2);
+		expect(json.every((s) => s.visible === true)).toBe(true);
+	});
+
+	it("returns a default template that passes its own PUT validation", async () => {
+		const env = await seedAdminEnv();
+		const getRes = await testApp.request(
+			"http://localhost/api/bulletin-template",
+			{ headers: adminHeaders },
+			env,
+		);
+		const defaultTemplate = await getRes.json();
+
+		const putRes = await testApp.request(
+			"http://localhost/api/bulletin-template",
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify(defaultTemplate),
+			},
+			env,
+		);
+		expect(putRes.status).toBe(200);
 	});
 
 	it("returns stored SectionTemplate[] from DB", async () => {
@@ -373,5 +413,148 @@ describe("PUT /api/bulletin-template", () => {
 			env,
 		);
 		expect(res.status).toBe(400);
+	});
+});
+
+describe("DELETE /api/bulletin-template", () => {
+	it("returns 401 without session", async () => {
+		const res = await testApp.request(
+			"http://localhost/api/bulletin-template",
+			{ method: "DELETE" },
+			createEnv(),
+		);
+		expect(res.status).toBe(401);
+	});
+
+	it("returns 403 for member role", async () => {
+		const env = await seedMemberEnv();
+		const res = await testApp.request(
+			"http://localhost/api/bulletin-template",
+			{ method: "DELETE", headers: memberHeaders },
+			env,
+		);
+		expect(res.status).toBe(403);
+	});
+
+	it("deletes the stored template and returns the default template", async () => {
+		const env = await seedAdminEnv();
+		await db.insert(schema.settings).values({
+			key: "bulletin_template",
+			value: JSON.stringify(validTemplate),
+		});
+
+		const res = await testApp.request(
+			"http://localhost/api/bulletin-template",
+			{ method: "DELETE", headers: adminHeaders },
+			env,
+		);
+		expect(res.status).toBe(200);
+		const body = (await res.json()) as { id: string }[];
+		expect(body).toHaveLength(14);
+		expect(body[0].id).toBe("morning");
+
+		const getRes = await testApp.request(
+			"http://localhost/api/bulletin-template",
+			{ headers: adminHeaders },
+			env,
+		);
+		const json = (await getRes.json()) as { id: string }[];
+		expect(json).toHaveLength(14);
+		expect(json[0].id).toBe("morning");
+	});
+
+	it("returns the default template even when no row exists", async () => {
+		const env = await seedAdminEnv();
+		const res = await testApp.request(
+			"http://localhost/api/bulletin-template",
+			{ method: "DELETE", headers: adminHeaders },
+			env,
+		);
+		expect(res.status).toBe(200);
+		const body = (await res.json()) as { id: string }[];
+		expect(body).toHaveLength(14);
+	});
+});
+
+describe("legacy input type normalization", () => {
+	const legacyTemplate = [
+		{
+			id: "worship",
+			type: "worship-program",
+			label: "礼拝プログラム",
+			visible: true,
+			config: {
+				items: [
+					{ type: "reading", label: "聖書朗読", inputType: "scripture" },
+					{ type: "count", label: "人数", inputType: "number" },
+					{
+						type: "sermon",
+						label: "説教",
+						fields: [
+							{ key: "title", label: "タイトル", inputType: "text" },
+							{ key: "scripture", label: "聖書箇所", inputType: "scripture" },
+						],
+					},
+				],
+			},
+		},
+	];
+
+	it("PUT normalizes scripture/number input types to text", async () => {
+		const env = await seedAdminEnv();
+		const putRes = await testApp.request(
+			"http://localhost/api/bulletin-template",
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify(legacyTemplate),
+			},
+			env,
+		);
+		expect(putRes.status).toBe(200);
+
+		const getRes = await testApp.request(
+			"http://localhost/api/bulletin-template",
+			{ headers: adminHeaders },
+			env,
+		);
+		const json = (await getRes.json()) as {
+			config: {
+				items: {
+					inputType?: string;
+					fields?: { inputType: string }[];
+				}[];
+			};
+		}[];
+		const items = json[0].config.items;
+		expect(items[0].inputType).toBe("text");
+		expect(items[1].inputType).toBe("text");
+		expect(items[2].fields?.[1].inputType).toBe("text");
+	});
+
+	it("GET normalizes legacy input types in a stored template", async () => {
+		const env = await seedAdminEnv();
+		await db.insert(schema.settings).values({
+			key: "bulletin_template",
+			value: JSON.stringify(legacyTemplate),
+		});
+
+		const res = await testApp.request(
+			"http://localhost/api/bulletin-template",
+			{ headers: adminHeaders },
+			env,
+		);
+		const json = (await res.json()) as {
+			config: {
+				items: {
+					inputType?: string;
+					fields?: { inputType: string }[];
+				}[];
+			};
+		}[];
+		const items = json[0].config.items;
+		expect(items[0].inputType).toBe("text");
+		expect(items[1].inputType).toBe("text");
+		expect(items[2].fields?.[1].inputType).toBe("text");
 	});
 });

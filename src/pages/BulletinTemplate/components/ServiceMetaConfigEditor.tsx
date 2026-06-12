@@ -1,4 +1,4 @@
-import { Minus, Plus } from "lucide-solid";
+import { Plus, X } from "lucide-solid";
 import { For } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type {
@@ -52,20 +52,20 @@ export function ServiceMetaConfigEditor(props: Props) {
 					<div class={styles.fieldRow}>
 						<input
 							type="text"
-							class={styles.fieldInput}
-							placeholder={t("bulletinTemplate.serviceMetaKeyPlaceholder")}
-							value={def.key}
-							onInput={(e) => update(index(), "key", e.currentTarget.value)}
-						/>
-						<input
-							type="text"
-							class={styles.fieldInput}
+							class={styles.input}
 							placeholder={t("bulletinTemplate.serviceMetaLabelPlaceholder")}
 							value={def.label}
 							onInput={(e) => update(index(), "label", e.currentTarget.value)}
 						/>
+						<input
+							type="text"
+							class={styles.input}
+							placeholder={t("bulletinTemplate.serviceMetaKeyPlaceholder")}
+							value={def.key}
+							onInput={(e) => update(index(), "key", e.currentTarget.value)}
+						/>
 						<select
-							class={styles.fieldSelect}
+							class={styles.select}
 							value={def.inputType}
 							onChange={(e) =>
 								update(index(), "inputType", e.currentTarget.value)
@@ -78,10 +78,10 @@ export function ServiceMetaConfigEditor(props: Props) {
 						</select>
 						<button
 							type="button"
-							class={styles.fieldRemoveButton}
+							class={styles.removeButton}
 							onClick={() => remove(index())}
 						>
-							<Minus size={14} stroke-width={1.5} />
+							<X size={14} stroke-width={1.5} />
 						</button>
 					</div>
 				)}

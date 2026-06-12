@@ -5,7 +5,7 @@
 仁戸名聖書バプテスト教会の週報を、アプリ上で入力・整理・閲覧・PDF 出力できるようにする機能。
 実際の週報（紙）は、礼拝プログラム・出席人数・曜日別祈りの課題・今週のみことば・誕生日・財務報告など、多彩なセクションで構成されている。
 
-旧モデル（`worship` / `announcements` / `assignments` の固定 3 カラム）ではこの情報量・構造を表現できないため、**セクションブロックモデル**に再設計する。
+**セクションブロックモデル**として設計されており、週報はセクションの順序付きリストで表現する。
 
 ### 利用者
 
@@ -18,18 +18,18 @@
 
 ## 2. 設計方針
 
-- **セクションブロック**: 週報 = 型付きセクションの順序付きリスト。種別・順序・表示/非表示を自由に構成できる
+- **セクションブロック**: 週報 = 型付きセクションの順序付きリスト。種別・表示/非表示を構成できる
 - **構造と値の分離**: テンプレートが「どのセクションが何の順番であるか」を定義し、週報データは各セクションの値だけを保持する
-- **セクションの入れ替え**: 並び替えはテンプレート画面で管理。週報フォームは入力専用
-- **Web 先行**: まず Web 上で整理・閲覧・編集を完成させる。PDF 出力は後続フェーズ
+- **デフォルト値**: テンプレートには教会の標準的な礼拝形式に合わせた初期値があらかじめ設定されており、管理者はそれを必要に応じて編集する
 - **月次データも週次で管理**: 今月の歌・誕生日・祈りの課題曜日表などは週報の通常セクションとして扱い、直近週報からのコピーで差分編集する
-- **複数サービス**: 朝礼拝・午後集会それぞれに `worship-program` セクションをテンプレートで複数配置する（セクション複製型）
+- **複数サービス**: 朝礼拝・午後集会それぞれに `worship-program` セクションをテンプレートで複数配置する
+- **PDF 出力は将来フェーズ**: 印刷レイアウトはその実装時に設計する
 
 ---
 
-## 3. 教会プロフィール（スコープ外）
+## 3. 教会プロフィール（将来フェーズ）
 
-教会名・住所・牧師名・年間テーマ・連絡先など、週をまたいで変わらない情報は `settings` テーブルに `church_profile` キーで保存し、週報詳細画面のヘッダー部に表示する。週報ごとの上書きは行わない。編集は管理者のみ（目標パス: `/settings/church-profile`、現状は未実装）。
+教会名・住所・牧師名・年間テーマ・連絡先など、週をまたいで変わらない情報は `settings` テーブルに `church_profile` キーで保存し、週報詳細画面のヘッダー部に表示する。週報ごとの上書きは行わない。編集は管理者のみ（パス: `/admin/church-profile`）。
 
 フィールド: `name`, `pastors[]`, `address`, `phone`, `website`, `foundedDate`, `yearlyTheme`
 
@@ -76,6 +76,8 @@ BulletinDetail.sections[]
 
 司会・奏楽・開始時刻など、礼拝プログラムに紐づくメタ情報。`worship-program` の直前に置くことを想定。
 
+> `assignments`（奉仕当番）と内容が重複するため、デフォルトテンプレートには含めない。型・API・UI は過去データとの互換のため維持する。
+
 | テンプレート設定フィールド | 説明 |
 |--------------------------|------|
 | `fieldDefs[]` | `{ key, label, inputType }` の配列。`inputType` は `"text"` / `"member"` / `"time"` |
@@ -92,13 +94,13 @@ BulletinDetail.sections[]
 
 | テンプレート設定フィールド | 説明 |
 |--------------------------|------|
-| `items[]` | `TemplateItem[]`（既存の `TemplateItem` / `TemplateField` / `InputType` 型を継承） |
+| `items[]` | `TemplateItem[]`（`TemplateItem` / `TemplateField` / `InputType` 型） |
 
 データ例: `[ { type: "hymn", label: "賛美歌", details: "#179" }, { type: "sermon", label: "説教", fieldValues: { title: "...", speaker: "太秀師" }, assigneeId: 5 } ]`
 
 各アイテムは `assigneeId`（担当メンバーの userId）を持てる。担当者にはフォームでハイライト表示。
 
-進捗: 既存ロジック（`inputType: "none"` 除外、compound は field 単位）を継承
+進捗: `inputType: "none"` 除外、compound は field 単位で集計
 
 ---
 
@@ -257,7 +259,7 @@ BulletinDetail.sections[]
 | `sections[].visible` | 表示/非表示フラグ（既定 `true`） |
 | `sections[].config` | 種別固有の設定（§5 参照） |
 
-settings テーブルのキー: `bulletin_template`（目標）。**現状のコードは `worship_template` キーを使用中。改名は§12 マイグレーションと合わせて実施予定。**
+settings テーブルのキー: `bulletin_template`
 
 ### 週報データ
 
@@ -274,7 +276,7 @@ settings テーブルのキー: `bulletin_template`（目標）。**現状のコ
 
 ### 既存型の継承
 
-`worship-program` セクションの内部型として既存コードを再利用する:
+`worship-program` セクションの内部型として以下を使用する:
 
 - `TemplateItem` / `TemplateField` / `InputType` → `config.items` の型
 - `WorshipItem` → `data` の型（`details` / `fieldValues` / `assigneeId` を含む）
@@ -343,17 +345,18 @@ settings テーブルのキー: `church_profile`
 |--------|------|------|------|
 | GET | `/api/bulletin-template` | 認証済み全員 | テンプレート取得。未設定時はデフォルト値 |
 | PUT | `/api/bulletin-template` | 管理者のみ | テンプレート全体を置換保存 |
+| DELETE | `/api/bulletin-template` | 管理者のみ | 保存済みテンプレートを削除し、デフォルトテンプレートを返す（200） |
 
-### 教会プロフィール
+デフォルトテンプレートは教会の標準的な週報構成（全 14 セクション: `worship-program` ×2・`announcements`・`assignments` ×2・`attendance`・`weekly-prayer`・`upcoming-events`・`weekly-verse`・`monthly-song`・`birthdays`・`financial-summary`・`scripture-quotes`・`text-block`）。`service-meta` は `assignments` と重複するためデフォルトには含めない。定義: `server/routes/bulletinTemplateDefaults.ts`
 
-> **現状**: 未実装。`server/routes/` にルートファイルなし。§13 参照。
+### 教会プロフィール（将来フェーズ）
 
 | Method | Path | 認可 | 説明 |
 |--------|------|------|------|
 | GET | `/api/church-profile` | 認証済み全員 | 教会プロフィール取得 |
 | PUT | `/api/church-profile` | 管理者のみ | 教会プロフィール保存 |
 
-### メンバー一覧（既存）
+### メンバー一覧
 
 | Method | Path | 説明 |
 |--------|------|------|
@@ -387,9 +390,8 @@ settings テーブルのキー: `church_profile`
 
 ### BulletinForm — 入力/編集
 
-- セクションごとに専用エディタ UI
-- セクションの **並び替えはテンプレート画面で管理**。フォームでは値入力のみ
-- `worship-program`: 既存の `WorshipInput` コンポーネントを継承
+- セクションごとに専用エディタ UI。フォームでは値の入力のみ
+- `worship-program`: 進行項目ごとの入力フォーム
 - `service-meta`: member セレクタ / テキスト入力
 - `assignments`: role リストに対して担当者入力
 - `attendance`: 集会ごとの大人/子供数入力
@@ -399,11 +401,17 @@ settings テーブルのキー: `church_profile`
 
 ### BulletinTemplate — テンプレート管理（管理者のみ）
 
-- セクションの追加（型選択）・削除・非表示切替
-- ドラッグ or ボタンで順序入れ替え
-- セクションごとの `config` 編集（`worship-program` は既存の項目リスト編集 UI を継承）
+テンプレートの全セクションを縦に並べて一覧表示し、各セクションのラベルと設定をインラインで編集する。
 
-### ChurchProfile — 教会プロフィール（管理者のみ）
+- 全セクションを常時表示（アコーディオンなし）
+- 各セクションのラベルを直接編集できる
+- 各セクションの表示/非表示を切り替えられる
+- config が必要なセクション（`worship-program`・`assignments`・`attendance`・`service-meta`・`financial-summary`・`announcements`）は、セクション内にインラインでエディタを表示する
+- テンプレートにはデフォルト値があらかじめ設定されており、管理者は変更が必要な箇所だけを編集する
+- 「デフォルトに戻す」ボタンでテンプレート全体を初期構成に戻せる（確認ダイアログ付き）
+- PC ではセクション一覧の目次（サイドナビ）と画面下部固定の保存バーを表示する
+
+### ChurchProfile — 教会プロフィール（管理者のみ、将来フェーズ）
 
 - 教会名・牧師名・住所・連絡先・年間テーマなどの編集
 - 保存後は全週報のヘッダーに即時反映
@@ -422,56 +430,11 @@ settings テーブルのキー: `church_profile`
 
 ## 11. ルーティング
 
-| パス | ページ | 説明 | 現状 |
-|------|--------|------|------|
-| `/bulletin` | BulletinList | 週報一覧 | 実装済み（旧モデル） |
-| `/bulletin/new` | BulletinForm | 新規作成 | 実装済み（旧モデル） |
-| `/bulletin/:id` | BulletinDetail | 詳細表示 | 実装済み（旧モデル） |
-| `/bulletin/:id/edit` | BulletinForm | 編集 | 実装済み（旧モデル） |
-| `/settings/bulletin-template` | BulletinTemplate | テンプレート管理（管理者のみ） | 実装済み（旧モデル） |
-| `/settings/church-profile` | ChurchProfile | 教会プロフィール（管理者のみ） | 未実装 |
-
----
-
-## 12. マイグレーション
-
-既存の `bulletins` テーブル（旧 3 カラム: `worship` / `announcements` / `assignments`）から新スキーマへの移行。Cloudflare D1 はマイグレーションツール未導入のため、差分 SQL を手動実行する（`CLAUDE.md` 参照）。
-
-1. `sections` カラムを追加 (`ALTER TABLE bulletins ADD COLUMN sections TEXT NOT NULL DEFAULT '[]'`)
-2. 各既存行を変換して `sections` に書き込む:
-   - 旧 `worship` → `{ id: "worship", type: "worship-program", label: "礼拝プログラム", data: <旧値> }`
-   - 旧 `announcements` → `{ id: "announcements", type: "announcements", label: "お知らせ", data: <旧値を `{ content }` 形式に変換> }`
-   - 旧 `assignments` → `{ id: "assignments", type: "assignments", label: "奉仕当番", data: <旧値そのまま> }`
-3. 旧 3 カラムを DROP
-4. `settings` の `worship_template` キーを `bulletin_template` にリネームし、値を `worship-program` セクションの `config.items` として包み直す
-
----
-
-## 13. 実装ステータス
-
-| 項目 | ステータス |
-|------|-----------|
-| `bulletins` テーブルスキーマ | 実装済み（`sections TEXT` 列へ移行済み。Drizzle スキーマ `server/db/schema.ts` に反映済み） |
-| settings テーブルのキー名 | 実装済み（`worship_template` → `bulletin_template` に改名。GET 時の安全移行ロジック実装済み） |
-| `/settings/bulletin-template` ルート | 実装済み（セクションブロックモデル対応） |
-| `/settings/church-profile` ルート | 未実装（将来フェーズ） |
-| セクションブロックモデル（型定義・DB） | 実装済み（`SectionTemplate[]` / `SectionData[]` 判別共用体、`UnknownSection` で前方互換対応） |
-| マイグレーション（旧 3 カラム → sections） | 実装済み（Drizzle マイグレーション `drizzle/` に反映済み） |
-| テンプレート API 更新（SectionTemplate[] 対応） | 実装済み（バリデーション・sanitize・安全移行含む） |
-| 教会プロフィール API・画面 | 未実装（将来フェーズ） |
-| 既存 worship-program 入力・表示 | 実装済み（セクションブロックモデルに移植済み） |
-| 既存 announcements / assignments | 実装済み（セクションブロックモデルに移植済み） |
-| service-meta セクション | 実装済み |
-| attendance セクション | 実装済み |
-| weekly-prayer セクション | 実装済み |
-| upcoming-events セクション | 実装済み |
-| weekly-verse セクション | 実装済み |
-| monthly-song セクション | 実装済み |
-| birthdays セクション | 実装済み |
-| financial-summary セクション | 実装済み |
-| scripture-quotes セクション | 実装済み |
-| text-block セクション | 実装済み |
-| BulletinDetail（セクションブロック対応） | 実装済み（`SectionView` dispatcher + 全 13 種ビューア） |
-| BulletinForm（セクション別エディタ） | 実装済み（`SectionEditor` dispatcher + 全 13 種エディタ） |
-| BulletinTemplate（セクション管理 UI） | 実装済み（`SectionRow` + `AddSectionMenu` + 全 13 種対応。config あり 5 種は専用 ConfigEditor） |
-| PDF 出力 | 未実装（将来フェーズ） |
+| パス | ページ | 説明 |
+|------|--------|------|
+| `/bulletin` | BulletinList | 週報一覧 |
+| `/bulletin/new` | BulletinForm | 新規作成 |
+| `/bulletin/:id` | BulletinDetail | 詳細表示 |
+| `/bulletin/:id/edit` | BulletinForm | 編集 |
+| `/admin/bulletin-template` | BulletinTemplate | テンプレート管理（管理者のみ） |
+| `/admin/church-profile` | ChurchProfile | 教会プロフィール（管理者のみ、将来フェーズ） |

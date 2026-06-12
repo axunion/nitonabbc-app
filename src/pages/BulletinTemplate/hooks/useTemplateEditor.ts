@@ -4,27 +4,32 @@ import {
 	createResource,
 	createSignal,
 } from "solid-js";
-import { fetchTemplate, saveTemplate } from "@/api/bulletin.ts";
+import { createStore, produce, unwrap } from "solid-js/store";
+import { fetchTemplate, resetTemplate, saveTemplate } from "@/api/bulletin.ts";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type {
+	FinancialSummaryItem,
 	InputType,
 	SectionTemplate,
+	ServiceMetaFieldDef,
 	TemplateField,
 	TemplateItem,
 	WorshipProgramSectionTemplate,
 } from "@/types/bulletin.ts";
-import type { SectionType } from "@/utils/template.ts";
-import { defaultConfigFor } from "@/utils/template.ts";
+
+export type TemplateEditor = ReturnType<typeof useTemplateEditor>;
 
 export function useTemplateEditor() {
 	const { t } = useLocale();
 	const [templateData] = createResource(fetchTemplate);
-	const [sections, setSections] = createSignal<SectionTemplate[]>([]);
+	// Store-based state keeps object identity for untouched sections/items, so
+	// <For> rows are patched in place instead of recreated (which would drop
+	// focus from the input being typed into).
+	const [state, setState] = createStore<{ sections: SectionTemplate[] }>({
+		sections: [],
+	});
 	const [initialized, setInitialized] = createSignal(false);
 	const [saving, setSaving] = createSignal(false);
-	const [expandedSectionId, setExpandedSectionId] = createSignal<string | null>(
-		null,
-	);
 	const [message, setMessage] = createSignal<{
 		type: "success" | "error";
 		text: string;
@@ -34,78 +39,61 @@ export function useTemplateEditor() {
 	createEffect(() => {
 		const data = templateData();
 		if (data && !initialized()) {
-			setSections(data);
+			setState("sections", data);
 			setSavedSnapshot(JSON.stringify(data));
 			setInitialized(true);
 		}
 	});
 
+	const sections = () => state.sections;
+
 	const isDirty = createMemo(
-		() => initialized() && JSON.stringify(sections()) !== savedSnapshot(),
+		() =>
+			initialized() &&
+			JSON.stringify(unwrap(state.sections)) !== savedSnapshot(),
 	);
 
-	function updateSection(
-		id: string,
-		updater: (s: SectionTemplate) => SectionTemplate,
-	) {
-		setSections((prev) => prev.map((s) => (s.id === id ? updater(s) : s)));
+	// All edits funnel through here so a stale save/reset message never
+	// lingers over a dirty editor
+	function mutateSections(mutator: (sections: SectionTemplate[]) => void) {
+		setMessage(null);
+		setState("sections", produce(mutator));
 	}
 
-	function toggleExpand(id: string) {
-		setExpandedSectionId((prev) => (prev === id ? null : id));
+	function findWorship(
+		sectionList: SectionTemplate[],
+		id: string,
+	): WorshipProgramSectionTemplate | undefined {
+		const section = sectionList.find((s) => s.id === id);
+		return section?.type === "worship-program" ? section : undefined;
 	}
 
 	function updateLabel(id: string, label: string) {
-		updateSection(id, (s) => ({ ...s, label }));
+		mutateSections((sectionList) => {
+			const section = sectionList.find((s) => s.id === id);
+			if (section) section.label = label;
+		});
 	}
 
 	function toggleVisible(id: string) {
-		updateSection(id, (s) => ({ ...s, visible: !(s.visible ?? true) }));
-	}
-
-	function addSection(type: SectionType) {
-		const id = crypto.randomUUID();
-		const label = "";
-		const config = defaultConfigFor(type);
-		const newSection = {
-			id,
-			type,
-			label,
-			visible: true,
-			config,
-		} as SectionTemplate;
-		setSections((prev) => [...prev, newSection]);
-		setExpandedSectionId(id);
-	}
-
-	function removeSection(id: string) {
-		setSections((prev) => prev.filter((s) => s.id !== id));
-		if (expandedSectionId() === id) setExpandedSectionId(null);
-	}
-
-	function moveSection(id: string, direction: -1 | 1) {
-		setSections((prev) => {
-			const idx = prev.findIndex((s) => s.id === id);
-			if (idx < 0) return prev;
-			const target = idx + direction;
-			if (target < 0 || target >= prev.length) return prev;
-			const next = [...prev];
-			[next[idx], next[target]] = [next[target], next[idx]];
-			return next;
+		mutateSections((sectionList) => {
+			const section = sectionList.find((s) => s.id === id);
+			if (section) section.visible = !(section.visible ?? true);
 		});
 	}
 
 	function updateSubHeadings(id: string, subHeadings: string[]) {
-		updateSection(id, (s) => {
-			if (s.type !== "announcements") return s;
-			return { ...s, config: { subHeadings } };
+		mutateSections((sectionList) => {
+			const section = sectionList.find((s) => s.id === id);
+			if (section?.type === "announcements")
+				section.config.subHeadings = subHeadings;
 		});
 	}
 
 	function updateRoles(id: string, roles: string[]) {
-		updateSection(id, (s) => {
-			if (s.type !== "assignments") return s;
-			return { ...s, config: { roles } };
+		mutateSections((sectionList) => {
+			const section = sectionList.find((s) => s.id === id);
+			if (section?.type === "assignments") section.config.roles = roles;
 		});
 	}
 
@@ -113,29 +101,24 @@ export function useTemplateEditor() {
 		id: string,
 		meetings: { key: string; label: string }[],
 	) {
-		updateSection(id, (s) => {
-			if (s.type !== "attendance") return s;
-			return { ...s, config: { meetings } };
+		mutateSections((sectionList) => {
+			const section = sectionList.find((s) => s.id === id);
+			if (section?.type === "attendance") section.config.meetings = meetings;
 		});
 	}
 
-	function updateFieldDefs(
-		id: string,
-		fieldDefs: import("@/types/bulletin.ts").ServiceMetaFieldDef[],
-	) {
-		updateSection(id, (s) => {
-			if (s.type !== "service-meta") return s;
-			return { ...s, config: { fieldDefs } };
+	function updateFieldDefs(id: string, fieldDefs: ServiceMetaFieldDef[]) {
+		mutateSections((sectionList) => {
+			const section = sectionList.find((s) => s.id === id);
+			if (section?.type === "service-meta")
+				section.config.fieldDefs = fieldDefs;
 		});
 	}
 
-	function updateFinancialItems(
-		id: string,
-		items: import("@/types/bulletin.ts").FinancialSummaryItem[],
-	) {
-		updateSection(id, (s) => {
-			if (s.type !== "financial-summary") return s;
-			return { ...s, config: { items } };
+	function updateFinancialItems(id: string, items: FinancialSummaryItem[]) {
+		mutateSections((sectionList) => {
+			const section = sectionList.find((s) => s.id === id);
+			if (section?.type === "financial-summary") section.config.items = items;
 		});
 	}
 
@@ -145,54 +128,38 @@ export function useTemplateEditor() {
 		field: "type" | "label" | "inputType",
 		value: string,
 	) {
-		updateSection(sectionId, (s) => {
-			if (s.type !== "worship-program") return s;
-			const items = s.config.items.map((item, i) =>
-				i === itemIndex ? { ...item, [field]: value } : item,
-			);
-			return { ...s, config: { items } };
+		mutateSections((sectionList) => {
+			const item = findWorship(sectionList, sectionId)?.config.items[itemIndex];
+			if (!item) return;
+			if (field === "inputType") item.inputType = value as InputType;
+			else item[field] = value;
 		});
 	}
 
 	function toggleWorshipFieldMode(sectionId: string, itemIndex: number) {
-		updateSection(sectionId, (s) => {
-			if (s.type !== "worship-program") return s;
-			const items = s.config.items.map((item, i) => {
-				if (i !== itemIndex) return item;
-				if (item.fields) {
-					const { fields: _fields, ...rest } = item;
-					return { ...rest, inputType: "text" as InputType };
-				}
-				const { inputType: _inputType, ...rest } = item;
-				return {
-					...rest,
-					fields: [
-						{
-							key: "value",
-							label: t("worshipTemplate.defaultFieldLabel"),
-							inputType: "text" as InputType,
-						},
-					],
-				};
-			});
-			return { ...s, config: { items } };
+		mutateSections((sectionList) => {
+			const item = findWorship(sectionList, sectionId)?.config.items[itemIndex];
+			if (!item) return;
+			if (item.fields) {
+				delete item.fields;
+				item.inputType = "text";
+			} else {
+				delete item.inputType;
+				item.fields = [
+					{
+						key: "value",
+						label: t("worshipTemplate.defaultFieldLabel"),
+						inputType: "text",
+					},
+				];
+			}
 		});
 	}
 
 	function addWorshipField(sectionId: string, itemIndex: number) {
-		updateSection(sectionId, (s) => {
-			if (s.type !== "worship-program") return s;
-			const items = s.config.items.map((item, i) => {
-				if (i !== itemIndex || !item.fields) return item;
-				return {
-					...item,
-					fields: [
-						...item.fields,
-						{ key: "", label: "", inputType: "text" as InputType },
-					],
-				};
-			});
-			return { ...s, config: { items } };
+		mutateSections((sectionList) => {
+			const item = findWorship(sectionList, sectionId)?.config.items[itemIndex];
+			item?.fields?.push({ key: "", label: "", inputType: "text" });
 		});
 	}
 
@@ -201,16 +168,9 @@ export function useTemplateEditor() {
 		itemIndex: number,
 		fieldIndex: number,
 	) {
-		updateSection(sectionId, (s) => {
-			if (s.type !== "worship-program") return s;
-			const items = s.config.items.map((item, i) => {
-				if (i !== itemIndex || !item.fields) return item;
-				return {
-					...item,
-					fields: item.fields.filter((_, fi) => fi !== fieldIndex),
-				};
-			});
-			return { ...s, config: { items } };
+		mutateSections((sectionList) => {
+			const item = findWorship(sectionList, sectionId)?.config.items[itemIndex];
+			item?.fields?.splice(fieldIndex, 1);
 		});
 	}
 
@@ -221,43 +181,28 @@ export function useTemplateEditor() {
 		prop: keyof TemplateField,
 		value: string,
 	) {
-		updateSection(sectionId, (s) => {
-			if (s.type !== "worship-program") return s;
-			const items = s.config.items.map((item, i) => {
-				if (i !== itemIndex || !item.fields) return item;
-				return {
-					...item,
-					fields: item.fields.map((f, fi) =>
-						fi === fieldIndex ? { ...f, [prop]: value } : f,
-					),
-				};
-			});
-			return { ...s, config: { items } };
+		mutateSections((sectionList) => {
+			const field = findWorship(sectionList, sectionId)?.config.items[itemIndex]
+				?.fields?.[fieldIndex];
+			if (!field) return;
+			if (prop === "inputType") field.inputType = value as InputType;
+			else field[prop] = value;
 		});
 	}
 
 	function addWorshipItem(sectionId: string) {
-		updateSection(sectionId, (s) => {
-			if (s.type !== "worship-program") return s;
-			return {
-				...s,
-				config: {
-					items: [
-						...s.config.items,
-						{ type: "", label: "", inputType: "text" as InputType },
-					],
-				},
-			};
+		mutateSections((sectionList) => {
+			findWorship(sectionList, sectionId)?.config.items.push({
+				type: "",
+				label: "",
+				inputType: "text",
+			});
 		});
 	}
 
 	function removeWorshipItem(sectionId: string, itemIndex: number) {
-		updateSection(sectionId, (s) => {
-			if (s.type !== "worship-program") return s;
-			return {
-				...s,
-				config: { items: s.config.items.filter((_, i) => i !== itemIndex) },
-			};
+		mutateSections((sectionList) => {
+			findWorship(sectionList, sectionId)?.config.items.splice(itemIndex, 1);
 		});
 	}
 
@@ -266,13 +211,13 @@ export function useTemplateEditor() {
 		itemIndex: number,
 		direction: -1 | 1,
 	) {
-		updateSection(sectionId, (s) => {
-			if (s.type !== "worship-program") return s;
-			const items = [...s.config.items];
+		mutateSections((sectionList) => {
+			const items = findWorship(sectionList, sectionId)?.config.items;
+			if (!items) return;
 			const target = itemIndex + direction;
-			if (target < 0 || target >= items.length) return s;
-			[items[itemIndex], items[target]] = [items[target], items[itemIndex]];
-			return { ...s, config: { items } };
+			if (target < 0 || target >= items.length) return;
+			const [moved] = items.splice(itemIndex, 1);
+			items.splice(target, 0, moved);
 		});
 	}
 
@@ -312,7 +257,8 @@ export function useTemplateEditor() {
 		setMessage(null);
 		setSaving(true);
 		try {
-			const result = await saveTemplate(sections());
+			const toSave = unwrap(state.sections);
+			const result = await saveTemplate(toSave);
 			if (result.error) {
 				setMessage({
 					type: "error",
@@ -320,8 +266,30 @@ export function useTemplateEditor() {
 				});
 				return;
 			}
-			setSavedSnapshot(JSON.stringify(sections()));
+			setSavedSnapshot(JSON.stringify(toSave));
 			setMessage({ type: "success", text: t("worshipTemplate.saved") });
+		} catch {
+			setMessage({ type: "error", text: t("worshipTemplate.saveError") });
+		} finally {
+			setSaving(false);
+		}
+	}
+
+	async function handleReset() {
+		setMessage(null);
+		setSaving(true);
+		try {
+			const result = await resetTemplate();
+			if (!result.template) {
+				setMessage({
+					type: "error",
+					text: result.error ?? t("worshipTemplate.saveError"),
+				});
+				return;
+			}
+			setState("sections", result.template);
+			setSavedSnapshot(JSON.stringify(result.template));
+			setMessage({ type: "success", text: t("bulletinTemplate.resetDone") });
 		} catch {
 			setMessage({ type: "error", text: t("worshipTemplate.saveError") });
 		} finally {
@@ -333,16 +301,11 @@ export function useTemplateEditor() {
 		sections,
 		initialized,
 		saving,
-		expandedSectionId,
 		message,
 		isValid,
 		isDirty,
-		toggleExpand,
 		updateLabel,
 		toggleVisible,
-		addSection,
-		removeSection,
-		moveSection,
 		updateSubHeadings,
 		updateRoles,
 		updateMeetings,
@@ -357,5 +320,6 @@ export function useTemplateEditor() {
 		updateFieldDefs,
 		updateFinancialItems,
 		handleSave,
+		handleReset,
 	};
 }

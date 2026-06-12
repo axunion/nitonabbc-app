@@ -5,6 +5,7 @@ import { settings } from "../db/schema.ts";
 import { adminMiddleware } from "../middleware/admin.ts";
 import { authMiddleware } from "../middleware/auth.ts";
 import type { AppEnv } from "../types.ts";
+import { DEFAULT_TEMPLATE } from "./bulletinTemplateDefaults.ts";
 
 type TemplateField = {
 	key: string;
@@ -34,36 +35,6 @@ const VALID_SECTION_TYPES = [
 	"attendance",
 	"service-meta",
 	"financial-summary",
-];
-
-const DEFAULT_WORSHIP_ITEMS: TemplateItem[] = [
-	{ type: "prelude", label: "前奏", inputType: "none" },
-	{ type: "hymn", label: "賛美歌", inputType: "text" },
-	{ type: "prayer", label: "祈り", inputType: "member" },
-	{ type: "reading", label: "聖書朗読", inputType: "scripture" },
-	{
-		type: "sermon",
-		label: "説教",
-		fields: [
-			{ key: "title", label: "タイトル", inputType: "text" },
-			{ key: "preacher", label: "説教者", inputType: "member" },
-			{ key: "scripture", label: "聖書箇所", inputType: "scripture" },
-		],
-	},
-	{ type: "offering", label: "献金", inputType: "none" },
-	{ type: "hymn2", label: "賛美歌", inputType: "text" },
-	{ type: "doxology", label: "頌栄", inputType: "none" },
-	{ type: "benediction", label: "祝祷", inputType: "none" },
-];
-
-const DEFAULT_TEMPLATE: SectionTemplate[] = [
-	{
-		id: "worship",
-		type: "worship-program",
-		label: "礼拝プログラム",
-		visible: true,
-		config: { items: DEFAULT_WORSHIP_ITEMS },
-	},
 ];
 
 function isValidField(field: unknown): field is TemplateField {
@@ -214,6 +185,13 @@ function isValidTemplate(body: unknown): body is SectionTemplate[] {
 	return new Set(ids).size === ids.length;
 }
 
+// "number" and "scripture" were once selectable; they now mean plain text
+const LEGACY_TEXT_INPUT_TYPES = ["number", "scripture"];
+
+function normalizeInputType(inputType: string): string {
+	return LEGACY_TEXT_INPUT_TYPES.includes(inputType) ? "text" : inputType;
+}
+
 function sanitizeWorshipItems(items: TemplateItem[]): TemplateItem[] {
 	return items.map((item) => {
 		const sanitized: TemplateItem = { type: item.type, label: item.label };
@@ -221,13 +199,21 @@ function sanitizeWorshipItems(items: TemplateItem[]): TemplateItem[] {
 			sanitized.fields = item.fields.map((f) => ({
 				key: f.key,
 				label: f.label,
-				inputType: f.inputType,
+				inputType: normalizeInputType(f.inputType),
 			}));
 		} else if (item.inputType) {
-			sanitized.inputType = item.inputType;
+			sanitized.inputType = normalizeInputType(item.inputType);
 		}
 		return sanitized;
 	});
+}
+
+function normalizeTemplate(sections: SectionTemplate[]): SectionTemplate[] {
+	return sections.map((s) =>
+		s.type === "worship-program"
+			? { ...s, config: { items: sanitizeWorshipItems(s.config.items) } }
+			: s,
+	);
 }
 
 function sanitizeTemplate(sections: SectionTemplate[]): SectionTemplate[] {
@@ -347,7 +333,7 @@ bulletinTemplateRoute.get("/", authMiddleware, async (c) => {
 		where: eq(settings.key, "bulletin_template"),
 	});
 	if (row) {
-		return c.json(JSON.parse(row.value));
+		return c.json(normalizeTemplate(JSON.parse(row.value)));
 	}
 
 	// Migrate legacy worship_template key if bulletin_template is missing
@@ -355,7 +341,7 @@ bulletinTemplateRoute.get("/", authMiddleware, async (c) => {
 		where: eq(settings.key, "worship_template"),
 	});
 	if (legacyRow) {
-		const migrated = migrateOldTemplate(legacyRow.value);
+		const migrated = normalizeTemplate(migrateOldTemplate(legacyRow.value));
 		await db
 			.insert(settings)
 			.values({
@@ -411,3 +397,16 @@ bulletinTemplateRoute.put("/", authMiddleware, adminMiddleware, async (c) => {
 
 	return c.json({ ok: true });
 });
+
+// DELETE — admin only; removes the stored template and returns the default,
+// so the client can reset in a single round trip
+bulletinTemplateRoute.delete(
+	"/",
+	authMiddleware,
+	adminMiddleware,
+	async (c) => {
+		const db = c.get("db");
+		await db.delete(settings).where(eq(settings.key, "bulletin_template"));
+		return c.json(DEFAULT_TEMPLATE);
+	},
+);

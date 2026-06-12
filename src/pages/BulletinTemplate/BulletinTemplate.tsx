@@ -2,8 +2,7 @@ import { useBeforeLeave } from "@solidjs/router";
 import { For, Show } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import styles from "./BulletinTemplate.module.css";
-import { AddSectionMenu } from "./components/AddSectionMenu.tsx";
-import { SectionRow } from "./components/SectionRow.tsx";
+import { SectionCard, sectionAnchorId } from "./components/SectionCard.tsx";
 import { useTemplateEditor } from "./hooks/useTemplateEditor.ts";
 
 export function BulletinTemplate() {
@@ -21,63 +20,85 @@ export function BulletinTemplate() {
 		}
 	});
 
+	function scrollToSection(sectionId: string) {
+		document
+			.getElementById(sectionAnchorId(sectionId))
+			?.scrollIntoView({ behavior: "smooth", block: "start" });
+	}
+
+	function handleResetClick() {
+		if (!confirm(t("bulletinTemplate.confirmReset"))) return;
+		void editor.handleReset();
+	}
+
 	return (
 		<div class={styles.container}>
 			<h1 class={styles.pageTitle}>{t("bulletinTemplate.title")}</h1>
+			<p class={styles.description}>{t("bulletinTemplate.description")}</p>
 			<Show
 				when={editor.initialized()}
 				fallback={<p class={styles.loading}>{t("common.loading")}</p>}
 			>
-				<Show when={editor.message()}>
-					{(msg) => (
-						<p class={msg().type === "success" ? styles.success : styles.error}>
-							{msg().text}
-						</p>
-					)}
-				</Show>
-
 				<form onSubmit={editor.handleSave} class={styles.form}>
-					<ul class={styles.itemList}>
-						<For each={editor.sections()}>
-							{(section, index) => (
-								<SectionRow
-									section={section}
-									index={index()}
-									total={editor.sections().length}
-									isExpanded={editor.expandedSectionId() === section.id}
-									onToggle={editor.toggleExpand}
-									onMove={editor.moveSection}
-									onRemove={editor.removeSection}
-									onUpdateLabel={editor.updateLabel}
-									onToggleVisible={editor.toggleVisible}
-									onUpdateWorshipItem={editor.updateWorshipItem}
-									onToggleWorshipFieldMode={editor.toggleWorshipFieldMode}
-									onAddWorshipField={editor.addWorshipField}
-									onRemoveWorshipField={editor.removeWorshipField}
-									onUpdateWorshipField={editor.updateWorshipField}
-									onAddWorshipItem={editor.addWorshipItem}
-									onRemoveWorshipItem={editor.removeWorshipItem}
-									onMoveWorshipItem={editor.moveWorshipItem}
-									onUpdateSubHeadings={editor.updateSubHeadings}
-									onUpdateRoles={editor.updateRoles}
-									onUpdateMeetings={editor.updateMeetings}
-									onUpdateFieldDefs={editor.updateFieldDefs}
-									onUpdateFinancialItems={editor.updateFinancialItems}
-								/>
+					<div class={styles.layoutGrid}>
+						<nav class={styles.toc} aria-label={t("bulletinTemplate.tocLabel")}>
+							<For each={editor.sections()}>
+								{(section) => (
+									<button
+										type="button"
+										class={styles.tocLink}
+										classList={{
+											[styles.tocLinkHidden]: section.visible === false,
+										}}
+										onClick={() => scrollToSection(section.id)}
+									>
+										{section.label || "…"}
+									</button>
+								)}
+							</For>
+						</nav>
+
+						<div class={styles.sectionList}>
+							<For each={editor.sections()}>
+								{(section) => <SectionCard section={section} editor={editor} />}
+							</For>
+						</div>
+					</div>
+
+					<div class={styles.stickyBar}>
+						<Show when={editor.message()}>
+							{(msg) => (
+								<p
+									class={
+										msg().type === "success" ? styles.success : styles.error
+									}
+								>
+									{msg().text}
+								</p>
 							)}
-						</For>
-					</ul>
-
-					<AddSectionMenu onAdd={editor.addSection} />
-
-					<div class={styles.actions}>
-						<button
-							type="submit"
-							class={styles.saveButton}
-							disabled={editor.saving() || !editor.isValid()}
-						>
-							{t("worshipTemplate.save")}
-						</button>
+						</Show>
+						<Show when={!editor.message() && editor.isDirty()}>
+							<p class={styles.dirtyHint}>
+								{t("bulletinTemplate.unsavedChanges")}
+							</p>
+						</Show>
+						<div class={styles.barActions}>
+							<button
+								type="button"
+								class={styles.resetButton}
+								disabled={editor.saving()}
+								onClick={handleResetClick}
+							>
+								{t("bulletinTemplate.resetToDefault")}
+							</button>
+							<button
+								type="submit"
+								class={styles.saveButton}
+								disabled={editor.saving() || !editor.isValid()}
+							>
+								{t("worshipTemplate.save")}
+							</button>
+						</div>
 					</div>
 				</form>
 			</Show>

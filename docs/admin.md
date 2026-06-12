@@ -3,7 +3,8 @@
 ## 概要
 
 管理者がメンバーの追加・編集・無効化・招待リンク管理を行うページ。
-設定ページ (`/settings`) 内のリンクから `/settings/members` にアクセスできる（管理者のみ表示）。
+設定ページ (`/settings`) 内のリンクから `/admin/members` にアクセスできる（管理者のみ表示）。
+管理画面はタブバーの外側にあり、PC 向けサイドバーレイアウト（`AdminLayout`）で表示する。
 
 ## 機能
 
@@ -106,7 +107,8 @@
 |------|--------------|------|
 | `/` | `Dashboard` | ダッシュボード |
 | `/settings` | `Settings` | 設定ページ（管理画面へのリンク） |
-| `/settings/members` | `Management` | 管理画面・メンバー一覧（lazy load） |
-| `/settings/bulletin-template` | `BulletinTemplate` | 週報テンプレート管理（lazy load、管理者のみ） |
+| `/admin/members` | `Management` | 管理画面・メンバー一覧（lazy load） |
+| `/admin/bulletin-template` | `BulletinTemplate` | 週報テンプレート管理（lazy load、管理者のみ） |
 
 `App.tsx` がルートレイアウトとして機能し、認証ゲート + ヘッダーを提供する。
+`/admin/*` は `AdminLayout` が管理者ロールを検証し、非管理者は `/` へリダイレクトする。

@@ -1,4 +1,4 @@
-import { Minus, Plus } from "lucide-solid";
+import { Plus, X } from "lucide-solid";
 import { For, Show } from "solid-js";
 import styles from "../BulletinTemplate.module.css";
 
@@ -32,7 +32,7 @@ export function StringListEditor(props: Props) {
 					<div class={styles.fieldRow}>
 						<input
 							type="text"
-							class={styles.fieldInput}
+							class={styles.input}
 							value={item}
 							placeholder={props.placeholder}
 							onInput={(e) => update(index(), e.currentTarget.value)}
@@ -40,10 +40,10 @@ export function StringListEditor(props: Props) {
 						<Show when={props.items.length > min()}>
 							<button
 								type="button"
-								class={styles.fieldRemoveButton}
+								class={styles.removeButton}
 								onClick={() => remove(index())}
 							>
-								<Minus size={14} stroke-width={1.5} />
+								<X size={14} stroke-width={1.5} />
 							</button>
 						</Show>
 					</div>

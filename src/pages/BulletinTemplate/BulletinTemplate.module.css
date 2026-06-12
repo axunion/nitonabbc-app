@@ -1,5 +1,6 @@
 .container {
 	composes: pageContainer from "../../styles/shared.module.css";
+	--app-max-width: 960px;
 }
 
 .pageTitle {
@@ -19,30 +20,223 @@
 	max-width: var(--app-max-width);
 }
 
-/* --- Item list --- */
+/* --- Layout: sticky TOC + section column --- */
 
-.itemList {
-	list-style: none;
-	padding: 0;
-	margin: 0 0 var(--space-4) 0;
+.layoutGrid {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--space-6);
+	width: 100%;
+}
+
+.toc {
+	position: sticky;
+	top: var(--space-4);
+	width: 180px;
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.tocLink {
+	display: block;
+	text-align: left;
+	padding: var(--space-1) var(--space-2);
+	border: none;
+	border-radius: var(--radius-sm);
+	background: transparent;
+	color: var(--admin-muted-foreground);
+	font-size: var(--text-sm);
+	cursor: pointer;
+	outline: none;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	transition:
+		background var(--duration-fast) var(--ease-default),
+		color var(--duration-fast) var(--ease-default);
+}
+
+.tocLink:hover {
+	background: var(--admin-accent);
+	color: var(--admin-foreground);
+}
+
+.tocLink:focus-visible {
+	box-shadow: var(--admin-focus-ring);
+}
+
+.tocLinkHidden {
+	opacity: 0.45;
+	text-decoration: line-through;
+}
+
+.sectionList {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-4);
+}
+
+@media (max-width: 768px) {
+	.toc {
+		display: none;
+	}
+}
+
+/* --- Section card --- */
+
+.sectionCard {
+	composes: card from "../../styles/admin.module.css";
+	padding: var(--space-4);
+	scroll-margin-top: var(--space-4);
+}
+
+.cardHeader {
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+}
+
+/* Unified control metrics: every input, select, and action button is 36px tall */
+
+.input {
+	height: 36px;
+	padding: 0 var(--space-2);
+	border: 1px solid var(--admin-input);
+	border-radius: var(--radius-md);
+	font-size: var(--text-sm);
+	color: var(--admin-foreground);
+	background: var(--admin-card);
+	outline: none;
+	transition: border-color var(--duration-fast) var(--ease-default);
+	box-sizing: border-box;
+	flex: 1;
+	min-width: 0;
+}
+
+.input:focus {
+	border-color: var(--admin-primary);
+	box-shadow: var(--admin-focus-ring);
+}
+
+.select {
+	composes: input;
+	flex: none;
+	min-width: 130px;
+}
+
+/* --- Visibility switch (Kobalte) --- */
+
+.switchRoot {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2);
+	flex-shrink: 0;
+}
+
+.switchLabel {
+	font-size: var(--text-xs);
+	color: var(--admin-muted-foreground);
+	user-select: none;
+}
+
+.switchInput {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	opacity: 0;
+	margin: 0;
+}
+
+.switchControl {
+	display: inline-flex;
+	align-items: center;
+	width: 36px;
+	height: 20px;
+	padding: 2px;
+	border-radius: var(--radius-full);
+	background: var(--admin-input);
+	cursor: pointer;
+	box-sizing: border-box;
+	transition: background var(--duration-fast) var(--ease-default);
+}
+
+.switchControl[data-checked] {
+	background: var(--admin-primary);
+}
+
+.switchRoot:has(.switchInput:focus-visible) .switchControl {
+	box-shadow: var(--admin-focus-ring);
+}
+
+.switchThumb {
+	width: 16px;
+	height: 16px;
+	border-radius: var(--radius-full);
+	background: var(--admin-card);
+	box-shadow: var(--admin-shadow-sm);
+	transition: transform var(--duration-fast) var(--ease-default);
+}
+
+.switchThumb[data-checked] {
+	transform: translateX(16px);
+}
+
+/* --- Config block --- */
+
+.configBlock {
+	margin-top: var(--space-3);
+	padding-top: var(--space-3);
+	border-top: 1px solid var(--admin-border);
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-2);
 }
 
-.item {
-	composes: card from "../../styles/admin.module.css";
-	overflow: hidden;
+.configCaption {
+	font-size: var(--text-xs);
+	font-weight: var(--font-medium);
+	color: var(--admin-muted-foreground);
+	margin: 0;
 }
 
-/* --- Collapsed header --- */
+.cardHidden .configBlock,
+.cardHidden .input {
+	opacity: 0.55;
+}
 
-.itemHeader {
+/* --- Worship program items --- */
+
+.programList {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+}
+
+.programItem {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+}
+
+.programRow {
 	display: flex;
 	align-items: center;
 	gap: var(--space-2);
-	padding: var(--space-2) var(--space-3);
-	min-height: 48px;
+}
+
+/* Compound fields keep the indented border to show nesting under their item */
+.programFields {
+	composes: fieldsSection;
+	margin-left: 30px;
+	padding-left: var(--space-2);
+	border-left: 2px solid var(--admin-border);
 }
 
 .orderButtons {
@@ -81,192 +275,12 @@
 	cursor: not-allowed;
 }
 
-.itemSummary {
-	flex: 1;
-	min-width: 0;
-	display: flex;
-	align-items: baseline;
-	gap: var(--space-2);
-	background: none;
-	border: none;
-	padding: var(--space-1) 0;
-	cursor: pointer;
-	outline: none;
-	text-align: left;
-	font: inherit;
-	color: inherit;
-}
-
-.itemSummary:focus-visible {
-	box-shadow: var(--admin-focus-ring);
-	border-radius: var(--radius-sm);
-}
-
-.itemLabel {
-	font-size: var(--text-sm);
-	font-weight: var(--font-medium);
-	color: var(--admin-foreground);
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.itemHidden {
-	opacity: 0.4;
-	text-decoration: line-through;
-}
-
-.itemMeta {
-	font-size: var(--text-xs);
-	color: var(--admin-muted-foreground);
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	flex-shrink: 1;
-}
-
-.expandButton {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 32px;
-	height: 32px;
-	border-radius: var(--radius-md);
-	border: none;
-	background: transparent;
-	color: var(--admin-muted-foreground);
-	cursor: pointer;
-	outline: none;
-	flex-shrink: 0;
-	transition: color var(--duration-fast) var(--ease-default);
-}
-
-.expandButton:hover {
-	color: var(--admin-foreground);
-}
-
-.expandButton:focus-visible {
-	box-shadow: var(--admin-focus-ring);
-}
-
-/* --- Expanded detail --- */
-
-.itemDetail {
-	padding: 0 var(--space-3) var(--space-3);
-	border-top: 1px solid var(--admin-border);
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-3);
-}
-
-.detailRow {
-	display: flex;
-	gap: var(--space-2);
-	margin-top: var(--space-3);
-}
-
-.input {
-	height: 40px;
-	padding: 0 var(--space-3);
-	border: 1px solid var(--admin-input);
-	border-radius: var(--radius-md);
-	font-size: var(--text-sm);
-	color: var(--admin-foreground);
-	background: var(--admin-card);
-	outline: none;
-	transition: border-color var(--duration-fast) var(--ease-default);
-	box-sizing: border-box;
-	flex: 2;
-	min-width: 0;
-}
-
-.input:focus {
-	border-color: var(--admin-primary);
-	box-shadow: var(--admin-focus-ring);
-}
-
-.inputSmall {
-	composes: input;
-	flex: 1;
-}
-
-/* --- Chip selector --- */
-
-.chipRow {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--space-1);
-}
-
-.chip {
-	height: 30px;
-	padding: 0 var(--space-2);
-	border-radius: var(--radius-full);
-	border: 1px solid var(--admin-border);
-	background: transparent;
-	color: var(--admin-muted-foreground);
-	font-size: var(--text-xs);
-	cursor: pointer;
-	outline: none;
-	transition:
-		background var(--duration-fast) var(--ease-default),
-		border-color var(--duration-fast) var(--ease-default),
-		color var(--duration-fast) var(--ease-default);
-}
-
-.chip:hover {
-	border-color: var(--admin-primary);
-	color: var(--admin-primary);
-}
-
-.chip:focus-visible {
-	box-shadow: var(--admin-focus-ring);
-}
-
-.chipActive {
-	background: var(--admin-primary);
-	border-color: var(--admin-primary);
-	color: var(--admin-primary-foreground);
-}
-
-.chipActive:hover {
-	background: var(--admin-primary-hover);
-	border-color: var(--admin-primary-hover);
-	color: var(--admin-primary-foreground);
-}
-
-/* --- Mode toggle --- */
-
-.modeToggle {
-	align-self: flex-start;
-	height: 28px;
-	padding: 0 var(--space-2);
-	border: none;
-	border-radius: var(--radius-sm);
-	background: transparent;
-	color: var(--admin-primary);
-	font-size: var(--text-xs);
-	cursor: pointer;
-	outline: none;
-	transition: background var(--duration-fast) var(--ease-default);
-}
-
-.modeToggle:hover {
-	background: var(--admin-primary-soft);
-}
-
-.modeToggle:focus-visible {
-	box-shadow: var(--admin-focus-ring);
-}
-
-/* --- Sub-fields --- */
+/* --- Field rows (shared by config editors) --- */
 
 .fieldsSection {
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-2);
-	padding-left: var(--space-2);
-	border-left: 2px solid var(--admin-border);
 }
 
 .fieldRow {
@@ -275,48 +289,12 @@
 	gap: var(--space-1);
 }
 
-.fieldInput {
-	height: 36px;
-	padding: 0 var(--space-2);
-	border: 1px solid var(--admin-input);
-	border-radius: var(--radius-sm);
-	font-size: var(--text-sm);
-	color: var(--admin-foreground);
-	background: var(--admin-card);
-	outline: none;
-	flex: 1;
-	min-width: 0;
-	box-sizing: border-box;
-}
-
-.fieldInput:focus {
-	border-color: var(--admin-primary);
-	box-shadow: var(--admin-focus-ring);
-}
-
-.fieldSelect {
-	height: 36px;
-	padding: 0 var(--space-1);
-	border: 1px solid var(--admin-input);
-	border-radius: var(--radius-sm);
-	font-size: var(--text-xs);
-	color: var(--admin-foreground);
-	background: var(--admin-card);
-	outline: none;
-	min-width: 68px;
-}
-
-.fieldSelect:focus {
-	border-color: var(--admin-primary);
-	box-shadow: var(--admin-focus-ring);
-}
-
-.fieldRemoveButton {
+.removeButton {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 24px;
-	height: 24px;
+	width: 28px;
+	height: 28px;
 	border-radius: var(--radius-full);
 	border: none;
 	background: transparent;
@@ -328,11 +306,11 @@
 	transition: color var(--duration-fast) var(--ease-default);
 }
 
-.fieldRemoveButton:hover {
+.removeButton:hover {
 	color: var(--admin-destructive);
 }
 
-.fieldRemoveButton:focus-visible {
+.removeButton:focus-visible {
 	box-shadow: var(--admin-focus-ring);
 }
 
@@ -340,7 +318,7 @@
 	display: flex;
 	align-items: center;
 	gap: var(--space-1);
-	height: 32px;
+	height: 36px;
 	padding: 0 var(--space-2);
 	border: none;
 	border-radius: var(--radius-sm);
@@ -360,41 +338,13 @@
 	box-shadow: var(--admin-focus-ring);
 }
 
-/* --- Delete --- */
-
-.deleteButton {
-	align-self: flex-start;
-	display: flex;
-	align-items: center;
-	gap: var(--space-1);
-	height: 28px;
-	padding: 0 var(--space-2);
-	border: none;
-	border-radius: var(--radius-sm);
-	background: transparent;
-	color: var(--admin-destructive);
-	font-size: var(--text-xs);
-	cursor: pointer;
-	outline: none;
-	opacity: 0.7;
-	transition: opacity var(--duration-fast) var(--ease-default);
-}
-
-.deleteButton:hover {
-	opacity: 1;
-}
-
-.deleteButton:focus-visible {
-	box-shadow: var(--admin-focus-ring);
-}
-
-/* --- Add item / actions --- */
+/* --- Add item --- */
 
 .addButton {
 	display: flex;
 	align-items: center;
 	gap: var(--space-1);
-	height: 44px;
+	height: 36px;
 	padding: 0 var(--space-3);
 	border-radius: var(--radius-md);
 	border: 1px dashed var(--admin-input);
@@ -405,7 +355,6 @@
 	outline: none;
 	width: 100%;
 	justify-content: center;
-	margin-bottom: var(--space-4);
 	transition:
 		border-color var(--duration-fast) var(--ease-default),
 		color var(--duration-fast) var(--ease-default);
@@ -420,9 +369,36 @@
 	box-shadow: var(--admin-focus-ring);
 }
 
-.actions {
-	composes: pairedActions from "../../styles/shared.module.css";
-	padding-bottom: var(--space-8);
+/* --- Sticky action bar --- */
+
+.stickyBar {
+	position: sticky;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+	width: 100%;
+	padding: var(--space-3) 0;
+	margin-top: var(--space-4);
+	background: var(--admin-background);
+	border-top: 1px solid var(--admin-border);
+}
+
+.dirtyHint {
+	font-size: var(--text-sm);
+	color: var(--admin-primary);
+	margin: 0;
+}
+
+.barActions {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	margin-left: auto;
+}
+
+.resetButton {
+	composes: buttonOutlineDestructive from "../../styles/admin.module.css";
 }
 
 .saveButton {
@@ -433,10 +409,12 @@
 
 .success {
 	composes: messageSuccess from "../../styles/shared.module.css";
+	margin: 0;
 }
 
 .error {
 	composes: messageError from "../../styles/shared.module.css";
+	margin: 0;
 }
 
 .loading {

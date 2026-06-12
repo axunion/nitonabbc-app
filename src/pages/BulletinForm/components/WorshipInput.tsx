@@ -13,24 +13,6 @@ interface WorshipInputProps {
 	onUpdateFieldValue: (index: number, key: string, value: string) => void;
 }
 
-function getPlaceholder(
-	t: ReturnType<typeof useLocale>["t"],
-	inputType?: string,
-): string {
-	switch (inputType) {
-		case "scripture":
-			return t("bulletinForm.scripturePlaceholder");
-		case "number":
-			return t("bulletinForm.numberPlaceholder");
-		default:
-			return t("bulletinForm.detailsPlaceholder");
-	}
-}
-
-function getInputType(inputType?: string): string {
-	return inputType === "number" ? "number" : "text";
-}
-
 function MemberSelect(props: {
 	value: string | undefined;
 	members: Member[] | undefined;
@@ -81,9 +63,9 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
 							<div class={styles.fieldRow}>
 								<span class={styles.fieldLabel}>{field.label}</span>
 								<input
-									type={getInputType(field.inputType)}
+									type="text"
 									class={styles.input}
-									placeholder={getPlaceholder(t, field.inputType)}
+									placeholder={t("bulletinForm.detailsPlaceholder")}
 									value={props.item.fieldValues?.[field.key] ?? ""}
 									onInput={(e) =>
 										props.onUpdateFieldValue(
@@ -117,12 +99,11 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
 		);
 	}
 
-	// Text/number/scripture
 	return (
 		<input
-			type={getInputType(inputType())}
+			type="text"
 			class={styles.input}
-			placeholder={getPlaceholder(t, inputType())}
+			placeholder={t("bulletinForm.detailsPlaceholder")}
 			value={props.item.details ?? ""}
 			onInput={(e) => props.onUpdateDetails(props.index, e.currentTarget.value)}
 		/>

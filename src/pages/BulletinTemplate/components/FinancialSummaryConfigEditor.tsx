@@ -1,4 +1,4 @@
-import { Minus, Plus } from "lucide-solid";
+import { Plus, X } from "lucide-solid";
 import { For } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type {
@@ -52,31 +52,31 @@ export function FinancialSummaryConfigEditor(props: Props) {
 					<div class={styles.fieldRow}>
 						<input
 							type="text"
-							class={styles.fieldInput}
-							placeholder={t("bulletinTemplate.financialItemKeyPlaceholder")}
-							value={item.key}
-							onInput={(e) => update(index(), "key", e.currentTarget.value)}
-						/>
-						<input
-							type="text"
-							class={styles.fieldInput}
+							class={styles.input}
 							placeholder={t("bulletinTemplate.financialItemLabelPlaceholder")}
 							value={item.label}
 							onInput={(e) => update(index(), "label", e.currentTarget.value)}
 						/>
 						<input
 							type="text"
-							class={styles.fieldInput}
+							class={styles.input}
+							placeholder={t("bulletinTemplate.financialItemKeyPlaceholder")}
+							value={item.key}
+							onInput={(e) => update(index(), "key", e.currentTarget.value)}
+						/>
+						<input
+							type="text"
+							class={styles.input}
 							placeholder={t("bulletinTemplate.financialItemUnitPlaceholder")}
 							value={item.unit ?? ""}
 							onInput={(e) => update(index(), "unit", e.currentTarget.value)}
 						/>
 						<button
 							type="button"
-							class={styles.fieldRemoveButton}
+							class={styles.removeButton}
 							onClick={() => remove(index())}
 						>
-							<Minus size={14} stroke-width={1.5} />
+							<X size={14} stroke-width={1.5} />
 						</button>
 					</div>
 				)}
