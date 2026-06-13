@@ -3,6 +3,7 @@ import { Show, Suspense } from "solid-js";
 import { logout } from "@/api/auth.ts";
 import { AdminLayout } from "@/components/AdminLayout";
 import { TabBar } from "@/components/TabBar";
+import { Toaster } from "@/components/Toast/index.ts";
 import { Login } from "@/pages/Login";
 import { AuthProvider } from "@/store/AuthContext.tsx";
 import { createAuthStore } from "@/store/auth.ts";
@@ -45,6 +46,7 @@ function App(props: RouteSectionProps) {
 					)}
 				</Show>
 			</Suspense>
+			<Toaster />
 		</LocaleProvider>
 	);
 }

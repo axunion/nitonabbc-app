@@ -438,18 +438,6 @@
 	composes: buttonPrimary from "../../styles/admin.module.css";
 }
 
-/* --- Messages (admin tokens — no glass colors) --- */
-
-.success {
-	composes: messageSuccess from "../../styles/admin.module.css";
-	margin: 0;
-}
-
-.error {
-	composes: messageError from "../../styles/admin.module.css";
-	margin: 0;
-}
-
 .loading {
 	composes: loadingText from "../../styles/admin.module.css";
 }

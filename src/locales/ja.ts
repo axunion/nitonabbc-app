@@ -3,6 +3,7 @@ export const ja = {
 		churchName: "仁戸名聖書バプテスト教会",
 		loading: "読み込み中...",
 		cancel: "キャンセル",
+		discard: "破棄",
 		edit: "編集",
 		add: "追加",
 		update: "更新",
@@ -12,6 +13,7 @@ export const ja = {
 		delete: "削除",
 		save: "保存",
 		close: "閉じる",
+		error: "エラーが発生しました",
 	},
 	login: {
 		subtitle: "メンバーポータル",
@@ -54,6 +56,10 @@ export const ja = {
 		dialogTitleEdit: "メンバー編集",
 		name: "名前",
 		role: "ロール",
+		inviteLinkCopied: "招待リンクをコピーしました",
+		copyFailed: "コピーに失敗しました",
+		deactivated: "{{name}} を無効化しました",
+		reinvited: "{{name}} を再招待しました",
 		confirmDeactivate: "{{name}} を無効化しますか？",
 		confirmReinvite:
 			"{{name}} のLINE連携を解除し、新しい招待リンクを発行しますか？",
@@ -110,6 +116,7 @@ export const ja = {
 		title: "週報テンプレート",
 		description:
 			"週報を構成するセクションの設定です。各セクションの名前・表示/非表示・項目を編集できます。",
+		discardTitle: "変更を破棄",
 		confirmDiscard: "保存されていない変更があります。破棄して移動しますか？",
 		tocLabel: "セクション一覧",
 		unsavedChanges: "未保存の変更があります",

@@ -1,0 +1,43 @@
+/* Confirm dialog — admin flat PC theme */
+
+.overlay {
+	composes: dialogOverlay from "../../styles/admin.module.css";
+}
+
+.content {
+	composes: dialogContent from "../../styles/admin.module.css";
+	width: 400px;
+	max-width: calc(100vw - var(--space-8));
+}
+
+.title {
+	composes: pageTitle from "../../styles/admin.module.css";
+	margin-bottom: var(--space-3);
+}
+
+.description {
+	font-size: var(--text-sm);
+	color: var(--admin-muted-foreground);
+	line-height: 1.6;
+	margin: 0;
+}
+
+.actions {
+	composes: dialogActions from "../../styles/admin.module.css";
+	margin-top: var(--space-6);
+}
+
+.cancelButton {
+	composes: buttonOutline from "../../styles/admin.module.css";
+	min-width: 6rem;
+}
+
+.confirmButton {
+	composes: buttonPrimary from "../../styles/admin.module.css";
+	min-width: 6rem;
+}
+
+.confirmButtonDestructive {
+	composes: buttonOutlineDestructive from "../../styles/admin.module.css";
+	min-width: 6rem;
+}

@@ -6,6 +6,7 @@ import {
 } from "solid-js";
 import { createStore, produce, unwrap } from "solid-js/store";
 import { fetchTemplate, resetTemplate, saveTemplate } from "@/api/bulletin.ts";
+import { showToast } from "@/components/Toast/index.ts";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type {
 	FinancialSummaryItem,
@@ -30,10 +31,6 @@ export function useTemplateEditor() {
 	});
 	const [initialized, setInitialized] = createSignal(false);
 	const [saving, setSaving] = createSignal(false);
-	const [message, setMessage] = createSignal<{
-		type: "success" | "error";
-		text: string;
-	} | null>(null);
 	const [savedSnapshot, setSavedSnapshot] = createSignal("");
 
 	createEffect(() => {
@@ -53,10 +50,8 @@ export function useTemplateEditor() {
 			JSON.stringify(unwrap(state.sections)) !== savedSnapshot(),
 	);
 
-	// All edits funnel through here so a stale save/reset message never
-	// lingers over a dirty editor
+	// All edits funnel through here
 	function mutateSections(mutator: (sections: SectionTemplate[]) => void) {
-		setMessage(null);
 		setState("sections", produce(mutator));
 	}
 
@@ -254,44 +249,36 @@ export function useTemplateEditor() {
 
 	async function handleSave(e: SubmitEvent) {
 		e.preventDefault();
-		setMessage(null);
 		setSaving(true);
 		try {
 			const toSave = unwrap(state.sections);
 			const result = await saveTemplate(toSave);
 			if (result.error) {
-				setMessage({
-					type: "error",
-					text: result.error ?? t("worshipTemplate.saveError"),
-				});
+				showToast(result.error, "error");
 				return;
 			}
 			setSavedSnapshot(JSON.stringify(toSave));
-			setMessage({ type: "success", text: t("worshipTemplate.saved") });
+			showToast(t("worshipTemplate.saved"), "success");
 		} catch {
-			setMessage({ type: "error", text: t("worshipTemplate.saveError") });
+			showToast(t("worshipTemplate.saveError"), "error");
 		} finally {
 			setSaving(false);
 		}
 	}
 
 	async function handleReset() {
-		setMessage(null);
 		setSaving(true);
 		try {
 			const result = await resetTemplate();
 			if (!result.template) {
-				setMessage({
-					type: "error",
-					text: result.error ?? t("worshipTemplate.saveError"),
-				});
+				showToast(result.error ?? t("worshipTemplate.saveError"), "error");
 				return;
 			}
 			setState("sections", result.template);
 			setSavedSnapshot(JSON.stringify(result.template));
-			setMessage({ type: "success", text: t("bulletinTemplate.resetDone") });
+			showToast(t("bulletinTemplate.resetDone"), "success");
 		} catch {
-			setMessage({ type: "error", text: t("worshipTemplate.saveError") });
+			showToast(t("worshipTemplate.saveError"), "error");
 		} finally {
 			setSaving(false);
 		}
@@ -301,7 +288,6 @@ export function useTemplateEditor() {
 		sections,
 		initialized,
 		saving,
-		message,
 		isValid,
 		isDirty,
 		updateLabel,

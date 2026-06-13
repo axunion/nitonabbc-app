@@ -215,9 +215,3 @@
 .loading {
 	composes: loadingText from "../../styles/admin.module.css";
 }
-
-.copySuccess {
-	color: var(--admin-success);
-	font-size: var(--text-xs);
-	margin-left: var(--space-1);
-}

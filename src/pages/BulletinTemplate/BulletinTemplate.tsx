@@ -1,5 +1,7 @@
+import type { BeforeLeaveEventArgs } from "@solidjs/router";
 import { useBeforeLeave } from "@solidjs/router";
-import { For, Show } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
+import { ConfirmDialog } from "@/components/ConfirmDialog/index.ts";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import styles from "./BulletinTemplate.module.css";
 import { SectionCard, sectionAnchorId } from "./components/SectionCard.tsx";
@@ -10,13 +12,17 @@ export function BulletinTemplate() {
 
 	const editor = useTemplateEditor();
 
+	const [leaveEvent, setLeaveEvent] = createSignal<BeforeLeaveEventArgs | null>(
+		null,
+	);
+	const discardOpen = () => leaveEvent() !== null;
+	const [resetOpen, setResetOpen] = createSignal(false);
+
 	useBeforeLeave((e) => {
-		if (
-			editor.isDirty() &&
-			!e.defaultPrevented &&
-			!confirm(t("bulletinTemplate.confirmDiscard"))
-		) {
+		if (editor.isDirty() && !e.defaultPrevented) {
 			e.preventDefault();
+			setResetOpen(false);
+			setLeaveEvent(e);
 		}
 	});
 
@@ -24,11 +30,6 @@ export function BulletinTemplate() {
 		document
 			.getElementById(sectionAnchorId(sectionId))
 			?.scrollIntoView({ behavior: "smooth", block: "start" });
-	}
-
-	function handleResetClick() {
-		if (!confirm(t("bulletinTemplate.confirmReset"))) return;
-		void editor.handleReset();
 	}
 
 	return (
@@ -66,18 +67,7 @@ export function BulletinTemplate() {
 					</div>
 
 					<div class={styles.stickyBar}>
-						<Show when={editor.message()}>
-							{(msg) => (
-								<p
-									class={
-										msg().type === "success" ? styles.success : styles.error
-									}
-								>
-									{msg().text}
-								</p>
-							)}
-						</Show>
-						<Show when={!editor.message() && editor.isDirty()}>
+						<Show when={editor.isDirty()}>
 							<p class={styles.dirtyHint}>
 								{t("bulletinTemplate.unsavedChanges")}
 							</p>
@@ -87,7 +77,7 @@ export function BulletinTemplate() {
 								type="button"
 								class={styles.resetButton}
 								disabled={editor.saving()}
-								onClick={handleResetClick}
+								onClick={() => setResetOpen(true)}
 							>
 								{t("bulletinTemplate.resetToDefault")}
 							</button>
@@ -102,6 +92,35 @@ export function BulletinTemplate() {
 					</div>
 				</form>
 			</Show>
+
+			{/* Discard unsaved changes and leave */}
+			<ConfirmDialog
+				open={discardOpen()}
+				onOpenChange={(open) => {
+					if (!open) setLeaveEvent(null);
+				}}
+				title={t("bulletinTemplate.discardTitle")}
+				description={t("bulletinTemplate.confirmDiscard")}
+				confirmLabel={t("common.discard")}
+				cancelLabel={t("common.cancel")}
+				variant="destructive"
+				onConfirm={() => {
+					const ev = leaveEvent();
+					if (ev) ev.retry(true);
+				}}
+			/>
+
+			{/* Reset template to default */}
+			<ConfirmDialog
+				open={resetOpen()}
+				onOpenChange={setResetOpen}
+				title={t("bulletinTemplate.resetToDefault")}
+				description={t("bulletinTemplate.confirmReset")}
+				confirmLabel={t("bulletinTemplate.resetToDefault")}
+				cancelLabel={t("common.cancel")}
+				variant="destructive"
+				onConfirm={() => editor.handleReset()}
+			/>
 		</div>
 	);
 }

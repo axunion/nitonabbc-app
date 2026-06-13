@@ -17,9 +17,19 @@ import {
 	reinviteMember,
 	updateMember,
 } from "@/api/members.ts";
+import { ConfirmDialog } from "@/components/ConfirmDialog/index.ts";
+import { showToast } from "@/components/Toast/index.ts";
 import { useAuth } from "@/store/AuthContext.tsx";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import styles from "./Management.module.css";
+
+type PendingAction = {
+	title: string;
+	description: string;
+	confirmLabel: string;
+	variant: "default" | "destructive";
+	run: () => Promise<void>;
+};
 
 export function Management() {
 	const { user } = useAuth();
@@ -27,7 +37,7 @@ export function Management() {
 
 	const [members, { refetch }] = createResource(fetchAdminMembers);
 
-	// Dialog state
+	// Add/edit dialog state
 	const [dialogOpen, setDialogOpen] = createSignal(false);
 	const [editingMember, setEditingMember] = createSignal<AdminMember | null>(
 		null,
@@ -35,7 +45,10 @@ export function Management() {
 	const [formName, setFormName] = createSignal("");
 	const [formRole, setFormRole] = createSignal<"admin" | "member">("member");
 	const [submitting, setSubmitting] = createSignal(false);
-	const [copiedId, setCopiedId] = createSignal<number | null>(null);
+
+	// Confirm dialog state
+	const [pending, setPending] = createSignal<PendingAction | null>(null);
+	const confirmOpen = () => pending() !== null;
 
 	function openAddDialog() {
 		setEditingMember(null);
@@ -69,25 +82,59 @@ export function Management() {
 		}
 	}
 
-	async function handleDeactivate(member: AdminMember) {
-		if (!confirm(t("management.confirmDeactivate", { name: member.name })))
-			return;
-		await deactivateMember(member.id);
-		await refetch();
+	function handleDeactivate(member: AdminMember) {
+		setPending({
+			title: t("management.deactivate"),
+			description: t("management.confirmDeactivate", { name: member.name }),
+			confirmLabel: t("management.deactivate"),
+			variant: "destructive",
+			run: async () => {
+				try {
+					await deactivateMember(member.id);
+					await refetch();
+					showToast(
+						t("management.deactivated", { name: member.name }),
+						"success",
+					);
+				} catch (err) {
+					showToast(t("common.error"), "error");
+					throw err;
+				}
+			},
+		});
 	}
 
-	async function handleReinvite(member: AdminMember) {
-		if (!confirm(t("management.confirmReinvite", { name: member.name })))
-			return;
-		await reinviteMember(member.id);
-		await refetch();
+	function handleReinvite(member: AdminMember) {
+		setPending({
+			title: t("management.reinvite"),
+			description: t("management.confirmReinvite", { name: member.name }),
+			confirmLabel: t("management.reinvite"),
+			variant: "default",
+			run: async () => {
+				try {
+					await reinviteMember(member.id);
+					await refetch();
+					showToast(
+						t("management.reinvited", { name: member.name }),
+						"success",
+					);
+				} catch (err) {
+					showToast(t("common.error"), "error");
+					throw err;
+				}
+			},
+		});
 	}
 
 	async function copyInviteLink(member: AdminMember) {
 		const url = `${window.location.origin}/api/invite/${member.inviteToken}`;
-		await navigator.clipboard.writeText(url);
-		setCopiedId(member.id);
-		setTimeout(() => setCopiedId(null), 2000);
+		try {
+			await navigator.clipboard.writeText(url);
+			showToast(t("management.inviteLinkCopied"), "success");
+		} catch (err) {
+			console.error("Clipboard write failed:", err);
+			showToast(t("management.copyFailed"), "error");
+		}
 	}
 
 	return (
@@ -189,11 +236,6 @@ export function Management() {
 															>
 																<ClipboardCopy size={14} stroke-width={1.5} />
 																{t("management.inviteLink")}
-																<Show when={copiedId() === member.id}>
-																	<span class={styles.copySuccess}>
-																		copied!
-																	</span>
-																</Show>
 															</button>
 														</Show>
 														<Show when={member.lineUserId}>
@@ -228,6 +270,7 @@ export function Management() {
 				</Show>
 			</Show>
 
+			{/* Add / edit member dialog */}
 			<Dialog open={dialogOpen()} onOpenChange={setDialogOpen}>
 				<Dialog.Portal>
 					<Dialog.Overlay class={styles.overlay} />
@@ -283,6 +326,20 @@ export function Management() {
 					</Dialog.Content>
 				</Dialog.Portal>
 			</Dialog>
+
+			{/* Confirm action dialog */}
+			<ConfirmDialog
+				open={confirmOpen()}
+				onOpenChange={(open) => {
+					if (!open) setPending(null);
+				}}
+				title={pending()?.title ?? ""}
+				description={pending()?.description ?? ""}
+				confirmLabel={pending()?.confirmLabel ?? ""}
+				cancelLabel={t("common.cancel")}
+				variant={pending()?.variant ?? "default"}
+				onConfirm={() => pending()?.run()}
+			/>
 		</div>
 	);
 }
