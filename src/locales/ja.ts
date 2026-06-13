@@ -57,6 +57,10 @@ export const ja = {
 		confirmDeactivate: "{{name}} を無効化しますか？",
 		confirmReinvite:
 			"{{name}} のLINE連携を解除し、新しい招待リンクを発行しますか？",
+		colName: "名前",
+		colRole: "ロール",
+		colLineStatus: "LINE状況",
+		colActions: "操作",
 	},
 	bulletin: {
 		title: "週報",

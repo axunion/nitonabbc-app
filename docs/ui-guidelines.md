@@ -210,9 +210,13 @@ import { FileText } from "lucide-solid";
 管理画面は PC 操作が前提のため、モバイルの "God's Glory" テーマとは別の **フラットなニュートラルテーマ**（shadcn/ui 風、ライブラリ不使用）を使用する。
 
 - **トークン**: `src/styles/admin-tokens.css` の `--admin-*`（`:root` 定義。名前空間が分かれているためモバイルトークンと共存し、Kobalte の Portal 内でも解決される）
-- **共有パターン**: `src/styles/admin.module.css`（`.card`, `.input`, `.buttonPrimary`, `.buttonOutline`, `.dialogContent` 等を `composes:` で利用）
+- **共有パターン**: `src/styles/admin.module.css`（`.pageContainer`, `.toolbar`, `.card`, `.input`, `.buttonPrimary`, `.buttonOutline`, `.dialogContent`, `.messageSuccess`, `.messageError`, `.dialogActions` 等を `composes:` で利用）
 - **カラー**: 背景 `#fafafa` / カード `#ffffff` + 1px `#e4e4e7` ボーダー / テキスト `#18181b` / muted `#71717a`（zinc 系ニュートラル）。アクセントは Deep Gold (`--admin-primary: #a67c1a`) を継続
 - **グラスモーフィズム不使用**: `--glass-*` トークン・`backdrop-filter`・メッシュグラデーションは管理画面では使わない。サーフェスは不透明白 + 細ボーダー + 控えめなニュートラルシャドウ（`--admin-shadow-*`）
+- **glass shared.module.css 不使用**: `shared.module.css` の `pageContainer`（narrow column 中央寄せ）・`messageSuccess/Error`（`--color-*`）・`pairedActions`（glass ボタン）は admin ページから composes しない。代わりに `admin.module.css` の同名クラスを使う
+- **レイアウト**: コンテンツは中央寄せ narrow column ではなく、`--admin-content-max`（1100px）を上限とした左寄せ全幅。各ページの `.container` は `admin.module.css` の `.pageContainer` を composes する
+- **ツールバーパターン**: ページ上部にタイトル（左）+ 主要アクションボタン（右）のツールバー（`.toolbar`）を配置する
+- **メンバー一覧**: データテーブル（`<table>`）+ ツールバー。行 hover で `--admin-accent` 背景
 - typography / spacing / radius ステップ / duration / z-index はデバイス非依存のため `tokens.css` のものを共用する
 
 ## Favicon / PWA アイコン

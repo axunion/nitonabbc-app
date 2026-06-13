@@ -144,8 +144,6 @@
 .content {
 	flex: 1;
 	overflow-y: auto;
-	/* Widen page content that caps itself with var(--app-max-width) */
-	--app-max-width: 760px;
 }
 
 @media (max-width: 768px) {

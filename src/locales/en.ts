@@ -58,6 +58,10 @@ export const en: Dictionary = {
 		role: "Role",
 		confirmDeactivate: "Deactivate {{name}}?",
 		confirmReinvite: "Unlink LINE and issue a new invite link for {{name}}?",
+		colName: "Name",
+		colRole: "Role",
+		colLineStatus: "LINE",
+		colActions: "Actions",
 	},
 	bulletin: {
 		title: "Bulletin",

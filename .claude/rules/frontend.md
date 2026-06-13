@@ -28,6 +28,7 @@ paths:
 
 - Admin pages (AdminLayout, Management, BulletinTemplate) use the flat PC theme: `--admin-*` tokens from `src/styles/admin-tokens.css` plus shared patterns in `src/styles/admin.module.css` (e.g. `composes: card from "../../styles/admin.module.css";`)
 - Never use `--glass-*` tokens, `backdrop-filter`, or the mesh gradient in admin CSS — surfaces are opaque white with 1px `--admin-border` and `--admin-shadow-*`
+- Never composes from `src/styles/shared.module.css` in admin pages — use the admin equivalents in `admin.module.css` instead: `.pageContainer` (left-aligned, `--admin-content-max`), `.toolbar`, `.messageSuccess`, `.messageError`, `.dialogActions`
 - Device-agnostic tokens (typography, spacing, radius steps, durations, z-index) are shared with `tokens.css`
 
 ## Icons

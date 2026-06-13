@@ -1,10 +1,10 @@
 .container {
-	composes: pageContainer from "../../styles/shared.module.css";
-	--app-max-width: 960px;
+	composes: pageContainer from "../../styles/admin.module.css";
 }
 
 .pageTitle {
 	composes: pageTitle from "../../styles/admin.module.css";
+	margin-bottom: var(--space-2);
 }
 
 .description {
@@ -12,12 +12,10 @@
 	color: var(--admin-muted-foreground);
 	margin: 0 0 var(--space-4) 0;
 	width: 100%;
-	max-width: var(--app-max-width);
 }
 
 .form {
 	width: 100%;
-	max-width: var(--app-max-width);
 }
 
 /* --- Layout: sticky TOC + section column --- */
@@ -113,7 +111,7 @@
 	outline: none;
 	transition: border-color var(--duration-fast) var(--ease-default);
 	box-sizing: border-box;
-	flex: 1;
+	width: 100%;
 	min-width: 0;
 }
 
@@ -125,7 +123,13 @@
 .select {
 	composes: input;
 	flex: none;
+	width: 130px;
 	min-width: 130px;
+	appearance: none;
+	background-image: var(--admin-icon-chevron-down);
+	background-repeat: no-repeat;
+	background-position: right var(--space-2) center;
+	padding-right: var(--space-6);
 }
 
 /* --- Visibility switch (Kobalte) --- */
@@ -208,7 +212,11 @@
 	opacity: 0.55;
 }
 
-/* --- Worship program items --- */
+/* --- Worship program items ---
+ *
+ * Grid layout ensures every row (parent + compound fields) shares the same
+ * column widths: [order 22px] [label 1fr] [type/key 1fr] [inputType 130px] [remove 28px]
+ */
 
 .programList {
 	list-style: none;
@@ -226,17 +234,33 @@
 }
 
 .programRow {
-	display: flex;
+	display: grid;
+	grid-template-columns: 22px minmax(0, 1fr) minmax(0, 1fr) 130px 28px;
+	gap: var(--space-2);
 	align-items: center;
+}
+
+/* Compound fields block: left-offset by (22px order col + gap) so that
+ * the first input column aligns with the parent label column. */
+.programFields {
+	position: relative;
+	padding-left: calc(22px + var(--space-2));
+	display: flex;
+	flex-direction: column;
 	gap: var(--space-2);
 }
 
-/* Compound fields keep the indented border to show nesting under their item */
-.programFields {
-	composes: fieldsSection;
-	margin-left: 30px;
-	padding-left: var(--space-2);
-	border-left: 2px solid var(--admin-border);
+/* Vertical guide line drawn in the indent area, center of the order column.
+ * bottom clears the 36px addFieldButton plus a gap. */
+.programFields::before {
+	content: "";
+	position: absolute;
+	left: 11px;
+	top: 0;
+	bottom: calc(36px + var(--space-4));
+	width: 2px;
+	background: var(--admin-border);
+	border-radius: 1px;
 }
 
 .orderButtons {
@@ -286,7 +310,16 @@
 .fieldRow {
 	display: flex;
 	align-items: center;
-	gap: var(--space-1);
+	gap: var(--space-2);
+}
+
+/* Compound .fieldRow inside .programFields aligns with parent columns 2–5.
+ * Placed after .fieldRow so higher specificity (0,2,0) correctly overrides. */
+.programFields .fieldRow {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 130px 28px;
+	gap: var(--space-2);
+	align-items: center;
 }
 
 .removeButton {
@@ -405,15 +438,15 @@
 	composes: buttonPrimary from "../../styles/admin.module.css";
 }
 
-/* --- Messages --- */
+/* --- Messages (admin tokens — no glass colors) --- */
 
 .success {
-	composes: messageSuccess from "../../styles/shared.module.css";
+	composes: messageSuccess from "../../styles/admin.module.css";
 	margin: 0;
 }
 
 .error {
-	composes: messageError from "../../styles/shared.module.css";
+	composes: messageError from "../../styles/admin.module.css";
 	margin: 0;
 }
 

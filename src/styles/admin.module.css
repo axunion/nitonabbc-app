@@ -1,14 +1,29 @@
 /* Shared patterns for PC admin pages. Flat shadcn-style surfaces built on
  * the --admin-* tokens (admin-tokens.css). No glass tokens here. */
 
-.pageTitle {
+.pageContainer {
 	width: 100%;
-	max-width: var(--app-max-width);
+	max-width: var(--admin-content-max);
+	padding: var(--space-6);
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+}
+
+.pageTitle {
 	font-size: var(--text-xl);
 	font-weight: var(--font-semibold);
 	color: var(--admin-foreground);
 	letter-spacing: var(--tracking-tight);
-	margin: 0 0 var(--space-4) 0;
+	margin: 0;
+}
+
+.toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-4);
+	margin-bottom: var(--space-6);
 }
 
 .loadingText {
@@ -16,6 +31,24 @@
 	padding: var(--space-8);
 	color: var(--admin-muted-foreground);
 	font-size: var(--text-sm);
+}
+
+.messageSuccess {
+	font-size: var(--text-sm);
+	padding: var(--space-3);
+	border-radius: var(--radius-md);
+	background-color: var(--admin-success-soft);
+	color: var(--admin-success);
+	box-sizing: border-box;
+}
+
+.messageError {
+	font-size: var(--text-sm);
+	padding: var(--space-3);
+	border-radius: var(--radius-md);
+	background-color: var(--admin-destructive-soft);
+	color: var(--admin-destructive);
+	box-sizing: border-box;
 }
 
 .card {
@@ -114,35 +147,10 @@
 	background: var(--admin-destructive-soft);
 }
 
-.dashedAction {
+.dialogActions {
 	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: var(--space-2);
-	width: 100%;
-	max-width: var(--app-max-width);
-	height: 56px;
-	border-radius: var(--admin-radius);
-	border: 1px dashed var(--admin-input);
-	background: transparent;
-	color: var(--admin-muted-foreground);
-	font-size: var(--text-base);
-	font-weight: var(--font-medium);
-	cursor: pointer;
-	outline: none;
-	margin-bottom: var(--space-4);
-	transition:
-		border-color var(--duration-fast) var(--ease-default),
-		color var(--duration-fast) var(--ease-default);
-}
-
-.dashedAction:hover {
-	border-color: var(--admin-primary);
-	color: var(--admin-primary);
-}
-
-.dashedAction:focus-visible {
-	box-shadow: var(--admin-focus-ring);
+	gap: var(--space-3);
+	justify-content: flex-end;
 }
 
 @keyframes dialogFadeIn {
