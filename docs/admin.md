@@ -10,13 +10,10 @@
 
 ### メンバー一覧
 
-- 全メンバーをカード形式で一覧表示
-- 各カードに以下を表示:
-  - 名前
-  - ロールバッジ（管理者 / メンバー）
-  - LINE 連携状態（連携済み / 未連携）
-  - 無効化されたメンバーは「無効」バッジを表示
-- アクティブなメンバーのみアクション操作を表示
+- 全メンバーをデータテーブル形式で一覧表示
+- 列構成: 名前（無効バッジ含む）、ロール、LINE 連携状態、アクション
+- 無効化されたメンバーは行をグレーアウト表示 + 名前セルに「無効」バッジ
+- アクティブなメンバーのみアクション列にボタンを表示
 
 ### メンバー追加
 
@@ -96,19 +93,21 @@
 | `server/routes/admin.ts` | 管理 API エンドポイント（5ルート） |
 | `server/routes/members.ts` | アクティブメンバー一覧 API（`GET /api/members`、認証済み全員） |
 | `src/store/AuthContext.tsx` | 認証コンテキスト（`useAuth()` フック） |
-| `src/pages/Management/Management.tsx` | 管理画面 UI（メンバー一覧・CRUD） |
-| `src/pages/Management/Management.module.css` | 管理画面スタイル |
+| `src/components/AdminLayout/AdminLayout.tsx` | 管理者専用レイアウト（サイドバー + 管理者ロールガード） |
+| `src/components/MemberLayout/MemberLayout.tsx` | メンバー向けレイアウト（TabBar を内包） |
+| `src/components/ConfirmDialog/ConfirmDialog.tsx` | 確認ダイアログ（Kobalte Dialog ベース、非同期確認対応） |
+| `src/components/Toast/` | トースト通知（`showToast()` 命令型 API） |
+| `src/pages/Management/Management.tsx` | メンバー管理 UI（データテーブル・CRUD） |
+| `src/pages/Management/Management.module.css` | メンバー管理スタイル |
 
 ## ルーティング
 
-`@solidjs/router` を使用。
+`@solidjs/router` を使用。ルートは `src/index.tsx` に定義されており、`App` がルートレイアウト（認証ゲート・Toaster）として機能する。
+
+`/admin` プレフィックスのルートは `AdminLayout` 内にネストされ、`AdminLayout` が管理者ロールを検証する。非管理者は `/` へリダイレクトする。
 
 | パス | コンポーネント | 説明 |
 |------|--------------|------|
-| `/` | `Dashboard` | ダッシュボード |
-| `/settings` | `Settings` | 設定ページ（管理画面へのリンク） |
-| `/admin/members` | `Management` | 管理画面・メンバー一覧（lazy load） |
-| `/admin/bulletin-template` | `BulletinTemplate` | 週報テンプレート管理（lazy load、管理者のみ） |
-
-`App.tsx` がルートレイアウトとして機能し、認証ゲート + ヘッダーを提供する。
-`/admin/*` は `AdminLayout` が管理者ロールを検証し、非管理者は `/` へリダイレクトする。
+| `/admin` | リダイレクト | `/admin/members` へ自動転送 |
+| `/admin/members` | `Management` | メンバー管理（lazy load） |
+| `/admin/bulletin-template` | `BulletinTemplate` | 週報テンプレート設定（lazy load） |

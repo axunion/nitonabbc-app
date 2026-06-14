@@ -47,9 +47,10 @@ The npm scripts `deploy` and `db:migrate:remote` are **intentionally not defined
 ## Architecture
 
 - **Entry**: `index.html` → `src/index.tsx` → `src/App.tsx`
-- **Routing**: `@solidjs/router`. Routes defined in `src/index.tsx`, layout in `src/App.tsx`
-  - `/` → Dashboard, `/settings` → Settings, `/settings/admin` → Management (lazy)
-  - Bottom tab bar (Church / Settings). Each tab remembers and restores its last URL (iOS UITabBarController equivalent)
+- **Routing**: `@solidjs/router`. Routes defined in `src/index.tsx`, root layout in `src/App.tsx` (auth gate + Toaster)
+  - Member routes (`/`, `/settings`, `/bulletin/*`) nest under `MemberLayout` (TabBar)
+  - Admin routes (`/admin/*`) nest under `AdminLayout` (sidebar, admin role guard)
+  - TabBar: bottom pill on mobile (<900px), vertical sidebar on desktop (≥900px). Each tab remembers and restores its last URL (iOS UITabBarController equivalent)
 - **Path alias**: `@/` → `./src` (configured in both `vite.config.ts` and `tsconfig.app.json`)
 - **Auth context**: `useAuth()` from `src/store/AuthContext.tsx` — provides user info and `logout`
 - **JSX**: Solid.js transform (`jsxImportSource: solid-js`)
