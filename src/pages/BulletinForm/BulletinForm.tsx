@@ -46,41 +46,43 @@ export function BulletinForm() {
 							/>
 						</div>
 
-						<For each={form.sections()}>
-							{(section) => (
-								<fieldset class={styles.fieldset}>
-									<legend class={styles.legend}>{section.label}</legend>
-									<SectionEditor
-										section={section}
-										template={form.template() ?? []}
-										members={form.members()}
-										onUpdateDetails={form.updateWorshipDetails}
-										onUpdateFieldValue={form.updateWorshipFieldValue}
-										onUpdateAssignee={form.updateWorshipAssignee}
-										onAddAnnouncement={form.addAnnouncement}
-										onRemoveAnnouncement={form.removeAnnouncement}
-										onUpdateAnnouncement={form.updateAnnouncement}
-										onUpdateAssignment={form.updateAssignment}
-										onUpdateWeeklyVerse={form.updateWeeklyVerse}
-										onUpdateMonthlySong={form.updateMonthlySong}
-										onUpdateTextBlock={form.updateTextBlock}
-										onUpdateWeeklyPrayer={form.updateWeeklyPrayer}
-										onAddUpcomingEvent={form.addUpcomingEvent}
-										onRemoveUpcomingEvent={form.removeUpcomingEvent}
-										onUpdateUpcomingEvent={form.updateUpcomingEvent}
-										onAddBirthday={form.addBirthday}
-										onRemoveBirthday={form.removeBirthday}
-										onUpdateBirthday={form.updateBirthday}
-										onAddScriptureQuote={form.addScriptureQuote}
-										onRemoveScriptureQuote={form.removeScriptureQuote}
-										onUpdateScriptureQuote={form.updateScriptureQuote}
-										onUpdateAttendance={form.updateAttendance}
-										onUpdateServiceMeta={form.updateServiceMeta}
-										onUpdateFinancialSummary={form.updateFinancialSummary}
-									/>
-								</fieldset>
-							)}
-						</For>
+						<div class={styles.sectionsGrid}>
+							<For each={form.sections()}>
+								{(section) => (
+									<fieldset class={styles.fieldset}>
+										<legend class={styles.legend}>{section.label}</legend>
+										<SectionEditor
+											section={section}
+											template={form.template() ?? []}
+											members={form.members()}
+											onUpdateDetails={form.updateWorshipDetails}
+											onUpdateFieldValue={form.updateWorshipFieldValue}
+											onUpdateAssignee={form.updateWorshipAssignee}
+											onAddAnnouncement={form.addAnnouncement}
+											onRemoveAnnouncement={form.removeAnnouncement}
+											onUpdateAnnouncement={form.updateAnnouncement}
+											onUpdateAssignment={form.updateAssignment}
+											onUpdateWeeklyVerse={form.updateWeeklyVerse}
+											onUpdateMonthlySong={form.updateMonthlySong}
+											onUpdateTextBlock={form.updateTextBlock}
+											onUpdateWeeklyPrayer={form.updateWeeklyPrayer}
+											onAddUpcomingEvent={form.addUpcomingEvent}
+											onRemoveUpcomingEvent={form.removeUpcomingEvent}
+											onUpdateUpcomingEvent={form.updateUpcomingEvent}
+											onAddBirthday={form.addBirthday}
+											onRemoveBirthday={form.removeBirthday}
+											onUpdateBirthday={form.updateBirthday}
+											onAddScriptureQuote={form.addScriptureQuote}
+											onRemoveScriptureQuote={form.removeScriptureQuote}
+											onUpdateScriptureQuote={form.updateScriptureQuote}
+											onUpdateAttendance={form.updateAttendance}
+											onUpdateServiceMeta={form.updateServiceMeta}
+											onUpdateFinancialSummary={form.updateFinancialSummary}
+										/>
+									</fieldset>
+								)}
+							</For>
+						</div>
 
 						<div class={styles.actions}>
 							<button

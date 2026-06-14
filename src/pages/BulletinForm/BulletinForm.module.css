@@ -4,7 +4,7 @@
 
 .form {
 	width: 100%;
-	max-width: var(--app-max-width);
+	max-width: var(--content-width);
 }
 
 .formGroup {
@@ -191,6 +191,10 @@
 
 .loading {
 	composes: loadingText from "../../styles/shared.module.css";
+}
+
+.sectionsGrid {
+	composes: sectionsGrid2Col from "../../styles/shared.module.css";
 }
 
 .sectionAddRow {

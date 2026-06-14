@@ -8,9 +8,14 @@
 	margin: 0;
 }
 
+html {
+	height: 100%;
+}
+
 body {
 	min-width: 320px;
-	min-height: 100vh;
+	height: 100%;
+	overflow: hidden;
 	font-family: var(--font-sans);
 	font-size: var(--text-base);
 	line-height: var(--leading-normal);

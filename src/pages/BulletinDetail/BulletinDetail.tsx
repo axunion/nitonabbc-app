@@ -82,15 +82,17 @@ export function BulletinDetail() {
 									</button>
 								</Show>
 
-								<For each={b().sections}>
-									{(section) => (
-										<SectionView
-											section={section}
-											template={template() ?? []}
-											members={members()}
-										/>
-									)}
-								</For>
+								<div class={styles.sectionsGrid}>
+									<For each={b().sections}>
+										{(section) => (
+											<SectionView
+												section={section}
+												template={template() ?? []}
+												members={members()}
+											/>
+										)}
+									</For>
+								</div>
 							</div>
 						)}
 					</Show>

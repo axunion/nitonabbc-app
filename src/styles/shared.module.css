@@ -19,7 +19,7 @@
 
 .pageTitle {
 	width: 100%;
-	max-width: var(--app-max-width);
+	max-width: var(--content-width);
 	font-size: var(--text-xl);
 	font-weight: var(--font-semibold);
 	color: var(--color-gray-900);
@@ -105,7 +105,7 @@
 	border-radius: var(--radius-md);
 	margin-bottom: var(--space-4);
 	width: 100%;
-	max-width: var(--app-max-width);
+	max-width: var(--content-width);
 	box-sizing: border-box;
 }
 
@@ -176,4 +176,18 @@
 .pairedSubmit:disabled {
 	opacity: 0.5;
 	cursor: not-allowed;
+}
+
+.sectionsGrid2Col {
+	display: flex;
+	flex-direction: column;
+}
+
+@media (min-width: 900px) {
+	.sectionsGrid2Col {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0 var(--space-6);
+		align-items: start;
+	}
 }

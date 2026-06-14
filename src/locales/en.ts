@@ -16,6 +16,7 @@ export const en: Dictionary = {
 		save: "Save",
 		close: "Close",
 		error: "An error occurred",
+		skipToContent: "Skip to content",
 	},
 	login: {
 		subtitle: "Member Portal",

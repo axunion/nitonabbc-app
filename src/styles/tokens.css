@@ -193,7 +193,18 @@
 	/* --- Layout --- */
 	/* Max width shared by TabBar and page content to keep them visually aligned */
 	--app-max-width: 448px;
+	/* Content column max-width (mobile = same as app-max-width; desktop overridden below) */
+	/* Member desktop breakpoint = 900px (literal in @media; CSS custom properties cannot be used in media query conditions) */
+	--content-width: 448px;
+	/* Left sidebar width for member layout on desktop (matches admin sidebar) */
+	--sidebar-width: 240px;
 
 	/* --- Icons --- */
 	--icon-chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+@media (min-width: 900px) {
+	:root {
+		--content-width: 820px;
+	}
 }

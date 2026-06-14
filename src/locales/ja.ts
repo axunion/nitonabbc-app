@@ -14,6 +14,7 @@ export const ja = {
 		save: "保存",
 		close: "閉じる",
 		error: "エラーが発生しました",
+		skipToContent: "コンテンツへスキップ",
 	},
 	login: {
 		subtitle: "メンバーポータル",

@@ -44,25 +44,30 @@ export function TabBar() {
 	}
 
 	return (
-		<nav class={styles.tabBar}>
-			<button
-				type="button"
-				class={styles.tab}
-				classList={{ [styles.active]: isActive("church") }}
-				onClick={() => handleTabClick("church", "/")}
-			>
-				<Church size={ICON_SIZE} stroke-width={ICON_STROKE} />
-				<span class={styles.label}>{t("tabbar.church")}</span>
-			</button>
-			<button
-				type="button"
-				class={styles.tab}
-				classList={{ [styles.active]: isActive("settings") }}
-				onClick={() => handleTabClick("settings", "/settings")}
-			>
-				<Settings size={ICON_SIZE} stroke-width={ICON_STROKE} />
-				<span class={styles.label}>{t("tabbar.settings")}</span>
-			</button>
+		<nav class={styles.tabBar} aria-label={t("common.churchName")}>
+			<div class={styles.brand}>
+				<span class={styles.brandName}>{t("common.churchName")}</span>
+			</div>
+			<div class={styles.nav}>
+				<button
+					type="button"
+					class={styles.tab}
+					classList={{ [styles.active]: isActive("church") }}
+					onClick={() => handleTabClick("church", "/")}
+				>
+					<Church size={ICON_SIZE} stroke-width={ICON_STROKE} />
+					<span class={styles.label}>{t("tabbar.church")}</span>
+				</button>
+				<button
+					type="button"
+					class={styles.tab}
+					classList={{ [styles.active]: isActive("settings") }}
+					onClick={() => handleTabClick("settings", "/settings")}
+				>
+					<Settings size={ICON_SIZE} stroke-width={ICON_STROKE} />
+					<span class={styles.label}>{t("tabbar.settings")}</span>
+				</button>
+			</div>
 		</nav>
 	);
 }

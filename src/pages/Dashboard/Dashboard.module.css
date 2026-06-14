@@ -8,7 +8,7 @@
 	grid-template-columns: repeat(2, 1fr);
 	gap: var(--space-3);
 	width: 100%;
-	max-width: var(--app-max-width);
+	max-width: var(--content-width);
 }
 
 .widget {
@@ -81,4 +81,14 @@
 .widgetExternalBadge {
 	color: var(--color-text-tertiary);
 	flex-shrink: 0;
+}
+
+@media (min-width: 900px) {
+	.grid {
+		grid-template-columns: repeat(4, 1fr);
+	}
+
+	.widgetPrimary {
+		grid-column: span 2;
+	}
 }

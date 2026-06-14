@@ -31,7 +31,7 @@
 
 .content {
 	width: 100%;
-	max-width: var(--app-max-width);
+	max-width: var(--content-width);
 }
 
 .title {
@@ -197,6 +197,10 @@
 	font-size: var(--text-sm);
 	color: var(--color-gray-600);
 	margin: 0;
+}
+
+.sectionsGrid {
+	composes: sectionsGrid2Col from "../../styles/shared.module.css";
 }
 
 .loading {
