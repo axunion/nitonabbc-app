@@ -1,6 +1,6 @@
-import { A, useNavigate } from "@solidjs/router";
+import { A, Navigate, type RouteSectionProps } from "@solidjs/router";
 import { ArrowLeft, FileText, LogOut, Users } from "lucide-solid";
-import { createEffect, createSignal, type JSX, Show } from "solid-js";
+import { createSignal, Show, Suspense } from "solid-js";
 import { useAuth } from "@/store/AuthContext.tsx";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import styles from "./AdminLayout.module.css";
@@ -8,32 +8,13 @@ import styles from "./AdminLayout.module.css";
 const ICON_SIZE = 20;
 const ICON_STROKE = 1.5;
 
-type AdminLayoutProps = {
-	children?: JSX.Element;
-};
-
-export function AdminLayout(props: AdminLayoutProps) {
+export function AdminLayout(props: RouteSectionProps) {
 	const { user, logout } = useAuth();
 	const { t } = useLocale();
-	const navigate = useNavigate();
 	const [scrolled, setScrolled] = createSignal(false);
 
-	createEffect(() => {
-		if (user().role !== "admin") {
-			navigate("/", { replace: true });
-		}
-	});
-
-	async function handleLogout() {
-		try {
-			await logout();
-		} catch (error) {
-			console.error("Logout failed:", error);
-		}
-	}
-
 	return (
-		<Show when={user().role === "admin"}>
+		<Show when={user().role === "admin"} fallback={<Navigate href="/" />}>
 			<div class={styles.layout}>
 				<aside class={styles.sidebar}>
 					<div class={styles.brand}>
@@ -63,11 +44,7 @@ export function AdminLayout(props: AdminLayoutProps) {
 							<ArrowLeft size={ICON_SIZE} stroke-width={ICON_STROKE} />
 							{t("admin.backToApp")}
 						</A>
-						<button
-							type="button"
-							class={styles.logoutButton}
-							onClick={handleLogout}
-						>
+						<button type="button" class={styles.logoutButton} onClick={logout}>
 							<LogOut size={ICON_SIZE} stroke-width={ICON_STROKE} />
 							{t("admin.logout")}
 						</button>
@@ -85,7 +62,7 @@ export function AdminLayout(props: AdminLayoutProps) {
 						class={styles.content}
 						onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 0)}
 					>
-						{props.children}
+						<Suspense>{props.children}</Suspense>
 					</main>
 				</div>
 			</div>

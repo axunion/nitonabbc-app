@@ -1,4 +1,4 @@
-import { useNavigate } from "@solidjs/router";
+import { A } from "@solidjs/router";
 import {
 	ChevronRight,
 	Languages,
@@ -17,7 +17,6 @@ import styles from "./Settings.module.css";
 export function Settings() {
 	const { user } = useAuth();
 	const { t, locale, setLocale } = useLocale();
-	const navigate = useNavigate();
 
 	const [installPrompt, setInstallPrompt] =
 		createSignal<BeforeInstallPromptEvent | null>(null);
@@ -57,15 +56,11 @@ export function Settings() {
 
 					<Show when={user().role === "admin"}>
 						<div class={styles.menuList}>
-							<button
-								type="button"
-								class={styles.menuItem}
-								onClick={() => navigate("/admin")}
-							>
+							<A href="/admin" class={styles.menuItem}>
 								<LayoutDashboard size={20} stroke-width={1.5} />
 								<span>{t("admin.title")}</span>
 								<ChevronRight size={16} class={styles.chevron} />
-							</button>
+							</A>
 						</div>
 					</Show>
 

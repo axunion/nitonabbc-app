@@ -65,6 +65,7 @@
 	cursor: pointer;
 	outline: none;
 	text-align: left;
+	text-decoration: none;
 	transition: background-color var(--duration-fast) var(--ease-default);
 }
 

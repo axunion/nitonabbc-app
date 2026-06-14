@@ -1,1 +1,1 @@
-export { AdminLayout } from "./AdminLayout.tsx";
+export { AdminLayout, AdminLayout as default } from "./AdminLayout.tsx";

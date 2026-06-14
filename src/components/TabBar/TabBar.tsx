@@ -2,7 +2,6 @@ import { useLocation, useNavigate } from "@solidjs/router";
 import { Church, Settings } from "lucide-solid";
 import { createEffect, createSignal } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
-import { isAdminPath } from "@/utils/routes.ts";
 import styles from "./TabBar.module.css";
 
 const ICON_SIZE = 20;
@@ -14,7 +13,7 @@ function getTabForPath(path: string): Tab {
 	return path.startsWith("/settings") ? "settings" : "church";
 }
 
-// Module-level so tab memory survives TabBar unmounts (e.g. visiting /admin)
+// Module-level so tab memory survives TabBar unmounts
 const [tabMemory, setTabMemory] = createSignal<Record<Tab, string>>({
 	church: "/",
 	settings: "/settings",
@@ -27,7 +26,6 @@ export function TabBar() {
 
 	createEffect(() => {
 		const path = location.pathname;
-		if (isAdminPath(path)) return;
 		const tab = getTabForPath(path);
 		setTabMemory((prev) => ({ ...prev, [tab]: path }));
 	});
