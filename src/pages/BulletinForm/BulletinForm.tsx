@@ -2,15 +2,21 @@ import { useNavigate, useParams } from "@solidjs/router";
 import { For, Show } from "solid-js";
 import { Header } from "@/components/Header";
 import { useLocale } from "@/store/LocaleContext.tsx";
+import { scrollToAnchor } from "@/utils/scroll.ts";
 import styles from "./BulletinForm.module.css";
 import { SectionEditor } from "./components/SectionEditor.tsx";
 import { useBulletinForm } from "./hooks/useBulletinForm.ts";
+
+function sectionAnchorId(sectionId: string): string {
+	return `bulletin-form-section-${sectionId}`;
+}
 
 export function BulletinForm() {
 	const params = useParams<{ id?: string }>();
 	const navigate = useNavigate();
 	const { t } = useLocale();
 	const isEdit = () => !!params.id;
+	const isDesktop = window.matchMedia("(min-width: 900px)").matches;
 
 	const form = useBulletinForm();
 
@@ -32,56 +38,81 @@ export function BulletinForm() {
 					</Show>
 
 					<form onSubmit={form.handleSubmit} class={styles.form}>
-						<div class={styles.formGroup}>
-							<label for="service-date" class={styles.label}>
-								{t("bulletinForm.serviceDate")}
-							</label>
-							<input
-								id="service-date"
-								type="date"
-								class={styles.input}
-								value={form.serviceDate()}
-								onInput={(e) => form.setServiceDate(e.currentTarget.value)}
-								required
-							/>
-						</div>
+						<div class={styles.layoutGrid}>
+							<Show when={isDesktop}>
+								<nav class={styles.toc} aria-label={t("bulletinForm.tocLabel")}>
+									<For each={form.sections()}>
+										{(section) => (
+											<button
+												type="button"
+												class={styles.tocLink}
+												onClick={() =>
+													scrollToAnchor(sectionAnchorId(section.id))
+												}
+											>
+												{section.label ?? "…"}
+											</button>
+										)}
+									</For>
+								</nav>
+							</Show>
 
-						<div class={styles.sectionsGrid}>
-							<For each={form.sections()}>
-								{(section) => (
-									<fieldset class={styles.fieldset}>
-										<legend class={styles.legend}>{section.label}</legend>
-										<SectionEditor
-											section={section}
-											template={form.template() ?? []}
-											members={form.members()}
-											onUpdateDetails={form.updateWorshipDetails}
-											onUpdateFieldValue={form.updateWorshipFieldValue}
-											onUpdateAssignee={form.updateWorshipAssignee}
-											onAddAnnouncement={form.addAnnouncement}
-											onRemoveAnnouncement={form.removeAnnouncement}
-											onUpdateAnnouncement={form.updateAnnouncement}
-											onUpdateAssignment={form.updateAssignment}
-											onUpdateWeeklyVerse={form.updateWeeklyVerse}
-											onUpdateMonthlySong={form.updateMonthlySong}
-											onUpdateTextBlock={form.updateTextBlock}
-											onUpdateWeeklyPrayer={form.updateWeeklyPrayer}
-											onAddUpcomingEvent={form.addUpcomingEvent}
-											onRemoveUpcomingEvent={form.removeUpcomingEvent}
-											onUpdateUpcomingEvent={form.updateUpcomingEvent}
-											onAddBirthday={form.addBirthday}
-											onRemoveBirthday={form.removeBirthday}
-											onUpdateBirthday={form.updateBirthday}
-											onAddScriptureQuote={form.addScriptureQuote}
-											onRemoveScriptureQuote={form.removeScriptureQuote}
-											onUpdateScriptureQuote={form.updateScriptureQuote}
-											onUpdateAttendance={form.updateAttendance}
-											onUpdateServiceMeta={form.updateServiceMeta}
-											onUpdateFinancialSummary={form.updateFinancialSummary}
-										/>
-									</fieldset>
-								)}
-							</For>
+							<div class={styles.formBody}>
+								<div class={styles.formGroup}>
+									<label for="service-date" class={styles.label}>
+										{t("bulletinForm.serviceDate")}
+									</label>
+									<input
+										id="service-date"
+										type="date"
+										class={styles.input}
+										value={form.serviceDate()}
+										onInput={(e) => form.setServiceDate(e.currentTarget.value)}
+										required
+									/>
+								</div>
+
+								<div class={styles.sectionsGrid}>
+									<For each={form.sections()}>
+										{(section) => (
+											<fieldset
+												id={sectionAnchorId(section.id)}
+												class={styles.fieldset}
+											>
+												<legend class={styles.legend}>{section.label}</legend>
+												<SectionEditor
+													section={section}
+													template={form.template() ?? []}
+													members={form.members()}
+													onUpdateDetails={form.updateWorshipDetails}
+													onUpdateFieldValue={form.updateWorshipFieldValue}
+													onUpdateAssignee={form.updateWorshipAssignee}
+													onAddAnnouncement={form.addAnnouncement}
+													onRemoveAnnouncement={form.removeAnnouncement}
+													onUpdateAnnouncement={form.updateAnnouncement}
+													onUpdateAssignment={form.updateAssignment}
+													onUpdateWeeklyVerse={form.updateWeeklyVerse}
+													onUpdateMonthlySong={form.updateMonthlySong}
+													onUpdateTextBlock={form.updateTextBlock}
+													onUpdateWeeklyPrayer={form.updateWeeklyPrayer}
+													onAddUpcomingEvent={form.addUpcomingEvent}
+													onRemoveUpcomingEvent={form.removeUpcomingEvent}
+													onUpdateUpcomingEvent={form.updateUpcomingEvent}
+													onAddBirthday={form.addBirthday}
+													onRemoveBirthday={form.removeBirthday}
+													onUpdateBirthday={form.updateBirthday}
+													onAddScriptureQuote={form.addScriptureQuote}
+													onRemoveScriptureQuote={form.removeScriptureQuote}
+													onUpdateScriptureQuote={form.updateScriptureQuote}
+													onUpdateAttendance={form.updateAttendance}
+													onUpdateServiceMeta={form.updateServiceMeta}
+													onUpdateFinancialSummary={form.updateFinancialSummary}
+												/>
+											</fieldset>
+										)}
+									</For>
+								</div>
+							</div>
 						</div>
 
 						<div class={styles.actions}>

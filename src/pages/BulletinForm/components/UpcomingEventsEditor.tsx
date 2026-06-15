@@ -19,23 +19,21 @@ export function UpcomingEventsEditor(props: Props) {
 
 	return (
 		<>
-			<div class={styles.sectionAddRow}>
-				<button
-					type="button"
-					class={styles.iconButton}
-					onClick={() => props.onAdd(props.section.id)}
-				>
-					<Plus size={16} stroke-width={1.5} />
-					{t("bulletinForm.addUpcomingEvent")}
-				</button>
-			</div>
+			<button
+				type="button"
+				class={styles.addButton}
+				onClick={() => props.onAdd(props.section.id)}
+			>
+				<Plus size={16} stroke-width={1.5} />
+				{t("bulletinForm.addUpcomingEvent")}
+			</button>
 			<For each={props.section.data}>
 				{(event, index) => (
-					<div class={styles.dynamicRow}>
-						<div class={styles.compoundFields}>
+					<div class={styles.repeatItem}>
+						<div class={styles.field}>
 							<input
 								type="text"
-								class={styles.inputSmall}
+								class={styles.input}
 								placeholder={t("bulletinForm.upcomingDatePlaceholder")}
 								value={event.date}
 								onInput={(e) =>
@@ -45,9 +43,11 @@ export function UpcomingEventsEditor(props: Props) {
 									})
 								}
 							/>
+						</div>
+						<div class={styles.field}>
 							<input
 								type="text"
-								class={styles.inputSmall}
+								class={styles.input}
 								placeholder={t("bulletinForm.upcomingDescriptionPlaceholder")}
 								value={event.description}
 								onInput={(e) =>
@@ -58,13 +58,16 @@ export function UpcomingEventsEditor(props: Props) {
 								}
 							/>
 						</div>
-						<button
-							type="button"
-							class={styles.removeButton}
-							onClick={() => props.onRemove(props.section.id, index())}
-						>
-							<Minus size={16} stroke-width={1.5} />
-						</button>
+						<div class={styles.repeatItemActions}>
+							<button
+								type="button"
+								class={styles.removeButton}
+								onClick={() => props.onRemove(props.section.id, index())}
+							>
+								<Minus size={14} stroke-width={1.5} />
+								{t("common.delete")}
+							</button>
+						</div>
 					</div>
 				)}
 			</For>

@@ -150,6 +150,7 @@ export const ja = {
 		addFieldDef: "フィールドを追加",
 	},
 	bulletinForm: {
+		tocLabel: "セクション一覧",
 		titleNew: "新しい週報",
 		titleEdit: "週報を編集",
 		serviceDate: "礼拝日",
@@ -188,6 +189,7 @@ export const ja = {
 		birthdayNamePlaceholder: "名前",
 		addBirthday: "誕生日を追加",
 		addScriptureQuote: "引用聖句を追加",
+		addAnnouncement: "お知らせを追加",
 		attendanceAdultsLabel: "大人",
 		attendanceChildrenLabel: "子供",
 		attendanceAdultsPlaceholder: "大人の人数",

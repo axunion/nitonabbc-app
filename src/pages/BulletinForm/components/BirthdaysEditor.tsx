@@ -16,23 +16,21 @@ export function BirthdaysEditor(props: Props) {
 
 	return (
 		<>
-			<div class={styles.sectionAddRow}>
-				<button
-					type="button"
-					class={styles.iconButton}
-					onClick={() => props.onAdd(props.section.id)}
-				>
-					<Plus size={16} stroke-width={1.5} />
-					{t("bulletinForm.addBirthday")}
-				</button>
-			</div>
+			<button
+				type="button"
+				class={styles.addButton}
+				onClick={() => props.onAdd(props.section.id)}
+			>
+				<Plus size={16} stroke-width={1.5} />
+				{t("bulletinForm.addBirthday")}
+			</button>
 			<For each={props.section.data}>
 				{(birthday, index) => (
-					<div class={styles.dynamicRow}>
-						<div class={styles.compoundFields}>
+					<div class={styles.repeatItem}>
+						<div class={styles.pairGrid}>
 							<input
 								type="text"
-								class={styles.inputSmall}
+								class={styles.input}
 								placeholder={t("bulletinForm.birthdayDayPlaceholder")}
 								value={birthday.day}
 								onInput={(e) =>
@@ -44,7 +42,7 @@ export function BirthdaysEditor(props: Props) {
 							/>
 							<input
 								type="text"
-								class={styles.inputSmall}
+								class={styles.input}
 								placeholder={t("bulletinForm.birthdayNamePlaceholder")}
 								value={birthday.name}
 								onInput={(e) =>
@@ -55,13 +53,16 @@ export function BirthdaysEditor(props: Props) {
 								}
 							/>
 						</div>
-						<button
-							type="button"
-							class={styles.removeButton}
-							onClick={() => props.onRemove(props.section.id, index())}
-						>
-							<Minus size={16} stroke-width={1.5} />
-						</button>
+						<div class={styles.repeatItemActions}>
+							<button
+								type="button"
+								class={styles.removeButton}
+								onClick={() => props.onRemove(props.section.id, index())}
+							>
+								<Minus size={14} stroke-width={1.5} />
+								{t("common.delete")}
+							</button>
+						</div>
 					</div>
 				)}
 			</For>

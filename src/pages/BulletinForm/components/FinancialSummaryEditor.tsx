@@ -32,41 +32,43 @@ export function FinancialSummaryEditor(props: Props) {
 	return (
 		<For each={items()}>
 			{(item) => (
-				<div class={styles.dynamicRow}>
-					<span class={styles.assignmentRoleLabel}>
+				<div>
+					<p class={styles.sectionLabel}>
 						{item.label}
 						{item.unit ? `（${item.unit}）` : ""}
-					</span>
-					<input
-						type="text"
-						class={styles.inputSmall}
-						placeholder={t("bulletinForm.financialAmountPlaceholder")}
-						aria-label={item.label}
-						value={props.section.data[item.key]?.amount ?? ""}
-						onInput={(e) =>
-							props.onUpdate(
-								props.section.id,
-								item.key,
-								"amount",
-								e.currentTarget.value,
-							)
-						}
-					/>
-					<input
-						type="text"
-						class={styles.inputSmall}
-						placeholder={t("bulletinForm.financialNotePlaceholder")}
-						aria-label={`${item.label} note`}
-						value={props.section.data[item.key]?.note ?? ""}
-						onInput={(e) =>
-							props.onUpdate(
-								props.section.id,
-								item.key,
-								"note",
-								e.currentTarget.value,
-							)
-						}
-					/>
+					</p>
+					<div class={styles.pairGrid}>
+						<input
+							type="text"
+							class={styles.input}
+							placeholder={t("bulletinForm.financialAmountPlaceholder")}
+							aria-label={item.label}
+							value={props.section.data[item.key]?.amount ?? ""}
+							onInput={(e) =>
+								props.onUpdate(
+									props.section.id,
+									item.key,
+									"amount",
+									e.currentTarget.value,
+								)
+							}
+						/>
+						<input
+							type="text"
+							class={styles.input}
+							placeholder={t("bulletinForm.financialNotePlaceholder")}
+							aria-label={`${item.label} note`}
+							value={props.section.data[item.key]?.note ?? ""}
+							onInput={(e) =>
+								props.onUpdate(
+									props.section.id,
+									item.key,
+									"note",
+									e.currentTarget.value,
+								)
+							}
+						/>
+					</div>
 				</div>
 			)}
 		</For>

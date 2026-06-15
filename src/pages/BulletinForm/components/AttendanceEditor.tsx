@@ -32,38 +32,40 @@ export function AttendanceEditor(props: Props) {
 	return (
 		<For each={meetings()}>
 			{(meeting) => (
-				<div class={styles.dynamicRow}>
-					<span class={styles.assignmentRoleLabel}>{meeting.label}</span>
-					<input
-						type="text"
-						class={styles.inputSmall}
-						placeholder={t("bulletinForm.attendanceAdultsPlaceholder")}
-						aria-label={`${meeting.label} ${t("bulletinForm.attendanceAdultsLabel")}`}
-						value={props.section.data[meeting.key]?.adults ?? ""}
-						onInput={(e) =>
-							props.onUpdate(
-								props.section.id,
-								meeting.key,
-								"adults",
-								e.currentTarget.value,
-							)
-						}
-					/>
-					<input
-						type="text"
-						class={styles.inputSmall}
-						placeholder={t("bulletinForm.attendanceChildrenPlaceholder")}
-						aria-label={`${meeting.label} ${t("bulletinForm.attendanceChildrenLabel")}`}
-						value={props.section.data[meeting.key]?.children ?? ""}
-						onInput={(e) =>
-							props.onUpdate(
-								props.section.id,
-								meeting.key,
-								"children",
-								e.currentTarget.value,
-							)
-						}
-					/>
+				<div>
+					<p class={styles.sectionLabel}>{meeting.label}</p>
+					<div class={styles.pairGrid}>
+						<input
+							type="text"
+							class={styles.input}
+							placeholder={t("bulletinForm.attendanceAdultsPlaceholder")}
+							aria-label={`${meeting.label} ${t("bulletinForm.attendanceAdultsLabel")}`}
+							value={props.section.data[meeting.key]?.adults ?? ""}
+							onInput={(e) =>
+								props.onUpdate(
+									props.section.id,
+									meeting.key,
+									"adults",
+									e.currentTarget.value,
+								)
+							}
+						/>
+						<input
+							type="text"
+							class={styles.input}
+							placeholder={t("bulletinForm.attendanceChildrenPlaceholder")}
+							aria-label={`${meeting.label} ${t("bulletinForm.attendanceChildrenLabel")}`}
+							value={props.section.data[meeting.key]?.children ?? ""}
+							onInput={(e) =>
+								props.onUpdate(
+									props.section.id,
+									meeting.key,
+									"children",
+									e.currentTarget.value,
+								)
+							}
+						/>
+					</div>
 				</div>
 			)}
 		</For>

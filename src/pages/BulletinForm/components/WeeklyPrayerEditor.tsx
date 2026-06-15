@@ -16,11 +16,11 @@ export function WeeklyPrayerEditor(props: Props) {
 	return (
 		<For each={DAYS_OF_WEEK}>
 			{(day) => (
-				<div class={styles.dynamicRow}>
-					<span class={styles.assignmentRoleLabel}>{day}</span>
+				<div class={styles.field}>
+					<span class={styles.fieldLabel}>{day}</span>
 					<input
 						type="text"
-						class={styles.inputSmall}
+						class={styles.input}
 						placeholder={t("bulletinForm.prayerPlaceholder")}
 						value={props.section.data[day] ?? ""}
 						onInput={(e) =>

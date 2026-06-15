@@ -24,11 +24,11 @@ export function AssignmentsEditor(props: Props) {
 	return (
 		<For each={roles()}>
 			{(role) => (
-				<div class={styles.dynamicRow}>
-					<span class={styles.assignmentRoleLabel}>{role}</span>
+				<div class={styles.field}>
+					<span class={styles.fieldLabel}>{role}</span>
 					<input
 						type="text"
-						class={styles.inputSmall}
+						class={styles.input}
 						placeholder={t("bulletinForm.personPlaceholder")}
 						value={props.section.data[role] ?? ""}
 						onInput={(e) =>

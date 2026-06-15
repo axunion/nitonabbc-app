@@ -47,7 +47,7 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
 						if (field.inputType === "none") return null;
 						if (field.inputType === "member") {
 							return (
-								<div class={styles.fieldRow}>
+								<div class={styles.field}>
 									<span class={styles.fieldLabel}>{field.label}</span>
 									<MemberSelect
 										value={props.item.fieldValues?.[field.key]}
@@ -60,7 +60,7 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
 							);
 						}
 						return (
-							<div class={styles.fieldRow}>
+							<div class={styles.field}>
 								<span class={styles.fieldLabel}>{field.label}</span>
 								<input
 									type="text"

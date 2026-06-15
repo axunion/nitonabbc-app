@@ -3,6 +3,7 @@ import { useBeforeLeave } from "@solidjs/router";
 import { createSignal, For, Show } from "solid-js";
 import { ConfirmDialog } from "@/components/ConfirmDialog/index.ts";
 import { useLocale } from "@/store/LocaleContext.tsx";
+import { scrollToAnchor } from "@/utils/scroll.ts";
 import styles from "./BulletinTemplate.module.css";
 import { SectionCard, sectionAnchorId } from "./components/SectionCard.tsx";
 import { useTemplateEditor } from "./hooks/useTemplateEditor.ts";
@@ -26,12 +27,6 @@ export function BulletinTemplate() {
 		}
 	});
 
-	function scrollToSection(sectionId: string) {
-		document
-			.getElementById(sectionAnchorId(sectionId))
-			?.scrollIntoView({ behavior: "smooth", block: "start" });
-	}
-
 	return (
 		<div class={styles.container}>
 			<h1 class={styles.pageTitle}>{t("bulletinTemplate.title")}</h1>
@@ -51,9 +46,9 @@ export function BulletinTemplate() {
 										classList={{
 											[styles.tocLinkHidden]: section.visible === false,
 										}}
-										onClick={() => scrollToSection(section.id)}
+										onClick={() => scrollToAnchor(sectionAnchorId(section.id))}
 									>
-										{section.label || "…"}
+										{section.label ?? "…"}
 									</button>
 								)}
 							</For>

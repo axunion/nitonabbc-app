@@ -7,6 +7,14 @@
 	max-width: var(--content-width);
 }
 
+@media (min-width: 900px) {
+	.form {
+		--toc-width: 180px;
+		--form-body-max: 640px;
+		max-width: calc(var(--toc-width) + var(--space-6) + var(--form-body-max));
+	}
+}
+
 .formGroup {
 	margin-bottom: var(--space-4);
 }
@@ -23,11 +31,11 @@
 	composes: formInput from "../../styles/shared.module.css";
 }
 
+/* Flex-child input: grows within flex/grid containers, full 44px touch height */
 .inputSmall {
 	composes: formInput from "../../styles/shared.module.css";
 	flex: 1;
 	min-width: 0;
-	height: auto;
 	width: auto;
 }
 
@@ -58,6 +66,122 @@
 	gap: var(--space-2);
 }
 
+/* Label-above, full-width control block — the standard mobile field pattern */
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+	margin-bottom: var(--space-3);
+}
+
+/* Small gray caption label above a field control */
+.fieldLabel {
+	font-size: var(--text-xs);
+	color: var(--color-gray-500);
+}
+
+/* Section-level label (e.g., meeting name, assignment role, day of week) */
+.sectionLabel {
+	font-size: var(--text-sm);
+	font-weight: var(--font-medium);
+	color: var(--color-gray-700);
+	margin-bottom: var(--space-2);
+}
+
+/* 2-column grid for short paired inputs (adults/children, amount/note) */
+.pairGrid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--space-2);
+	margin-bottom: var(--space-3);
+}
+
+/* Glass card for one list item (event, birthday, quote, announcement) */
+.repeatItem {
+	background: var(--glass-bg);
+	backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+	border: var(--glass-border);
+	border-radius: var(--radius-lg);
+	padding: var(--space-3);
+	margin-bottom: var(--space-3);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+}
+
+/* Inside repeatItem, the gap handles spacing — disable individual margins */
+.repeatItem .field,
+.repeatItem .pairGrid {
+	margin-bottom: 0;
+}
+
+/* Delete action row at the bottom of a repeatItem */
+.repeatItemActions {
+	display: flex;
+	justify-content: flex-end;
+	padding-top: var(--space-2);
+	border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Full-width dashed add-item button */
+.addButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-1);
+	width: 100%;
+	height: 44px;
+	border-radius: var(--radius-md);
+	border: 1px dashed var(--input-border);
+	background: var(--glass-bg);
+	color: var(--color-gray-600);
+	font-size: var(--text-sm);
+	cursor: pointer;
+	outline: none;
+	margin-bottom: var(--space-3);
+	transition:
+		background var(--duration-fast) var(--ease-default),
+		border-color var(--duration-fast) var(--ease-default),
+		color var(--duration-fast) var(--ease-default);
+}
+
+.addButton:hover {
+	background: var(--glass-bg-hover);
+	border-color: var(--color-primary);
+	color: var(--color-primary);
+}
+
+.addButton:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+/* Delete button inside a repeatItem action row */
+.removeButton {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-1);
+	height: 36px;
+	padding: 0 var(--space-3);
+	border-radius: var(--radius-md);
+	border: 1px solid var(--color-destructive-100);
+	background: transparent;
+	color: var(--color-destructive);
+	font-size: var(--text-xs);
+	cursor: pointer;
+	outline: none;
+	transition: background var(--duration-fast) var(--ease-default);
+}
+
+.removeButton:hover {
+	background-color: var(--color-destructive-50);
+}
+
+.removeButton:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+/* Worship program card */
 .worshipCard {
 	background: var(--glass-bg);
 	backdrop-filter: var(--glass-blur) var(--glass-saturate);
@@ -74,93 +198,31 @@
 	background: rgba(var(--color-primary-rgb, 59, 130, 246), 0.04);
 }
 
-.worshipHeader {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: var(--space-2);
-}
-
+/* Item name label inside a worship card */
 .worshipLabel {
+	display: block;
 	font-size: var(--text-sm);
 	font-weight: var(--font-medium);
 	color: var(--color-gray-700);
+	margin: 0 0 var(--space-2) 0;
 }
 
+/* Assignee select in worship cards — full-width, 44px touch target */
 .assigneeSelect {
-	height: 32px;
-	padding: 0 var(--space-2);
-	border: 1px solid var(--input-border);
-	border-radius: var(--radius-sm);
-	font-size: var(--text-xs);
-	color: var(--color-gray-600);
-	background: var(--input-bg);
-	outline: none;
-	max-width: 140px;
+	composes: formSelect from "../../styles/shared.module.css";
+	margin-bottom: var(--space-2);
 }
 
-.assigneeSelect:focus {
-	border-color: var(--input-border-focus);
-	box-shadow: var(--focus-ring);
-}
-
+/* Multi-field group within a worship item (compounds) */
 .compoundFields {
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-2);
 }
 
-.fieldRow {
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-1);
-}
-
-.fieldLabel {
-	font-size: var(--text-xs);
-	color: var(--color-gray-500);
-}
-
-.dynamicRow {
-	display: flex;
-	align-items: flex-start;
-	gap: var(--space-2);
-	margin-bottom: var(--space-3);
-}
-
-.iconButton {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 28px;
-	height: 28px;
-	border-radius: var(--radius-full);
-	border: var(--glass-border);
-	background: var(--glass-bg);
-	color: var(--color-gray-600);
-	cursor: pointer;
-	outline: none;
-	transition: background var(--duration-fast) var(--ease-default);
-	flex-shrink: 0;
-}
-
-.iconButton:hover {
-	background: var(--glass-bg-hover);
-}
-
-.iconButton:focus-visible {
-	box-shadow: var(--focus-ring);
-}
-
-.removeButton {
-	composes: iconButton;
-	color: var(--color-destructive);
-	border-color: var(--color-destructive-100);
-	margin-top: var(--space-3);
-}
-
-.removeButton:hover {
-	background-color: var(--color-destructive-50);
+/* Inside compoundFields, gap handles spacing — no extra margins */
+.compoundFields .field {
+	margin-bottom: 0;
 }
 
 .actions {
@@ -193,21 +255,80 @@
 	composes: loadingText from "../../styles/shared.module.css";
 }
 
-.sectionsGrid {
-	composes: sectionsGrid2Col from "../../styles/shared.module.css";
-}
+/* --- TOC + form layout (PC: sticky sidebar TOC left, form body right) --- */
 
-.sectionAddRow {
+.layoutGrid {
 	display: flex;
-	justify-content: flex-end;
-	margin-bottom: var(--space-2);
+	flex-direction: column;
+	width: 100%;
 }
 
-.assignmentRoleLabel {
+.formBody {
+	flex: 1;
+	min-width: 0;
+}
+
+.toc {
+	display: none;
+}
+
+.tocLink {
+	display: block;
+	text-align: left;
+	padding: var(--space-1) var(--space-2);
+	border: none;
+	border-radius: var(--radius-sm);
+	background: transparent;
+	color: var(--color-gray-500);
 	font-size: var(--text-sm);
-	font-weight: var(--font-medium);
-	color: var(--color-gray-700);
-	min-width: 80px;
-	padding-top: 10px;
-	flex-shrink: 0;
+	cursor: pointer;
+	outline: none;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	transition:
+		background var(--duration-fast) var(--ease-default),
+		color var(--duration-fast) var(--ease-default);
+}
+
+.tocLink:hover {
+	background: var(--glass-bg-hover);
+	color: var(--color-gray-800);
+}
+
+.tocLink:focus-visible {
+	box-shadow: var(--focus-ring);
+}
+
+@media (min-width: 900px) {
+	.layoutGrid {
+		flex-direction: row;
+		align-items: flex-start;
+		gap: var(--space-6);
+	}
+
+	.formBody {
+		max-width: var(--form-body-max);
+	}
+
+	.toc {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		position: sticky;
+		top: var(--space-4);
+		width: var(--toc-width);
+		flex-shrink: 0;
+	}
+
+	.fieldset {
+		scroll-margin-top: var(--space-12);
+	}
+}
+
+/* --- Sections list (single column, all viewport widths) --- */
+
+.sectionsGrid {
+	display: flex;
+	flex-direction: column;
 }

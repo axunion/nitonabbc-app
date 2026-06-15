@@ -12,18 +12,20 @@ export function WeeklyVerseEditor(props: Props) {
 
 	return (
 		<>
-			<input
-				type="text"
-				class={styles.input}
-				value={props.section.data.reference}
-				onInput={(e) =>
-					props.onUpdate({
-						reference: e.currentTarget.value,
-						text: props.section.data.text,
-					})
-				}
-				placeholder={t("bulletinForm.verseReferencePlaceholder")}
-			/>
+			<div class={styles.formGroup}>
+				<input
+					type="text"
+					class={styles.input}
+					value={props.section.data.reference}
+					onInput={(e) =>
+						props.onUpdate({
+							reference: e.currentTarget.value,
+							text: props.section.data.text,
+						})
+					}
+					placeholder={t("bulletinForm.verseReferencePlaceholder")}
+				/>
+			</div>
 			<textarea
 				class={styles.textarea}
 				rows={4}

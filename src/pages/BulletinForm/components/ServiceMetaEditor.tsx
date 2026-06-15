@@ -6,6 +6,7 @@ import type {
 	ServiceMetaSectionData,
 	ServiceMetaSectionTemplate,
 } from "@/types/bulletin.ts";
+import styles from "../BulletinForm.module.css";
 
 type Props = {
 	section: ServiceMetaSectionData;
@@ -28,12 +29,15 @@ export function ServiceMetaEditor(props: Props) {
 			{(t_) => (
 				<For each={t_().config.fieldDefs}>
 					{(def) => (
-						<div>
-							<label for={`sm-${def.key}`}>{def.label}</label>
+						<div class={styles.field}>
+							<label for={`sm-${def.key}`} class={styles.fieldLabel}>
+								{def.label}
+							</label>
 							<Switch>
 								<Match when={def.inputType === "member"}>
 									<select
 										id={`sm-${def.key}`}
+										class={styles.select}
 										value={props.section.data.fieldValues[def.key] ?? ""}
 										onChange={(e) =>
 											props.onUpdate(
@@ -53,6 +57,7 @@ export function ServiceMetaEditor(props: Props) {
 									<input
 										id={`sm-${def.key}`}
 										type="time"
+										class={styles.input}
 										value={props.section.data.fieldValues[def.key] ?? ""}
 										onInput={(e) =>
 											props.onUpdate(
@@ -67,6 +72,7 @@ export function ServiceMetaEditor(props: Props) {
 									<input
 										id={`sm-${def.key}`}
 										type="text"
+										class={styles.input}
 										value={props.section.data.fieldValues[def.key] ?? ""}
 										onInput={(e) =>
 											props.onUpdate(

@@ -12,18 +12,20 @@ export function TextBlockEditor(props: Props) {
 
 	return (
 		<>
-			<input
-				type="text"
-				class={styles.input}
-				value={props.section.data.heading}
-				onInput={(e) =>
-					props.onUpdate({
-						heading: e.currentTarget.value,
-						body: props.section.data.body,
-					})
-				}
-				placeholder={t("bulletinForm.textBlockHeadingPlaceholder")}
-			/>
+			<div class={styles.formGroup}>
+				<input
+					type="text"
+					class={styles.input}
+					value={props.section.data.heading}
+					onInput={(e) =>
+						props.onUpdate({
+							heading: e.currentTarget.value,
+							body: props.section.data.body,
+						})
+					}
+					placeholder={t("bulletinForm.textBlockHeadingPlaceholder")}
+				/>
+			</div>
 			<textarea
 				class={styles.textarea}
 				rows={4}

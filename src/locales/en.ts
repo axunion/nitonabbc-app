@@ -151,6 +151,7 @@ export const en: Dictionary = {
 		addFieldDef: "Add Field",
 	},
 	bulletinForm: {
+		tocLabel: "Sections",
 		titleNew: "New Bulletin",
 		titleEdit: "Edit Bulletin",
 		serviceDate: "Service Date",
@@ -189,6 +190,7 @@ export const en: Dictionary = {
 		birthdayNamePlaceholder: "Name",
 		addBirthday: "Add Birthday",
 		addScriptureQuote: "Add Scripture Quote",
+		addAnnouncement: "Add Announcement",
 		attendanceAdultsLabel: "Adults",
 		attendanceChildrenLabel: "Children",
 		attendanceAdultsPlaceholder: "Number of adults",

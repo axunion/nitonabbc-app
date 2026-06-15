@@ -44,28 +44,26 @@ export function WorshipProgramEditor(props: Props) {
 							item.assigneeId != null && item.assigneeId === user().id,
 					}}
 				>
-					<div class={styles.worshipHeader}>
-						<span class={styles.worshipLabel}>{item.label}</span>
-						<Show when={isAdmin()}>
-							<select
-								class={styles.assigneeSelect}
-								value={item.assigneeId != null ? String(item.assigneeId) : ""}
-								onChange={(e) =>
-									props.onUpdateAssignee(
-										props.section.id,
-										index(),
-										e.currentTarget.value,
-									)
-								}
-								title={t("bulletinForm.assignTo")}
-							>
-								<option value="">{t("bulletin.unassigned")}</option>
-								<For each={props.members ?? []}>
-									{(m) => <option value={String(m.id)}>{m.name}</option>}
-								</For>
-							</select>
-						</Show>
-					</div>
+					<span class={styles.worshipLabel}>{item.label}</span>
+					<Show when={isAdmin()}>
+						<select
+							class={styles.assigneeSelect}
+							value={item.assigneeId != null ? String(item.assigneeId) : ""}
+							onChange={(e) =>
+								props.onUpdateAssignee(
+									props.section.id,
+									index(),
+									e.currentTarget.value,
+								)
+							}
+							title={t("bulletinForm.assignTo")}
+						>
+							<option value="">{t("bulletin.unassigned")}</option>
+							<For each={props.members ?? []}>
+								{(m) => <option value={String(m.id)}>{m.name}</option>}
+							</For>
+						</select>
+					</Show>
 					<WorshipInput
 						item={item}
 						index={index()}
