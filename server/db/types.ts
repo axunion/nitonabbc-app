@@ -1,17 +1,23 @@
 // Shared bulletin section types used by server routes and the drizzle schema.
 
+// Service roles that can be assigned to members for filtering candidates
+export const SERVICE_ROLES = ["司会", "奏楽", "説教", "受付"] as const;
+export type ServiceRole = (typeof SERVICE_ROLES)[number];
+
 export type WorshipItemData = {
 	type: string;
 	label: string;
 	details?: string;
 	fieldValues?: Record<string, string>;
-	assigneeId?: number | null;
 };
 
 export type TemplateField = {
 	key: string;
 	label: string;
 	inputType: string;
+	// When inputType is "member", filter candidates to members with this service role.
+	// Omit to show all members.
+	role?: string;
 };
 
 export type TemplateItem = {
@@ -19,7 +25,25 @@ export type TemplateItem = {
 	label: string;
 	inputType?: string;
 	fields?: TemplateField[];
+	// When inputType is "member", filter candidates to members with this service role.
+	role?: string;
 };
+
+export type WeeklyPrayerDay = {
+	key: string;
+	label: string;
+	defaults: string[];
+};
+
+export const DEFAULT_WEEKLY_PRAYER_DAYS: WeeklyPrayerDay[] = [
+	{ key: "日", label: "日曜日", defaults: [] },
+	{ key: "月", label: "月曜日", defaults: [] },
+	{ key: "火", label: "火曜日", defaults: [] },
+	{ key: "水", label: "水曜日", defaults: [] },
+	{ key: "木", label: "木曜日", defaults: [] },
+	{ key: "金", label: "金曜日", defaults: [] },
+	{ key: "土", label: "土曜日", defaults: [] },
+];
 
 export type SectionTemplate =
 	| {
@@ -69,7 +93,7 @@ export type SectionTemplate =
 			type: "weekly-prayer";
 			label: string;
 			visible?: boolean;
-			config: Record<never, never>;
+			config: { days: WeeklyPrayerDay[] };
 	  }
 	| {
 			id: string;
@@ -145,7 +169,7 @@ export type SectionData =
 			id: string;
 			type: "monthly-song";
 			label: string;
-			data: { title: string; keywords: string[] };
+			data: { title: string; lyrics: string };
 	  }
 	| {
 			id: string;
@@ -157,7 +181,7 @@ export type SectionData =
 			id: string;
 			type: "weekly-prayer";
 			label: string;
-			data: Record<string, string>;
+			data: Record<string, string[]>;
 	  }
 	| {
 			id: string;

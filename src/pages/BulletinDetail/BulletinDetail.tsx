@@ -4,9 +4,7 @@ import { createResource, For, Show } from "solid-js";
 import { fetchBulletin, fetchMembers, fetchTemplate } from "@/api/bulletin.ts";
 import { Header } from "@/components/Header";
 import { ProgressBar } from "@/components/ProgressBar";
-import { useAuth } from "@/store/AuthContext.tsx";
 import { useLocale } from "@/store/LocaleContext.tsx";
-import { hasMyUnfilledWorshipItems } from "@/utils/bulletin.ts";
 import { formatDate } from "@/utils/date.ts";
 import styles from "./BulletinDetail.module.css";
 import { SectionView } from "./components/SectionView.tsx";
@@ -18,13 +16,10 @@ export function BulletinDetail() {
 	const [template] = createResource(fetchTemplate);
 	const { t, locale } = useLocale();
 	const navigate = useNavigate();
-	const { user } = useAuth();
 
 	function hasUnfilledItems(): boolean {
 		const b = bulletin();
-		const t = template();
-		if (!b || !t) return false;
-		return hasMyUnfilledWorshipItems(b.sections, t, user().id);
+		return !!b && b.totalItems > 0 && b.filledItems < b.totalItems;
 	}
 
 	return (

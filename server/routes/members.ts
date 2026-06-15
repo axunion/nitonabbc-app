@@ -8,11 +8,15 @@ export const membersRoute = new Hono<AppEnv>();
 
 membersRoute.use("/*", authMiddleware);
 
-// GET /api/members — list active members
+// GET /api/members — list active members with their service roles
 membersRoute.get("/", async (c) => {
 	const db = c.get("db");
 	const rows = await db
-		.select({ id: users.id, name: users.name })
+		.select({
+			id: users.id,
+			name: users.name,
+			serviceRoles: users.serviceRoles,
+		})
 		.from(users)
 		.where(eq(users.isActive, true))
 		.orderBy(asc(users.name));

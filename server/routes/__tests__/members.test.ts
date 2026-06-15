@@ -78,6 +78,31 @@ describe("GET /api/members", () => {
 		expect(names).toContain("Bob");
 	});
 
+	it("includes serviceRoles in each member", async () => {
+		const env = await seedMemberSession();
+		await db.insert(schema.users).values([
+			{
+				name: "Preacher",
+				inviteToken: "tok_preacher",
+				isActive: true,
+				serviceRoles: ["説教", "司会"],
+			},
+		]);
+
+		const res = await testApp.request(
+			"http://localhost/api/members",
+			{ headers: memberHeaders },
+			env,
+		);
+		expect(res.status).toBe(200);
+		const json = (await res.json()) as {
+			name: string;
+			serviceRoles: string[];
+		}[];
+		const preacher = json.find((m) => m.name === "Preacher");
+		expect(preacher?.serviceRoles).toEqual(["説教", "司会"]);
+	});
+
 	it("excludes inactive members", async () => {
 		const env = await seedMemberSession();
 		await db.insert(schema.users).values([

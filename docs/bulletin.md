@@ -82,7 +82,7 @@ BulletinDetail.sections[]
 |--------------------------|------|
 | `fieldDefs[]` | `{ key, label, inputType }` の配列。`inputType` は `"text"` / `"member"` / `"time"` |
 
-データ例: `{ fieldValues: { chair: "雄輝兄", pianist: "愛香姉" } }`
+データ例: `{ fieldValues: { chair: "3", pianist: "7" } }` （`inputType: "member"` フィールドはメンバー ID 文字列）
 
 進捗: `fieldDefs` の件数 / 入力済みの件数
 
@@ -94,11 +94,49 @@ BulletinDetail.sections[]
 
 | テンプレート設定フィールド | 説明 |
 |--------------------------|------|
-| `items[]` | `TemplateItem[]`（`TemplateItem` / `TemplateField` / `InputType` 型） |
+| `items[]` | `TemplateItem[]`（後述） |
 
-データ例: `[ { type: "hymn", label: "賛美歌", details: "#179" }, { type: "sermon", label: "説教", fieldValues: { title: "...", speaker: "太秀師" }, assigneeId: 5 } ]`
+**`TemplateItem` の構造**
 
-各アイテムは `assigneeId`（担当メンバーの userId）を持てる。担当者にはフォームでハイライト表示。
+```
+TemplateItem {
+  type: string          // 識別キー（例: "hymn", "sermon"）
+  label: string         // 表示名
+  inputType?: InputType // "text" | "member" | "none"（fields と排他）
+  fields?: TemplateField[]
+  role?: string         // inputType="member" のとき、候補メンバーを絞り込む奉仕役割（例: "説教"）
+}
+
+TemplateField {
+  key: string
+  label: string
+  inputType: InputType
+  role?: string         // 同上
+}
+```
+
+`role` が指定された `inputType: "member"` フィールドは、`serviceRoles` にその役割を持つメンバーのみが選択肢に表示される。`role` が未指定の場合は全アクティブメンバーが表示される。
+
+**データ構造**
+
+```
+WorshipItem {
+  type: string
+  label: string
+  details?: string                    // inputType: "text" / "member" のとき使用
+  fieldValues?: Record<string, string> // compound fields モード
+}
+```
+
+`inputType: "member"` フィールドの値（`details` または `fieldValues[key]`）はメンバーの `id` を文字列化したもの。
+
+データ例:
+```json
+[
+  { "type": "hymn", "label": "賛美歌", "details": "#179" },
+  { "type": "sermon", "label": "説教", "fieldValues": { "title": "主の恵み", "preacher": "3", "scripture": "ヨハネ 3:16" } }
+]
+```
 
 進捗: `inputType: "none"` 除外、compound は field 単位で集計
 
@@ -120,19 +158,23 @@ BulletinDetail.sections[]
 
 ### `assignments` — 奉仕当番
 
-役割と担当者の対応。今週・次週など、別インスタンスを並べて使う。
+役割と担当メンバーの対応。今週・次週など、別インスタンスを並べて使う。
 
 | テンプレート設定フィールド | 説明 |
 |--------------------------|------|
 | `roles[]` | 役割名の配列（例: `["司会", "奏楽", "特賛", "受付"]`） |
 
-データ例: `{ "司会": "川田兄", "奏楽": "愛香姉", "受付": "香翔姉" }`
+役割ごとにメンバー選択 UI が表示される。役割名が `SERVICE_ROLES`（司会・奏楽・説教・受付）に含まれる場合は、その役割を `serviceRoles` に持つメンバーのみを選択肢に表示する。含まれない役割（特賛など）は全アクティブメンバーを表示する。
+
+データは `Record<役割名, メンバーID文字列>`。
+
+データ例: `{ "司会": "5", "奏楽": "7", "受付": "12" }`
 
 進捗: `roles.length` のうち入力済みの件数
 
 ---
 
-### `attendance` — 出席人数
+### `attendance` — 先週の出席人数
 
 先週の集会ごとの出席者数。
 
@@ -148,13 +190,38 @@ BulletinDetail.sections[]
 
 ### `weekly-prayer` — 曜日別祈りの課題
 
-日〜土の 7 日分の祈り課題。
+日〜土の各曜日に複数の祈り課題を持てる。テンプレートにデフォルト課題文を設定可能。
 
-テンプレート設定: なし（曜日は固定）
+| テンプレート設定フィールド | 説明 |
+|--------------------------|------|
+| `days[]` | `WeeklyPrayerDay[]`（後述） |
 
-データ例: `{ "日": "牧師・伝道師の働き", "月": "兄弟姉妹の健康", "火": "求道者の救い", ... }`
+**`WeeklyPrayerDay` の構造**
 
-進捗: 7 日のうち入力済みの件数
+```
+WeeklyPrayerDay {
+  key: string      // 曜日キー（例: "日", "月"）
+  label: string    // 表示名（例: "日曜日"）
+  defaults: string[] // デフォルト課題文（週報生成時に初期値としてコピー）
+}
+```
+
+データ: `Record<曜日キー, string[]>`（1 曜日に複数の課題文を保持）
+
+データ例:
+```json
+{
+  "日": ["牧師・伝道師の働き"],
+  "月": ["兄弟姉妹の健康"],
+  "火": ["求道者の救い"],
+  "水": ["青年・子どもたちの信仰", "CS の奉仕者"],
+  "木": ["日本の教会全体のリバイバル"],
+  "金": ["世界宣教と宣教師"],
+  "土": ["礼拝の準備・教会のリーダーシップ"]
+}
+```
+
+進捗: 設定された曜日数のうち 1 件以上の課題文が入力されている曜日数
 
 ---
 
@@ -184,11 +251,11 @@ BulletinDetail.sections[]
 
 ### `monthly-song` — 今月の歌
 
-今月の賛美歌タイトルとキーワード。
+今月の賛美歌タイトルと歌詞。
 
 テンプレート設定: なし
 
-データ例: `{ title: "暗闇 過ぎ去って", keywords: ["ハレルヤ", "復活", "平和"] }`
+データ例: `{ title: "暗闇 過ぎ去って", lyrics: "暗闇 過ぎ去って 夜明けが来る...\n（全6番）" }`
 
 進捗: `title` が入力されていれば 1/1
 
@@ -246,7 +313,7 @@ BulletinDetail.sections[]
 
 ## 6. データモデル
 
-型の実装は `src/types/bulletin.ts` で行う。ここでは構造の概要のみ示す。
+型の実装は `src/types/bulletin.ts`（フロントエンド）および `server/db/types.ts`（サーバー）で行う。ここでは構造の概要のみ示す。
 
 ### テンプレート
 
@@ -274,12 +341,19 @@ settings テーブルのキー: `bulletin_template`
 | `createdBy` / `updatedBy` | ユーザー ID |
 | `createdAt` / `updatedAt` | 日時 |
 
-### 既存型の継承
+### メンバーの奉仕役割
 
-`worship-program` セクションの内部型として以下を使用する:
+`users` テーブルの `service_roles` カラム（JSON 配列）にメンバーの奉仕役割を保存する。
 
-- `TemplateItem` / `TemplateField` / `InputType` → `config.items` の型
-- `WorshipItem` → `data` の型（`details` / `fieldValues` / `assigneeId` を含む）
+```
+serviceRoles: string[]  // 例: ["司会", "奏楽"]
+```
+
+定数 `SERVICE_ROLES = ["司会", "奏楽", "説教", "受付"] as const` が `server/db/types.ts` / `src/types/bulletin.ts` で共有定義されている。
+
+担当者選択 UI は、フィールドの `role` プロパティを参照してメンバーを絞り込む:
+- `role` 指定あり → `member.serviceRoles.includes(role)` で絞り込み
+- `role` 指定なし → 全アクティブメンバーを表示
 
 ### 教会プロフィール
 
@@ -336,6 +410,7 @@ settings テーブルのキー: `church_profile`
 
 生成ロジック:
 - テンプレートからセクション構造を生成
+- `weekly-prayer` はテンプレートの `config.days[*].defaults` を初期値としてコピー
 - 直近の週報が存在する場合、繰り返し性が高いセクション（`weekly-prayer`, `assignments`, `monthly-song`, `birthdays` など）は値をコピー
 - `announcements`, `upcoming-events`, `weekly-verse` は空で初期化
 
@@ -360,7 +435,7 @@ settings テーブルのキー: `church_profile`
 
 | Method | Path | 説明 |
 |--------|------|------|
-| GET | `/api/members` | アクティブメンバー `{ id, name }[]` |
+| GET | `/api/members` | アクティブメンバー `{ id, name, serviceRoles: string[] }[]` |
 
 ### バリデーション
 
@@ -382,22 +457,22 @@ settings テーブルのキー: `church_profile`
 
 ### BulletinDetail — 詳細表示
 
-- 教会プロフィール（`church_profile`）をヘッダーに表示
+- 教会プロフィール（`church_profile`）をヘッダーに表示（将来フェーズ）
 - セクションを定義順に縦スクロールで表示
-- セクション種別ごとに専用の閲覧コンポーネント（出席は表組み、曜日別祈りは 7 行リストなど）
-- `assigneeId` が自分と一致する項目をハイライト
-- 自分の未入力担当項目への「入力する」CTA
+- セクション種別ごとに専用の閲覧コンポーネント（出席は表組み、曜日別祈りは曜日ごとの課題リストなど）
+- 入力未完了の場合に「入力する」CTA を表示（`totalItems > 0 && filledItems < totalItems` で判定）
+- `assignments` の担当者表示: メンバー ID をメンバー名に解決して表示
 
 ### BulletinForm — 入力/編集
 
 - セクションごとに専用エディタ UI。フォームでは値の入力のみ
-- `worship-program`: 進行項目ごとの入力フォーム
+- `worship-program`: 進行項目ごとの入力フォーム。`inputType: "member"` フィールドはメンバーセレクタを表示。フィールドの `role` 指定がある場合（例: 説教者 → 役割 "説教"）は該当役割を持つメンバーのみ表示
 - `service-meta`: member セレクタ / テキスト入力
-- `assignments`: role リストに対して担当者入力
-- `attendance`: 集会ごとの大人/子供数入力
-- `weekly-prayer`: 7 曜日 × テキストエリア
+- `assignments`: 役割ごとにメンバー選択 UI。`SERVICE_ROLES` に含まれる役割（司会/奏楽/説教/受付）は対応する `serviceRoles` を持つメンバーのみ表示。それ以外（特賛など）は全メンバー表示
+- `attendance`: 集会ごとの大人/子供数入力（セクション名は「先週の出席人数」）
+- `weekly-prayer`: 曜日ごとに課題文を複数追加/削除可能
+- `monthly-song`: タイトル入力 + 歌詞テキストエリア
 - `upcoming-events`: 日付 + 内容のペア追加/削除
-- 管理者には `assigneeId` の割り当てドロップダウンを表示（`worship-program` 内項目）
 
 ### BulletinTemplate — テンプレート管理（管理者のみ）
 
@@ -406,7 +481,8 @@ settings テーブルのキー: `church_profile`
 - 全セクションを常時表示（アコーディオンなし）
 - 各セクションのラベルを直接編集できる
 - 各セクションの表示/非表示を切り替えられる
-- config が必要なセクション（`worship-program`・`assignments`・`attendance`・`service-meta`・`financial-summary`・`announcements`）は、セクション内にインラインでエディタを表示する
+- config が必要なセクション（`worship-program`・`assignments`・`attendance`・`service-meta`・`financial-summary`・`announcements`・`weekly-prayer`）は、セクション内にインラインでエディタを表示する
+  - `weekly-prayer` は曜日別のデフォルト課題文をリスト形式で追加/削除/編集できる
 - テンプレートにはデフォルト値があらかじめ設定されており、管理者は変更が必要な箇所だけを編集する
 - 「デフォルトに戻す」ボタンでテンプレート全体を初期構成に戻せる（確認ダイアログ付き）
 - PC ではセクション一覧の目次（サイドナビ）と画面下部固定の保存バーを表示する

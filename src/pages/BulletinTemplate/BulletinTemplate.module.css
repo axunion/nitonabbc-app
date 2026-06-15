@@ -307,6 +307,24 @@
 	gap: var(--space-2);
 }
 
+.dayGroup {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	padding: var(--space-2) 0;
+	border-bottom: 1px solid var(--admin-border);
+}
+
+.dayGroup:last-child {
+	border-bottom: none;
+}
+
+.dayGroupLabel {
+	font-size: var(--text-sm);
+	font-weight: var(--font-medium);
+	color: var(--admin-foreground);
+}
+
 .fieldRow {
 	display: flex;
 	align-items: center;

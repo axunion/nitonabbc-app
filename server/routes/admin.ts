@@ -1,6 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { users } from "../db/schema.ts";
+import { SERVICE_ROLES } from "../db/types.ts";
 import { adminMiddleware } from "../middleware/admin.ts";
 import { authMiddleware } from "../middleware/auth.ts";
 import type { AppEnv } from "../types.ts";
@@ -10,6 +11,7 @@ function toMemberResponse(row: typeof users.$inferSelect) {
 		id: row.id,
 		name: row.name,
 		role: row.role,
+		serviceRoles: row.serviceRoles,
 		lineUserId: row.lineUserId,
 		inviteToken: row.inviteToken,
 		inviteUsed: row.inviteUsed,
@@ -17,6 +19,13 @@ function toMemberResponse(row: typeof users.$inferSelect) {
 		createdAt: row.createdAt,
 		updatedAt: row.updatedAt,
 	};
+}
+
+function validateServiceRoles(roles: unknown): roles is string[] {
+	if (!Array.isArray(roles)) return false;
+	return roles.every((r) =>
+		SERVICE_ROLES.includes(r as (typeof SERVICE_ROLES)[number]),
+	);
 }
 
 export const adminRoute = new Hono<AppEnv>();
@@ -34,7 +43,11 @@ adminRoute.get("/members", async (c) => {
 // POST /api/admin/members — create a new member
 adminRoute.post("/members", async (c) => {
 	const db = c.get("db");
-	const body = await c.req.json<{ name?: string; role?: string }>();
+	const body = await c.req.json<{
+		name?: string;
+		role?: string;
+		serviceRoles?: unknown;
+	}>();
 
 	if (!body.name || body.name.trim() === "") {
 		return c.json({ error: "Name is required" }, 400);
@@ -45,6 +58,16 @@ adminRoute.post("/members", async (c) => {
 		return c.json({ error: "Role must be admin or member" }, 400);
 	}
 
+	const serviceRoles = body.serviceRoles ?? [];
+	if (!validateServiceRoles(serviceRoles)) {
+		return c.json(
+			{
+				error: `serviceRoles must only contain valid values: ${SERVICE_ROLES.join(", ")}`,
+			},
+			400,
+		);
+	}
+
 	const inviteToken = crypto.randomUUID();
 
 	const [newRow] = await db
@@ -52,6 +75,7 @@ adminRoute.post("/members", async (c) => {
 		.values({
 			name: body.name.trim(),
 			role,
+			serviceRoles: [...new Set(serviceRoles)],
 			inviteToken,
 		})
 		.returning();
@@ -66,7 +90,11 @@ adminRoute.put("/members/:id", async (c) => {
 	if (!Number.isInteger(id) || id <= 0) {
 		return c.json({ error: "Invalid id" }, 400);
 	}
-	const body = await c.req.json<{ name?: string; role?: string }>();
+	const body = await c.req.json<{
+		name?: string;
+		role?: string;
+		serviceRoles?: unknown;
+	}>();
 
 	if (body.name !== undefined && body.name.trim() === "") {
 		return c.json({ error: "Name cannot be empty" }, 400);
@@ -83,9 +111,23 @@ adminRoute.put("/members/:id", async (c) => {
 		return c.json({ error: "Role must be admin or member" }, 400);
 	}
 
+	if (
+		body.serviceRoles !== undefined &&
+		!validateServiceRoles(body.serviceRoles)
+	) {
+		return c.json(
+			{
+				error: `serviceRoles must only contain valid values: ${SERVICE_ROLES.join(", ")}`,
+			},
+			400,
+		);
+	}
+
 	const patch: Partial<typeof users.$inferInsert> = {};
 	if (body.name !== undefined) patch.name = body.name.trim();
 	if (body.role !== undefined) patch.role = body.role as "admin" | "member";
+	if (body.serviceRoles !== undefined)
+		patch.serviceRoles = [...new Set(body.serviceRoles as string[])];
 
 	if (Object.keys(patch).length > 0) {
 		await db

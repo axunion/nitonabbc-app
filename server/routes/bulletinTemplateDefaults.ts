@@ -10,7 +10,7 @@ const MORNING_WORSHIP_ITEMS: TemplateItem[] = [
 		label: "説教",
 		fields: [
 			{ key: "title", label: "タイトル", inputType: "text" },
-			{ key: "preacher", label: "説教者", inputType: "member" },
+			{ key: "preacher", label: "説教者", inputType: "member", role: "説教" },
 			{ key: "scripture", label: "聖書箇所", inputType: "text" },
 		],
 	},
@@ -29,7 +29,7 @@ const AFTERNOON_WORSHIP_ITEMS: TemplateItem[] = [
 		label: "説教",
 		fields: [
 			{ key: "title", label: "タイトル", inputType: "text" },
-			{ key: "preacher", label: "説教者", inputType: "member" },
+			{ key: "preacher", label: "説教者", inputType: "member", role: "説教" },
 			{ key: "scripture", label: "聖書箇所", inputType: "text" },
 		],
 	},
@@ -80,7 +80,7 @@ export const DEFAULT_TEMPLATE: SectionTemplate[] = [
 	{
 		id: "attendance",
 		type: "attendance",
-		label: "出席人数",
+		label: "先週の出席人数",
 		visible: true,
 		config: {
 			meetings: [
@@ -96,7 +96,25 @@ export const DEFAULT_TEMPLATE: SectionTemplate[] = [
 		type: "weekly-prayer",
 		label: "曜日別祈りの課題",
 		visible: true,
-		config: {},
+		config: {
+			days: [
+				{ key: "日", label: "日曜日", defaults: ["牧師・伝道師の働き"] },
+				{ key: "月", label: "月曜日", defaults: ["兄弟姉妹の健康"] },
+				{ key: "火", label: "火曜日", defaults: ["求道者の救い"] },
+				{ key: "水", label: "水曜日", defaults: ["青年・子どもたちの信仰"] },
+				{
+					key: "木",
+					label: "木曜日",
+					defaults: ["日本の教会全体のリバイバル"],
+				},
+				{ key: "金", label: "金曜日", defaults: ["世界宣教と宣教師"] },
+				{
+					key: "土",
+					label: "土曜日",
+					defaults: ["礼拝の準備・教会のリーダーシップ"],
+				},
+			],
+		},
 	},
 	{
 		id: "upcoming-events",

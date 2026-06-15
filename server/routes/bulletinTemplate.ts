@@ -248,7 +248,17 @@ function sanitizeTemplate(sections: SectionTemplate[]): SectionTemplate[] {
 			return { ...base, type: "text-block" as const, config: {} };
 		}
 		if (s.type === "weekly-prayer") {
-			return { ...base, type: "weekly-prayer" as const, config: {} };
+			return {
+				...base,
+				type: "weekly-prayer" as const,
+				config: {
+					days: (s.config.days ?? []).map((d) => ({
+						key: d.key,
+						label: d.label,
+						defaults: Array.isArray(d.defaults) ? d.defaults : [],
+					})),
+				},
+			};
 		}
 		if (s.type === "upcoming-events") {
 			return { ...base, type: "upcoming-events" as const, config: {} };

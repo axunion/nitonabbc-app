@@ -11,27 +11,29 @@ import {
 	fetchTemplate,
 	saveBulletin,
 } from "@/api/bulletin.ts";
-import type {
-	AnnouncementsSectionData,
-	AssignmentsSectionData,
-	AttendanceSectionData,
-	AttendanceSectionTemplate,
-	Birthday,
-	BirthdaysSectionData,
-	FinancialSummarySectionData,
-	FinancialSummarySectionTemplate,
-	MonthlySongSectionData,
-	ScriptureQuote,
-	ScriptureQuotesSectionData,
-	SectionData,
-	ServiceMetaSectionData,
-	ServiceMetaSectionTemplate,
-	TextBlockSectionData,
-	UpcomingEvent,
-	UpcomingEventsSectionData,
-	WeeklyPrayerSectionData,
-	WeeklyVerseSectionData,
-	WorshipProgramSectionData,
+import {
+	type AnnouncementsSectionData,
+	type AssignmentsSectionData,
+	type AttendanceSectionData,
+	type AttendanceSectionTemplate,
+	type Birthday,
+	type BirthdaysSectionData,
+	DEFAULT_WEEKLY_PRAYER_DAYS,
+	type FinancialSummarySectionData,
+	type FinancialSummarySectionTemplate,
+	type MonthlySongSectionData,
+	type ScriptureQuote,
+	type ScriptureQuotesSectionData,
+	type SectionData,
+	type ServiceMetaSectionData,
+	type ServiceMetaSectionTemplate,
+	type TextBlockSectionData,
+	type UpcomingEvent,
+	type UpcomingEventsSectionData,
+	type WeeklyPrayerSectionData,
+	type WeeklyPrayerSectionTemplate,
+	type WeeklyVerseSectionData,
+	type WorshipProgramSectionData,
 } from "@/types/bulletin.ts";
 
 export function useBulletinForm() {
@@ -60,7 +62,7 @@ export function useBulletinForm() {
 		if (!isEdit() && tmpl && tmpl.length > 0 && !initialized()) {
 			const built: SectionData[] = tmpl
 				.filter((s) => s.visible !== false)
-				.map((s): SectionData => {
+				.map((s): SectionData | null => {
 					if (s.type === "worship-program") {
 						return {
 							id: s.id,
@@ -101,7 +103,7 @@ export function useBulletinForm() {
 							id: s.id,
 							type: "monthly-song",
 							label: s.label,
-							data: { title: "", keywords: [] },
+							data: { title: "", lyrics: "" },
 						};
 					}
 					if (s.type === "text-block") {
@@ -113,11 +115,19 @@ export function useBulletinForm() {
 						};
 					}
 					if (s.type === "weekly-prayer") {
+						const days =
+							(s as WeeklyPrayerSectionTemplate).config.days.length > 0
+								? (s as WeeklyPrayerSectionTemplate).config.days
+								: DEFAULT_WEEKLY_PRAYER_DAYS;
+						const data: Record<string, string[]> = {};
+						for (const d of days) {
+							data[d.key] = [...d.defaults];
+						}
 						return {
 							id: s.id,
 							type: "weekly-prayer",
 							label: s.label,
-							data: {},
+							data,
 						};
 					}
 					if (s.type === "upcoming-events") {
@@ -182,8 +192,12 @@ export function useBulletinForm() {
 							data,
 						};
 					}
-					return { id: s.id, type: "assignments", label: s.label, data: {} };
-				});
+					if (s.type === "assignments") {
+						return { id: s.id, type: "assignments", label: s.label, data: {} };
+					}
+					return null;
+				})
+				.filter((s): s is SectionData => s !== null);
 			setSections(built);
 			if (searchParams.date) {
 				setServiceDate(searchParams.date);
@@ -197,22 +211,50 @@ export function useBulletinForm() {
 		const data = existing();
 		if (isEdit() && data && !initialized()) {
 			setServiceDate(data.serviceDate);
-			const validSections = data.sections.filter(
-				(s): s is SectionData =>
-					s.type === "worship-program" ||
-					s.type === "announcements" ||
-					s.type === "assignments" ||
-					s.type === "weekly-verse" ||
-					s.type === "monthly-song" ||
-					s.type === "text-block" ||
-					s.type === "weekly-prayer" ||
-					s.type === "upcoming-events" ||
-					s.type === "birthdays" ||
-					s.type === "scripture-quotes" ||
-					s.type === "attendance" ||
-					s.type === "service-meta" ||
-					s.type === "financial-summary",
-			);
+			const validSections = data.sections
+				.filter(
+					(s): s is SectionData =>
+						s.type === "worship-program" ||
+						s.type === "announcements" ||
+						s.type === "assignments" ||
+						s.type === "weekly-verse" ||
+						s.type === "monthly-song" ||
+						s.type === "text-block" ||
+						s.type === "weekly-prayer" ||
+						s.type === "upcoming-events" ||
+						s.type === "birthdays" ||
+						s.type === "scripture-quotes" ||
+						s.type === "attendance" ||
+						s.type === "service-meta" ||
+						s.type === "financial-summary",
+				)
+				.map((s): SectionData => {
+					// Normalize monthly-song: migrate legacy { keywords } → { lyrics }
+					if (s.type === "monthly-song") {
+						const ms = s as MonthlySongSectionData;
+						const raw = ms.data as { title: string; lyrics?: string };
+						return {
+							...ms,
+							data: { title: raw.title, lyrics: raw.lyrics ?? "" },
+						};
+					}
+					// Normalize weekly-prayer: migrate legacy string values → string[]
+					if (s.type === "weekly-prayer") {
+						const wp = s as WeeklyPrayerSectionData;
+						const normalized: Record<string, string[]> = {};
+						for (const [key, val] of Object.entries(
+							wp.data as unknown as Record<string, unknown>,
+						)) {
+							normalized[key] = Array.isArray(val)
+								? (val as string[])
+								: typeof val === "string" && val
+									? [val]
+									: [];
+						}
+						return { ...wp, data: normalized };
+					}
+					return s;
+				});
 			setSections(validSections);
 			setInitialized(true);
 		}
@@ -233,7 +275,6 @@ export function useBulletinForm() {
 		patch: Partial<{
 			details: string;
 			fieldValues: Record<string, string>;
-			assigneeId: number | null;
 		}>,
 	) {
 		updateSection(sectionId, (s) => {
@@ -269,16 +310,6 @@ export function useBulletinForm() {
 				};
 			});
 			return { ...s, data };
-		});
-	}
-
-	function updateWorshipAssignee(
-		sectionId: string,
-		index: number,
-		value: string,
-	) {
-		updateWorshipItem(sectionId, index, {
-			assigneeId: value ? Number(value) : null,
 		});
 	}
 
@@ -327,7 +358,7 @@ export function useBulletinForm() {
 
 	function updateMonthlySong(
 		sectionId: string,
-		data: { title: string; keywords: string[] },
+		data: { title: string; lyrics: string },
 	) {
 		updateSection(sectionId, (s) => {
 			if (s.type !== "monthly-song") return s;
@@ -345,7 +376,10 @@ export function useBulletinForm() {
 		});
 	}
 
-	function updateWeeklyPrayer(sectionId: string, data: Record<string, string>) {
+	function updateWeeklyPrayer(
+		sectionId: string,
+		data: Record<string, string[]>,
+	) {
 		updateSection(sectionId, (s) => {
 			if (s.type !== "weekly-prayer") return s;
 			return { ...s, data };
@@ -481,7 +515,6 @@ export function useBulletinForm() {
 				return ws.data.some(
 					(w) =>
 						w.details?.trim() ||
-						w.assigneeId != null ||
 						(w.fieldValues &&
 							Object.values(w.fieldValues).some((v) => v.trim())),
 				);
@@ -502,7 +535,7 @@ export function useBulletinForm() {
 			}
 			if (s.type === "monthly-song") {
 				const ms = s as MonthlySongSectionData;
-				return ms.data.title.trim() !== "" || ms.data.keywords.length > 0;
+				return ms.data.title.trim() !== "" || ms.data.lyrics.trim() !== "";
 			}
 			if (s.type === "text-block") {
 				const tb = s as TextBlockSectionData;
@@ -510,7 +543,9 @@ export function useBulletinForm() {
 			}
 			if (s.type === "weekly-prayer") {
 				const wp = s as WeeklyPrayerSectionData;
-				return Object.values(wp.data).some((v) => v.trim() !== "");
+				return Object.values(wp.data).some((v) =>
+					v.some((t) => t.trim() !== ""),
+				);
 			}
 			if (s.type === "upcoming-events") {
 				const ue = s as UpcomingEventsSectionData;
@@ -578,7 +613,6 @@ export function useBulletinForm() {
 		hasContent,
 		updateWorshipDetails,
 		updateWorshipFieldValue,
-		updateWorshipAssignee,
 		addAnnouncement,
 		removeAnnouncement,
 		updateAnnouncement,

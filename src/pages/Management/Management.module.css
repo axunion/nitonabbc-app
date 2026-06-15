@@ -198,6 +198,21 @@
 	composes: select from "../../styles/admin.module.css";
 }
 
+.checkboxGroup {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-3);
+}
+
+.checkboxLabel {
+	display: flex;
+	align-items: center;
+	gap: var(--space-1);
+	font-size: var(--text-sm);
+	color: var(--admin-foreground);
+	cursor: pointer;
+}
+
 .dialogActions {
 	composes: dialogActions from "../../styles/admin.module.css";
 	margin-top: var(--space-6);

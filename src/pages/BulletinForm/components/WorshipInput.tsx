@@ -1,7 +1,7 @@
-import { For, type JSX } from "solid-js";
+import { createMemo, For, type JSX } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type { Member, TemplateItem, WorshipItem } from "@/types/bulletin.ts";
-import { getTemplateItem } from "@/utils/bulletin.ts";
+import { filterMembersByRole, getTemplateItem } from "@/utils/bulletin.ts";
 import styles from "../BulletinForm.module.css";
 
 interface WorshipInputProps {
@@ -16,9 +16,13 @@ interface WorshipInputProps {
 function MemberSelect(props: {
 	value: string | undefined;
 	members: Member[] | undefined;
+	role?: string;
 	onChange: (val: string) => void;
 }): JSX.Element {
 	const { t } = useLocale();
+	const filteredMembers = createMemo(() =>
+		filterMembersByRole(props.members, props.role),
+	);
 	return (
 		<select
 			class={styles.select}
@@ -26,7 +30,7 @@ function MemberSelect(props: {
 			onChange={(e) => props.onChange(e.currentTarget.value)}
 		>
 			<option value="">{t("bulletinForm.selectMember")}</option>
-			<For each={props.members ?? []}>
+			<For each={filteredMembers()}>
 				{(m) => <option value={String(m.id)}>{m.name}</option>}
 			</For>
 		</select>
@@ -52,6 +56,7 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
 									<MemberSelect
 										value={props.item.fieldValues?.[field.key]}
 										members={props.members}
+										role={field.role}
 										onChange={(val) =>
 											props.onUpdateFieldValue(props.index, field.key, val)
 										}
@@ -94,6 +99,7 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
 			<MemberSelect
 				value={props.item.details}
 				members={props.members}
+				role={tmpl()?.role}
 				onChange={(val) => props.onUpdateDetails(props.index, val)}
 			/>
 		);

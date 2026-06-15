@@ -1,6 +1,4 @@
-import { For, Show } from "solid-js";
-import { useAuth } from "@/store/AuthContext.tsx";
-import { useLocale } from "@/store/LocaleContext.tsx";
+import { For } from "solid-js";
 import type {
 	Member,
 	SectionTemplate,
@@ -21,14 +19,9 @@ type Props = {
 		key: string,
 		value: string,
 	) => void;
-	onUpdateAssignee: (sectionId: string, index: number, value: string) => void;
 };
 
 export function WorshipProgramEditor(props: Props) {
-	const { t } = useLocale();
-	const { user } = useAuth();
-	const isAdmin = () => user().role === "admin";
-
 	const templateItems = () => {
 		const tmpl = findSectionTemplate(props.template, props.section.id);
 		return tmpl?.type === "worship-program" ? tmpl.config.items : [];
@@ -37,33 +30,8 @@ export function WorshipProgramEditor(props: Props) {
 	return (
 		<For each={props.section.data}>
 			{(item, index) => (
-				<div
-					class={styles.worshipCard}
-					classList={{
-						[styles.highlighted]:
-							item.assigneeId != null && item.assigneeId === user().id,
-					}}
-				>
+				<div class={styles.worshipCard}>
 					<span class={styles.worshipLabel}>{item.label}</span>
-					<Show when={isAdmin()}>
-						<select
-							class={styles.assigneeSelect}
-							value={item.assigneeId != null ? String(item.assigneeId) : ""}
-							onChange={(e) =>
-								props.onUpdateAssignee(
-									props.section.id,
-									index(),
-									e.currentTarget.value,
-								)
-							}
-							title={t("bulletinForm.assignTo")}
-						>
-							<option value="">{t("bulletin.unassigned")}</option>
-							<For each={props.members ?? []}>
-								{(m) => <option value={String(m.id)}>{m.name}</option>}
-							</For>
-						</select>
-					</Show>
 					<WorshipInput
 						item={item}
 						index={index()}

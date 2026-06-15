@@ -464,6 +464,53 @@ describe("DELETE /api/bulletin/:id", () => {
 	});
 });
 
+// --- Generate: default template section shapes ---
+
+describe("POST /api/bulletin/generate — section data shapes", () => {
+	it("generates monthly-song with lyrics field", async () => {
+		const { env } = await seedMemberAndEnv();
+		const res = await testApp.request(
+			"http://localhost/api/bulletin/generate",
+			{
+				method: "POST",
+				headers: { ...memberHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify({ serviceDate: "2025-07-06" }),
+			},
+			env,
+		);
+		expect(res.status).toBe(201);
+		const json = (await res.json()) as {
+			sections: { type: string; data: unknown }[];
+		};
+		const song = json.sections.find((s) => s.type === "monthly-song");
+		expect(song?.data).toMatchObject({ title: "", lyrics: "" });
+	});
+
+	it("generates weekly-prayer with string[] per day", async () => {
+		const { env } = await seedMemberAndEnv();
+		const res = await testApp.request(
+			"http://localhost/api/bulletin/generate",
+			{
+				method: "POST",
+				headers: { ...memberHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify({ serviceDate: "2025-07-13" }),
+			},
+			env,
+		);
+		expect(res.status).toBe(201);
+		const json = (await res.json()) as {
+			sections: { type: string; data: unknown }[];
+		};
+		const prayer = json.sections.find((s) => s.type === "weekly-prayer");
+		// Data must be an object where each value is an array of strings
+		expect(prayer?.data).toBeDefined();
+		const data = prayer?.data as Record<string, unknown>;
+		for (const val of Object.values(data)) {
+			expect(Array.isArray(val)).toBe(true);
+		}
+	});
+});
+
 // --- Progress counting ---
 
 describe("countProgress via GET /api/bulletin/:id", () => {
@@ -516,6 +563,86 @@ describe("countProgress via GET /api/bulletin/:id", () => {
 		expect(res.status).toBe(200);
 		const json = await res.json();
 		expect((json as { totalItems: number }).totalItems).toBe(2);
+		expect((json as { filledItems: number }).filledItems).toBe(1);
+	});
+
+	it("counts weekly-prayer progress with string[] data", async () => {
+		const { user, env } = await seedMemberAndEnv();
+		await db.insert(schema.settings).values({
+			key: "bulletin_template",
+			value: JSON.stringify([
+				{
+					id: "prayer",
+					type: "weekly-prayer",
+					label: "祈り",
+					visible: true,
+					config: {
+						days: [
+							{ key: "日", label: "日曜日", defaults: ["牧師の働き"] },
+							{ key: "月", label: "月曜日", defaults: [] },
+						],
+					},
+				},
+			]),
+		});
+		const sections = [
+			{
+				id: "prayer",
+				type: "weekly-prayer",
+				label: "祈り",
+				data: { 日: ["牧師の働き", "別の課題"], 月: [] },
+			},
+		];
+		const [bulletin] = await db
+			.insert(schema.bulletins)
+			.values({
+				serviceDate: "2025-02-02",
+				sections: sections as never,
+				createdBy: user.id,
+				updatedBy: user.id,
+			})
+			.returning();
+
+		const res = await testApp.request(
+			`http://localhost/api/bulletin/${bulletin.id}`,
+			{ headers: memberHeaders },
+			env,
+		);
+		expect(res.status).toBe(200);
+		const json = await res.json();
+		// 2 days total, 1 day has items (日), 1 day is empty (月)
+		expect((json as { totalItems: number }).totalItems).toBe(2);
+		expect((json as { filledItems: number }).filledItems).toBe(1);
+	});
+
+	it("counts monthly-song progress based on title", async () => {
+		const { user, env } = await seedMemberAndEnv();
+		const sections = [
+			{
+				id: "song",
+				type: "monthly-song",
+				label: "今月の歌",
+				data: { title: "暗闇過ぎ去って", lyrics: "" },
+			},
+		];
+		const [bulletin] = await db
+			.insert(schema.bulletins)
+			.values({
+				serviceDate: "2025-02-09",
+				sections: sections as never,
+				createdBy: user.id,
+				updatedBy: user.id,
+			})
+			.returning();
+
+		const res = await testApp.request(
+			`http://localhost/api/bulletin/${bulletin.id}`,
+			{ headers: memberHeaders },
+			env,
+		);
+		expect(res.status).toBe(200);
+		const json = await res.json();
+		expect((json as { totalItems: number }).totalItems).toBe(1);
 		expect((json as { filledItems: number }).filledItems).toBe(1);
 	});
 });

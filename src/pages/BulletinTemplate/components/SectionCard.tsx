@@ -8,6 +8,7 @@ import type {
 	FinancialSummarySectionTemplate,
 	SectionTemplate,
 	ServiceMetaSectionTemplate,
+	WeeklyPrayerSectionTemplate,
 	WorshipProgramSectionTemplate,
 } from "@/types/bulletin.ts";
 import styles from "../BulletinTemplate.module.css";
@@ -17,6 +18,7 @@ import { AssignmentsConfigEditor } from "./AssignmentsConfigEditor.tsx";
 import { AttendanceConfigEditor } from "./AttendanceConfigEditor.tsx";
 import { FinancialSummaryConfigEditor } from "./FinancialSummaryConfigEditor.tsx";
 import { ServiceMetaConfigEditor } from "./ServiceMetaConfigEditor.tsx";
+import { WeeklyPrayerConfigEditor } from "./WeeklyPrayerConfigEditor.tsx";
 import { WorshipProgramConfigEditor } from "./WorshipProgramConfigEditor.tsx";
 
 export function sectionAnchorId(sectionId: string): string {
@@ -37,7 +39,8 @@ export function SectionCard(props: Props) {
 		props.section.type === "assignments" ||
 		props.section.type === "attendance" ||
 		props.section.type === "service-meta" ||
-		props.section.type === "financial-summary";
+		props.section.type === "financial-summary" ||
+		props.section.type === "weekly-prayer";
 
 	return (
 		<section
@@ -136,6 +139,16 @@ export function SectionCard(props: Props) {
 						<FinancialSummaryConfigEditor
 							section={props.section as FinancialSummarySectionTemplate}
 							onUpdateFinancialItems={props.editor.updateFinancialItems}
+						/>
+					</Show>
+
+					<Show when={props.section.type === "weekly-prayer"}>
+						<p class={styles.configCaption}>
+							{t("bulletinTemplate.weeklyPrayerDefaultsCaption")}
+						</p>
+						<WeeklyPrayerConfigEditor
+							section={props.section as WeeklyPrayerSectionTemplate}
+							onUpdateDays={props.editor.updateWeeklyPrayerDefaults}
 						/>
 					</Show>
 				</div>

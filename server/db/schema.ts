@@ -15,6 +15,10 @@ export const users = sqliteTable(
 		inviteUsed: integer("invite_used", { mode: "boolean" })
 			.notNull()
 			.default(false),
+		serviceRoles: text("service_roles", { mode: "json" })
+			.$type<string[]>()
+			.notNull()
+			.default(sql`'[]'`),
 		isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
 		createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
 		updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),

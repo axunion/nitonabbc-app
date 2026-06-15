@@ -15,6 +15,7 @@ import type {
 	ServiceMetaFieldDef,
 	TemplateField,
 	TemplateItem,
+	WeeklyPrayerDay,
 	WorshipProgramSectionTemplate,
 } from "@/types/bulletin.ts";
 
@@ -114,6 +115,13 @@ export function useTemplateEditor() {
 		mutateSections((sectionList) => {
 			const section = sectionList.find((s) => s.id === id);
 			if (section?.type === "financial-summary") section.config.items = items;
+		});
+	}
+
+	function updateWeeklyPrayerDefaults(id: string, days: WeeklyPrayerDay[]) {
+		mutateSections((sectionList) => {
+			const section = sectionList.find((s) => s.id === id);
+			if (section?.type === "weekly-prayer") section.config.days = days;
 		});
 	}
 
@@ -305,6 +313,7 @@ export function useTemplateEditor() {
 		moveWorshipItem,
 		updateFieldDefs,
 		updateFinancialItems,
+		updateWeeklyPrayerDefaults,
 		handleSave,
 		handleReset,
 	};

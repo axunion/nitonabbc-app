@@ -5,6 +5,7 @@ import type {
 	TemplateItem,
 	WorshipProgramSectionData,
 } from "@/types/bulletin.ts";
+import { SERVICE_ROLES } from "@/types/bulletin.ts";
 
 export function progressPercent(filled: number, total: number): number {
 	if (total === 0) return 100;
@@ -34,34 +35,19 @@ export function findSectionTemplate(
 	return template.find((s) => s.id === sectionId);
 }
 
+export function filterMembersByRole(
+	members: Member[] | undefined,
+	role: string | undefined,
+): Member[] {
+	const all = members ?? [];
+	if (!role || !(SERVICE_ROLES as readonly string[]).includes(role)) return all;
+	return all.filter((m) => m.serviceRoles.includes(role));
+}
+
 export function getWorshipProgramSections(
 	sections: AnySection[],
 ): WorshipProgramSectionData[] {
 	return sections.filter(
 		(s): s is WorshipProgramSectionData => s.type === "worship-program",
 	);
-}
-
-export function hasMyUnfilledWorshipItems(
-	sections: AnySection[],
-	template: SectionTemplate[],
-	userId: number,
-): boolean {
-	for (const section of getWorshipProgramSections(sections)) {
-		const tmpl = findSectionTemplate(template, section.id);
-		const items = tmpl?.type === "worship-program" ? tmpl.config.items : [];
-		for (const item of section.data) {
-			if (item.assigneeId !== userId) continue;
-			const tmplItem = items.find((t) => t.type === item.type);
-			if (tmplItem?.fields && tmplItem.fields.length > 0) {
-				const hasUnfilled = tmplItem.fields.some(
-					(f) => f.inputType !== "none" && !item.fieldValues?.[f.key]?.trim(),
-				);
-				if (hasUnfilled) return true;
-			} else if (tmplItem?.inputType !== "none") {
-				if (!item.details?.trim()) return true;
-			}
-		}
-	}
-	return false;
 }

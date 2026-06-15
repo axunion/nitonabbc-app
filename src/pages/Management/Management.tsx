@@ -21,6 +21,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog/index.ts";
 import { showToast } from "@/components/Toast/index.ts";
 import { useAuth } from "@/store/AuthContext.tsx";
 import { useLocale } from "@/store/LocaleContext.tsx";
+import { SERVICE_ROLES } from "@/types/bulletin.ts";
 import styles from "./Management.module.css";
 
 type PendingAction = {
@@ -44,6 +45,7 @@ export function Management() {
 	);
 	const [formName, setFormName] = createSignal("");
 	const [formRole, setFormRole] = createSignal<"admin" | "member">("member");
+	const [formServiceRoles, setFormServiceRoles] = createSignal<string[]>([]);
 	const [submitting, setSubmitting] = createSignal(false);
 
 	// Confirm dialog state
@@ -54,6 +56,7 @@ export function Management() {
 		setEditingMember(null);
 		setFormName("");
 		setFormRole("member");
+		setFormServiceRoles([]);
 		setDialogOpen(true);
 	}
 
@@ -61,6 +64,7 @@ export function Management() {
 		setEditingMember(member);
 		setFormName(member.name);
 		setFormRole(member.role);
+		setFormServiceRoles(member.serviceRoles ?? []);
 		setDialogOpen(true);
 	}
 
@@ -69,7 +73,11 @@ export function Management() {
 		setSubmitting(true);
 		try {
 			const editing = editingMember();
-			const payload = { name: formName(), role: formRole() };
+			const payload = {
+				name: formName(),
+				role: formRole(),
+				serviceRoles: formServiceRoles(),
+			};
 			if (editing) {
 				await updateMember(editing.id, payload);
 			} else {
@@ -309,6 +317,29 @@ export function Management() {
 									<option value="member">{t("common.member")}</option>
 									<option value="admin">{t("common.admin")}</option>
 								</select>
+							</div>
+							<div class={styles.formGroup}>
+								<span class={styles.label}>{t("management.serviceRoles")}</span>
+								<div class={styles.checkboxGroup}>
+									<For each={SERVICE_ROLES}>
+										{(role) => (
+											<label class={styles.checkboxLabel}>
+												<input
+													type="checkbox"
+													checked={formServiceRoles().includes(role)}
+													onChange={(e) =>
+														setFormServiceRoles((prev) =>
+															e.currentTarget.checked
+																? [...prev, role]
+																: prev.filter((r) => r !== role),
+														)
+													}
+												/>
+												{role}
+											</label>
+										)}
+									</For>
+								</div>
 							</div>
 							<div class={styles.dialogActions}>
 								<Dialog.CloseButton class={styles.cancelButton}>

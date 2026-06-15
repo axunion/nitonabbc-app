@@ -2,14 +2,16 @@ import { For } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type {
 	AssignmentsSectionData,
+	Member,
 	SectionTemplate,
 } from "@/types/bulletin.ts";
-import { findSectionTemplate } from "@/utils/bulletin.ts";
+import { filterMembersByRole, findSectionTemplate } from "@/utils/bulletin.ts";
 import styles from "../BulletinForm.module.css";
 
 type Props = {
 	section: AssignmentsSectionData;
 	template: SectionTemplate[];
+	members: Member[] | undefined;
 	onUpdate: (sectionId: string, role: string, value: string) => void;
 };
 
@@ -26,15 +28,18 @@ export function AssignmentsEditor(props: Props) {
 			{(role) => (
 				<div class={styles.field}>
 					<span class={styles.fieldLabel}>{role}</span>
-					<input
-						type="text"
-						class={styles.input}
-						placeholder={t("bulletinForm.personPlaceholder")}
+					<select
+						class={styles.select}
 						value={props.section.data[role] ?? ""}
-						onInput={(e) =>
+						onChange={(e) =>
 							props.onUpdate(props.section.id, role, e.currentTarget.value)
 						}
-					/>
+					>
+						<option value="">{t("bulletinForm.selectAssignee")}</option>
+						<For each={filterMembersByRole(props.members, role)}>
+							{(m) => <option value={String(m.id)}>{m.name}</option>}
+						</For>
+					</select>
 				</div>
 			)}
 		</For>

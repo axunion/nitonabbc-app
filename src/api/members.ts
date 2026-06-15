@@ -4,6 +4,7 @@ export type AdminMember = {
 	id: number;
 	name: string;
 	role: "admin" | "member";
+	serviceRoles: string[];
 	lineUserId: string | null;
 	inviteToken: string;
 	inviteUsed: boolean;
@@ -27,6 +28,7 @@ export async function fetchAdminMembers(): Promise<AdminMember[]> {
 export async function createMember(payload: {
 	name: string;
 	role: "admin" | "member";
+	serviceRoles: string[];
 }): Promise<void> {
 	await fetch("/api/admin/members", {
 		method: "POST",
@@ -37,7 +39,7 @@ export async function createMember(payload: {
 
 export async function updateMember(
 	id: number,
-	payload: { name: string; role: "admin" | "member" },
+	payload: { name: string; role: "admin" | "member"; serviceRoles: string[] },
 ): Promise<void> {
 	await fetch(`/api/admin/members/${id}`, {
 		method: "PUT",

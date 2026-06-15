@@ -1,11 +1,12 @@
 import { desc, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { bulletins, settings } from "../db/schema.ts";
-import type {
-	SectionData,
-	SectionTemplate,
-	TemplateItem,
-	WorshipItemData,
+import {
+	DEFAULT_WEEKLY_PRAYER_DAYS,
+	type SectionData,
+	type SectionTemplate,
+	type TemplateItem,
+	type WorshipItemData,
 } from "../db/types.ts";
 import { authMiddleware } from "../middleware/auth.ts";
 import type { AppEnv } from "../types.ts";
@@ -59,10 +60,18 @@ function countProgress(sections: SectionData[], template: SectionTemplate[]) {
 			totalItems += 1;
 			if (section.data.title?.trim()) filledItems += 1;
 		} else if (section.type === "weekly-prayer") {
-			const days = ["日", "月", "火", "水", "木", "金", "土"];
+			const days =
+				tmpl?.type === "weekly-prayer" && tmpl.config.days.length > 0
+					? tmpl.config.days
+					: DEFAULT_WEEKLY_PRAYER_DAYS;
 			totalItems += days.length;
 			for (const day of days) {
-				if (section.data[day]?.trim()) filledItems++;
+				const val = section.data[day.key];
+				// Support both new (string[]) and legacy (string) data formats
+				const hasFilled = Array.isArray(val)
+					? val.some((t) => t.trim())
+					: typeof val === "string" && (val as string).trim();
+				if (hasFilled) filledItems++;
 			}
 		} else if (section.type === "service-meta") {
 			const defs = tmpl?.type === "service-meta" ? tmpl.config.fieldDefs : [];
@@ -158,7 +167,7 @@ function buildSectionsFromTemplate(template: SectionTemplate[]): SectionData[] {
 					id: s.id,
 					type: "monthly-song",
 					label: s.label,
-					data: { title: "", keywords: [] },
+					data: { title: "", lyrics: "" },
 				};
 			}
 			if (s.type === "text-block") {
@@ -170,11 +179,17 @@ function buildSectionsFromTemplate(template: SectionTemplate[]): SectionData[] {
 				};
 			}
 			if (s.type === "weekly-prayer") {
+				const days =
+					s.config.days.length > 0 ? s.config.days : DEFAULT_WEEKLY_PRAYER_DAYS;
+				const data: Record<string, string[]> = {};
+				for (const d of days) {
+					data[d.key] = [...d.defaults];
+				}
 				return {
 					id: s.id,
 					type: "weekly-prayer",
 					label: s.label,
-					data: { 日: "", 月: "", 火: "", 水: "", 木: "", 金: "", 土: "" },
+					data,
 				};
 			}
 			if (s.type === "upcoming-events") {

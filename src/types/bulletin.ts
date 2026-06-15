@@ -1,9 +1,16 @@
+// Service roles that can be assigned to members for filtering assignment candidates
+export const SERVICE_ROLES = ["司会", "奏楽", "説教", "受付"] as const;
+export type ServiceRole = (typeof SERVICE_ROLES)[number];
+
 export type InputType = "text" | "member" | "none";
 
 export type TemplateField = {
 	key: string;
 	label: string;
 	inputType: InputType;
+	// When inputType is "member", filter candidates to members with this service role.
+	// Omit to show all members.
+	role?: string;
 };
 
 export type TemplateItem = {
@@ -11,6 +18,8 @@ export type TemplateItem = {
 	label: string;
 	inputType?: InputType;
 	fields?: TemplateField[];
+	// When inputType is "member", filter candidates to members with this service role.
+	role?: string;
 };
 
 export type WorshipItem = {
@@ -18,13 +27,28 @@ export type WorshipItem = {
 	label: string;
 	details?: string;
 	fieldValues?: Record<string, string>;
-	assigneeId?: number | null;
 };
 
 export type Announcement = {
 	heading?: string;
 	content: string;
 };
+
+export type WeeklyPrayerDay = {
+	key: string;
+	label: string;
+	defaults: string[];
+};
+
+export const DEFAULT_WEEKLY_PRAYER_DAYS: WeeklyPrayerDay[] = [
+	{ key: "日", label: "日曜日", defaults: [] },
+	{ key: "月", label: "月曜日", defaults: [] },
+	{ key: "火", label: "火曜日", defaults: [] },
+	{ key: "水", label: "水曜日", defaults: [] },
+	{ key: "木", label: "木曜日", defaults: [] },
+	{ key: "金", label: "金曜日", defaults: [] },
+	{ key: "土", label: "土曜日", defaults: [] },
+];
 
 // Section template types (structure)
 
@@ -81,7 +105,7 @@ export type WeeklyPrayerSectionTemplate = {
 	type: "weekly-prayer";
 	label: string;
 	visible?: boolean;
-	config: Record<never, never>;
+	config: { days: WeeklyPrayerDay[] };
 };
 
 export type UpcomingEventsSectionTemplate = {
@@ -193,7 +217,7 @@ export type MonthlySongSectionData = {
 	id: string;
 	type: "monthly-song";
 	label: string;
-	data: { title: string; keywords: string[] };
+	data: { title: string; lyrics: string };
 };
 
 export type TextBlockSectionData = {
@@ -207,7 +231,7 @@ export type WeeklyPrayerSectionData = {
 	id: string;
 	type: "weekly-prayer";
 	label: string;
-	data: Record<string, string>;
+	data: Record<string, string[]>;
 };
 
 export type UpcomingEvent = {
@@ -315,4 +339,5 @@ export type BulletinListResponse = {
 export type Member = {
 	id: number;
 	name: string;
+	serviceRoles: string[];
 };

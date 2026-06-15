@@ -44,7 +44,6 @@ type Props = {
 		key: string,
 		value: string,
 	) => void;
-	onUpdateAssignee: (sectionId: string, index: number, value: string) => void;
 	onAddAnnouncement: (sectionId: string) => void;
 	onRemoveAnnouncement: (sectionId: string, index: number) => void;
 	onUpdateAnnouncement: (
@@ -59,7 +58,7 @@ type Props = {
 	) => void;
 	onUpdateMonthlySong: (
 		sectionId: string,
-		data: { title: string; keywords: string[] },
+		data: { title: string; lyrics: string },
 	) => void;
 	onUpdateTextBlock: (
 		sectionId: string,
@@ -67,7 +66,7 @@ type Props = {
 	) => void;
 	onUpdateWeeklyPrayer: (
 		sectionId: string,
-		data: Record<string, string>,
+		data: Record<string, string[]>,
 	) => void;
 	onAddUpcomingEvent: (sectionId: string) => void;
 	onRemoveUpcomingEvent: (sectionId: string, index: number) => void;
@@ -110,7 +109,6 @@ export function SectionEditor(props: Props) {
 				members={props.members}
 				onUpdateDetails={props.onUpdateDetails}
 				onUpdateFieldValue={props.onUpdateFieldValue}
-				onUpdateAssignee={props.onUpdateAssignee}
 			/>
 		);
 	}
@@ -129,6 +127,7 @@ export function SectionEditor(props: Props) {
 			<AssignmentsEditor
 				section={props.section as AssignmentsSectionData}
 				template={props.template}
+				members={props.members}
 				onUpdate={props.onUpdateAssignment}
 			/>
 		);
@@ -161,6 +160,7 @@ export function SectionEditor(props: Props) {
 		return (
 			<WeeklyPrayerEditor
 				section={props.section as WeeklyPrayerSectionData}
+				template={props.template}
 				onUpdate={(data) => props.onUpdateWeeklyPrayer(props.section.id, data)}
 			/>
 		);

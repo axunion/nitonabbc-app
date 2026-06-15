@@ -86,7 +86,6 @@ export function BulletinForm() {
 													members={form.members()}
 													onUpdateDetails={form.updateWorshipDetails}
 													onUpdateFieldValue={form.updateWorshipFieldValue}
-													onUpdateAssignee={form.updateWorshipAssignee}
 													onAddAnnouncement={form.addAnnouncement}
 													onRemoveAnnouncement={form.removeAnnouncement}
 													onUpdateAnnouncement={form.updateAnnouncement}

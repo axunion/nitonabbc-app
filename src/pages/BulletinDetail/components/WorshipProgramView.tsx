@@ -31,18 +31,11 @@ export function WorshipProgramView(props: Props) {
 					<For each={props.section.data}>
 						{(item) => {
 							const tmpl = () => getTemplateItem(items(), item.type);
-							const assigneeName = () =>
-								getMemberName(props.members, item.assigneeId);
 
 							return (
 								<li class={styles.worshipItem}>
 									<div class={styles.worshipItemHeader}>
 										<span class={styles.worshipLabel}>{item.label}</span>
-										<Show when={assigneeName()}>
-											<span class={styles.worshipAssignee}>
-												{assigneeName()}
-											</span>
-										</Show>
 									</div>
 									<Show
 										when={tmpl()?.fields && (tmpl()?.fields?.length ?? 0) > 0}

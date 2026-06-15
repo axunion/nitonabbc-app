@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `service_roles` text DEFAULT '[]' NOT NULL;

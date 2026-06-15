@@ -53,7 +53,10 @@ export function SectionView(props: Props) {
 	}
 	if (props.section.type === "assignments") {
 		return (
-			<AssignmentsView section={props.section as AssignmentsSectionData} />
+			<AssignmentsView
+				section={props.section as AssignmentsSectionData}
+				members={props.members}
+			/>
 		);
 	}
 	if (props.section.type === "weekly-verse") {
@@ -70,9 +73,15 @@ export function SectionView(props: Props) {
 		return <TextBlockView section={props.section as TextBlockSectionData} />;
 	}
 	if (props.section.type === "weekly-prayer") {
-		return (
-			<WeeklyPrayerView section={props.section as WeeklyPrayerSectionData} />
+		const section = props.section as WeeklyPrayerSectionData;
+		const tmpl = props.template.find(
+			(t) => t.id === section.id && t.type === "weekly-prayer",
 		);
+		const templateDays =
+			tmpl?.type === "weekly-prayer" && tmpl.config.days.length > 0
+				? tmpl.config.days
+				: undefined;
+		return <WeeklyPrayerView section={section} templateDays={templateDays} />;
 	}
 	if (props.section.type === "upcoming-events") {
 		return (

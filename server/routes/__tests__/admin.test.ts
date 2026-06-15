@@ -158,6 +158,20 @@ describe("POST /api/admin/members", () => {
 		expect(res.status).toBe(400);
 	});
 
+	it("returns 400 when serviceRoles contains invalid value", async () => {
+		const { env } = await seedAdminAndEnv();
+		const res = await testApp.request(
+			"http://localhost/api/admin/members",
+			{
+				method: "POST",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify({ name: "New", serviceRoles: ["不正な役割"] }),
+			},
+			env,
+		);
+		expect(res.status).toBe(400);
+	});
+
 	it("creates a member with 201 and returns the new member", async () => {
 		const { env } = await seedAdminAndEnv();
 		const res = await testApp.request(
@@ -177,8 +191,28 @@ describe("POST /api/admin/members", () => {
 			lineUserId: null,
 			inviteUsed: false,
 			isActive: true,
+			serviceRoles: [],
 		});
 		expect(typeof (json as { inviteToken: string }).inviteToken).toBe("string");
+	});
+
+	it("creates member with serviceRoles", async () => {
+		const { env } = await seedAdminAndEnv();
+		const res = await testApp.request(
+			"http://localhost/api/admin/members",
+			{
+				method: "POST",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify({
+					name: "Preacher",
+					serviceRoles: ["説教", "司会"],
+				}),
+			},
+			env,
+		);
+		expect(res.status).toBe(201);
+		const json = await res.json();
+		expect(json).toMatchObject({ serviceRoles: ["説教", "司会"] });
 	});
 });
 
@@ -224,6 +258,46 @@ describe("PUT /api/admin/members/:id", () => {
 			name: "New Name",
 			role: "admin",
 		});
+	});
+
+	it("updates serviceRoles and returns 200", async () => {
+		const { env } = await seedAdminAndEnv();
+		const [target] = await db
+			.insert(schema.users)
+			.values({ name: "Member", inviteToken: "tok_svc" })
+			.returning();
+
+		const res = await testApp.request(
+			`http://localhost/api/admin/members/${target.id}`,
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify({ serviceRoles: ["奏楽", "受付"] }),
+			},
+			env,
+		);
+		expect(res.status).toBe(200);
+		const json = await res.json();
+		expect(json).toMatchObject({ serviceRoles: ["奏楽", "受付"] });
+	});
+
+	it("returns 400 when serviceRoles contains invalid value on PUT", async () => {
+		const { env } = await seedAdminAndEnv();
+		const [target] = await db
+			.insert(schema.users)
+			.values({ name: "Member", inviteToken: "tok_inv" })
+			.returning();
+
+		const res = await testApp.request(
+			`http://localhost/api/admin/members/${target.id}`,
+			{
+				method: "PUT",
+				headers: { ...adminHeaders, "Content-Type": "application/json" },
+				body: JSON.stringify({ serviceRoles: ["存在しない役割"] }),
+			},
+			env,
+		);
+		expect(res.status).toBe(400);
 	});
 });
 
