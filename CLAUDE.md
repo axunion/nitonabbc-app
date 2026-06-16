@@ -142,9 +142,6 @@ Configs in `.claude/rules/`, agents in `.claude/agents/`, skills in `.claude/ski
 
 | Agent | When to use |
 |-------|-------------|
-| `api-route` | Adding new Hono API routes or tests |
-| `section-type` | Adding a new bulletin section type (all layers) |
-| `ui-component` | Creating or styling Solid.js UI components |
 | `security-reviewer` | Changing auth, sessions, invite links, or admin routes |
 
 ### Skills
@@ -152,5 +149,5 @@ Configs in `.claude/rules/`, agents in `.claude/agents/`, skills in `.claude/ski
 | Skill | Purpose |
 |-------|---------|
 | `/spec-update` | Sync `docs/spec.md` and individual feature docs |
-| `/refactor` | Fix code quality, convention, and duplication issues |
 | `/db-migrate` | Guided workflow for D1 schema changes |
+| `/new-feature` | Scaffold a brand-new feature across all layers (schema → API → UI → i18n → docs) |
