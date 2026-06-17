@@ -1,210 +1,210 @@
 :root {
-	/* --- Colors: Light theme (warm stone palette) --- */
-	--color-gray-50: #faf9f7;
-	--color-gray-100: #f3f1ed;
-	--color-gray-200: #e8e5df;
-	--color-gray-300: #d4d0c8;
-	--color-gray-400: #a8a29e;
-	--color-gray-500: #78716c;
-	--color-gray-600: #57534e;
-	--color-gray-700: #44403c;
-	--color-gray-800: #292524;
-	--color-gray-900: #1c1917;
+  /* --- Colors: Light theme (warm stone palette) --- */
+  --color-gray-50: #faf9f7;
+  --color-gray-100: #f3f1ed;
+  --color-gray-200: #e8e5df;
+  --color-gray-300: #d4d0c8;
+  --color-gray-400: #a8a29e;
+  --color-gray-500: #78716c;
+  --color-gray-600: #57534e;
+  --color-gray-700: #44403c;
+  --color-gray-800: #292524;
+  --color-gray-900: #1c1917;
 
-	/* Primary: Deep Gold / Amber */
-	--color-primary-rgb: 166, 124, 26;
-	--color-primary-50: rgba(166, 124, 26, 0.08);
-	--color-primary-100: rgba(166, 124, 26, 0.15);
-	--color-primary-200: rgba(166, 124, 26, 0.25);
-	--color-primary-300: #c9a84c;
-	--color-primary-400: #b8923a;
-	--color-primary-500: #a67c1a;
-	--color-primary-600: #a67c1a;
-	--color-primary-700: #8c6815;
-	--color-primary-800: #725410;
-	--color-primary-900: #58400c;
-	/* Glass button (floating action, close button) */
-	--color-primary-glass: rgba(166, 124, 26, 0.38);
-	--color-primary-glass-hover: rgba(166, 124, 26, 0.52);
-	--color-primary-glass-active: rgba(166, 124, 26, 0.62);
-	--color-primary-glass-border: rgba(166, 124, 26, 0.2);
+  /* Primary: Deep Gold / Amber */
+  --color-primary-rgb: 166, 124, 26;
+  --color-primary-50: rgba(166, 124, 26, 0.08);
+  --color-primary-100: rgba(166, 124, 26, 0.15);
+  --color-primary-200: rgba(166, 124, 26, 0.25);
+  --color-primary-300: #c9a84c;
+  --color-primary-400: #b8923a;
+  --color-primary-500: #a67c1a;
+  --color-primary-600: #a67c1a;
+  --color-primary-700: #8c6815;
+  --color-primary-800: #725410;
+  --color-primary-900: #58400c;
+  /* Glass button (floating action, close button) */
+  --color-primary-glass: rgba(166, 124, 26, 0.38);
+  --color-primary-glass-hover: rgba(166, 124, 26, 0.52);
+  --color-primary-glass-active: rgba(166, 124, 26, 0.62);
+  --color-primary-glass-border: rgba(166, 124, 26, 0.2);
 
-	/* Destructive: Warm Red */
-	--color-destructive-50: rgba(220, 53, 53, 0.08);
-	--color-destructive-100: rgba(220, 53, 53, 0.15);
-	--color-destructive-500: #dc3535;
-	--color-destructive-600: #c53030;
-	--color-destructive-700: #9b2c2c;
+  /* Destructive: Warm Red */
+  --color-destructive-50: rgba(220, 53, 53, 0.08);
+  --color-destructive-100: rgba(220, 53, 53, 0.15);
+  --color-destructive-500: #dc3535;
+  --color-destructive-600: #c53030;
+  --color-destructive-700: #9b2c2c;
 
-	/* Success: Warm Green */
-	--color-success-50: rgba(46, 160, 67, 0.08);
-	--color-success-100: rgba(46, 160, 67, 0.15);
-	--color-success-500: #2ea043;
-	--color-success-600: #22863a;
-	--color-success-700: #1a7f37;
+  /* Success: Warm Green */
+  --color-success-50: rgba(46, 160, 67, 0.08);
+  --color-success-100: rgba(46, 160, 67, 0.15);
+  --color-success-500: #2ea043;
+  --color-success-600: #22863a;
+  --color-success-700: #1a7f37;
 
-	/* Semantic */
-	--color-bg: #f8f5f0;
-	--color-text: var(--color-gray-900);
-	--color-text-muted: var(--color-gray-500);
-	--color-border: var(--color-gray-200);
-	--color-primary: var(--color-primary-600);
-	--color-destructive: var(--color-destructive-600);
-	--color-success: var(--color-success-600);
+  /* Semantic */
+  --color-bg: #f8f5f0;
+  --color-text: var(--color-gray-900);
+  --color-text-muted: var(--color-gray-500);
+  --color-border: var(--color-gray-200);
+  --color-primary: var(--color-primary-600);
+  --color-destructive: var(--color-destructive-600);
+  --color-success: var(--color-success-600);
 
-	/* --- Glass Effect (frosted warm white) --- */
-	--glass-bg: rgba(255, 253, 248, 0.6);
-	--glass-bg-hover: rgba(255, 253, 248, 0.75);
-	--glass-bg-active: rgba(255, 253, 248, 0.5);
-	--glass-bg-chrome: rgba(255, 253, 248, 0.82);
-	--glass-border: 1px solid rgba(0, 0, 0, 0.08);
-	--glass-border-hover: 1px solid rgba(0, 0, 0, 0.14);
-	--glass-blur: blur(20px);
-	--glass-saturate: saturate(1.5);
+  /* --- Glass Effect (frosted warm white) --- */
+  --glass-bg: rgba(255, 253, 248, 0.6);
+  --glass-bg-hover: rgba(255, 253, 248, 0.75);
+  --glass-bg-active: rgba(255, 253, 248, 0.5);
+  --glass-bg-chrome: rgba(255, 253, 248, 0.82);
+  --glass-border: 1px solid rgba(0, 0, 0, 0.08);
+  --glass-border-hover: 1px solid rgba(0, 0, 0, 0.14);
+  --glass-blur: blur(20px);
+  --glass-saturate: saturate(1.5);
 
-	/* --- Input --- */
-	--input-bg: rgba(255, 253, 248, 0.65);
-	--input-border: rgba(0, 0, 0, 0.12);
-	--input-border-focus: var(--color-primary);
+  /* --- Input --- */
+  --input-bg: rgba(255, 253, 248, 0.65);
+  --input-border: rgba(0, 0, 0, 0.12);
+  --input-border-focus: var(--color-primary);
 
-	/* --- Mesh Gradient Background (warm stained glass) --- */
-	--mesh-gradient:
-		radial-gradient(
-			ellipse at 20% 30%,
-			rgba(218, 185, 107, 0.35),
-			transparent 55%
-		),
-		radial-gradient(
-			ellipse at 80% 15%,
-			rgba(255, 190, 130, 0.25),
-			transparent 50%
-		),
-		radial-gradient(
-			ellipse at 60% 70%,
-			rgba(200, 170, 120, 0.2),
-			transparent 55%
-		),
-		radial-gradient(
-			ellipse at 10% 80%,
-			rgba(180, 160, 140, 0.15),
-			transparent 45%
-		),
-		radial-gradient(
-			ellipse at 90% 90%,
-			rgba(220, 200, 160, 0.18),
-			transparent 50%
-		),
-		#f8f5f0;
+  /* --- Mesh Gradient Background (warm stained glass) --- */
+  --mesh-gradient:
+    radial-gradient(
+      ellipse at 20% 30%,
+      rgba(218, 185, 107, 0.35),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 80% 15%,
+      rgba(255, 190, 130, 0.25),
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 60% 70%,
+      rgba(200, 170, 120, 0.2),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 10% 80%,
+      rgba(180, 160, 140, 0.15),
+      transparent 45%
+    ),
+    radial-gradient(
+      ellipse at 90% 90%,
+      rgba(220, 200, 160, 0.18),
+      transparent 50%
+    ),
+    #f8f5f0;
 
-	/* --- Focus --- */
-	--focus-ring-color: rgba(166, 124, 26, 0.5);
-	--focus-ring-offset: 2px;
-	--focus-ring:
-		0 0 0 var(--focus-ring-offset) var(--color-bg),
-		0 0 0 calc(var(--focus-ring-offset) + 2px) var(--focus-ring-color);
+  /* --- Focus --- */
+  --focus-ring-color: rgba(166, 124, 26, 0.5);
+  --focus-ring-offset: 2px;
+  --focus-ring:
+    0 0 0 var(--focus-ring-offset) var(--color-bg),
+    0 0 0 calc(var(--focus-ring-offset) + 2px) var(--focus-ring-color);
 
-	/* --- Typography --- */
-	--font-sans:
-		"Inter", system-ui, -apple-system, "Segoe UI", "Hiragino Sans",
-		"Noto Sans JP", sans-serif;
-	--font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", monospace;
+  /* --- Typography --- */
+  --font-sans:
+    "Inter", system-ui, -apple-system, "Segoe UI", "Hiragino Sans",
+    "Noto Sans JP", sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", monospace;
 
-	--text-2xs: 0.625rem;
-	--text-xs: 0.75rem;
-	--text-sm: 0.875rem;
-	--text-base: 1rem;
-	--text-lg: 1.25rem;
-	--text-xl: 1.5rem;
+  --text-2xs: 0.625rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
 
-	--leading-tight: 1.25;
-	--leading-normal: 1.5;
-	--leading-relaxed: 1.75;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
 
-	--font-normal: 400;
-	--font-medium: 500;
-	--font-semibold: 600;
-	--font-bold: 700;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
 
-	--tracking-tight: -0.01em;
-	--tracking-normal: 0;
-	--tracking-wide: 0.01em;
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.01em;
 
-	/* --- Spacing --- */
-	--space-1: 0.25rem;
-	--space-2: 0.5rem;
-	--space-3: 0.75rem;
-	--space-4: 1rem;
-	--space-6: 1.5rem;
-	--space-8: 2rem;
-	--space-10: 2.5rem;
-	--space-12: 3rem;
-	--space-16: 4rem;
+  /* --- Spacing --- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
 
-	/* --- Border Radius --- */
-	--radius-sm: 0.25rem;
-	--radius-md: 0.375rem;
-	--radius-lg: 0.5rem;
-	--radius-xl: 0.75rem;
-	--radius-full: 9999px;
+  /* --- Border Radius --- */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
 
-	/* --- Shadows: Light (warm gold tint) --- */
-	--shadow-sm: 0 1px 3px rgba(166, 124, 26, 0.06);
-	--shadow-md:
-		0 4px 8px -1px rgba(166, 124, 26, 0.08),
-		0 2px 4px -2px rgba(166, 124, 26, 0.04);
-	--shadow-lg:
-		0 10px 20px -3px rgba(166, 124, 26, 0.1),
-		0 4px 6px -4px rgba(166, 124, 26, 0.05);
+  /* --- Shadows: Light (warm gold tint) --- */
+  --shadow-sm: 0 1px 3px rgba(166, 124, 26, 0.06);
+  --shadow-md:
+    0 4px 8px -1px rgba(166, 124, 26, 0.08),
+    0 2px 4px -2px rgba(166, 124, 26, 0.04);
+  --shadow-lg:
+    0 10px 20px -3px rgba(166, 124, 26, 0.1),
+    0 4px 6px -4px rgba(166, 124, 26, 0.05);
 
-	/* --- Glass Shadows (inset highlight + warm gold drop shadow) --- */
-	--glass-shadow-sm:
-		inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
-		inset 1px 0 0 0 rgba(255, 255, 255, 0.25),
-		0 1px 3px rgba(166, 124, 26, 0.06);
-	--glass-shadow-md:
-		inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
-		inset 1px 0 0 0 rgba(255, 255, 255, 0.25),
-		0 4px 8px -1px rgba(166, 124, 26, 0.08),
-		0 2px 4px -2px rgba(166, 124, 26, 0.04);
-	--glass-shadow-lg:
-		inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
-		inset 1px 0 0 0 rgba(255, 255, 255, 0.25),
-		0 10px 20px -3px rgba(166, 124, 26, 0.1),
-		0 4px 6px -4px rgba(166, 124, 26, 0.05);
+  /* --- Glass Shadows (inset highlight + warm gold drop shadow) --- */
+  --glass-shadow-sm:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.25),
+    0 1px 3px rgba(166, 124, 26, 0.06);
+  --glass-shadow-md:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.25),
+    0 4px 8px -1px rgba(166, 124, 26, 0.08),
+    0 2px 4px -2px rgba(166, 124, 26, 0.04);
+  --glass-shadow-lg:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.25),
+    0 10px 20px -3px rgba(166, 124, 26, 0.1),
+    0 4px 6px -4px rgba(166, 124, 26, 0.05);
 
-	/* --- Transitions --- */
-	--duration-fast: 100ms;
-	--duration-normal: 200ms;
-	--duration-slow: 300ms;
-	--duration-x-slow: 400ms;
-	--ease-default: cubic-bezier(0.4, 0, 0.2, 1);
-	--ease-in: cubic-bezier(0.4, 0, 1, 1);
-	--ease-out: cubic-bezier(0, 0, 0.2, 1);
-	--ease-ios-push: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* --- Transitions --- */
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-x-slow: 400ms;
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-ios-push: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
-	/* --- Z-index --- */
-	--z-dropdown: 50;
-	--z-sticky: 100;
-	--z-overlay: 200;
-	--z-modal: 300;
-	--z-popover: 400;
-	--z-toast: 500;
+  /* --- Z-index --- */
+  --z-dropdown: 50;
+  --z-sticky: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
+  --z-popover: 400;
+  --z-toast: 500;
 
-	/* --- Layout --- */
-	/* Max width shared by TabBar and page content to keep them visually aligned */
-	--app-max-width: 448px;
-	/* Content column max-width (mobile = same as app-max-width; desktop overridden below) */
-	/* Member desktop breakpoint = 900px (literal in @media; CSS custom properties cannot be used in media query conditions) */
-	--content-width: 448px;
-	/* Left sidebar width for member layout on desktop (matches admin sidebar) */
-	--sidebar-width: 240px;
+  /* --- Layout --- */
+  /* Max width shared by TabBar and page content to keep them visually aligned */
+  --app-max-width: 448px;
+  /* Content column max-width (mobile = same as app-max-width; desktop overridden below) */
+  /* Member desktop breakpoint = 900px (literal in @media; CSS custom properties cannot be used in media query conditions) */
+  --content-width: 448px;
+  /* Left sidebar width for member layout on desktop (matches admin sidebar) */
+  --sidebar-width: 240px;
 
-	/* --- Icons --- */
-	--icon-chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  /* --- Icons --- */
+  --icon-chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 }
 
 @media (min-width: 900px) {
-	:root {
-		--content-width: 820px;
-	}
+  :root {
+    --content-width: 820px;
+  }
 }

@@ -1,94 +1,94 @@
 .container {
-	composes: pageContainer from "../../styles/shared.module.css";
-	justify-content: center;
+  composes: pageContainer from "../../styles/shared.module.css";
+  justify-content: center;
 }
 
 .grid {
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	gap: var(--space-3);
-	width: 100%;
-	max-width: var(--content-width);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  width: 100%;
+  max-width: var(--content-width);
 }
 
 .widget {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: var(--space-3);
-	padding: var(--space-6) var(--space-4);
-	background: var(--glass-bg);
-	backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	border: var(--glass-border);
-	border-radius: var(--radius-xl);
-	box-shadow: var(--glass-shadow-md);
-	cursor: pointer;
-	outline: none;
-	transition:
-		background var(--duration-fast) var(--ease-default),
-		border var(--duration-fast) var(--ease-default),
-		box-shadow var(--duration-fast) var(--ease-default);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  border: var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow-md);
+  cursor: pointer;
+  outline: none;
+  transition:
+    background var(--duration-fast) var(--ease-default),
+    border var(--duration-fast) var(--ease-default),
+    box-shadow var(--duration-fast) var(--ease-default);
 }
 
 .widget:hover {
-	background: var(--glass-bg-hover);
-	border: var(--glass-border-hover);
+  background: var(--glass-bg-hover);
+  border: var(--glass-border-hover);
 }
 
 .widget:active {
-	background: var(--glass-bg-active);
+  background: var(--glass-bg-active);
 }
 
 .widget:focus-visible {
-	box-shadow: var(--focus-ring);
+  box-shadow: var(--focus-ring);
 }
 
 .widget:disabled {
-	opacity: 0.4;
-	cursor: not-allowed;
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .widgetPrimary {
-	composes: widget;
-	grid-column: span 2;
+  composes: widget;
+  grid-column: span 2;
 }
 
 .widgetIcon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 48px;
-	height: 48px;
-	border-radius: var(--radius-full);
-	background: var(--color-primary-50);
-	color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-50);
+  color: var(--color-primary);
 }
 
 .widgetLabelRow {
-	display: flex;
-	align-items: center;
-	gap: var(--space-1);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
 }
 
 .widgetLabel {
-	font-size: var(--text-base);
-	font-weight: var(--font-semibold);
-	color: var(--color-text);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--color-text);
 }
 
 .widgetExternalBadge {
-	color: var(--color-text-tertiary);
-	flex-shrink: 0;
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
 }
 
 @media (min-width: 900px) {
-	.grid {
-		grid-template-columns: repeat(4, 1fr);
-	}
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 
-	.widgetPrimary {
-		grid-column: span 2;
-	}
+  .widgetPrimary {
+    grid-column: span 2;
+  }
 }

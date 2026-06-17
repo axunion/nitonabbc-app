@@ -1,208 +1,208 @@
 .container {
-	composes: pageContainer from "../../styles/shared.module.css";
+  composes: pageContainer from "../../styles/shared.module.css";
 }
 
 .editButton {
-	display: flex;
-	align-items: center;
-	gap: var(--space-1);
-	height: 36px;
-	padding: 0 var(--space-3);
-	border-radius: var(--radius-md);
-	border: var(--glass-border);
-	background: var(--glass-bg);
-	color: var(--color-gray-700);
-	font-size: var(--text-sm);
-	cursor: pointer;
-	outline: none;
-	transition:
-		background var(--duration-fast) var(--ease-default),
-		border var(--duration-fast) var(--ease-default);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 36px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  border: var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--color-gray-700);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  outline: none;
+  transition:
+    background var(--duration-fast) var(--ease-default),
+    border var(--duration-fast) var(--ease-default);
 }
 
 .editButton:hover {
-	background: var(--glass-bg-hover);
-	border: var(--glass-border-hover);
+  background: var(--glass-bg-hover);
+  border: var(--glass-border-hover);
 }
 
 .editButton:focus-visible {
-	box-shadow: var(--focus-ring);
+  box-shadow: var(--focus-ring);
 }
 
 .content {
-	width: 100%;
-	max-width: var(--content-width);
+  width: 100%;
+  max-width: var(--content-width);
 }
 
 .title {
-	font-size: var(--text-lg);
-	font-weight: var(--font-semibold);
-	color: var(--color-gray-900);
-	margin: 0 0 var(--space-4) 0;
-	letter-spacing: var(--tracking-tight);
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--color-gray-900);
+  margin: 0 0 var(--space-4) 0;
+  letter-spacing: var(--tracking-tight);
 }
 
 .progressRow {
-	margin-bottom: var(--space-4);
-	display: flex;
-	align-items: center;
-	gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .ctaButton {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
-	height: 44px;
-	border-radius: var(--radius-md);
-	border: none;
-	background-color: var(--color-primary);
-	color: white;
-	font-size: var(--text-sm);
-	font-weight: var(--font-medium);
-	cursor: pointer;
-	outline: none;
-	margin-bottom: var(--space-6);
-	transition: background-color var(--duration-fast) var(--ease-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 44px;
+  border-radius: var(--radius-md);
+  border: none;
+  background-color: var(--color-primary);
+  color: white;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  outline: none;
+  margin-bottom: var(--space-6);
+  transition: background-color var(--duration-fast) var(--ease-default);
 }
 
 .ctaButton:hover {
-	background-color: var(--color-primary-700);
+  background-color: var(--color-primary-700);
 }
 
 .ctaButton:focus-visible {
-	box-shadow: var(--focus-ring);
+  box-shadow: var(--focus-ring);
 }
 
 .section {
-	margin-bottom: var(--space-6);
+  margin-bottom: var(--space-6);
 }
 
 .sectionTitle {
-	font-size: var(--text-base);
-	font-weight: var(--font-semibold);
-	color: var(--color-gray-800);
-	margin: 0 0 var(--space-3) 0;
-	padding-bottom: var(--space-2);
-	border-bottom: 1px solid var(--color-gray-200);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--color-gray-800);
+  margin: 0 0 var(--space-3) 0;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-gray-200);
 }
 
 .worshipList {
-	list-style: none;
-	padding: 0;
-	margin: 0;
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .worshipItem {
-	padding: var(--space-2) 0;
+  padding: var(--space-2) 0;
 }
 
 .worshipItemHeader {
-	display: flex;
-	justify-content: space-between;
-	align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
 }
 
 .worshipLabel {
-	font-size: var(--text-sm);
-	font-weight: var(--font-medium);
-	color: var(--color-gray-700);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-gray-700);
 }
 
 .worshipAssignee {
-	font-size: var(--text-xs);
-	color: var(--color-primary);
-	letter-spacing: var(--tracking-wide);
-	background: rgba(var(--color-primary-rgb, 59, 130, 246), 0.08);
-	padding: var(--space-1) var(--space-2);
-	border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  color: var(--color-primary);
+  letter-spacing: var(--tracking-wide);
+  background: rgba(var(--color-primary-rgb, 59, 130, 246), 0.08);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
 }
 
 .worshipDetails {
-	font-size: var(--text-sm);
-	color: var(--color-gray-600);
-	display: block;
-	margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-gray-600);
+  display: block;
+  margin-top: var(--space-1);
 }
 
 .compoundDetails {
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-1);
-	margin-top: var(--space-1);
-	padding-left: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+  padding-left: var(--space-3);
 }
 
 .compoundField {
-	display: flex;
-	gap: var(--space-2);
-	align-items: baseline;
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
 }
 
 .compoundFieldLabel {
-	font-size: var(--text-xs);
-	color: var(--color-gray-500);
-	min-width: 60px;
+  font-size: var(--text-xs);
+  color: var(--color-gray-500);
+  min-width: 60px;
 }
 
 .compoundFieldValue {
-	font-size: var(--text-sm);
-	color: var(--color-gray-600);
+  font-size: var(--text-sm);
+  color: var(--color-gray-600);
 }
 
 .announcementList {
-	list-style: none;
-	padding: 0;
-	margin: 0;
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-3);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
 .announcementItem {
-	font-size: var(--text-sm);
-	color: var(--color-gray-700);
-	line-height: var(--leading-relaxed);
-	white-space: pre-wrap;
+  font-size: var(--text-sm);
+  color: var(--color-gray-700);
+  line-height: var(--leading-relaxed);
+  white-space: pre-wrap;
 }
 
 .announcementHeading {
-	display: block;
-	font-size: var(--text-xs);
-	font-weight: var(--font-semibold);
-	color: var(--color-gray-500);
-	text-transform: uppercase;
-	letter-spacing: var(--tracking-wide);
-	margin-bottom: var(--space-1);
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: var(--color-gray-500);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  margin-bottom: var(--space-1);
 }
 
 .assignmentList {
-	display: grid;
-	grid-template-columns: auto 1fr;
-	gap: var(--space-2) var(--space-4);
-	margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
 }
 
 .assignmentRole {
-	font-size: var(--text-sm);
-	font-weight: var(--font-medium);
-	color: var(--color-gray-700);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-gray-700);
 }
 
 .assignmentPerson {
-	font-size: var(--text-sm);
-	color: var(--color-gray-600);
-	margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-gray-600);
+  margin: 0;
 }
 
 .sectionsGrid {
-	composes: sectionsGrid2Col from "../../styles/shared.module.css";
+  composes: sectionsGrid2Col from "../../styles/shared.module.css";
 }
 
 .loading {
-	composes: loadingText from "../../styles/shared.module.css";
+  composes: loadingText from "../../styles/shared.module.css";
 }

@@ -21,26 +21,26 @@ const AdminRedirect = () => <Navigate href="/admin/members" />;
 const root = document.getElementById("root");
 
 if (root) {
-	render(
-		() => (
-			<Router root={App}>
-				{/* Member section: TabBar layout */}
-				<Route path="/" component={MemberLayout}>
-					<Route path="/" component={Dashboard} />
-					<Route path="/settings" component={Settings} />
-					<Route path="/bulletin" component={BulletinList} />
-					<Route path="/bulletin/new" component={BulletinForm} />
-					<Route path="/bulletin/:id" component={BulletinDetail} />
-					<Route path="/bulletin/:id/edit" component={BulletinForm} />
-				</Route>
-				{/* Admin section: sidebar + pages all lazy-loaded */}
-				<Route path="/admin" component={AdminLayout}>
-					<Route path="/" component={AdminRedirect} />
-					<Route path="/members" component={Management} />
-					<Route path="/bulletin-template" component={BulletinTemplate} />
-				</Route>
-			</Router>
-		),
-		root,
-	);
+  render(
+    () => (
+      <Router root={App}>
+        {/* Member section: TabBar layout */}
+        <Route path="/" component={MemberLayout}>
+          <Route path="/" component={Dashboard} />
+          <Route path="/settings" component={Settings} />
+          <Route path="/bulletin" component={BulletinList} />
+          <Route path="/bulletin/new" component={BulletinForm} />
+          <Route path="/bulletin/:id" component={BulletinDetail} />
+          <Route path="/bulletin/:id/edit" component={BulletinForm} />
+        </Route>
+        {/* Admin section: sidebar + pages all lazy-loaded */}
+        <Route path="/admin" component={AdminLayout}>
+          <Route path="/" component={AdminRedirect} />
+          <Route path="/members" component={Management} />
+          <Route path="/bulletin-template" component={BulletinTemplate} />
+        </Route>
+      </Router>
+    ),
+    root,
+  );
 }

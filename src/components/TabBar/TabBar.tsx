@@ -10,64 +10,64 @@ const ICON_STROKE = 1.5;
 type Tab = "church" | "settings";
 
 function getTabForPath(path: string): Tab {
-	return path.startsWith("/settings") ? "settings" : "church";
+  return path.startsWith("/settings") ? "settings" : "church";
 }
 
 // Module-level so tab memory survives TabBar unmounts
 const [tabMemory, setTabMemory] = createSignal<Record<Tab, string>>({
-	church: "/",
-	settings: "/settings",
+  church: "/",
+  settings: "/settings",
 });
 
 export function TabBar() {
-	const location = useLocation();
-	const navigate = useNavigate();
-	const { t } = useLocale();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { t } = useLocale();
 
-	createEffect(() => {
-		const path = location.pathname;
-		const tab = getTabForPath(path);
-		setTabMemory((prev) => ({ ...prev, [tab]: path }));
-	});
+  createEffect(() => {
+    const path = location.pathname;
+    const tab = getTabForPath(path);
+    setTabMemory((prev) => ({ ...prev, [tab]: path }));
+  });
 
-	function handleTabClick(tab: Tab, rootPath: string) {
-		const currentTab = getTabForPath(location.pathname);
-		if (currentTab !== tab) {
-			navigate(tabMemory()[tab]);
-		} else {
-			navigate(rootPath);
-		}
-	}
+  function handleTabClick(tab: Tab, rootPath: string) {
+    const currentTab = getTabForPath(location.pathname);
+    if (currentTab !== tab) {
+      navigate(tabMemory()[tab]);
+    } else {
+      navigate(rootPath);
+    }
+  }
 
-	function isActive(tab: Tab) {
-		return getTabForPath(location.pathname) === tab;
-	}
+  function isActive(tab: Tab) {
+    return getTabForPath(location.pathname) === tab;
+  }
 
-	return (
-		<nav class={styles.tabBar} aria-label={t("common.churchName")}>
-			<div class={styles.brand}>
-				<span class={styles.brandName}>{t("common.churchName")}</span>
-			</div>
-			<div class={styles.nav}>
-				<button
-					type="button"
-					class={styles.tab}
-					classList={{ [styles.active]: isActive("church") }}
-					onClick={() => handleTabClick("church", "/")}
-				>
-					<Church size={ICON_SIZE} stroke-width={ICON_STROKE} />
-					<span class={styles.label}>{t("tabbar.church")}</span>
-				</button>
-				<button
-					type="button"
-					class={styles.tab}
-					classList={{ [styles.active]: isActive("settings") }}
-					onClick={() => handleTabClick("settings", "/settings")}
-				>
-					<Settings size={ICON_SIZE} stroke-width={ICON_STROKE} />
-					<span class={styles.label}>{t("tabbar.settings")}</span>
-				</button>
-			</div>
-		</nav>
-	);
+  return (
+    <nav class={styles.tabBar} aria-label={t("common.churchName")}>
+      <div class={styles.brand}>
+        <span class={styles.brandName}>{t("common.churchName")}</span>
+      </div>
+      <div class={styles.nav}>
+        <button
+          type="button"
+          class={styles.tab}
+          classList={{ [styles.active]: isActive("church") }}
+          onClick={() => handleTabClick("church", "/")}
+        >
+          <Church size={ICON_SIZE} stroke-width={ICON_STROKE} />
+          <span class={styles.label}>{t("tabbar.church")}</span>
+        </button>
+        <button
+          type="button"
+          class={styles.tab}
+          classList={{ [styles.active]: isActive("settings") }}
+          onClick={() => handleTabClick("settings", "/settings")}
+        >
+          <Settings size={ICON_SIZE} stroke-width={ICON_STROKE} />
+          <span class={styles.label}>{t("tabbar.settings")}</span>
+        </button>
+      </div>
+    </nav>
+  );
 }

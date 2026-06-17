@@ -1,215 +1,215 @@
 .container {
-	composes: pageContainer from "../../styles/admin.module.css";
+  composes: pageContainer from "../../styles/admin.module.css";
 }
 
 .pageTitle {
-	composes: pageTitle from "../../styles/admin.module.css";
-	margin-bottom: var(--space-2);
+  composes: pageTitle from "../../styles/admin.module.css";
+  margin-bottom: var(--space-2);
 }
 
 .description {
-	font-size: var(--text-sm);
-	color: var(--admin-muted-foreground);
-	margin: 0 0 var(--space-4) 0;
-	width: 100%;
+  font-size: var(--text-sm);
+  color: var(--admin-muted-foreground);
+  margin: 0 0 var(--space-4) 0;
+  width: 100%;
 }
 
 .form {
-	width: 100%;
+  width: 100%;
 }
 
 /* --- Layout: sticky TOC + section column --- */
 
 .layoutGrid {
-	display: flex;
-	align-items: flex-start;
-	gap: var(--space-6);
-	width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-6);
+  width: 100%;
 }
 
 .toc {
-	position: sticky;
-	top: var(--space-4);
-	width: 180px;
-	flex-shrink: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
+  position: sticky;
+  top: var(--space-4);
+  width: 180px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .tocLink {
-	display: block;
-	text-align: left;
-	padding: var(--space-1) var(--space-2);
-	border: none;
-	border-radius: var(--radius-sm);
-	background: transparent;
-	color: var(--admin-muted-foreground);
-	font-size: var(--text-sm);
-	cursor: pointer;
-	outline: none;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	transition:
-		background var(--duration-fast) var(--ease-default),
-		color var(--duration-fast) var(--ease-default);
+  display: block;
+  text-align: left;
+  padding: var(--space-1) var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--admin-muted-foreground);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  outline: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition:
+    background var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default);
 }
 
 .tocLink:hover {
-	background: var(--admin-accent);
-	color: var(--admin-foreground);
+  background: var(--admin-accent);
+  color: var(--admin-foreground);
 }
 
 .tocLink:focus-visible {
-	box-shadow: var(--admin-focus-ring);
+  box-shadow: var(--admin-focus-ring);
 }
 
 .tocLinkHidden {
-	opacity: 0.45;
-	text-decoration: line-through;
+  opacity: 0.45;
+  text-decoration: line-through;
 }
 
 .sectionList {
-	flex: 1;
-	min-width: 0;
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-4);
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
 @media (max-width: 768px) {
-	.toc {
-		display: none;
-	}
+  .toc {
+    display: none;
+  }
 }
 
 /* --- Section card --- */
 
 .sectionCard {
-	composes: card from "../../styles/admin.module.css";
-	padding: var(--space-4);
-	scroll-margin-top: var(--space-4);
+  composes: card from "../../styles/admin.module.css";
+  padding: var(--space-4);
+  scroll-margin-top: var(--space-4);
 }
 
 .cardHeader {
-	display: flex;
-	align-items: center;
-	gap: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
 
 /* Unified control metrics: every input, select, and action button is 36px tall */
 
 .input {
-	height: 36px;
-	padding: 0 var(--space-2);
-	border: 1px solid var(--admin-input);
-	border-radius: var(--radius-md);
-	font-size: var(--text-sm);
-	color: var(--admin-foreground);
-	background: var(--admin-card);
-	outline: none;
-	transition: border-color var(--duration-fast) var(--ease-default);
-	box-sizing: border-box;
-	width: 100%;
-	min-width: 0;
+  height: 36px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--admin-input);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--admin-foreground);
+  background: var(--admin-card);
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-default);
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
 }
 
 .input:focus {
-	border-color: var(--admin-primary);
-	box-shadow: var(--admin-focus-ring);
+  border-color: var(--admin-primary);
+  box-shadow: var(--admin-focus-ring);
 }
 
 .select {
-	composes: input;
-	flex: none;
-	width: 130px;
-	min-width: 130px;
-	appearance: none;
-	background-image: var(--admin-icon-chevron-down);
-	background-repeat: no-repeat;
-	background-position: right var(--space-2) center;
-	padding-right: var(--space-6);
+  composes: input;
+  flex: none;
+  width: 130px;
+  min-width: 130px;
+  appearance: none;
+  background-image: var(--admin-icon-chevron-down);
+  background-repeat: no-repeat;
+  background-position: right var(--space-2) center;
+  padding-right: var(--space-6);
 }
 
 /* --- Visibility switch (Kobalte) --- */
 
 .switchRoot {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--space-2);
-	flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
 }
 
 .switchLabel {
-	font-size: var(--text-xs);
-	color: var(--admin-muted-foreground);
-	user-select: none;
+  font-size: var(--text-xs);
+  color: var(--admin-muted-foreground);
+  user-select: none;
 }
 
 .switchInput {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	opacity: 0;
-	margin: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  margin: 0;
 }
 
 .switchControl {
-	display: inline-flex;
-	align-items: center;
-	width: 36px;
-	height: 20px;
-	padding: 2px;
-	border-radius: var(--radius-full);
-	background: var(--admin-input);
-	cursor: pointer;
-	box-sizing: border-box;
-	transition: background var(--duration-fast) var(--ease-default);
+  display: inline-flex;
+  align-items: center;
+  width: 36px;
+  height: 20px;
+  padding: 2px;
+  border-radius: var(--radius-full);
+  background: var(--admin-input);
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background var(--duration-fast) var(--ease-default);
 }
 
 .switchControl[data-checked] {
-	background: var(--admin-primary);
+  background: var(--admin-primary);
 }
 
 .switchRoot:has(.switchInput:focus-visible) .switchControl {
-	box-shadow: var(--admin-focus-ring);
+  box-shadow: var(--admin-focus-ring);
 }
 
 .switchThumb {
-	width: 16px;
-	height: 16px;
-	border-radius: var(--radius-full);
-	background: var(--admin-card);
-	box-shadow: var(--admin-shadow-sm);
-	transition: transform var(--duration-fast) var(--ease-default);
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  background: var(--admin-card);
+  box-shadow: var(--admin-shadow-sm);
+  transition: transform var(--duration-fast) var(--ease-default);
 }
 
 .switchThumb[data-checked] {
-	transform: translateX(16px);
+  transform: translateX(16px);
 }
 
 /* --- Config block --- */
 
 .configBlock {
-	margin-top: var(--space-3);
-	padding-top: var(--space-3);
-	border-top: 1px solid var(--admin-border);
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--admin-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .configCaption {
-	font-size: var(--text-xs);
-	font-weight: var(--font-medium);
-	color: var(--admin-muted-foreground);
-	margin: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--admin-muted-foreground);
+  margin: 0;
 }
 
 .cardHidden .configBlock,
 .cardHidden .input {
-	opacity: 0.55;
+  opacity: 0.55;
 }
 
 /* --- Worship program items ---
@@ -219,243 +219,243 @@
  */
 
 .programList {
-	list-style: none;
-	padding: 0;
-	margin: 0;
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .programItem {
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .programRow {
-	display: grid;
-	grid-template-columns: 22px minmax(0, 1fr) minmax(0, 1fr) 130px 28px;
-	gap: var(--space-2);
-	align-items: center;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) minmax(0, 1fr) 130px 28px;
+  gap: var(--space-2);
+  align-items: center;
 }
 
 /* Compound fields block: left-offset by (22px order col + gap) so that
  * the first input column aligns with the parent label column. */
 .programFields {
-	position: relative;
-	padding-left: calc(22px + var(--space-2));
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-2);
+  position: relative;
+  padding-left: calc(22px + var(--space-2));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 /* Vertical guide line drawn in the indent area, center of the order column.
  * bottom clears the 36px addFieldButton plus a gap. */
 .programFields::before {
-	content: "";
-	position: absolute;
-	left: 11px;
-	top: 0;
-	bottom: calc(36px + var(--space-4));
-	width: 2px;
-	background: var(--admin-border);
-	border-radius: 1px;
+  content: "";
+  position: absolute;
+  left: 11px;
+  top: 0;
+  bottom: calc(36px + var(--space-4));
+  width: 2px;
+  background: var(--admin-border);
+  border-radius: 1px;
 }
 
 .orderButtons {
-	display: flex;
-	flex-direction: column;
-	gap: 1px;
-	flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex-shrink: 0;
 }
 
 .orderButton {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 22px;
-	height: 18px;
-	border-radius: var(--radius-sm);
-	border: none;
-	background: transparent;
-	color: var(--admin-muted-foreground);
-	cursor: pointer;
-	outline: none;
-	padding: 0;
-	transition: color var(--duration-fast) var(--ease-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 18px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--admin-muted-foreground);
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  transition: color var(--duration-fast) var(--ease-default);
 }
 
 .orderButton:hover {
-	color: var(--admin-foreground);
+  color: var(--admin-foreground);
 }
 
 .orderButton:focus-visible {
-	box-shadow: var(--admin-focus-ring);
+  box-shadow: var(--admin-focus-ring);
 }
 
 .orderButton:disabled {
-	opacity: 0.2;
-	cursor: not-allowed;
+  opacity: 0.2;
+  cursor: not-allowed;
 }
 
 /* --- Field rows (shared by config editors) --- */
 
 .fieldsSection {
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .dayGroup {
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-2);
-	padding: var(--space-2) 0;
-	border-bottom: 1px solid var(--admin-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--admin-border);
 }
 
 .dayGroup:last-child {
-	border-bottom: none;
+  border-bottom: none;
 }
 
 .dayGroupLabel {
-	font-size: var(--text-sm);
-	font-weight: var(--font-medium);
-	color: var(--admin-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--admin-foreground);
 }
 
 .fieldRow {
-	display: flex;
-	align-items: center;
-	gap: var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 /* Compound .fieldRow inside .programFields aligns with parent columns 2–5.
  * Placed after .fieldRow so higher specificity (0,2,0) correctly overrides. */
 .programFields .fieldRow {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 130px 28px;
-	gap: var(--space-2);
-	align-items: center;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 130px 28px;
+  gap: var(--space-2);
+  align-items: center;
 }
 
 .removeButton {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 28px;
-	height: 28px;
-	border-radius: var(--radius-full);
-	border: none;
-	background: transparent;
-	color: var(--admin-muted-foreground);
-	cursor: pointer;
-	outline: none;
-	padding: 0;
-	flex-shrink: 0;
-	transition: color var(--duration-fast) var(--ease-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: transparent;
+  color: var(--admin-muted-foreground);
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  flex-shrink: 0;
+  transition: color var(--duration-fast) var(--ease-default);
 }
 
 .removeButton:hover {
-	color: var(--admin-destructive);
+  color: var(--admin-destructive);
 }
 
 .removeButton:focus-visible {
-	box-shadow: var(--admin-focus-ring);
+  box-shadow: var(--admin-focus-ring);
 }
 
 .addFieldButton {
-	display: flex;
-	align-items: center;
-	gap: var(--space-1);
-	height: 36px;
-	padding: 0 var(--space-2);
-	border: none;
-	border-radius: var(--radius-sm);
-	background: transparent;
-	color: var(--admin-muted-foreground);
-	font-size: var(--text-xs);
-	cursor: pointer;
-	outline: none;
-	transition: color var(--duration-fast) var(--ease-default);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 36px;
+  padding: 0 var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--admin-muted-foreground);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  outline: none;
+  transition: color var(--duration-fast) var(--ease-default);
 }
 
 .addFieldButton:hover {
-	color: var(--admin-primary);
+  color: var(--admin-primary);
 }
 
 .addFieldButton:focus-visible {
-	box-shadow: var(--admin-focus-ring);
+  box-shadow: var(--admin-focus-ring);
 }
 
 /* --- Add item --- */
 
 .addButton {
-	display: flex;
-	align-items: center;
-	gap: var(--space-1);
-	height: 36px;
-	padding: 0 var(--space-3);
-	border-radius: var(--radius-md);
-	border: 1px dashed var(--admin-input);
-	background: transparent;
-	color: var(--admin-muted-foreground);
-	font-size: var(--text-sm);
-	cursor: pointer;
-	outline: none;
-	width: 100%;
-	justify-content: center;
-	transition:
-		border-color var(--duration-fast) var(--ease-default),
-		color var(--duration-fast) var(--ease-default);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 36px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--admin-input);
+  background: transparent;
+  color: var(--admin-muted-foreground);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  outline: none;
+  width: 100%;
+  justify-content: center;
+  transition:
+    border-color var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default);
 }
 
 .addButton:hover {
-	border-color: var(--admin-primary);
-	color: var(--admin-primary);
+  border-color: var(--admin-primary);
+  color: var(--admin-primary);
 }
 
 .addButton:focus-visible {
-	box-shadow: var(--admin-focus-ring);
+  box-shadow: var(--admin-focus-ring);
 }
 
 /* --- Sticky action bar --- */
 
 .stickyBar {
-	position: sticky;
-	bottom: 0;
-	display: flex;
-	align-items: center;
-	gap: var(--space-3);
-	width: 100%;
-	padding: var(--space-3) 0;
-	margin-top: var(--space-4);
-	background: var(--admin-background);
-	border-top: 1px solid var(--admin-border);
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) 0;
+  margin-top: var(--space-4);
+  background: var(--admin-background);
+  border-top: 1px solid var(--admin-border);
 }
 
 .dirtyHint {
-	font-size: var(--text-sm);
-	color: var(--admin-primary);
-	margin: 0;
+  font-size: var(--text-sm);
+  color: var(--admin-primary);
+  margin: 0;
 }
 
 .barActions {
-	display: flex;
-	align-items: center;
-	gap: var(--space-2);
-	margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
 }
 
 .resetButton {
-	composes: buttonOutlineDestructive from "../../styles/admin.module.css";
+  composes: buttonOutlineDestructive from "../../styles/admin.module.css";
 }
 
 .saveButton {
-	composes: buttonPrimary from "../../styles/admin.module.css";
+  composes: buttonPrimary from "../../styles/admin.module.css";
 }
 
 .loading {
-	composes: loadingText from "../../styles/admin.module.css";
+  composes: loadingText from "../../styles/admin.module.css";
 }

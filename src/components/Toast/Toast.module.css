@@ -1,94 +1,94 @@
 /* Admin toast notifications — flat PC theme, header-zone top-right */
 
 .region {
-	position: fixed;
-	top: var(--space-3);
-	right: var(--space-3);
-	z-index: var(--z-toast);
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-2);
-	width: 300px;
-	pointer-events: none;
+  position: fixed;
+  top: var(--space-3);
+  right: var(--space-3);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 300px;
+  pointer-events: none;
 }
 
 @keyframes toastSlideIn {
-	from {
-		opacity: 0;
-		transform: translateX(calc(100% + var(--space-3)));
-	}
-	to {
-		opacity: 1;
-		transform: translateX(0);
-	}
+  from {
+    opacity: 0;
+    transform: translateX(calc(100% + var(--space-3)));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes toastFadeOut {
-	from {
-		opacity: 1;
-	}
-	to {
-		opacity: 0;
-	}
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 .toast {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--space-3);
-	padding: var(--space-3) var(--space-4);
-	border: 1px solid var(--admin-border);
-	border-radius: var(--admin-radius);
-	box-shadow: var(--admin-shadow-lg);
-	background: var(--admin-card);
-	pointer-events: auto;
-	animation: toastSlideIn var(--duration-normal) var(--ease-default);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow-lg);
+  background: var(--admin-card);
+  pointer-events: auto;
+  animation: toastSlideIn var(--duration-normal) var(--ease-default);
 }
 
 .toast[data-closed] {
-	animation: toastFadeOut var(--duration-fast) var(--ease-default) forwards;
+  animation: toastFadeOut var(--duration-fast) var(--ease-default) forwards;
 }
 
 .toastSuccess {
-	composes: toast;
-	border-left: 3px solid var(--admin-success);
+  composes: toast;
+  border-left: 3px solid var(--admin-success);
 }
 
 .toastError {
-	composes: toast;
-	border-left: 3px solid var(--admin-destructive);
+  composes: toast;
+  border-left: 3px solid var(--admin-destructive);
 }
 
 .title {
-	flex: 1;
-	font-size: var(--text-sm);
-	font-weight: var(--font-medium);
-	color: var(--admin-foreground);
-	line-height: 1.4;
+  flex: 1;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--admin-foreground);
+  line-height: 1.4;
 }
 
 .closeButton {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 24px;
-	height: 24px;
-	border: none;
-	background: none;
-	color: var(--admin-muted-foreground);
-	cursor: pointer;
-	border-radius: var(--radius-sm);
-	padding: 0;
-	outline: none;
-	transition: color var(--duration-fast) var(--ease-default);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  color: var(--admin-muted-foreground);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  padding: 0;
+  outline: none;
+  transition: color var(--duration-fast) var(--ease-default);
 }
 
 .closeButton:hover {
-	color: var(--admin-foreground);
+  color: var(--admin-foreground);
 }
 
 .closeButton:focus-visible {
-	box-shadow: var(--admin-focus-ring);
+  box-shadow: var(--admin-focus-ring);
 }

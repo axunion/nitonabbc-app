@@ -5,67 +5,67 @@ import type { Birthday, BirthdaysSectionData } from "@/types/bulletin.ts";
 import styles from "../BulletinForm.module.css";
 
 type Props = {
-	section: BirthdaysSectionData;
-	onAdd: (sectionId: string) => void;
-	onRemove: (sectionId: string, index: number) => void;
-	onUpdate: (sectionId: string, index: number, value: Birthday) => void;
+  section: BirthdaysSectionData;
+  onAdd: (sectionId: string) => void;
+  onRemove: (sectionId: string, index: number) => void;
+  onUpdate: (sectionId: string, index: number, value: Birthday) => void;
 };
 
 export function BirthdaysEditor(props: Props) {
-	const { t } = useLocale();
+  const { t } = useLocale();
 
-	return (
-		<>
-			<button
-				type="button"
-				class={styles.addButton}
-				onClick={() => props.onAdd(props.section.id)}
-			>
-				<Plus size={16} stroke-width={1.5} />
-				{t("bulletinForm.addBirthday")}
-			</button>
-			<For each={props.section.data}>
-				{(birthday, index) => (
-					<div class={styles.repeatItem}>
-						<div class={styles.pairGrid}>
-							<input
-								type="text"
-								class={styles.input}
-								placeholder={t("bulletinForm.birthdayDayPlaceholder")}
-								value={birthday.day}
-								onInput={(e) =>
-									props.onUpdate(props.section.id, index(), {
-										...birthday,
-										day: e.currentTarget.value,
-									})
-								}
-							/>
-							<input
-								type="text"
-								class={styles.input}
-								placeholder={t("bulletinForm.birthdayNamePlaceholder")}
-								value={birthday.name}
-								onInput={(e) =>
-									props.onUpdate(props.section.id, index(), {
-										...birthday,
-										name: e.currentTarget.value,
-									})
-								}
-							/>
-						</div>
-						<div class={styles.repeatItemActions}>
-							<button
-								type="button"
-								class={styles.removeButton}
-								onClick={() => props.onRemove(props.section.id, index())}
-							>
-								<Minus size={14} stroke-width={1.5} />
-								{t("common.delete")}
-							</button>
-						</div>
-					</div>
-				)}
-			</For>
-		</>
-	);
+  return (
+    <>
+      <button
+        type="button"
+        class={styles.addButton}
+        onClick={() => props.onAdd(props.section.id)}
+      >
+        <Plus size={16} stroke-width={1.5} />
+        {t("bulletinForm.addBirthday")}
+      </button>
+      <For each={props.section.data}>
+        {(birthday, index) => (
+          <div class={styles.repeatItem}>
+            <div class={styles.pairGrid}>
+              <input
+                type="text"
+                class={styles.input}
+                placeholder={t("bulletinForm.birthdayDayPlaceholder")}
+                value={birthday.day}
+                onInput={(e) =>
+                  props.onUpdate(props.section.id, index(), {
+                    ...birthday,
+                    day: e.currentTarget.value,
+                  })
+                }
+              />
+              <input
+                type="text"
+                class={styles.input}
+                placeholder={t("bulletinForm.birthdayNamePlaceholder")}
+                value={birthday.name}
+                onInput={(e) =>
+                  props.onUpdate(props.section.id, index(), {
+                    ...birthday,
+                    name: e.currentTarget.value,
+                  })
+                }
+              />
+            </div>
+            <div class={styles.repeatItemActions}>
+              <button
+                type="button"
+                class={styles.removeButton}
+                onClick={() => props.onRemove(props.section.id, index())}
+              >
+                <Minus size={14} stroke-width={1.5} />
+                {t("common.delete")}
+              </button>
+            </div>
+          </div>
+        )}
+      </For>
+    </>
+  );
 }

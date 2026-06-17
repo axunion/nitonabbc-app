@@ -7,25 +7,25 @@ import { authMiddleware } from "../middleware/auth.ts";
 import type { AppEnv } from "../types.ts";
 
 function toMemberResponse(row: typeof users.$inferSelect) {
-	return {
-		id: row.id,
-		name: row.name,
-		role: row.role,
-		serviceRoles: row.serviceRoles,
-		lineUserId: row.lineUserId,
-		inviteToken: row.inviteToken,
-		inviteUsed: row.inviteUsed,
-		isActive: row.isActive,
-		createdAt: row.createdAt,
-		updatedAt: row.updatedAt,
-	};
+  return {
+    id: row.id,
+    name: row.name,
+    role: row.role,
+    serviceRoles: row.serviceRoles,
+    lineUserId: row.lineUserId,
+    inviteToken: row.inviteToken,
+    inviteUsed: row.inviteUsed,
+    isActive: row.isActive,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
 }
 
 function validateServiceRoles(roles: unknown): roles is string[] {
-	if (!Array.isArray(roles)) return false;
-	return roles.every((r) =>
-		SERVICE_ROLES.includes(r as (typeof SERVICE_ROLES)[number]),
-	);
+  if (!Array.isArray(roles)) return false;
+  return roles.every((r) =>
+    SERVICE_ROLES.includes(r as (typeof SERVICE_ROLES)[number]),
+  );
 }
 
 export const adminRoute = new Hono<AppEnv>();
@@ -35,168 +35,168 @@ adminRoute.use("/*", adminMiddleware);
 
 // GET /api/admin/members — list all members
 adminRoute.get("/members", async (c) => {
-	const db = c.get("db");
-	const rows = await db.select().from(users).orderBy(users.id);
-	return c.json(rows.map(toMemberResponse));
+  const db = c.get("db");
+  const rows = await db.select().from(users).orderBy(users.id);
+  return c.json(rows.map(toMemberResponse));
 });
 
 // POST /api/admin/members — create a new member
 adminRoute.post("/members", async (c) => {
-	const db = c.get("db");
-	const body = await c.req.json<{
-		name?: string;
-		role?: string;
-		serviceRoles?: unknown;
-	}>();
+  const db = c.get("db");
+  const body = await c.req.json<{
+    name?: string;
+    role?: string;
+    serviceRoles?: unknown;
+  }>();
 
-	if (!body.name || body.name.trim() === "") {
-		return c.json({ error: "Name is required" }, 400);
-	}
+  if (!body.name || body.name.trim() === "") {
+    return c.json({ error: "Name is required" }, 400);
+  }
 
-	const role = body.role ?? "member";
-	if (role !== "admin" && role !== "member") {
-		return c.json({ error: "Role must be admin or member" }, 400);
-	}
+  const role = body.role ?? "member";
+  if (role !== "admin" && role !== "member") {
+    return c.json({ error: "Role must be admin or member" }, 400);
+  }
 
-	const serviceRoles = body.serviceRoles ?? [];
-	if (!validateServiceRoles(serviceRoles)) {
-		return c.json(
-			{
-				error: `serviceRoles must only contain valid values: ${SERVICE_ROLES.join(", ")}`,
-			},
-			400,
-		);
-	}
+  const serviceRoles = body.serviceRoles ?? [];
+  if (!validateServiceRoles(serviceRoles)) {
+    return c.json(
+      {
+        error: `serviceRoles must only contain valid values: ${SERVICE_ROLES.join(", ")}`,
+      },
+      400,
+    );
+  }
 
-	const inviteToken = crypto.randomUUID();
+  const inviteToken = crypto.randomUUID();
 
-	const [newRow] = await db
-		.insert(users)
-		.values({
-			name: body.name.trim(),
-			role,
-			serviceRoles: [...new Set(serviceRoles)],
-			inviteToken,
-		})
-		.returning();
+  const [newRow] = await db
+    .insert(users)
+    .values({
+      name: body.name.trim(),
+      role,
+      serviceRoles: [...new Set(serviceRoles)],
+      inviteToken,
+    })
+    .returning();
 
-	return c.json(toMemberResponse(newRow), 201);
+  return c.json(toMemberResponse(newRow), 201);
 });
 
 // PUT /api/admin/members/:id — update a member
 adminRoute.put("/members/:id", async (c) => {
-	const db = c.get("db");
-	const id = Number(c.req.param("id"));
-	if (!Number.isInteger(id) || id <= 0) {
-		return c.json({ error: "Invalid id" }, 400);
-	}
-	const body = await c.req.json<{
-		name?: string;
-		role?: string;
-		serviceRoles?: unknown;
-	}>();
+  const db = c.get("db");
+  const id = Number(c.req.param("id"));
+  if (!Number.isInteger(id) || id <= 0) {
+    return c.json({ error: "Invalid id" }, 400);
+  }
+  const body = await c.req.json<{
+    name?: string;
+    role?: string;
+    serviceRoles?: unknown;
+  }>();
 
-	if (body.name !== undefined && body.name.trim() === "") {
-		return c.json({ error: "Name cannot be empty" }, 400);
-	}
+  if (body.name !== undefined && body.name.trim() === "") {
+    return c.json({ error: "Name cannot be empty" }, 400);
+  }
 
-	const existing = await db.query.users.findFirst({
-		where: eq(users.id, id),
-	});
-	if (!existing) {
-		return c.json({ error: "Member not found" }, 404);
-	}
+  const existing = await db.query.users.findFirst({
+    where: eq(users.id, id),
+  });
+  if (!existing) {
+    return c.json({ error: "Member not found" }, 404);
+  }
 
-	if (body.role && body.role !== "admin" && body.role !== "member") {
-		return c.json({ error: "Role must be admin or member" }, 400);
-	}
+  if (body.role && body.role !== "admin" && body.role !== "member") {
+    return c.json({ error: "Role must be admin or member" }, 400);
+  }
 
-	if (
-		body.serviceRoles !== undefined &&
-		!validateServiceRoles(body.serviceRoles)
-	) {
-		return c.json(
-			{
-				error: `serviceRoles must only contain valid values: ${SERVICE_ROLES.join(", ")}`,
-			},
-			400,
-		);
-	}
+  if (
+    body.serviceRoles !== undefined &&
+    !validateServiceRoles(body.serviceRoles)
+  ) {
+    return c.json(
+      {
+        error: `serviceRoles must only contain valid values: ${SERVICE_ROLES.join(", ")}`,
+      },
+      400,
+    );
+  }
 
-	const patch: Partial<typeof users.$inferInsert> = {};
-	if (body.name !== undefined) patch.name = body.name.trim();
-	if (body.role !== undefined) patch.role = body.role as "admin" | "member";
-	if (body.serviceRoles !== undefined)
-		patch.serviceRoles = [...new Set(body.serviceRoles as string[])];
+  const patch: Partial<typeof users.$inferInsert> = {};
+  if (body.name !== undefined) patch.name = body.name.trim();
+  if (body.role !== undefined) patch.role = body.role as "admin" | "member";
+  if (body.serviceRoles !== undefined)
+    patch.serviceRoles = [...new Set(body.serviceRoles as string[])];
 
-	if (Object.keys(patch).length > 0) {
-		await db
-			.update(users)
-			.set({ ...patch, updatedAt: sql`(datetime('now'))` })
-			.where(eq(users.id, id));
-	}
+  if (Object.keys(patch).length > 0) {
+    await db
+      .update(users)
+      .set({ ...patch, updatedAt: sql`(datetime('now'))` })
+      .where(eq(users.id, id));
+  }
 
-	const updated = await db.query.users.findFirst({ where: eq(users.id, id) });
-	if (!updated) {
-		return c.json({ error: "Member not found" }, 404);
-	}
-	return c.json(toMemberResponse(updated));
+  const updated = await db.query.users.findFirst({ where: eq(users.id, id) });
+  if (!updated) {
+    return c.json({ error: "Member not found" }, 404);
+  }
+  return c.json(toMemberResponse(updated));
 });
 
 // DELETE /api/admin/members/:id — soft-delete (deactivate)
 adminRoute.delete("/members/:id", async (c) => {
-	const db = c.get("db");
-	const id = Number(c.req.param("id"));
-	if (!Number.isInteger(id) || id <= 0) {
-		return c.json({ error: "Invalid id" }, 400);
-	}
-	const user = c.get("user");
+  const db = c.get("db");
+  const id = Number(c.req.param("id"));
+  if (!Number.isInteger(id) || id <= 0) {
+    return c.json({ error: "Invalid id" }, 400);
+  }
+  const user = c.get("user");
 
-	const existing = await db.query.users.findFirst({ where: eq(users.id, id) });
-	if (!existing) {
-		return c.json({ error: "Member not found" }, 404);
-	}
+  const existing = await db.query.users.findFirst({ where: eq(users.id, id) });
+  if (!existing) {
+    return c.json({ error: "Member not found" }, 404);
+  }
 
-	if (user.id === id) {
-		return c.json({ error: "Cannot deactivate yourself" }, 400);
-	}
+  if (user.id === id) {
+    return c.json({ error: "Cannot deactivate yourself" }, 400);
+  }
 
-	await db
-		.update(users)
-		.set({ isActive: false, updatedAt: sql`(datetime('now'))` })
-		.where(eq(users.id, id));
+  await db
+    .update(users)
+    .set({ isActive: false, updatedAt: sql`(datetime('now'))` })
+    .where(eq(users.id, id));
 
-	return c.json({ ok: true });
+  return c.json({ ok: true });
 });
 
 // POST /api/admin/members/:id/reinvite — reset LINE link + new token
 adminRoute.post("/members/:id/reinvite", async (c) => {
-	const db = c.get("db");
-	const id = Number(c.req.param("id"));
-	if (!Number.isInteger(id) || id <= 0) {
-		return c.json({ error: "Invalid id" }, 400);
-	}
+  const db = c.get("db");
+  const id = Number(c.req.param("id"));
+  if (!Number.isInteger(id) || id <= 0) {
+    return c.json({ error: "Invalid id" }, 400);
+  }
 
-	const existing = await db.query.users.findFirst({ where: eq(users.id, id) });
-	if (!existing) {
-		return c.json({ error: "Member not found" }, 404);
-	}
+  const existing = await db.query.users.findFirst({ where: eq(users.id, id) });
+  if (!existing) {
+    return c.json({ error: "Member not found" }, 404);
+  }
 
-	const newToken = crypto.randomUUID();
+  const newToken = crypto.randomUUID();
 
-	await db
-		.update(users)
-		.set({
-			lineUserId: null,
-			inviteToken: newToken,
-			inviteUsed: false,
-			updatedAt: sql`(datetime('now'))`,
-		})
-		.where(eq(users.id, id));
+  await db
+    .update(users)
+    .set({
+      lineUserId: null,
+      inviteToken: newToken,
+      inviteUsed: false,
+      updatedAt: sql`(datetime('now'))`,
+    })
+    .where(eq(users.id, id));
 
-	const updated = await db.query.users.findFirst({ where: eq(users.id, id) });
-	if (!updated) {
-		return c.json({ error: "Member not found" }, 404);
-	}
-	return c.json(toMemberResponse(updated));
+  const updated = await db.query.users.findFirst({ where: eq(users.id, id) });
+  if (!updated) {
+    return c.json({ error: "Member not found" }, 404);
+  }
+  return c.json(toMemberResponse(updated));
 });

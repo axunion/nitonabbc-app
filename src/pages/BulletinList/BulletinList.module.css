@@ -1,122 +1,122 @@
 .container {
-	composes: pageContainer from "../../styles/shared.module.css";
+  composes: pageContainer from "../../styles/shared.module.css";
 }
 
 /* Selectors row */
 .selectorRow {
-	display: flex;
-	gap: var(--space-2);
-	width: 100%;
-	max-width: var(--content-width);
-	margin-bottom: var(--space-4);
+  display: flex;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: var(--content-width);
+  margin-bottom: var(--space-4);
 }
 
 .selector {
-	flex: 1;
-	padding: var(--space-3);
-	border-radius: var(--radius-md);
-	border: var(--glass-border);
-	background: var(--glass-bg);
-	backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	font: inherit;
-	font-size: var(--text-base);
-	color: var(--color-gray-900);
-	outline: none;
-	cursor: pointer;
-	appearance: none;
-	background-image: var(--icon-chevron-down);
-	background-repeat: no-repeat;
-	background-position: right var(--space-3) center;
-	padding-right: var(--space-8);
+  flex: 1;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  font: inherit;
+  font-size: var(--text-base);
+  color: var(--color-gray-900);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: var(--icon-chevron-down);
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  padding-right: var(--space-8);
 }
 
 .selector:focus-visible {
-	box-shadow: var(--focus-ring);
+  box-shadow: var(--focus-ring);
 }
 
 /* Sunday card list */
 .list {
-	width: 100%;
-	max-width: var(--content-width);
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-2);
-	list-style: none;
-	padding: 0;
-	margin: 0;
+  width: 100%;
+  max-width: var(--content-width);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .dayCard {
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-2);
-	width: 100%;
-	background: var(--glass-bg);
-	backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	border: var(--glass-border);
-	border-radius: var(--radius-lg);
-	padding: var(--space-3) var(--space-4);
-	text-align: left;
-	font: inherit;
-	color: var(--color-gray-400);
-	cursor: pointer;
-	outline: none;
-	box-shadow: var(--glass-shadow-sm);
-	transition:
-		background var(--duration-fast) var(--ease-default),
-		border var(--duration-fast) var(--ease-default),
-		box-shadow var(--duration-fast) var(--ease-default);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  border: var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font: inherit;
+  color: var(--color-gray-400);
+  cursor: pointer;
+  outline: none;
+  box-shadow: var(--glass-shadow-sm);
+  transition:
+    background var(--duration-fast) var(--ease-default),
+    border var(--duration-fast) var(--ease-default),
+    box-shadow var(--duration-fast) var(--ease-default);
 }
 
 .dayCard:hover {
-	background: var(--glass-bg-hover);
-	border: var(--glass-border-hover);
+  background: var(--glass-bg-hover);
+  border: var(--glass-border-hover);
 }
 
 .dayCard:focus-visible {
-	box-shadow: var(--focus-ring);
+  box-shadow: var(--focus-ring);
 }
 
 .dayCardExists {
-	color: var(--color-gray-900);
+  color: var(--color-gray-900);
 }
 
 .dayCardPending {
-	opacity: 0.5;
-	border-style: dashed;
+  opacity: 0.5;
+  border-style: dashed;
 }
 
 .dayDate {
-	font-size: var(--text-base);
-	font-weight: var(--font-semibold);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
 }
 
 .dayMeta {
-	display: flex;
-	align-items: center;
-	gap: var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .checkIcon {
-	color: var(--color-primary);
-	flex-shrink: 0;
+  color: var(--color-primary);
+  flex-shrink: 0;
 }
 
 .pendingLabel {
-	font-size: var(--text-xs);
-	color: var(--color-gray-400);
-	letter-spacing: var(--tracking-wide);
+  font-size: var(--text-xs);
+  color: var(--color-gray-400);
+  letter-spacing: var(--tracking-wide);
 }
 
 .loading {
-	composes: loadingText from "../../styles/shared.module.css";
+  composes: loadingText from "../../styles/shared.module.css";
 }
 
 @media (min-width: 900px) {
-	.list {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
+  .list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

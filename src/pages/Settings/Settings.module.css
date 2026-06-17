@@ -1,171 +1,171 @@
 .container {
-	composes: pageContainer from "../../styles/shared.module.css";
+  composes: pageContainer from "../../styles/shared.module.css";
 }
 
 .content {
-	width: 100%;
-	max-width: 560px;
+  width: 100%;
+  max-width: 560px;
 }
 
 .userSection {
-	background: var(--glass-bg);
-	backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	border: var(--glass-border);
-	border-radius: var(--radius-xl);
-	padding: var(--space-12) var(--space-4);
-	margin-bottom: var(--space-4);
-	box-shadow: var(--glass-shadow-md);
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: var(--space-4);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  border: var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-12) var(--space-4);
+  margin-bottom: var(--space-4);
+  box-shadow: var(--glass-shadow-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
 }
 
 .userName {
-	font-size: 1.875rem;
-	font-weight: 300;
-	color: var(--color-gray-800);
-	letter-spacing: 0.05em;
-	line-height: var(--leading-tight);
+  font-size: 1.875rem;
+  font-weight: 300;
+  color: var(--color-gray-800);
+  letter-spacing: 0.05em;
+  line-height: var(--leading-tight);
 }
 
 .userOrnament {
-	width: 32px;
-	height: 2px;
-	border-radius: var(--radius-full);
-	background: var(--color-primary-400);
+  width: 32px;
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-400);
 }
 
 .menuList {
-	background: var(--glass-bg);
-	backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	border: var(--glass-border);
-	border-radius: var(--radius-lg);
-	overflow: hidden;
-	box-shadow: var(--glass-shadow-sm);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  border: var(--glass-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--glass-shadow-sm);
 }
 
 .menuList + .menuList {
-	margin-top: var(--space-4);
+  margin-top: var(--space-4);
 }
 
 .menuItem {
-	display: flex;
-	align-items: center;
-	gap: var(--space-3);
-	width: 100%;
-	padding: var(--space-3) var(--space-4);
-	background: none;
-	border: none;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-	color: var(--color-gray-800);
-	font-size: var(--text-base);
-	cursor: pointer;
-	outline: none;
-	text-align: left;
-	text-decoration: none;
-	transition: background-color var(--duration-fast) var(--ease-default);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  color: var(--color-gray-800);
+  font-size: var(--text-base);
+  cursor: pointer;
+  outline: none;
+  text-align: left;
+  text-decoration: none;
+  transition: background-color var(--duration-fast) var(--ease-default);
 }
 
 .menuItem:last-child {
-	border-bottom: none;
+  border-bottom: none;
 }
 
 .menuItem:hover {
-	background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 .menuItem:focus-visible {
-	box-shadow: var(--focus-ring);
+  box-shadow: var(--focus-ring);
 }
 
 .menuRow {
-	composes: menuItem;
-	cursor: default;
+  composes: menuItem;
+  cursor: default;
 }
 
 .menuRow:hover {
-	background-color: transparent;
+  background-color: transparent;
 }
 
 .localeSelect {
-	margin-left: auto;
-	appearance: none;
-	background: var(--input-bg);
-	border: 1px solid var(--input-border);
-	border-radius: var(--radius-md);
-	padding: var(--space-1) var(--space-6) var(--space-1) var(--space-2);
-	font-size: var(--text-sm);
-	color: var(--color-gray-800);
-	outline: none;
-	cursor: pointer;
-	background-image: var(--icon-chevron-down);
-	background-repeat: no-repeat;
-	background-position: right var(--space-1) center;
-	transition: border-color var(--duration-fast) var(--ease-default);
+  margin-left: auto;
+  appearance: none;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-1) var(--space-6) var(--space-1) var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-gray-800);
+  outline: none;
+  cursor: pointer;
+  background-image: var(--icon-chevron-down);
+  background-repeat: no-repeat;
+  background-position: right var(--space-1) center;
+  transition: border-color var(--duration-fast) var(--ease-default);
 }
 
 .localeSelect:focus {
-	border-color: var(--input-border-focus);
-	box-shadow: var(--focus-ring);
+  border-color: var(--input-border-focus);
+  box-shadow: var(--focus-ring);
 }
 
 .chevron {
-	margin-left: auto;
-	color: var(--color-gray-400);
+  margin-left: auto;
+  color: var(--color-gray-400);
 }
 
 .installSection {
-	padding: var(--space-3) var(--space-4);
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .installHeader {
-	display: flex;
-	align-items: center;
-	gap: var(--space-3);
-	color: var(--color-gray-800);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-gray-800);
 }
 
 .installTitle {
-	font-size: var(--text-base);
+  font-size: var(--text-base);
 }
 
 .installDescription {
-	font-size: var(--text-sm);
-	color: var(--color-text-muted);
-	margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0;
 }
 
 .installGuide {
-	font-size: var(--text-sm);
-	color: var(--color-text-muted);
-	margin: 0;
-	line-height: var(--leading-normal);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: var(--leading-normal);
 }
 
 .installButton {
-	align-self: flex-start;
-	background: var(--color-primary);
-	color: white;
-	border: none;
-	border-radius: var(--radius-md);
-	padding: var(--space-2) var(--space-4);
-	font-size: var(--text-sm);
-	font-weight: var(--font-medium);
-	cursor: pointer;
-	transition: opacity var(--duration-fast) var(--ease-default);
+  align-self: flex-start;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: opacity var(--duration-fast) var(--ease-default);
 }
 
 .installButton:hover {
-	opacity: 0.85;
+  opacity: 0.85;
 }
 
 .installButton:focus-visible {
-	box-shadow: var(--focus-ring);
-	outline: none;
+  box-shadow: var(--focus-ring);
+  outline: none;
 }

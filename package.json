@@ -1,60 +1,60 @@
 {
-	"name": "nitonabbc-app",
-	"private": true,
-	"version": "0.0.0",
-	"type": "module",
-	"devEngines": {
-		"runtime": {
-			"name": "node",
-			"version": "24.16.0",
-			"onFail": "warn"
-		},
-		"packageManager": {
-			"name": "pnpm",
-			"version": "11.5.2",
-			"onFail": "warn"
-		}
-	},
-	"scripts": {
-		"prepare": "lefthook install",
-		"dev": "vite",
-		"dev:api": "wrangler dev",
-		"build": "tsc -b && vite build",
-		"serve": "vite preview",
-		"check": "biome check . && tsc -b --noEmit",
-		"fix": "biome check --write .",
-		"test": "vitest run",
-		"test:watch": "vitest",
-		"db:generate": "drizzle-kit generate",
-		"db:migrate:local": "wrangler d1 migrations apply nitonabbc-db --local",
-		"db:reset": "rm -rf .wrangler/state/v3/d1 && wrangler d1 migrations apply nitonabbc-db --local",
-		"db:seed": "wrangler d1 execute nitonabbc-db --local --file=./scripts/seed.sql",
-		"db:fresh": "pnpm db:reset && pnpm db:seed"
-	},
-	"dependencies": {
-		"@kobalte/core": "^0.13.11",
-		"@solid-primitives/i18n": "^2.2.1",
-		"@solidjs/router": "^0.15.4",
-		"drizzle-orm": "^0.45.2",
-		"hono": "^4.11.9",
-		"lucide-solid": "^0.575.0",
-		"solid-js": "^1.9.10"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "2.4.16",
-		"@cloudflare/vite-plugin": "^1.25.6",
-		"@cloudflare/workers-types": "^4.20260228.1",
-		"@types/better-sqlite3": "^7.6.13",
-		"@types/node": "^24.10.1",
-		"better-sqlite3": "^12.10.0",
-		"drizzle-kit": "^0.31.10",
-		"lefthook": "^2.1.9",
-		"lightningcss": "^1.31.1",
-		"typescript": "~5.9.3",
-		"vite": "^7.3.1",
-		"vite-plugin-pwa": "^1.2.0",
-		"vite-plugin-solid": "^2.11.10",
-		"vitest": "^4.0.18",
-		"wrangler": "^4.69.0"
-	}
+  "name": "nitonabbc-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^24",
+      "onFail": "warn"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11",
+      "onFail": "warn"
+    }
+  },
+  "scripts": {
+    "prepare": "lefthook install",
+    "dev": "vite",
+    "dev:api": "wrangler dev",
+    "build": "tsc -b && vite build",
+    "serve": "vite preview",
+    "check": "biome check && tsc -b --noEmit",
+    "fix": "biome check --write",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply nitonabbc-db --local",
+    "db:reset": "rm -rf .wrangler/state/v3/d1 && wrangler d1 migrations apply nitonabbc-db --local",
+    "db:seed": "wrangler d1 execute nitonabbc-db --local --file=./scripts/seed.sql",
+    "db:fresh": "pnpm db:reset && pnpm db:seed"
+  },
+  "dependencies": {
+    "@kobalte/core": "^0.13.11",
+    "@solid-primitives/i18n": "^2.2.1",
+    "@solidjs/router": "^0.15.4",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.11.9",
+    "lucide-solid": "^0.575.0",
+    "solid-js": "^1.9.10"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.0",
+    "@cloudflare/vite-plugin": "^1.25.6",
+    "@cloudflare/workers-types": "^4.20260228.1",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^24.10.1",
+    "better-sqlite3": "^12.10.0",
+    "drizzle-kit": "^0.31.10",
+    "lefthook": "^2.1.9",
+    "lightningcss": "^1.31.1",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.1",
+    "vite-plugin-pwa": "^1.2.0",
+    "vite-plugin-solid": "^2.11.10",
+    "vitest": "^4.0.18",
+    "wrangler": "^4.69.0"
+  }
 }

@@ -1,10 +1,10 @@
 import type { Hono } from "hono";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-	createEnv,
-	createMockKV,
-	createTestDb,
-	wrapWithDb,
+  createEnv,
+  createMockKV,
+  createTestDb,
+  wrapWithDb,
 } from "../../__tests__/helpers.ts";
 import { schema } from "../../db/index.ts";
 import app from "../../index.ts";
@@ -16,545 +16,545 @@ let db: TestDb;
 let testApp: Hono<AppEnv>;
 
 beforeEach(() => {
-	db = createTestDb();
-	testApp = wrapWithDb(app, db);
+  db = createTestDb();
+  testApp = wrapWithDb(app, db);
 });
 
 afterEach(() => {
-	vi.restoreAllMocks();
+  vi.restoreAllMocks();
 });
 
 async function seedAdminEnv() {
-	const [admin] = await db
-		.insert(schema.users)
-		.values({
-			name: "Admin",
-			role: "admin",
-			lineUserId: "U_admin",
-			inviteToken: "admin_token",
-			inviteUsed: true,
-			isActive: true,
-		})
-		.returning();
-	const kv = createMockKV({
-		"session:admin_sid": JSON.stringify({
-			userId: admin.id,
-			lineUserId: "U_admin",
-			role: "admin",
-		}),
-	});
-	return createEnv({ SESSION_KV: kv });
+  const [admin] = await db
+    .insert(schema.users)
+    .values({
+      name: "Admin",
+      role: "admin",
+      lineUserId: "U_admin",
+      inviteToken: "admin_token",
+      inviteUsed: true,
+      isActive: true,
+    })
+    .returning();
+  const kv = createMockKV({
+    "session:admin_sid": JSON.stringify({
+      userId: admin.id,
+      lineUserId: "U_admin",
+      role: "admin",
+    }),
+  });
+  return createEnv({ SESSION_KV: kv });
 }
 
 async function seedMemberEnv() {
-	const [member] = await db
-		.insert(schema.users)
-		.values({
-			name: "Member",
-			role: "member",
-			lineUserId: "U_member",
-			inviteToken: "member_token",
-			inviteUsed: true,
-			isActive: true,
-		})
-		.returning();
-	const kv = createMockKV({
-		"session:member_sid": JSON.stringify({
-			userId: member.id,
-			lineUserId: "U_member",
-			role: "member",
-		}),
-	});
-	return createEnv({ SESSION_KV: kv });
+  const [member] = await db
+    .insert(schema.users)
+    .values({
+      name: "Member",
+      role: "member",
+      lineUserId: "U_member",
+      inviteToken: "member_token",
+      inviteUsed: true,
+      isActive: true,
+    })
+    .returning();
+  const kv = createMockKV({
+    "session:member_sid": JSON.stringify({
+      userId: member.id,
+      lineUserId: "U_member",
+      role: "member",
+    }),
+  });
+  return createEnv({ SESSION_KV: kv });
 }
 
 const adminHeaders = { Cookie: "session_id=admin_sid" };
 const memberHeaders = { Cookie: "session_id=member_sid" };
 
 const validTemplate = [
-	{
-		id: "worship",
-		type: "worship-program",
-		label: "礼拝プログラム",
-		visible: true,
-		config: {
-			items: [
-				{ type: "prelude", label: "前奏", inputType: "none" },
-				{ type: "hymn", label: "賛美歌", inputType: "text" },
-			],
-		},
-	},
+  {
+    id: "worship",
+    type: "worship-program",
+    label: "礼拝プログラム",
+    visible: true,
+    config: {
+      items: [
+        { type: "prelude", label: "前奏", inputType: "none" },
+        { type: "hymn", label: "賛美歌", inputType: "text" },
+      ],
+    },
+  },
 ];
 
 describe("GET /api/bulletin-template", () => {
-	it("returns 401 without session", async () => {
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{},
-			createEnv(),
-		);
-		expect(res.status).toBe(401);
-	});
+  it("returns 401 without session", async () => {
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      {},
+      createEnv(),
+    );
+    expect(res.status).toBe(401);
+  });
 
-	it("returns the full default template when not set in DB", async () => {
-		const env = await seedAdminEnv();
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{ headers: adminHeaders },
-			env,
-		);
-		expect(res.status).toBe(200);
-		const json = (await res.json()) as {
-			id: string;
-			type: string;
-			label: string;
-			visible: boolean;
-		}[];
-		expect(json.map((s) => s.id)).toEqual([
-			"morning",
-			"afternoon",
-			"news",
-			"assignments-this",
-			"assignments-next",
-			"attendance",
-			"weekly-prayer",
-			"upcoming-events",
-			"weekly-verse",
-			"monthly-song",
-			"birthdays",
-			"financial-summary",
-			"scripture-quotes",
-			"text-block",
-		]);
-		const typeCounts = json.reduce<Record<string, number>>((acc, s) => {
-			acc[s.type] = (acc[s.type] ?? 0) + 1;
-			return acc;
-		}, {});
-		expect(typeCounts["worship-program"]).toBe(2);
-		expect(typeCounts.assignments).toBe(2);
-		expect(json.every((s) => s.visible === true)).toBe(true);
-	});
+  it("returns the full default template when not set in DB", async () => {
+    const env = await seedAdminEnv();
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      { headers: adminHeaders },
+      env,
+    );
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as {
+      id: string;
+      type: string;
+      label: string;
+      visible: boolean;
+    }[];
+    expect(json.map((s) => s.id)).toEqual([
+      "morning",
+      "afternoon",
+      "news",
+      "assignments-this",
+      "assignments-next",
+      "attendance",
+      "weekly-prayer",
+      "upcoming-events",
+      "weekly-verse",
+      "monthly-song",
+      "birthdays",
+      "financial-summary",
+      "scripture-quotes",
+      "text-block",
+    ]);
+    const typeCounts = json.reduce<Record<string, number>>((acc, s) => {
+      acc[s.type] = (acc[s.type] ?? 0) + 1;
+      return acc;
+    }, {});
+    expect(typeCounts["worship-program"]).toBe(2);
+    expect(typeCounts.assignments).toBe(2);
+    expect(json.every((s) => s.visible === true)).toBe(true);
+  });
 
-	it("returns a default template that passes its own PUT validation", async () => {
-		const env = await seedAdminEnv();
-		const getRes = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{ headers: adminHeaders },
-			env,
-		);
-		const defaultTemplate = await getRes.json();
+  it("returns a default template that passes its own PUT validation", async () => {
+    const env = await seedAdminEnv();
+    const getRes = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      { headers: adminHeaders },
+      env,
+    );
+    const defaultTemplate = await getRes.json();
 
-		const putRes = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{
-				method: "PUT",
-				headers: { ...adminHeaders, "Content-Type": "application/json" },
-				body: JSON.stringify(defaultTemplate),
-			},
-			env,
-		);
-		expect(putRes.status).toBe(200);
-	});
+    const putRes = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      {
+        method: "PUT",
+        headers: { ...adminHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify(defaultTemplate),
+      },
+      env,
+    );
+    expect(putRes.status).toBe(200);
+  });
 
-	it("returns stored SectionTemplate[] from DB", async () => {
-		const env = await seedAdminEnv();
-		await db.insert(schema.settings).values({
-			key: "bulletin_template",
-			value: JSON.stringify(validTemplate),
-		});
+  it("returns stored SectionTemplate[] from DB", async () => {
+    const env = await seedAdminEnv();
+    await db.insert(schema.settings).values({
+      key: "bulletin_template",
+      value: JSON.stringify(validTemplate),
+    });
 
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{ headers: adminHeaders },
-			env,
-		);
-		expect(res.status).toBe(200);
-		const json = await res.json();
-		expect(json).toEqual(validTemplate);
-	});
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      { headers: adminHeaders },
+      env,
+    );
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json).toEqual(validTemplate);
+  });
 
-	it("allows member access (not admin-only)", async () => {
-		const env = await seedMemberEnv();
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{ headers: memberHeaders },
-			env,
-		);
-		expect(res.status).toBe(200);
-	});
+  it("allows member access (not admin-only)", async () => {
+    const env = await seedMemberEnv();
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      { headers: memberHeaders },
+      env,
+    );
+    expect(res.status).toBe(200);
+  });
 });
 
 describe("PUT /api/bulletin-template", () => {
-	it("returns 401 without session", async () => {
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(validTemplate),
-			},
-			createEnv(),
-		);
-		expect(res.status).toBe(401);
-	});
+  it("returns 401 without session", async () => {
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(validTemplate),
+      },
+      createEnv(),
+    );
+    expect(res.status).toBe(401);
+  });
 
-	it("returns 403 for member role", async () => {
-		const env = await seedMemberEnv();
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{
-				method: "PUT",
-				headers: { ...memberHeaders, "Content-Type": "application/json" },
-				body: JSON.stringify(validTemplate),
-			},
-			env,
-		);
-		expect(res.status).toBe(403);
-	});
+  it("returns 403 for member role", async () => {
+    const env = await seedMemberEnv();
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      {
+        method: "PUT",
+        headers: { ...memberHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify(validTemplate),
+      },
+      env,
+    );
+    expect(res.status).toBe(403);
+  });
 
-	it("returns 400 for empty array", async () => {
-		const env = await seedAdminEnv();
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{
-				method: "PUT",
-				headers: { ...adminHeaders, "Content-Type": "application/json" },
-				body: JSON.stringify([]),
-			},
-			env,
-		);
-		expect(res.status).toBe(400);
-	});
+  it("returns 400 for empty array", async () => {
+    const env = await seedAdminEnv();
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      {
+        method: "PUT",
+        headers: { ...adminHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify([]),
+      },
+      env,
+    );
+    expect(res.status).toBe(400);
+  });
 
-	it("returns 400 when section is missing label", async () => {
-		const env = await seedAdminEnv();
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{
-				method: "PUT",
-				headers: { ...adminHeaders, "Content-Type": "application/json" },
-				body: JSON.stringify([
-					{ id: "worship", type: "worship-program", config: { items: [] } },
-				]),
-			},
-			env,
-		);
-		expect(res.status).toBe(400);
-	});
+  it("returns 400 when section is missing label", async () => {
+    const env = await seedAdminEnv();
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      {
+        method: "PUT",
+        headers: { ...adminHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify([
+          { id: "worship", type: "worship-program", config: { items: [] } },
+        ]),
+      },
+      env,
+    );
+    expect(res.status).toBe(400);
+  });
 
-	it("returns 400 for unknown section type", async () => {
-		const env = await seedAdminEnv();
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{
-				method: "PUT",
-				headers: { ...adminHeaders, "Content-Type": "application/json" },
-				body: JSON.stringify([
-					{ id: "s1", type: "unsupported-type", label: "未知", config: {} },
-				]),
-			},
-			env,
-		);
-		expect(res.status).toBe(400);
-	});
+  it("returns 400 for unknown section type", async () => {
+    const env = await seedAdminEnv();
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      {
+        method: "PUT",
+        headers: { ...adminHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify([
+          { id: "s1", type: "unsupported-type", label: "未知", config: {} },
+        ]),
+      },
+      env,
+    );
+    expect(res.status).toBe(400);
+  });
 
-	it("returns 400 for duplicate section ids", async () => {
-		const env = await seedAdminEnv();
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{
-				method: "PUT",
-				headers: { ...adminHeaders, "Content-Type": "application/json" },
-				body: JSON.stringify([
-					{
-						id: "worship",
-						type: "worship-program",
-						label: "礼拝1",
-						config: {
-							items: [{ type: "hymn", label: "賛美歌", inputType: "text" }],
-						},
-					},
-					{
-						id: "worship",
-						type: "worship-program",
-						label: "礼拝2",
-						config: {
-							items: [{ type: "hymn", label: "賛美歌", inputType: "text" }],
-						},
-					},
-				]),
-			},
-			env,
-		);
-		expect(res.status).toBe(400);
-	});
+  it("returns 400 for duplicate section ids", async () => {
+    const env = await seedAdminEnv();
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      {
+        method: "PUT",
+        headers: { ...adminHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify([
+          {
+            id: "worship",
+            type: "worship-program",
+            label: "礼拝1",
+            config: {
+              items: [{ type: "hymn", label: "賛美歌", inputType: "text" }],
+            },
+          },
+          {
+            id: "worship",
+            type: "worship-program",
+            label: "礼拝2",
+            config: {
+              items: [{ type: "hymn", label: "賛美歌", inputType: "text" }],
+            },
+          },
+        ]),
+      },
+      env,
+    );
+    expect(res.status).toBe(400);
+  });
 
-	it("saves SectionTemplate[] and returns 200", async () => {
-		const env = await seedAdminEnv();
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{
-				method: "PUT",
-				headers: { ...adminHeaders, "Content-Type": "application/json" },
-				body: JSON.stringify(validTemplate),
-			},
-			env,
-		);
-		expect(res.status).toBe(200);
-		expect(await res.json()).toEqual({ ok: true });
-	});
+  it("saves SectionTemplate[] and returns 200", async () => {
+    const env = await seedAdminEnv();
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      {
+        method: "PUT",
+        headers: { ...adminHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify(validTemplate),
+      },
+      env,
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
+  });
 
-	it.each([
-		[
-			"weekly-prayer",
-			{
-				id: "prayer",
-				type: "weekly-prayer",
-				label: "今週の祈り",
-				visible: true,
-				config: {},
-			},
-		],
-		[
-			"text-block",
-			{
-				id: "tb",
-				type: "text-block",
-				label: "テキスト",
-				visible: true,
-				config: {},
-			},
-		],
-		[
-			"monthly-song",
-			{
-				id: "song",
-				type: "monthly-song",
-				label: "今月の歌",
-				visible: true,
-				config: {},
-			},
-		],
-		[
-			"weekly-verse",
-			{
-				id: "verse",
-				type: "weekly-verse",
-				label: "今週のみことば",
-				visible: true,
-				config: {},
-			},
-		],
-		[
-			"upcoming-events",
-			{
-				id: "events",
-				type: "upcoming-events",
-				label: "今後の予定",
-				visible: true,
-				config: {},
-			},
-		],
-		[
-			"scripture-quotes",
-			{
-				id: "sq",
-				type: "scripture-quotes",
-				label: "引用聖句",
-				visible: true,
-				config: {},
-			},
-		],
-	])("accepts %s section and returns 200", async (_type, section) => {
-		const env = await seedAdminEnv();
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{
-				method: "PUT",
-				headers: { ...adminHeaders, "Content-Type": "application/json" },
-				body: JSON.stringify([section]),
-			},
-			env,
-		);
-		expect(res.status).toBe(200);
-	});
+  it.each([
+    [
+      "weekly-prayer",
+      {
+        id: "prayer",
+        type: "weekly-prayer",
+        label: "今週の祈り",
+        visible: true,
+        config: {},
+      },
+    ],
+    [
+      "text-block",
+      {
+        id: "tb",
+        type: "text-block",
+        label: "テキスト",
+        visible: true,
+        config: {},
+      },
+    ],
+    [
+      "monthly-song",
+      {
+        id: "song",
+        type: "monthly-song",
+        label: "今月の歌",
+        visible: true,
+        config: {},
+      },
+    ],
+    [
+      "weekly-verse",
+      {
+        id: "verse",
+        type: "weekly-verse",
+        label: "今週のみことば",
+        visible: true,
+        config: {},
+      },
+    ],
+    [
+      "upcoming-events",
+      {
+        id: "events",
+        type: "upcoming-events",
+        label: "今後の予定",
+        visible: true,
+        config: {},
+      },
+    ],
+    [
+      "scripture-quotes",
+      {
+        id: "sq",
+        type: "scripture-quotes",
+        label: "引用聖句",
+        visible: true,
+        config: {},
+      },
+    ],
+  ])("accepts %s section and returns 200", async (_type, section) => {
+    const env = await seedAdminEnv();
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      {
+        method: "PUT",
+        headers: { ...adminHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify([section]),
+      },
+      env,
+    );
+    expect(res.status).toBe(200);
+  });
 
-	it.each([
-		[
-			"weekly-prayer",
-			{ id: "prayer", type: "weekly-prayer", label: "今週の祈り", config: [] },
-		],
-		[
-			"text-block",
-			{ id: "tb", type: "text-block", label: "テキスト", config: [] },
-		],
-		[
-			"monthly-song",
-			{ id: "song", type: "monthly-song", label: "今月の歌", config: [] },
-		],
-		[
-			"weekly-verse",
-			{
-				id: "verse",
-				type: "weekly-verse",
-				label: "今週のみことば",
-				config: [],
-			},
-		],
-	])("returns 400 when %s config is an array", async (_type, section) => {
-		const env = await seedAdminEnv();
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{
-				method: "PUT",
-				headers: { ...adminHeaders, "Content-Type": "application/json" },
-				body: JSON.stringify([section]),
-			},
-			env,
-		);
-		expect(res.status).toBe(400);
-	});
+  it.each([
+    [
+      "weekly-prayer",
+      { id: "prayer", type: "weekly-prayer", label: "今週の祈り", config: [] },
+    ],
+    [
+      "text-block",
+      { id: "tb", type: "text-block", label: "テキスト", config: [] },
+    ],
+    [
+      "monthly-song",
+      { id: "song", type: "monthly-song", label: "今月の歌", config: [] },
+    ],
+    [
+      "weekly-verse",
+      {
+        id: "verse",
+        type: "weekly-verse",
+        label: "今週のみことば",
+        config: [],
+      },
+    ],
+  ])("returns 400 when %s config is an array", async (_type, section) => {
+    const env = await seedAdminEnv();
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      {
+        method: "PUT",
+        headers: { ...adminHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify([section]),
+      },
+      env,
+    );
+    expect(res.status).toBe(400);
+  });
 });
 
 describe("DELETE /api/bulletin-template", () => {
-	it("returns 401 without session", async () => {
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{ method: "DELETE" },
-			createEnv(),
-		);
-		expect(res.status).toBe(401);
-	});
+  it("returns 401 without session", async () => {
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      { method: "DELETE" },
+      createEnv(),
+    );
+    expect(res.status).toBe(401);
+  });
 
-	it("returns 403 for member role", async () => {
-		const env = await seedMemberEnv();
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{ method: "DELETE", headers: memberHeaders },
-			env,
-		);
-		expect(res.status).toBe(403);
-	});
+  it("returns 403 for member role", async () => {
+    const env = await seedMemberEnv();
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      { method: "DELETE", headers: memberHeaders },
+      env,
+    );
+    expect(res.status).toBe(403);
+  });
 
-	it("deletes the stored template and returns the default template", async () => {
-		const env = await seedAdminEnv();
-		await db.insert(schema.settings).values({
-			key: "bulletin_template",
-			value: JSON.stringify(validTemplate),
-		});
+  it("deletes the stored template and returns the default template", async () => {
+    const env = await seedAdminEnv();
+    await db.insert(schema.settings).values({
+      key: "bulletin_template",
+      value: JSON.stringify(validTemplate),
+    });
 
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{ method: "DELETE", headers: adminHeaders },
-			env,
-		);
-		expect(res.status).toBe(200);
-		const body = (await res.json()) as { id: string }[];
-		expect(body).toHaveLength(14);
-		expect(body[0].id).toBe("morning");
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      { method: "DELETE", headers: adminHeaders },
+      env,
+    );
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { id: string }[];
+    expect(body).toHaveLength(14);
+    expect(body[0].id).toBe("morning");
 
-		const getRes = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{ headers: adminHeaders },
-			env,
-		);
-		const json = (await getRes.json()) as { id: string }[];
-		expect(json).toHaveLength(14);
-		expect(json[0].id).toBe("morning");
-	});
+    const getRes = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      { headers: adminHeaders },
+      env,
+    );
+    const json = (await getRes.json()) as { id: string }[];
+    expect(json).toHaveLength(14);
+    expect(json[0].id).toBe("morning");
+  });
 
-	it("returns the default template even when no row exists", async () => {
-		const env = await seedAdminEnv();
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{ method: "DELETE", headers: adminHeaders },
-			env,
-		);
-		expect(res.status).toBe(200);
-		const body = (await res.json()) as { id: string }[];
-		expect(body).toHaveLength(14);
-	});
+  it("returns the default template even when no row exists", async () => {
+    const env = await seedAdminEnv();
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      { method: "DELETE", headers: adminHeaders },
+      env,
+    );
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { id: string }[];
+    expect(body).toHaveLength(14);
+  });
 });
 
 describe("legacy input type normalization", () => {
-	const legacyTemplate = [
-		{
-			id: "worship",
-			type: "worship-program",
-			label: "礼拝プログラム",
-			visible: true,
-			config: {
-				items: [
-					{ type: "reading", label: "聖書朗読", inputType: "scripture" },
-					{ type: "count", label: "人数", inputType: "number" },
-					{
-						type: "sermon",
-						label: "説教",
-						fields: [
-							{ key: "title", label: "タイトル", inputType: "text" },
-							{ key: "scripture", label: "聖書箇所", inputType: "scripture" },
-						],
-					},
-				],
-			},
-		},
-	];
+  const legacyTemplate = [
+    {
+      id: "worship",
+      type: "worship-program",
+      label: "礼拝プログラム",
+      visible: true,
+      config: {
+        items: [
+          { type: "reading", label: "聖書朗読", inputType: "scripture" },
+          { type: "count", label: "人数", inputType: "number" },
+          {
+            type: "sermon",
+            label: "説教",
+            fields: [
+              { key: "title", label: "タイトル", inputType: "text" },
+              { key: "scripture", label: "聖書箇所", inputType: "scripture" },
+            ],
+          },
+        ],
+      },
+    },
+  ];
 
-	it("PUT normalizes scripture/number input types to text", async () => {
-		const env = await seedAdminEnv();
-		const putRes = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{
-				method: "PUT",
-				headers: { ...adminHeaders, "Content-Type": "application/json" },
-				body: JSON.stringify(legacyTemplate),
-			},
-			env,
-		);
-		expect(putRes.status).toBe(200);
+  it("PUT normalizes scripture/number input types to text", async () => {
+    const env = await seedAdminEnv();
+    const putRes = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      {
+        method: "PUT",
+        headers: { ...adminHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify(legacyTemplate),
+      },
+      env,
+    );
+    expect(putRes.status).toBe(200);
 
-		const getRes = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{ headers: adminHeaders },
-			env,
-		);
-		const json = (await getRes.json()) as {
-			config: {
-				items: {
-					inputType?: string;
-					fields?: { inputType: string }[];
-				}[];
-			};
-		}[];
-		const items = json[0].config.items;
-		expect(items[0].inputType).toBe("text");
-		expect(items[1].inputType).toBe("text");
-		expect(items[2].fields?.[1].inputType).toBe("text");
-	});
+    const getRes = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      { headers: adminHeaders },
+      env,
+    );
+    const json = (await getRes.json()) as {
+      config: {
+        items: {
+          inputType?: string;
+          fields?: { inputType: string }[];
+        }[];
+      };
+    }[];
+    const items = json[0].config.items;
+    expect(items[0].inputType).toBe("text");
+    expect(items[1].inputType).toBe("text");
+    expect(items[2].fields?.[1].inputType).toBe("text");
+  });
 
-	it("GET normalizes legacy input types in a stored template", async () => {
-		const env = await seedAdminEnv();
-		await db.insert(schema.settings).values({
-			key: "bulletin_template",
-			value: JSON.stringify(legacyTemplate),
-		});
+  it("GET normalizes legacy input types in a stored template", async () => {
+    const env = await seedAdminEnv();
+    await db.insert(schema.settings).values({
+      key: "bulletin_template",
+      value: JSON.stringify(legacyTemplate),
+    });
 
-		const res = await testApp.request(
-			"http://localhost/api/bulletin-template",
-			{ headers: adminHeaders },
-			env,
-		);
-		const json = (await res.json()) as {
-			config: {
-				items: {
-					inputType?: string;
-					fields?: { inputType: string }[];
-				}[];
-			};
-		}[];
-		const items = json[0].config.items;
-		expect(items[0].inputType).toBe("text");
-		expect(items[1].inputType).toBe("text");
-		expect(items[2].fields?.[1].inputType).toBe("text");
-	});
+    const res = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      { headers: adminHeaders },
+      env,
+    );
+    const json = (await res.json()) as {
+      config: {
+        items: {
+          inputType?: string;
+          fields?: { inputType: string }[];
+        }[];
+      };
+    }[];
+    const items = json[0].config.items;
+    expect(items[0].inputType).toBe("text");
+    expect(items[1].inputType).toBe("text");
+    expect(items[2].fields?.[1].inputType).toBe("text");
+  });
 });

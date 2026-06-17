@@ -8,31 +8,31 @@ import { createAuthStore } from "@/store/auth.ts";
 import { LocaleProvider } from "@/store/LocaleContext.tsx";
 
 function App(props: RouteSectionProps) {
-	const { user, refetch } = createAuthStore();
+  const { user, refetch } = createAuthStore();
 
-	async function handleLogout() {
-		await logout();
-		await refetch();
-	}
+  async function handleLogout() {
+    await logout();
+    await refetch();
+  }
 
-	return (
-		<LocaleProvider>
-			<Suspense>
-				<Show when={user()} fallback={<Login />}>
-					{(authUser) => (
-						<AuthProvider
-							user={authUser}
-							refetch={refetch}
-							logout={handleLogout}
-						>
-							{props.children}
-						</AuthProvider>
-					)}
-				</Show>
-			</Suspense>
-			<Toaster />
-		</LocaleProvider>
-	);
+  return (
+    <LocaleProvider>
+      <Suspense>
+        <Show when={user()} fallback={<Login />}>
+          {(authUser) => (
+            <AuthProvider
+              user={authUser}
+              refetch={refetch}
+              logout={handleLogout}
+            >
+              {props.children}
+            </AuthProvider>
+          )}
+        </Show>
+      </Suspense>
+      <Toaster />
+    </LocaleProvider>
+  );
 }
 
 export default App;

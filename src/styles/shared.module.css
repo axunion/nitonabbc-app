@@ -1,193 +1,193 @@
 @keyframes fadeIn {
-	from {
-		opacity: 0;
-		transform: translateY(8px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .pageContainer {
-	padding: var(--space-4);
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	animation: fadeIn var(--duration-normal) var(--ease-out);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn var(--duration-normal) var(--ease-out);
 }
 
 .pageTitle {
-	width: 100%;
-	max-width: var(--content-width);
-	font-size: var(--text-xl);
-	font-weight: var(--font-semibold);
-	color: var(--color-gray-900);
-	letter-spacing: var(--tracking-tight);
-	margin: 0 0 var(--space-4) 0;
+  width: 100%;
+  max-width: var(--content-width);
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--color-gray-900);
+  letter-spacing: var(--tracking-tight);
+  margin: 0 0 var(--space-4) 0;
 }
 
 .scrolledHeader {
-	background: var(--glass-bg-chrome);
-	backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	border-bottom: var(--glass-border);
+  background: var(--glass-bg-chrome);
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  border-bottom: var(--glass-border);
 }
 
 .loadingText {
-	text-align: center;
-	padding: var(--space-8);
-	color: var(--color-gray-500);
-	font-size: var(--text-sm);
+  text-align: center;
+  padding: var(--space-8);
+  color: var(--color-gray-500);
+  font-size: var(--text-sm);
 }
 
 .glassCard {
-	background: var(--glass-bg);
-	backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	-webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-	border: var(--glass-border);
-	border-radius: var(--radius-xl);
-	box-shadow: var(--glass-shadow-md);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  border: var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow-md);
 }
 
 .formInput {
-	width: 100%;
-	height: 44px;
-	padding: 0 var(--space-3);
-	border: 1px solid var(--input-border);
-	border-radius: var(--radius-md);
-	font-size: var(--text-base);
-	color: var(--color-text);
-	background: var(--input-bg);
-	outline: none;
-	transition: border-color var(--duration-fast) var(--ease-default);
-	box-sizing: border-box;
+  width: 100%;
+  height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  color: var(--color-text);
+  background: var(--input-bg);
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-default);
+  box-sizing: border-box;
 }
 
 .formInput:focus {
-	border-color: var(--input-border-focus);
-	box-shadow: var(--focus-ring);
+  border-color: var(--input-border-focus);
+  box-shadow: var(--focus-ring);
 }
 
 .formSelect {
-	composes: formInput;
-	appearance: none;
-	background-image: var(--icon-chevron-down);
-	background-repeat: no-repeat;
-	background-position: right var(--space-3) center;
-	padding-right: var(--space-8);
+  composes: formInput;
+  appearance: none;
+  background-image: var(--icon-chevron-down);
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  padding-right: var(--space-8);
 }
 
 .formTextarea {
-	width: 100%;
-	padding: var(--space-2) var(--space-3);
-	border: 1px solid var(--input-border);
-	border-radius: var(--radius-md);
-	font-size: var(--text-base);
-	font-family: var(--font-sans);
-	color: var(--color-text);
-	background: var(--input-bg);
-	outline: none;
-	resize: vertical;
-	transition: border-color var(--duration-fast) var(--ease-default);
-	box-sizing: border-box;
-	flex: 1;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--input-bg);
+  outline: none;
+  resize: vertical;
+  transition: border-color var(--duration-fast) var(--ease-default);
+  box-sizing: border-box;
+  flex: 1;
 }
 
 .formTextarea:focus {
-	border-color: var(--input-border-focus);
-	box-shadow: var(--focus-ring);
+  border-color: var(--input-border-focus);
+  box-shadow: var(--focus-ring);
 }
 
 .messageBase {
-	font-size: var(--text-sm);
-	padding: var(--space-3);
-	border-radius: var(--radius-md);
-	margin-bottom: var(--space-4);
-	width: 100%;
-	max-width: var(--content-width);
-	box-sizing: border-box;
+  font-size: var(--text-sm);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+  width: 100%;
+  max-width: var(--content-width);
+  box-sizing: border-box;
 }
 
 .messageError {
-	composes: messageBase;
-	background-color: var(--color-destructive-50);
-	color: var(--color-destructive-700);
+  composes: messageBase;
+  background-color: var(--color-destructive-50);
+  color: var(--color-destructive-700);
 }
 
 .messageSuccess {
-	composes: messageBase;
-	background-color: var(--color-success-50);
-	color: var(--color-success-700);
+  composes: messageBase;
+  background-color: var(--color-success-50);
+  color: var(--color-success-700);
 }
 
 .pairedActions {
-	display: flex;
-	gap: var(--space-2);
-	justify-content: flex-end;
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
 }
 
 .pairedCancel {
-	height: 44px;
-	min-width: 7rem;
-	padding: 0 var(--space-4);
-	border-radius: var(--radius-md);
-	border: var(--glass-border);
-	background: var(--glass-bg);
-	color: var(--color-gray-700);
-	font-size: var(--text-sm);
-	font-weight: var(--font-medium);
-	cursor: pointer;
-	outline: none;
-	transition: background var(--duration-fast) var(--ease-default);
+  height: 44px;
+  min-width: 7rem;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  border: var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--color-gray-700);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  outline: none;
+  transition: background var(--duration-fast) var(--ease-default);
 }
 
 .pairedCancel:hover {
-	background: var(--glass-bg-hover);
+  background: var(--glass-bg-hover);
 }
 
 .pairedCancel:focus-visible {
-	box-shadow: var(--focus-ring);
+  box-shadow: var(--focus-ring);
 }
 
 .pairedSubmit {
-	height: 44px;
-	min-width: 7rem;
-	padding: 0 var(--space-4);
-	border-radius: var(--radius-md);
-	border: none;
-	background-color: var(--color-primary);
-	color: white;
-	font-size: var(--text-sm);
-	font-weight: var(--font-medium);
-	cursor: pointer;
-	outline: none;
-	transition: background-color var(--duration-fast) var(--ease-default);
+  height: 44px;
+  min-width: 7rem;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  border: none;
+  background-color: var(--color-primary);
+  color: white;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  outline: none;
+  transition: background-color var(--duration-fast) var(--ease-default);
 }
 
 .pairedSubmit:hover {
-	background-color: var(--color-primary-700);
+  background-color: var(--color-primary-700);
 }
 
 .pairedSubmit:focus-visible {
-	box-shadow: var(--focus-ring);
+  box-shadow: var(--focus-ring);
 }
 
 .pairedSubmit:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .sectionsGrid2Col {
-	display: flex;
-	flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 @media (min-width: 900px) {
-	.sectionsGrid2Col {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 0 var(--space-6);
-		align-items: start;
-	}
+  .sectionsGrid2Col {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 var(--space-6);
+    align-items: start;
+  }
 }
