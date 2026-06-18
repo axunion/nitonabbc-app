@@ -18,6 +18,7 @@
 - **テキスト**: warm stone palette（メイン `#1c1917`、muted `#78716c`）
 - **セマンティックカラー**: Warm Red (`#c53030`)、Warm Green (`#22863a`)
 - **グレースケール**: warm stone palette (`--color-gray-50: #faf9f7` 〜 `--color-gray-900: #1c1917`)
+- **カード内区切り線**: `--color-border-subtle` (`rgba(0,0,0,0.06)`) — フォームセクション内の繰り返しアイテム間のヘアラインに使用
 
 ### グラスモーフィズム
 

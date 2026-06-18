@@ -48,6 +48,7 @@
   --color-text: var(--color-gray-900);
   --color-text-muted: var(--color-gray-500);
   --color-border: var(--color-gray-200);
+  --color-border-subtle: rgba(0, 0, 0, 0.06);
   --color-primary: var(--color-primary-600);
   --color-destructive: var(--color-destructive-600);
   --color-success: var(--color-success-600);
@@ -63,8 +64,8 @@
   --glass-saturate: saturate(1.5);
 
   /* --- Input --- */
-  --input-bg: rgba(255, 253, 248, 0.65);
-  --input-border: rgba(0, 0, 0, 0.12);
+  --input-bg: rgba(255, 253, 248, 0.35);
+  --input-border: rgba(0, 0, 0, 0.15);
   --input-border-focus: var(--color-primary);
 
   /* --- Mesh Gradient Background (warm stained glass) --- */

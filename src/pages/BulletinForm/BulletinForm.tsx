@@ -5,6 +5,7 @@ import { useLocale } from "@/store/LocaleContext.tsx";
 import { scrollToAnchor } from "@/utils/scroll.ts";
 import styles from "./BulletinForm.module.css";
 import { SectionEditor } from "./components/SectionEditor.tsx";
+import editorStyles from "./editorFields.module.css";
 import { useBulletinForm } from "./hooks/useBulletinForm.ts";
 
 function sectionAnchorId(sectionId: string): string {
@@ -62,14 +63,14 @@ export function BulletinForm() {
               </Show>
 
               <div class={styles.formBody}>
-                <div class={styles.formGroup}>
-                  <label for="service-date" class={styles.label}>
+                <div class={editorStyles.field}>
+                  <label for="service-date" class={editorStyles.fieldLabel}>
                     {t("bulletinForm.serviceDate")}
                   </label>
                   <input
                     id="service-date"
                     type="date"
-                    class={styles.input}
+                    class={editorStyles.input}
                     value={form.serviceDate()}
                     onInput={(e) => form.setServiceDate(e.currentTarget.value)}
                     required
@@ -81,36 +82,42 @@ export function BulletinForm() {
                     {(section) => (
                       <fieldset
                         id={sectionAnchorId(section.id)}
-                        class={styles.fieldset}
+                        class={styles.section}
                       >
-                        <legend class={styles.legend}>{section.label}</legend>
-                        <SectionEditor
-                          section={section}
-                          template={form.template() ?? []}
-                          members={form.members()}
-                          onUpdateDetails={form.updateWorshipDetails}
-                          onUpdateFieldValue={form.updateWorshipFieldValue}
-                          onAddAnnouncement={form.addAnnouncement}
-                          onRemoveAnnouncement={form.removeAnnouncement}
-                          onUpdateAnnouncement={form.updateAnnouncement}
-                          onUpdateAssignment={form.updateAssignment}
-                          onUpdateWeeklyVerse={form.updateWeeklyVerse}
-                          onUpdateMonthlySong={form.updateMonthlySong}
-                          onUpdateTextBlock={form.updateTextBlock}
-                          onUpdateWeeklyPrayer={form.updateWeeklyPrayer}
-                          onAddUpcomingEvent={form.addUpcomingEvent}
-                          onRemoveUpcomingEvent={form.removeUpcomingEvent}
-                          onUpdateUpcomingEvent={form.updateUpcomingEvent}
-                          onAddBirthday={form.addBirthday}
-                          onRemoveBirthday={form.removeBirthday}
-                          onUpdateBirthday={form.updateBirthday}
-                          onAddScriptureQuote={form.addScriptureQuote}
-                          onRemoveScriptureQuote={form.removeScriptureQuote}
-                          onUpdateScriptureQuote={form.updateScriptureQuote}
-                          onUpdateAttendance={form.updateAttendance}
-                          onUpdateServiceMeta={form.updateServiceMeta}
-                          onUpdateFinancialSummary={form.updateFinancialSummary}
-                        />
+                        <legend class={styles.sectionTitle}>
+                          {section.label}
+                        </legend>
+                        <div class={styles.sectionBody}>
+                          <SectionEditor
+                            section={section}
+                            template={form.template() ?? []}
+                            members={form.members()}
+                            onUpdateDetails={form.updateWorshipDetails}
+                            onUpdateFieldValue={form.updateWorshipFieldValue}
+                            onAddAnnouncement={form.addAnnouncement}
+                            onRemoveAnnouncement={form.removeAnnouncement}
+                            onUpdateAnnouncement={form.updateAnnouncement}
+                            onUpdateAssignment={form.updateAssignment}
+                            onUpdateWeeklyVerse={form.updateWeeklyVerse}
+                            onUpdateMonthlySong={form.updateMonthlySong}
+                            onUpdateTextBlock={form.updateTextBlock}
+                            onUpdateWeeklyPrayer={form.updateWeeklyPrayer}
+                            onAddUpcomingEvent={form.addUpcomingEvent}
+                            onRemoveUpcomingEvent={form.removeUpcomingEvent}
+                            onUpdateUpcomingEvent={form.updateUpcomingEvent}
+                            onAddBirthday={form.addBirthday}
+                            onRemoveBirthday={form.removeBirthday}
+                            onUpdateBirthday={form.updateBirthday}
+                            onAddScriptureQuote={form.addScriptureQuote}
+                            onRemoveScriptureQuote={form.removeScriptureQuote}
+                            onUpdateScriptureQuote={form.updateScriptureQuote}
+                            onUpdateAttendance={form.updateAttendance}
+                            onUpdateServiceMeta={form.updateServiceMeta}
+                            onUpdateFinancialSummary={
+                              form.updateFinancialSummary
+                            }
+                          />
+                        </div>
                       </fieldset>
                     )}
                   </For>

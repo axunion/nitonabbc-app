@@ -6,7 +6,7 @@ import type {
   SectionTemplate,
 } from "@/types/bulletin.ts";
 import { filterMembersByRole, findSectionTemplate } from "@/utils/bulletin.ts";
-import styles from "../BulletinForm.module.css";
+import styles from "../editorFields.module.css";
 
 type Props = {
   section: AssignmentsSectionData;

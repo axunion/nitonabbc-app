@@ -5,7 +5,7 @@ import type {
   ScriptureQuote,
   ScriptureQuotesSectionData,
 } from "@/types/bulletin.ts";
-import styles from "../BulletinForm.module.css";
+import styles from "../editorFields.module.css";
 
 type Props = {
   section: ScriptureQuotesSectionData;
@@ -19,17 +19,9 @@ export function ScriptureQuotesEditor(props: Props) {
 
   return (
     <>
-      <button
-        type="button"
-        class={styles.addButton}
-        onClick={() => props.onAdd(props.section.id)}
-      >
-        <Plus size={16} stroke-width={1.5} />
-        {t("bulletinForm.addScriptureQuote")}
-      </button>
       <For each={props.section.data}>
         {(quote, index) => (
-          <div class={styles.repeatItem}>
+          <div class={styles.repeatRow}>
             <div class={styles.field}>
               <input
                 type="text"
@@ -71,6 +63,14 @@ export function ScriptureQuotesEditor(props: Props) {
           </div>
         )}
       </For>
+      <button
+        type="button"
+        class={styles.addButton}
+        onClick={() => props.onAdd(props.section.id)}
+      >
+        <Plus size={16} stroke-width={1.5} />
+        {t("bulletinForm.addScriptureQuote")}
+      </button>
     </>
   );
 }

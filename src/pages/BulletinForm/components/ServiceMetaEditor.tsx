@@ -6,7 +6,7 @@ import type {
   ServiceMetaSectionData,
   ServiceMetaSectionTemplate,
 } from "@/types/bulletin.ts";
-import styles from "../BulletinForm.module.css";
+import styles from "../editorFields.module.css";
 
 type Props = {
   section: ServiceMetaSectionData;

@@ -2,7 +2,7 @@ import { Minus, Plus } from "lucide-solid";
 import { For } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type { Birthday, BirthdaysSectionData } from "@/types/bulletin.ts";
-import styles from "../BulletinForm.module.css";
+import styles from "../editorFields.module.css";
 
 type Props = {
   section: BirthdaysSectionData;
@@ -16,17 +16,9 @@ export function BirthdaysEditor(props: Props) {
 
   return (
     <>
-      <button
-        type="button"
-        class={styles.addButton}
-        onClick={() => props.onAdd(props.section.id)}
-      >
-        <Plus size={16} stroke-width={1.5} />
-        {t("bulletinForm.addBirthday")}
-      </button>
       <For each={props.section.data}>
         {(birthday, index) => (
-          <div class={styles.repeatItem}>
+          <div class={styles.repeatRow}>
             <div class={styles.pairGrid}>
               <input
                 type="text"
@@ -66,6 +58,14 @@ export function BirthdaysEditor(props: Props) {
           </div>
         )}
       </For>
+      <button
+        type="button"
+        class={styles.addButton}
+        onClick={() => props.onAdd(props.section.id)}
+      >
+        <Plus size={16} stroke-width={1.5} />
+        {t("bulletinForm.addBirthday")}
+      </button>
     </>
   );
 }

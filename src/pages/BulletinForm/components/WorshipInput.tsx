@@ -2,7 +2,7 @@ import { createMemo, For, type JSX } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type { Member, TemplateItem, WorshipItem } from "@/types/bulletin.ts";
 import { filterMembersByRole, getTemplateItem } from "@/utils/bulletin.ts";
-import styles from "../BulletinForm.module.css";
+import styles from "../editorFields.module.css";
 
 interface WorshipInputProps {
   item: WorshipItem;
@@ -14,6 +14,7 @@ interface WorshipInputProps {
 }
 
 function MemberSelect(props: {
+  id?: string;
   value: string | undefined;
   members: Member[] | undefined;
   role?: string;
@@ -25,6 +26,7 @@ function MemberSelect(props: {
   );
   return (
     <select
+      id={props.id}
       class={styles.select}
       value={props.value ?? ""}
       onChange={(e) => props.onChange(e.currentTarget.value)}
@@ -49,11 +51,15 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
         <For each={tmpl()?.fields ?? []}>
           {(field) => {
             if (field.inputType === "none") return null;
+            const fieldId = `worship-field-${props.index}-${field.key}`;
             if (field.inputType === "member") {
               return (
                 <div class={styles.field}>
-                  <span class={styles.fieldLabel}>{field.label}</span>
+                  <label for={fieldId} class={styles.fieldCaption}>
+                    {field.label}
+                  </label>
                   <MemberSelect
+                    id={fieldId}
                     value={props.item.fieldValues?.[field.key]}
                     members={props.members}
                     role={field.role}
@@ -66,8 +72,11 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
             }
             return (
               <div class={styles.field}>
-                <span class={styles.fieldLabel}>{field.label}</span>
+                <label for={fieldId} class={styles.fieldCaption}>
+                  {field.label}
+                </label>
                 <input
+                  id={fieldId}
                   type="text"
                   class={styles.input}
                   placeholder={t("bulletinForm.detailsPlaceholder")}

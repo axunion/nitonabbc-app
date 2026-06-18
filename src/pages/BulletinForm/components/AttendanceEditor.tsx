@@ -6,7 +6,7 @@ import type {
   SectionTemplate,
 } from "@/types/bulletin.ts";
 import { findSectionTemplate } from "@/utils/bulletin.ts";
-import styles from "../BulletinForm.module.css";
+import styles from "../editorFields.module.css";
 
 type Props = {
   section: AttendanceSectionData;
@@ -32,8 +32,8 @@ export function AttendanceEditor(props: Props) {
   return (
     <For each={meetings()}>
       {(meeting) => (
-        <div>
-          <p class={styles.sectionLabel}>{meeting.label}</p>
+        <fieldset class={styles.repeatRow}>
+          <legend class={styles.fieldLabel}>{meeting.label}</legend>
           <div class={styles.pairGrid}>
             <input
               type="text"
@@ -66,7 +66,7 @@ export function AttendanceEditor(props: Props) {
               }
             />
           </div>
-        </div>
+        </fieldset>
       )}
     </For>
   );

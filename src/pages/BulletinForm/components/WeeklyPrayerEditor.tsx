@@ -7,8 +7,7 @@ import {
   type WeeklyPrayerSectionData,
 } from "@/types/bulletin.ts";
 import { findSectionTemplate } from "@/utils/bulletin.ts";
-import styles from "../BulletinForm.module.css";
-import prayerStyles from "./WeeklyPrayerEditor.module.css";
+import styles from "../editorFields.module.css";
 
 type Props = {
   section: WeeklyPrayerSectionData;
@@ -51,12 +50,12 @@ export function WeeklyPrayerEditor(props: Props) {
   return (
     <For each={days()}>
       {(day) => (
-        <div class={prayerStyles.daySection}>
-          <div class={prayerStyles.dayHeader}>
+        <div class={styles.repeatRow}>
+          <div class={styles.rowHeader}>
             <span class={styles.fieldLabel}>{day.label}</span>
             <button
               type="button"
-              class={prayerStyles.addItemButton}
+              class={styles.inlineAddButton}
               onClick={() => addItem(day.key)}
             >
               <Plus size={14} stroke-width={1.5} />
@@ -65,7 +64,7 @@ export function WeeklyPrayerEditor(props: Props) {
           </div>
           <For each={getItems(day.key)}>
             {(item, i) => (
-              <div class={prayerStyles.itemRow}>
+              <div class={styles.inlineRow}>
                 <input
                   type="text"
                   class={styles.input}
@@ -77,7 +76,7 @@ export function WeeklyPrayerEditor(props: Props) {
                 />
                 <button
                   type="button"
-                  class={prayerStyles.removeItemButton}
+                  class={styles.iconButton}
                   onClick={() => removeItem(day.key, i())}
                 >
                   <Minus size={14} stroke-width={1.5} />

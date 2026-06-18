@@ -7,214 +7,29 @@
   width: 100%;
 }
 
-.formGroup {
-  margin-bottom: var(--space-4);
-}
-
-.label {
-  display: block;
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  color: var(--color-gray-700);
-  margin-bottom: var(--space-1);
-}
-
-.input {
-  composes: formInput from "../../styles/shared.module.css";
-}
-
-/* Flex-child input: grows within flex/grid containers, full 44px touch height */
-.inputSmall {
-  composes: formInput from "../../styles/shared.module.css";
-  flex: 1;
-  min-width: 0;
-  width: auto;
-}
-
-.select {
-  composes: formSelect from "../../styles/shared.module.css";
-}
-
-.textarea {
-  composes: formTextarea from "../../styles/shared.module.css";
-}
-
-.fieldset {
+.section {
   border: none;
   padding: 0;
-  margin: 0 0 var(--space-6) 0;
+  margin: 0 0 var(--space-4) 0;
+  min-inline-size: 0;
 }
 
-.legend {
-  font-size: var(--text-base);
+.sectionTitle {
+  font-size: var(--text-sm);
   font-weight: var(--font-semibold);
-  color: var(--color-gray-800);
-  margin-bottom: var(--space-3);
-  padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--color-gray-200);
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-/* Label-above, full-width control block — the standard mobile field pattern */
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  margin-bottom: var(--space-3);
-}
-
-/* Small gray caption label above a field control */
-.fieldLabel {
-  font-size: var(--text-xs);
-  color: var(--color-gray-500);
-}
-
-/* Section-level label (e.g., meeting name, assignment role, day of week) */
-.sectionLabel {
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  color: var(--color-gray-700);
-  margin-bottom: var(--space-2);
-}
-
-/* 2-column grid for short paired inputs (adults/children, amount/note) */
-.pairGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-2);
-  margin-bottom: var(--space-3);
-}
-
-/* Glass card for one list item (event, birthday, quote, announcement) */
-.repeatItem {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur) var(--glass-saturate);
-  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-  border: var(--glass-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-3);
-  margin-bottom: var(--space-3);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-/* Inside repeatItem, the gap handles spacing — disable individual margins */
-.repeatItem .field,
-.repeatItem .pairGrid {
-  margin-bottom: 0;
-}
-
-/* Delete action row at the bottom of a repeatItem */
-.repeatItemActions {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: var(--space-2);
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-/* Full-width dashed add-item button */
-.addButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-1);
-  width: 100%;
-  height: 44px;
-  border-radius: var(--radius-md);
-  border: 1px dashed var(--input-border);
-  background: var(--glass-bg);
   color: var(--color-gray-600);
-  font-size: var(--text-sm);
-  cursor: pointer;
-  outline: none;
-  margin-bottom: var(--space-3);
-  transition:
-    background var(--duration-fast) var(--ease-default),
-    border-color var(--duration-fast) var(--ease-default),
-    color var(--duration-fast) var(--ease-default);
+  margin: 0 0 var(--space-2) var(--space-1);
+  padding: 0;
 }
 
-.addButton:hover {
-  background: var(--glass-bg-hover);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-.addButton:focus-visible {
-  box-shadow: var(--focus-ring);
-}
-
-/* Delete button inside a repeatItem action row */
-.removeButton {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  height: 36px;
-  padding: 0 var(--space-3);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-destructive-100);
-  background: transparent;
-  color: var(--color-destructive);
-  font-size: var(--text-xs);
-  cursor: pointer;
-  outline: none;
-  transition: background var(--duration-fast) var(--ease-default);
-}
-
-.removeButton:hover {
-  background-color: var(--color-destructive-50);
-}
-
-.removeButton:focus-visible {
-  box-shadow: var(--focus-ring);
-}
-
-/* Worship program card */
-.worshipCard {
+.sectionBody {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur) var(--glass-saturate);
   -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
   border: var(--glass-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-3);
-  margin-bottom: var(--space-3);
-  transition: border-color var(--duration-fast) var(--ease-default);
-}
-
-.highlighted {
-  border-color: var(--color-primary-300);
-  background: rgba(var(--color-primary-rgb, 59, 130, 246), 0.04);
-}
-
-/* Item name label inside a worship card */
-.worshipLabel {
-  display: block;
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  color: var(--color-gray-700);
-  margin: 0 0 var(--space-2) 0;
-}
-
-/* Assignee select in worship cards — full-width, 44px touch target */
-.assigneeSelect {
-  composes: formSelect from "../../styles/shared.module.css";
-  margin-bottom: var(--space-2);
-}
-
-/* Multi-field group within a worship item (compounds) */
-.compoundFields {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-/* Inside compoundFields, gap handles spacing — no extra margins */
-.compoundFields .field {
-  margin-bottom: 0;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow-sm);
+  padding: var(--space-4);
 }
 
 .stickyBar {
@@ -269,8 +84,6 @@
   composes: loadingText from "../../styles/shared.module.css";
 }
 
-/* --- TOC + form layout (PC: sticky sidebar TOC left, form body right) --- */
-
 .layoutGrid {
   display: flex;
   flex-direction: column;
@@ -316,6 +129,11 @@
   box-shadow: var(--focus-ring);
 }
 
+.sectionsGrid {
+  display: flex;
+  flex-direction: column;
+}
+
 @media (min-width: 900px) {
   .form {
     --toc-width: 180px;
@@ -349,7 +167,7 @@
     flex-shrink: 0;
   }
 
-  .fieldset {
+  .section {
     scroll-margin-top: var(--space-12);
   }
 
@@ -361,11 +179,4 @@
     max-width: var(--layout-max-width);
     margin: 0 auto;
   }
-}
-
-/* --- Sections list (single column, all viewport widths) --- */
-
-.sectionsGrid {
-  display: flex;
-  flex-direction: column;
 }

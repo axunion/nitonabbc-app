@@ -8,3 +8,8 @@ pre-commit:
     - name: typecheck
       glob: "*.{ts,tsx}"
       run: pnpm tsc -b --noEmit
+
+pre-push:
+  jobs:
+    - name: test
+      run: pnpm test

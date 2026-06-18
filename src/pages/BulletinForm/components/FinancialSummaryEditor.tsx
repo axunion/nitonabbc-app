@@ -6,7 +6,7 @@ import type {
   SectionTemplate,
 } from "@/types/bulletin.ts";
 import { findSectionTemplate } from "@/utils/bulletin.ts";
-import styles from "../BulletinForm.module.css";
+import styles from "../editorFields.module.css";
 
 type Props = {
   section: FinancialSummarySectionData;
@@ -32,11 +32,11 @@ export function FinancialSummaryEditor(props: Props) {
   return (
     <For each={items()}>
       {(item) => (
-        <div>
-          <p class={styles.sectionLabel}>
+        <div class={styles.field}>
+          <span class={styles.fieldLabel}>
             {item.label}
             {item.unit ? `（${item.unit}）` : ""}
-          </p>
+          </span>
           <div class={styles.pairGrid}>
             <input
               type="text"

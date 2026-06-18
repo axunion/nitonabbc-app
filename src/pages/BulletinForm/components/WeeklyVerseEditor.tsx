@@ -1,6 +1,6 @@
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type { WeeklyVerseSectionData } from "@/types/bulletin.ts";
-import styles from "../BulletinForm.module.css";
+import styles from "../editorFields.module.css";
 
 type Props = {
   section: WeeklyVerseSectionData;
@@ -12,7 +12,7 @@ export function WeeklyVerseEditor(props: Props) {
 
   return (
     <>
-      <div class={styles.formGroup}>
+      <div class={styles.field}>
         <input
           type="text"
           class={styles.input}

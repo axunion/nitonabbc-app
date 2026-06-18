@@ -5,7 +5,7 @@ import type {
   WorshipProgramSectionData,
 } from "@/types/bulletin.ts";
 import { findSectionTemplate } from "@/utils/bulletin.ts";
-import styles from "../BulletinForm.module.css";
+import styles from "../editorFields.module.css";
 import { WorshipInput } from "./WorshipInput.tsx";
 
 type Props = {
@@ -30,8 +30,8 @@ export function WorshipProgramEditor(props: Props) {
   return (
     <For each={props.section.data}>
       {(item, index) => (
-        <div class={styles.worshipCard}>
-          <span class={styles.worshipLabel}>{item.label}</span>
+        <fieldset class={styles.repeatRow}>
+          <legend class={styles.fieldLabel}>{item.label}</legend>
           <WorshipInput
             item={item}
             index={index()}
@@ -44,7 +44,7 @@ export function WorshipProgramEditor(props: Props) {
               props.onUpdateFieldValue(props.section.id, i, k, v)
             }
           />
-        </div>
+        </fieldset>
       )}
     </For>
   );

@@ -1,0 +1,205 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.fieldLabel {
+  composes: fieldLabel from "../../styles/shared.module.css";
+}
+
+.fieldCaption {
+  composes: fieldCaption from "../../styles/shared.module.css";
+}
+
+.input {
+  composes: formInput from "../../styles/shared.module.css";
+}
+
+/* flex: 1 + min-width: 0 lets this input grow/shrink in flex/grid parents */
+.inputSmall {
+  composes: formInput from "../../styles/shared.module.css";
+  flex: 1;
+  min-width: 0;
+  width: auto;
+}
+
+.select {
+  composes: formSelect from "../../styles/shared.module.css";
+}
+
+.textarea {
+  composes: formTextarea from "../../styles/shared.module.css";
+}
+
+.pairGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+/* gap handles spacing — margin-bottom would double-space */
+.field .pairGrid {
+  margin-bottom: 0;
+}
+
+.repeatRow {
+  border: none;
+  padding: 0;
+  min-inline-size: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* hairline divider replaces per-item card nesting */
+.repeatRow + .repeatRow {
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+/* gap handles spacing inside a row */
+.repeatRow .field,
+.repeatRow .pairGrid {
+  margin-bottom: 0;
+}
+
+.repeatItemActions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.rowHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.inlineRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.compoundFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* gap handles spacing inside compound fields */
+.compoundFields .field {
+  margin-bottom: 0;
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  width: 100%;
+  height: 44px;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--input-border);
+  background: transparent;
+  color: var(--color-gray-500);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  outline: none;
+  margin-top: var(--space-3);
+  transition:
+    background var(--duration-fast) var(--ease-default),
+    border-color var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default);
+}
+
+.addButton:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.addButton:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.removeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 36px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-destructive-100);
+  background: transparent;
+  color: var(--color-destructive);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  outline: none;
+  transition: background var(--duration-fast) var(--ease-default);
+}
+
+.removeButton:hover {
+  background-color: var(--color-destructive-50);
+}
+
+.removeButton:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.inlineAddButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  border: var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--color-gray-700);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  outline: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background var(--duration-fast) var(--ease-default);
+}
+
+.inlineAddButton:hover {
+  background: var(--glass-bg-hover);
+}
+
+.inlineAddButton:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: transparent;
+  color: var(--color-gray-400);
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  flex-shrink: 0;
+  transition: color var(--duration-fast) var(--ease-default);
+}
+
+.iconButton:hover {
+  color: var(--color-destructive);
+}
+
+.iconButton:focus-visible {
+  box-shadow: var(--focus-ring);
+}
