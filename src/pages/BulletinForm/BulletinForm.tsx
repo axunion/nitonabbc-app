@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "@solidjs/router";
-import { For, Show } from "solid-js";
+import { createSignal, For, onCleanup, Show } from "solid-js";
 import { Header } from "@/components/Header";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import { scrollToAnchor } from "@/utils/scroll.ts";
@@ -16,7 +16,11 @@ export function BulletinForm() {
   const navigate = useNavigate();
   const { t } = useLocale();
   const isEdit = () => !!params.id;
-  const isDesktop = window.matchMedia("(min-width: 900px)").matches;
+  const mq = window.matchMedia("(min-width: 900px)");
+  const [isDesktop, setIsDesktop] = createSignal(mq.matches);
+  const onMqChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+  mq.addEventListener("change", onMqChange);
+  onCleanup(() => mq.removeEventListener("change", onMqChange));
 
   const form = useBulletinForm();
 
@@ -39,7 +43,7 @@ export function BulletinForm() {
 
           <form onSubmit={form.handleSubmit} class={styles.form}>
             <div class={styles.layoutGrid}>
-              <Show when={isDesktop}>
+              <Show when={isDesktop()}>
                 <nav class={styles.toc} aria-label={t("bulletinForm.tocLabel")}>
                   <For each={form.sections()}>
                     {(section) => (
@@ -114,33 +118,41 @@ export function BulletinForm() {
               </div>
             </div>
 
-            <div class={styles.actions}>
-              <button
-                type="button"
-                class={styles.cancelButton}
-                onClick={() =>
-                  navigate(isEdit() ? `/bulletin/${params.id}` : "/bulletin")
-                }
-              >
-                {t("common.cancel")}
-              </button>
-              <button
-                type="submit"
-                class={styles.submitButton}
-                disabled={
-                  form.submitting() ||
-                  !form.serviceDate() ||
-                  (!isEdit() && !form.hasContent())
-                }
-              >
-                {isEdit() ? t("common.update") : t("common.create")}
-              </button>
+            <div class={styles.stickyBar}>
+              <div class={styles.stickyBarInner}>
+                <Show
+                  when={!isEdit() && form.serviceDate() && !form.hasContent()}
+                >
+                  <p class={styles.validationHint}>
+                    {t("bulletinForm.fillAtLeastOne")}
+                  </p>
+                </Show>
+                <div class={styles.actions}>
+                  <button
+                    type="button"
+                    class={styles.cancelButton}
+                    onClick={() =>
+                      navigate(
+                        isEdit() ? `/bulletin/${params.id}` : "/bulletin",
+                      )
+                    }
+                  >
+                    {t("common.cancel")}
+                  </button>
+                  <button
+                    type="submit"
+                    class={styles.submitButton}
+                    disabled={
+                      form.submitting() ||
+                      !form.serviceDate() ||
+                      (!isEdit() && !form.hasContent())
+                    }
+                  >
+                    {isEdit() ? t("common.update") : t("common.create")}
+                  </button>
+                </div>
+              </div>
             </div>
-            <Show when={!isEdit() && form.serviceDate() && !form.hasContent()}>
-              <p class={styles.validationHint}>
-                {t("bulletinForm.fillAtLeastOne")}
-              </p>
-            </Show>
           </form>
         </Show>
       </div>

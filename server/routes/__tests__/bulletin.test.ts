@@ -513,13 +513,32 @@ describe("POST /api/bulletin/generate — section data shapes", () => {
 
 // --- Progress counting ---
 
+async function seedBulletinWithTemplate(
+  template: unknown[],
+  sections: unknown[],
+  serviceDate = "2025-01-05",
+) {
+  const { user, env } = await seedMemberAndEnv();
+  await db.insert(schema.settings).values({
+    key: "bulletin_template",
+    value: JSON.stringify(template),
+  });
+  const [bulletin] = await db
+    .insert(schema.bulletins)
+    .values({
+      serviceDate,
+      sections: sections as never,
+      createdBy: user.id,
+      updatedBy: user.id,
+    })
+    .returning();
+  return { bulletin, env };
+}
+
 describe("countProgress via GET /api/bulletin/:id", () => {
   it("counts worship progress correctly", async () => {
-    const { user, env } = await seedMemberAndEnv();
-    // Set up template with worship-program
-    await db.insert(schema.settings).values({
-      key: "bulletin_template",
-      value: JSON.stringify([
+    const { bulletin, env } = await seedBulletinWithTemplate(
+      [
         {
           id: "worship",
           type: "worship-program",
@@ -532,28 +551,19 @@ describe("countProgress via GET /api/bulletin/:id", () => {
             ],
           },
         },
-      ]),
-    });
-    const sections = [
-      {
-        id: "worship",
-        type: "worship-program",
-        label: "礼拝",
-        data: [
-          { type: "hymn", label: "賛美歌", details: "312番" }, // filled
-          { type: "prayer", label: "祈り", details: "" }, // empty
-        ],
-      },
-    ];
-    const [bulletin] = await db
-      .insert(schema.bulletins)
-      .values({
-        serviceDate: "2025-01-05",
-        sections: sections as never,
-        createdBy: user.id,
-        updatedBy: user.id,
-      })
-      .returning();
+      ],
+      [
+        {
+          id: "worship",
+          type: "worship-program",
+          label: "礼拝",
+          data: [
+            { type: "hymn", label: "賛美歌", details: "312番" }, // filled
+            { type: "prayer", label: "祈り", details: "" }, // empty
+          ],
+        },
+      ],
+    );
 
     const res = await testApp.request(
       `http://localhost/api/bulletin/${bulletin.id}`,
@@ -566,11 +576,47 @@ describe("countProgress via GET /api/bulletin/:id", () => {
     expect((json as { filledItems: number }).filledItems).toBe(1);
   });
 
+  it("skips worship items whose type is not in the current template", async () => {
+    const { bulletin, env } = await seedBulletinWithTemplate(
+      [
+        {
+          id: "worship",
+          type: "worship-program",
+          label: "礼拝",
+          visible: true,
+          config: {
+            items: [{ type: "hymn", label: "賛美歌", inputType: "text" }],
+          },
+        },
+      ],
+      // Stored data has "doxology" which is no longer in the template
+      [
+        {
+          id: "worship",
+          type: "worship-program",
+          label: "礼拝",
+          data: [
+            { type: "hymn", label: "賛美歌", details: "312番" },
+            { type: "doxology", label: "頌栄", details: "" },
+          ],
+        },
+      ],
+    );
+
+    const res = await testApp.request(
+      `http://localhost/api/bulletin/${bulletin.id}`,
+      { headers: memberHeaders },
+      env,
+    );
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect((json as { totalItems: number }).totalItems).toBe(1);
+    expect((json as { filledItems: number }).filledItems).toBe(1);
+  });
+
   it("counts weekly-prayer progress with string[] data", async () => {
-    const { user, env } = await seedMemberAndEnv();
-    await db.insert(schema.settings).values({
-      key: "bulletin_template",
-      value: JSON.stringify([
+    const { bulletin, env } = await seedBulletinWithTemplate(
+      [
         {
           id: "prayer",
           type: "weekly-prayer",
@@ -583,25 +629,17 @@ describe("countProgress via GET /api/bulletin/:id", () => {
             ],
           },
         },
-      ]),
-    });
-    const sections = [
-      {
-        id: "prayer",
-        type: "weekly-prayer",
-        label: "祈り",
-        data: { 日: ["牧師の働き", "別の課題"], 月: [] },
-      },
-    ];
-    const [bulletin] = await db
-      .insert(schema.bulletins)
-      .values({
-        serviceDate: "2025-02-02",
-        sections: sections as never,
-        createdBy: user.id,
-        updatedBy: user.id,
-      })
-      .returning();
+      ],
+      [
+        {
+          id: "prayer",
+          type: "weekly-prayer",
+          label: "祈り",
+          data: { 日: ["牧師の働き", "別の課題"], 月: [] },
+        },
+      ],
+      "2025-02-02",
+    );
 
     const res = await testApp.request(
       `http://localhost/api/bulletin/${bulletin.id}`,

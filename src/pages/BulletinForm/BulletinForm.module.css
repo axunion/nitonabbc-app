@@ -1,18 +1,10 @@
 .container {
   composes: pageContainer from "../../styles/shared.module.css";
+  --container-padding: var(--space-4);
 }
 
 .form {
   width: 100%;
-  max-width: var(--content-width);
-}
-
-@media (min-width: 900px) {
-  .form {
-    --toc-width: 180px;
-    --form-body-max: 640px;
-    max-width: calc(var(--toc-width) + var(--space-6) + var(--form-body-max));
-  }
 }
 
 .formGroup {
@@ -225,10 +217,33 @@
   margin-bottom: 0;
 }
 
+.stickyBar {
+  position: sticky;
+  bottom: 0;
+  width: calc(100% + 2 * var(--container-padding));
+  margin-left: calc(-1 * var(--container-padding));
+  padding-top: var(--space-3);
+  padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+  margin-top: var(--space-4);
+  background: var(--glass-bg-chrome);
+  backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
+  border-top: var(--glass-border);
+  z-index: var(--z-sticky);
+}
+
+.stickyBarInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
 .actions {
   composes: pairedActions from "../../styles/shared.module.css";
-  margin-top: var(--space-4);
-  padding-bottom: var(--space-8);
+  margin-left: auto;
 }
 
 .cancelButton {
@@ -246,8 +261,7 @@
 .validationHint {
   font-size: var(--text-xs);
   color: var(--color-gray-400);
-  text-align: center;
-  margin-top: var(--space-2);
+  margin: 0;
   letter-spacing: var(--tracking-wide);
 }
 
@@ -261,6 +275,8 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  max-width: var(--content-width);
+  margin: 0 auto;
 }
 
 .formBody {
@@ -301,7 +317,19 @@
 }
 
 @media (min-width: 900px) {
+  .form {
+    --toc-width: 180px;
+    --form-body-max: 640px;
+    --layout-max-width: calc(
+      var(--toc-width) +
+      var(--space-6) +
+      var(--form-body-max)
+    );
+  }
+
   .layoutGrid {
+    max-width: var(--layout-max-width);
+    margin: 0 auto;
     flex-direction: row;
     align-items: flex-start;
     gap: var(--space-6);
@@ -323,6 +351,15 @@
 
   .fieldset {
     scroll-margin-top: var(--space-12);
+  }
+
+  .stickyBar {
+    padding-bottom: var(--space-3);
+  }
+
+  .stickyBarInner {
+    max-width: var(--layout-max-width);
+    margin: 0 auto;
   }
 }
 

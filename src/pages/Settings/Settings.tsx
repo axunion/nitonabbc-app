@@ -54,16 +54,6 @@ export function Settings() {
             <div class={styles.userOrnament} />
           </div>
 
-          <Show when={user().role === "admin"}>
-            <div class={styles.menuList}>
-              <A href="/admin" class={styles.menuItem}>
-                <LayoutDashboard size={20} stroke-width={1.5} />
-                <span>{t("admin.title")}</span>
-                <ChevronRight size={16} class={styles.chevron} />
-              </A>
-            </div>
-          </Show>
-
           <div class={styles.menuList}>
             <label class={styles.menuRow}>
               <Languages size={20} stroke-width={1.5} />
@@ -78,6 +68,16 @@ export function Settings() {
               </select>
             </label>
           </div>
+
+          <Show when={user().role === "admin"}>
+            <div class={styles.menuList}>
+              <A href="/admin" class={styles.menuItem}>
+                <LayoutDashboard size={20} stroke-width={1.5} />
+                <span>{t("admin.title")}</span>
+                <ChevronRight size={16} class={styles.chevron} />
+              </A>
+            </div>
+          </Show>
 
           <Show when={!installed() && (isIos() || installPrompt() !== null)}>
             <div class={styles.menuList}>

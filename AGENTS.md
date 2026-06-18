@@ -107,7 +107,7 @@ KV / D1 bindings are isolated per environment. LINE Login callback URLs must be 
 - Extract a helper only when used in 3+ places; otherwise inline it.
 - One concern per file; split when a file exceeds ~300 lines.
 - Delete dead code; never comment it out.
-- Biome default settings for lint/format (no custom config file)
+- Biome config in `biome.json` (indentStyle:space, quoteStyle:double, VCS integration, organizeImports)
 
 ## Testing
 

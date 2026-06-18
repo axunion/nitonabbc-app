@@ -16,8 +16,7 @@ const MORNING_WORSHIP_ITEMS: TemplateItem[] = [
   },
   { type: "offering", label: "献金", inputType: "none" },
   { type: "hymn2", label: "賛美歌", inputType: "text" },
-  { type: "doxology", label: "頌栄", inputType: "none" },
-  { type: "benediction", label: "祝祷", inputType: "none" },
+  { type: "closing-prayer", label: "閉会の祈り", inputType: "member" },
 ];
 
 const AFTERNOON_WORSHIP_ITEMS: TemplateItem[] = [
@@ -34,7 +33,7 @@ const AFTERNOON_WORSHIP_ITEMS: TemplateItem[] = [
     ],
   },
   { type: "hymn2", label: "賛美歌", inputType: "text" },
-  { type: "benediction", label: "祝祷", inputType: "none" },
+  { type: "closing-prayer", label: "閉会の祈り", inputType: "member" },
 ];
 
 // Fixed section structure matching the church's standard bulletin.

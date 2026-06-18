@@ -17,8 +17,9 @@ function countWorshipProgress(data: WorshipItemData[], items: TemplateItem[]) {
   let filled = 0;
   for (const item of data) {
     const tmpl = items.find((t) => t.type === item.type);
-    const inputType = tmpl?.inputType ?? "text";
-    if (tmpl?.fields && tmpl.fields.length > 0) {
+    if (!tmpl) continue;
+    const inputType = tmpl.inputType ?? "text";
+    if (tmpl.fields && tmpl.fields.length > 0) {
       for (const field of tmpl.fields) {
         if (field.inputType === "none") continue;
         total++;
