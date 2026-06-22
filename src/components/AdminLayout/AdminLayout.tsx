@@ -1,5 +1,5 @@
 import { A, Navigate, type RouteSectionProps } from "@solidjs/router";
-import { ArrowLeft, FileText, LogOut, Users } from "lucide-solid";
+import { ArrowLeft, FileText, Users } from "lucide-solid";
 import { createSignal, Show, Suspense } from "solid-js";
 import { useAuth } from "@/store/AuthContext.tsx";
 import { useLocale } from "@/store/LocaleContext.tsx";
@@ -9,7 +9,7 @@ const ICON_SIZE = 20;
 const ICON_STROKE = 1.5;
 
 export function AdminLayout(props: RouteSectionProps) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { t } = useLocale();
   const [scrolled, setScrolled] = createSignal(false);
 
@@ -26,28 +26,26 @@ export function AdminLayout(props: RouteSectionProps) {
               href="/admin/members"
               class={styles.navLink}
               activeClass={styles.navLinkActive}
+              aria-label={t("admin.members")}
             >
               <Users size={ICON_SIZE} stroke-width={ICON_STROKE} />
-              {t("admin.members")}
+              <span class={styles.navText}>{t("admin.members")}</span>
             </A>
             <A
               href="/admin/bulletin-template"
               class={styles.navLink}
               activeClass={styles.navLinkActive}
+              aria-label={t("admin.bulletinTemplate")}
             >
               <FileText size={ICON_SIZE} stroke-width={ICON_STROKE} />
-              {t("admin.bulletinTemplate")}
+              <span class={styles.navText}>{t("admin.bulletinTemplate")}</span>
             </A>
           </nav>
           <div class={styles.sidebarFooter}>
-            <A href="/" class={styles.footerLink}>
+            <A href="/" class={styles.footerLink} aria-label={t("admin.back")}>
               <ArrowLeft size={ICON_SIZE} stroke-width={ICON_STROKE} />
-              {t("admin.backToApp")}
+              <span class={styles.navText}>{t("admin.back")}</span>
             </A>
-            <button type="button" class={styles.logoutButton} onClick={logout}>
-              <LogOut size={ICON_SIZE} stroke-width={ICON_STROKE} />
-              {t("admin.logout")}
-            </button>
           </div>
         </aside>
         <div class={styles.mainArea}>

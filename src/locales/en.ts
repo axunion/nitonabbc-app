@@ -30,8 +30,7 @@ export const en: Dictionary = {
     title: "Admin",
     members: "Members",
     bulletinTemplate: "Bulletin Template",
-    logout: "Log out",
-    backToApp: "Back to app",
+    back: "Back",
   },
   settings: {
     title: "Settings",

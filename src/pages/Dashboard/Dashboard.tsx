@@ -10,6 +10,7 @@ import { Header } from "@/components/Header";
 import { IframeViewer } from "@/components/IframeViewer";
 import { FILE_BROWSER_URL, RECEIPT_SNAP_URL } from "@/config/iframes.ts";
 import { useLocale } from "@/store/LocaleContext.tsx";
+import { isDesktop } from "@/utils/platform.ts";
 import styles from "./Dashboard.module.css";
 
 export function Dashboard() {
@@ -36,7 +37,11 @@ export function Dashboard() {
           <button
             type="button"
             class={styles.widget}
-            onClick={() => setIframeOpen(true)}
+            onClick={() => {
+              if (isDesktop())
+                window.open(RECEIPT_SNAP_URL, "_blank", "noopener,noreferrer");
+              else setIframeOpen(true);
+            }}
           >
             <span class={styles.widgetIcon}>
               <ReceiptText size={24} stroke-width={1.5} />
@@ -53,7 +58,11 @@ export function Dashboard() {
           <button
             type="button"
             class={styles.widget}
-            onClick={() => setFileBrowserOpen(true)}
+            onClick={() => {
+              if (isDesktop())
+                window.open(FILE_BROWSER_URL, "_blank", "noopener,noreferrer");
+              else setFileBrowserOpen(true);
+            }}
           >
             <span class={styles.widgetIcon}>
               <FolderOpen size={24} stroke-width={1.5} />

@@ -28,8 +28,7 @@ export const ja = {
     title: "管理画面",
     members: "メンバー管理",
     bulletinTemplate: "週報テンプレート",
-    logout: "ログアウト",
-    backToApp: "アプリに戻る",
+    back: "戻る",
   },
   settings: {
     title: "設定",

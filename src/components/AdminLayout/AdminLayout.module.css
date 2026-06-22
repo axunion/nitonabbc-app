@@ -93,15 +93,6 @@
   composes: navLink;
 }
 
-.logoutButton {
-  composes: navLink;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-family: inherit;
-  text-align: left;
-}
-
 .mainArea {
   flex: 1;
   min-width: 0;
@@ -167,11 +158,17 @@
 
   .nav {
     flex-direction: row;
+    margin-left: auto;
   }
 
   .sidebarFooter {
+    order: -1;
     flex-direction: row;
     border-top: none;
     padding-top: 0;
+  }
+
+  .navText {
+    display: none;
   }
 }

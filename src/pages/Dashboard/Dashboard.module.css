@@ -82,13 +82,3 @@
   color: var(--color-text-tertiary);
   flex-shrink: 0;
 }
-
-@media (min-width: 900px) {
-  .grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .widgetPrimary {
-    grid-column: span 2;
-  }
-}

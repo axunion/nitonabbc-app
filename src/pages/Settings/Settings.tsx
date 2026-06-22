@@ -70,7 +70,7 @@ export function Settings() {
           </div>
 
           <Show when={user().role === "admin"}>
-            <div class={styles.menuList}>
+            <div class={`${styles.menuList} ${styles.adminMenuList}`}>
               <A href="/admin" class={styles.menuItem}>
                 <LayoutDashboard size={20} stroke-width={1.5} />
                 <span>{t("admin.title")}</span>

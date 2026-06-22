@@ -1,6 +1,7 @@
-import { useLocation, useNavigate } from "@solidjs/router";
-import { Church, Settings } from "lucide-solid";
-import { createEffect, createSignal } from "solid-js";
+import { A, useLocation, useNavigate } from "@solidjs/router";
+import { Church, LayoutDashboard, Settings } from "lucide-solid";
+import { createEffect, createMemo, createSignal, Show } from "solid-js";
+import { useAuth } from "@/store/AuthContext.tsx";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import styles from "./TabBar.module.css";
 
@@ -23,6 +24,8 @@ export function TabBar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useLocale();
+  const { user } = useAuth();
+  const currentTab = createMemo(() => getTabForPath(location.pathname));
 
   createEffect(() => {
     const path = location.pathname;
@@ -31,8 +34,7 @@ export function TabBar() {
   });
 
   function handleTabClick(tab: Tab, rootPath: string) {
-    const currentTab = getTabForPath(location.pathname);
-    if (currentTab !== tab) {
+    if (currentTab() !== tab) {
       navigate(tabMemory()[tab]);
     } else {
       navigate(rootPath);
@@ -40,15 +42,21 @@ export function TabBar() {
   }
 
   function isActive(tab: Tab) {
-    return getTabForPath(location.pathname) === tab;
+    return currentTab() === tab;
   }
+
+  const activeIndex = () => (currentTab() === "settings" ? 1 : 0);
 
   return (
     <nav class={styles.tabBar} aria-label={t("common.churchName")}>
       <div class={styles.brand}>
         <span class={styles.brandName}>{t("common.churchName")}</span>
       </div>
-      <div class={styles.nav}>
+      <div
+        class={styles.nav}
+        style={{ "--active-index": String(activeIndex()) }}
+      >
+        <div class={styles.indicator} aria-hidden="true" />
         <button
           type="button"
           class={styles.tab}
@@ -68,6 +76,14 @@ export function TabBar() {
           <span class={styles.label}>{t("tabbar.settings")}</span>
         </button>
       </div>
+      <Show when={user().role === "admin"}>
+        <div class={styles.sidebarFooter}>
+          <A href="/admin" class={styles.footerLink}>
+            <LayoutDashboard size={ICON_SIZE} stroke-width={ICON_STROKE} />
+            <span class={styles.label}>{t("admin.title")}</span>
+          </A>
+        </div>
+      </Show>
     </nav>
   );
 }

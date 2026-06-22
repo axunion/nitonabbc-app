@@ -51,6 +51,13 @@
   margin-top: var(--space-4);
 }
 
+/* Admin link moved to PC sidebar — hide on desktop */
+@media (min-width: 900px) {
+  .adminMenuList {
+    display: none;
+  }
+}
+
 .menuItem {
   display: flex;
   align-items: center;
