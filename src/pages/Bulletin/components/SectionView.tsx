@@ -16,6 +16,7 @@ import type {
   WeeklyVerseSectionData,
   WorshipProgramSectionData,
 } from "@/types/bulletin.ts";
+import { findSectionTemplate } from "@/utils/bulletin.ts";
 import { AnnouncementsView } from "./AnnouncementsView.tsx";
 import { AssignmentsView } from "./AssignmentsView.tsx";
 import { AttendanceView } from "./AttendanceView.tsx";
@@ -74,9 +75,7 @@ export function SectionView(props: Props) {
   }
   if (props.section.type === "weekly-prayer") {
     const section = props.section as WeeklyPrayerSectionData;
-    const tmpl = props.template.find(
-      (t) => t.id === section.id && t.type === "weekly-prayer",
-    );
+    const tmpl = findSectionTemplate(props.template, section.id);
     const templateDays =
       tmpl?.type === "weekly-prayer" && tmpl.config.days.length > 0
         ? tmpl.config.days

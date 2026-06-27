@@ -1,7 +1,7 @@
 import { For, Show } from "solid-js";
 import type { AssignmentsSectionData, Member } from "@/types/bulletin.ts";
 import { getMemberName } from "@/utils/bulletin.ts";
-import styles from "../BulletinDetail.module.css";
+import styles from "../Bulletin.module.css";
 
 type Props = {
   section: AssignmentsSectionData;
@@ -18,16 +18,18 @@ export function AssignmentsView(props: Props) {
     <Show when={entries().length > 0}>
       <section class={styles.section}>
         <h2 class={styles.sectionTitle}>{props.section.label}</h2>
-        <dl class={styles.assignmentList}>
-          <For each={entries()}>
-            {([role, value]) => (
-              <>
-                <dt class={styles.assignmentRole}>{role}</dt>
-                <dd class={styles.assignmentPerson}>{resolveName(value)}</dd>
-              </>
-            )}
-          </For>
-        </dl>
+        <div class={styles.sectionBody}>
+          <dl class={styles.assignmentList}>
+            <For each={entries()}>
+              {([role, value]) => (
+                <>
+                  <dt class={styles.assignmentRole}>{role}</dt>
+                  <dd class={styles.assignmentPerson}>{resolveName(value)}</dd>
+                </>
+              )}
+            </For>
+          </dl>
+        </div>
       </section>
     </Show>
   );

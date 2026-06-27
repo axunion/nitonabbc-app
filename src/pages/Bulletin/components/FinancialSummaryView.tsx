@@ -5,7 +5,7 @@ import type {
   SectionTemplate,
 } from "@/types/bulletin.ts";
 import { findSectionTemplate } from "@/utils/bulletin.ts";
-import styles from "../BulletinDetail.module.css";
+import styles from "../Bulletin.module.css";
 
 type Props = {
   section: FinancialSummarySectionData;
@@ -30,29 +30,31 @@ export function FinancialSummaryView(props: Props) {
     <Show when={visibleItems().length > 0}>
       <section class={styles.section}>
         <h2 class={styles.sectionTitle}>{props.section.label}</h2>
-        <dl class={styles.assignmentList}>
-          <For each={visibleItems()}>
-            {(item) => {
-              const entry = () => props.section.data[item.key];
-              const displayAmount = () =>
-                item.unit
-                  ? `${entry()?.amount} ${item.unit}`
-                  : (entry()?.amount ?? "");
-              return (
-                <>
-                  <dt class={styles.assignmentRole}>{item.label}</dt>
-                  <dd class={styles.assignmentPerson}>
-                    {displayAmount()}
-                    <Show when={entry()?.note}>
-                      {" "}
-                      <span>({entry()?.note})</span>
-                    </Show>
-                  </dd>
-                </>
-              );
-            }}
-          </For>
-        </dl>
+        <div class={styles.sectionBody}>
+          <dl class={styles.assignmentList}>
+            <For each={visibleItems()}>
+              {(item) => {
+                const entry = () => props.section.data[item.key];
+                const displayAmount = () =>
+                  item.unit
+                    ? `${entry()?.amount} ${item.unit}`
+                    : (entry()?.amount ?? "");
+                return (
+                  <>
+                    <dt class={styles.assignmentRole}>{item.label}</dt>
+                    <dd class={styles.assignmentPerson}>
+                      {displayAmount()}
+                      <Show when={entry()?.note}>
+                        {" "}
+                        <span>({entry()?.note})</span>
+                      </Show>
+                    </dd>
+                  </>
+                );
+              }}
+            </For>
+          </dl>
+        </div>
       </section>
     </Show>
   );

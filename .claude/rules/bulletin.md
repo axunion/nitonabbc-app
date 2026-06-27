@@ -27,8 +27,8 @@ Section-type-specific UI is provided through three dispatchers. When adding a ne
 
 | File | Role |
 |------|------|
-| `src/pages/BulletinDetail/components/SectionView.tsx` | Read-only UI |
-| `src/pages/BulletinForm/components/SectionEditor.tsx` | Input UI |
+| `src/pages/Bulletin/components/SectionView.tsx` | Read-only UI |
+| `src/pages/Bulletin/components/SectionEditor.tsx` | Input UI |
 | `src/pages/BulletinTemplate/components/SectionCard.tsx` | Template management UI |
 
 ## Server-side constraints

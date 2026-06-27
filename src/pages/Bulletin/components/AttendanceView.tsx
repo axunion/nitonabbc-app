@@ -6,7 +6,7 @@ import type {
   SectionTemplate,
 } from "@/types/bulletin.ts";
 import { findSectionTemplate } from "@/utils/bulletin.ts";
-import styles from "../BulletinDetail.module.css";
+import styles from "../Bulletin.module.css";
 
 type Props = {
   section: AttendanceSectionData;
@@ -33,26 +33,29 @@ export function AttendanceView(props: Props) {
     <Show when={visibleMeetings().length > 0}>
       <section class={styles.section}>
         <h2 class={styles.sectionTitle}>{props.section.label}</h2>
-        <dl class={styles.assignmentList}>
-          <For each={visibleMeetings()}>
-            {(meeting) => {
-              const entry = () => props.section.data[meeting.key];
-              return (
-                <>
-                  <dt class={styles.assignmentRole}>{meeting.label}</dt>
-                  <dd class={styles.assignmentPerson}>
-                    {t("bulletinForm.attendanceAdultsLabel")} {entry()?.adults}
-                    <Show when={entry()?.children}>
-                      {"　"}
-                      {t("bulletinForm.attendanceChildrenLabel")}{" "}
-                      {entry()?.children}
-                    </Show>
-                  </dd>
-                </>
-              );
-            }}
-          </For>
-        </dl>
+        <div class={styles.sectionBody}>
+          <dl class={styles.assignmentList}>
+            <For each={visibleMeetings()}>
+              {(meeting) => {
+                const entry = () => props.section.data[meeting.key];
+                return (
+                  <>
+                    <dt class={styles.assignmentRole}>{meeting.label}</dt>
+                    <dd class={styles.assignmentPerson}>
+                      {t("bulletinForm.attendanceAdultsLabel")}{" "}
+                      {entry()?.adults}
+                      <Show when={entry()?.children}>
+                        {"　"}
+                        {t("bulletinForm.attendanceChildrenLabel")}{" "}
+                        {entry()?.children}
+                      </Show>
+                    </dd>
+                  </>
+                );
+              }}
+            </For>
+          </dl>
+        </div>
       </section>
     </Show>
   );

@@ -1,9 +1,10 @@
-import { useNavigate, useParams, useSearchParams } from "@solidjs/router";
+import { useParams, useSearchParams } from "@solidjs/router";
 import {
   createEffect,
   createMemo,
   createResource,
   createSignal,
+  on,
 } from "solid-js";
 import {
   fetchBulletin,
@@ -18,6 +19,7 @@ import {
   type AttendanceSectionTemplate,
   type Birthday,
   type BirthdaysSectionData,
+  type BulletinDetail,
   DEFAULT_WEEKLY_PRAYER_DAYS,
   type FinancialSummarySectionData,
   type FinancialSummarySectionTemplate,
@@ -39,10 +41,9 @@ import {
 export function useBulletinForm() {
   const params = useParams<{ id?: string }>();
   const [searchParams] = useSearchParams<{ date?: string }>();
-  const navigate = useNavigate();
   const isEdit = () => !!params.id;
 
-  const [existing] = createResource(
+  const [existing, { refetch: refetchExisting }] = createResource(
     () => params.id,
     (id) => fetchBulletin(id),
   );
@@ -56,10 +57,67 @@ export function useBulletinForm() {
   const [error, setError] = createSignal("");
   const [initialized, setInitialized] = createSignal(false);
 
+  // Reset when navigating between different bulletins so init effects re-run
+  createEffect(
+    on(
+      () => params.id,
+      () => setInitialized(false),
+    ),
+  );
+
+  function applyExisting(data: BulletinDetail) {
+    setServiceDate(data.serviceDate);
+    const validSections = data.sections
+      .filter(
+        (s): s is SectionData =>
+          s.type === "worship-program" ||
+          s.type === "announcements" ||
+          s.type === "assignments" ||
+          s.type === "weekly-verse" ||
+          s.type === "monthly-song" ||
+          s.type === "text-block" ||
+          s.type === "weekly-prayer" ||
+          s.type === "upcoming-events" ||
+          s.type === "birthdays" ||
+          s.type === "scripture-quotes" ||
+          s.type === "attendance" ||
+          s.type === "service-meta" ||
+          s.type === "financial-summary",
+      )
+      .map((s): SectionData => {
+        // Normalize monthly-song: migrate legacy { keywords } → { lyrics }
+        if (s.type === "monthly-song") {
+          const ms = s as MonthlySongSectionData;
+          const raw = ms.data as { title: string; lyrics?: string };
+          return {
+            ...ms,
+            data: { title: raw.title, lyrics: raw.lyrics ?? "" },
+          };
+        }
+        // Normalize weekly-prayer: migrate legacy string values → string[]
+        if (s.type === "weekly-prayer") {
+          const wp = s as WeeklyPrayerSectionData;
+          const normalized: Record<string, string[]> = {};
+          for (const [key, val] of Object.entries(
+            wp.data as unknown as Record<string, unknown>,
+          )) {
+            normalized[key] = Array.isArray(val)
+              ? (val as string[])
+              : typeof val === "string" && val
+                ? [val]
+                : [];
+          }
+          return { ...wp, data: normalized };
+        }
+        return s;
+      });
+    setSections(validSections);
+  }
+
   // Initialize new bulletin from template
   createEffect(() => {
     const tmpl = template();
-    if (!isEdit() && tmpl && tmpl.length > 0 && !initialized()) {
+    if (!isEdit() && tmpl && !initialized()) {
       const built: SectionData[] = tmpl
         .filter((s) => s.visible !== false)
         .map((s): SectionData | null => {
@@ -209,56 +267,19 @@ export function useBulletinForm() {
   // Populate form when editing
   createEffect(() => {
     const data = existing();
-    if (isEdit() && data && !initialized()) {
-      setServiceDate(data.serviceDate);
-      const validSections = data.sections
-        .filter(
-          (s): s is SectionData =>
-            s.type === "worship-program" ||
-            s.type === "announcements" ||
-            s.type === "assignments" ||
-            s.type === "weekly-verse" ||
-            s.type === "monthly-song" ||
-            s.type === "text-block" ||
-            s.type === "weekly-prayer" ||
-            s.type === "upcoming-events" ||
-            s.type === "birthdays" ||
-            s.type === "scripture-quotes" ||
-            s.type === "attendance" ||
-            s.type === "service-meta" ||
-            s.type === "financial-summary",
-        )
-        .map((s): SectionData => {
-          // Normalize monthly-song: migrate legacy { keywords } → { lyrics }
-          if (s.type === "monthly-song") {
-            const ms = s as MonthlySongSectionData;
-            const raw = ms.data as { title: string; lyrics?: string };
-            return {
-              ...ms,
-              data: { title: raw.title, lyrics: raw.lyrics ?? "" },
-            };
-          }
-          // Normalize weekly-prayer: migrate legacy string values → string[]
-          if (s.type === "weekly-prayer") {
-            const wp = s as WeeklyPrayerSectionData;
-            const normalized: Record<string, string[]> = {};
-            for (const [key, val] of Object.entries(
-              wp.data as unknown as Record<string, unknown>,
-            )) {
-              normalized[key] = Array.isArray(val)
-                ? (val as string[])
-                : typeof val === "string" && val
-                  ? [val]
-                  : [];
-            }
-            return { ...wp, data: normalized };
-          }
-          return s;
-        });
-      setSections(validSections);
+    if (isEdit() && !initialized() && !existing.loading) {
+      if (data) {
+        applyExisting(data);
+      }
+      // Mark initialized even on 404/error to stop the loading spinner
       setInitialized(true);
     }
   });
+
+  function resetToExisting() {
+    const data = existing();
+    if (data) applyExisting(data);
+  }
 
   function updateSection(
     sectionId: string,
@@ -581,11 +602,12 @@ export function useBulletinForm() {
     });
   });
 
-  async function handleSubmit(e: SubmitEvent) {
-    e.preventDefault();
+  const totalItems = () => existing()?.totalItems ?? 0;
+  const filledItems = () => existing()?.filledItems ?? 0;
+
+  async function save(): Promise<{ ok: boolean; id?: number }> {
     setError("");
     setSubmitting(true);
-
     try {
       const result = await saveBulletin(params.id, {
         serviceDate: serviceDate(),
@@ -593,9 +615,12 @@ export function useBulletinForm() {
       });
       if (!result.ok) {
         setError(result.error ?? "Failed to save bulletin");
-        return;
+        return { ok: false };
       }
-      navigate(`/bulletin/${result.id}`);
+      return { ok: true, id: result.id };
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to save bulletin");
+      return { ok: false };
     } finally {
       setSubmitting(false);
     }
@@ -609,8 +634,13 @@ export function useBulletinForm() {
     sections,
     submitting,
     error,
+    clearError: () => setError(""),
     initialized,
     hasContent,
+    totalItems,
+    filledItems,
+    refetchExisting,
+    resetToExisting,
     updateWorshipDetails,
     updateWorshipFieldValue,
     addAnnouncement,
@@ -633,6 +663,6 @@ export function useBulletinForm() {
     updateAttendance,
     updateServiceMeta,
     updateFinancialSummary,
-    handleSubmit,
+    save,
   };
 }
