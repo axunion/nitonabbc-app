@@ -8,7 +8,7 @@
   bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
   left: 50%;
   transform: translateX(-50%);
-  width: min(calc(100vw - 32px), 200px);
+  width: min(calc(100vw - 48px), 140px);
   padding: var(--space-1);
   background: var(--glass-bg-chrome);
   backdrop-filter: var(--glass-blur) var(--glass-saturate);
@@ -58,7 +58,7 @@
   justify-content: center;
   gap: 2px;
   flex: 1;
-  height: 52px;
+  height: 44px;
   border: none;
   background: none;
   padding: 0;
@@ -206,5 +206,12 @@
 
   .footerLink:focus-visible {
     box-shadow: var(--focus-ring);
+  }
+}
+
+/* Mobile only: hide tab bar on child pages */
+@media (max-width: 899px) {
+  .hiddenOnMobile {
+    display: none;
   }
 }

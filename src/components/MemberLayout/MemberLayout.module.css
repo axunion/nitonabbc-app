@@ -31,7 +31,7 @@
   min-width: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 24px);
+  padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px) + 24px);
 }
 
 @media (min-width: 900px) {
@@ -43,5 +43,12 @@
 
   .main {
     padding-bottom: 0;
+  }
+}
+
+/* Mobile only: remove tab bar clearance on child pages */
+@media (max-width: 899px) {
+  .mainNoTabBar {
+    padding-bottom: var(--space-6);
   }
 }

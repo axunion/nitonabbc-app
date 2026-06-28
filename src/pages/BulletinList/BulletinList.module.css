@@ -113,10 +113,3 @@
 .loading {
   composes: loadingText from "../../styles/shared.module.css";
 }
-
-@media (min-width: 900px) {
-  .list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}

@@ -48,7 +48,14 @@ export function TabBar() {
   const activeIndex = () => (currentTab() === "settings" ? 1 : 0);
 
   return (
-    <nav class={styles.tabBar} aria-label={t("common.churchName")}>
+    <nav
+      class={styles.tabBar}
+      classList={{
+        [styles.hiddenOnMobile]:
+          location.pathname !== "/" && location.pathname !== "/settings",
+      }}
+      aria-label={t("common.churchName")}
+    >
       <div class={styles.brand}>
         <span class={styles.brandName}>{t("common.churchName")}</span>
       </div>
