@@ -13,6 +13,15 @@ PWA for members (~30) of Nitonabbc Church. Solid.js + TypeScript, Vite build, pn
 - Japanese/English i18n
 - External subdomain services embedded via iframe
 
+## Approach
+
+Bias toward caution over speed; on trivial tasks, use judgment.
+
+- **Think before coding.** State assumptions; if uncertain or multiple interpretations exist, surface them rather than silently picking one. Push back when a simpler path exists.
+- **Simplest thing that works.** Write the minimum code that solves the stated problem — no speculative abstractions, flexibility, or error handling for impossible cases.
+- **Surgical changes.** Every changed line should trace to the request. Don't refactor or reformat adjacent code that isn't broken; match the surrounding style. Remove only the symbols your change orphans; leave unrelated dead code and mention it.
+- **Goal-driven.** Turn each task into a verifiable outcome (e.g. "fix the bug" → write a failing test, then make it pass). For multi-step work, state a brief plan with a verification check per step.
+
 ## Language Policy
 
 All files in this repository — including `CLAUDE.md`, `.claude/` configs, source code comments, commit messages, and dev console output — are written in **English**.
