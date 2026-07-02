@@ -50,6 +50,10 @@ describe("GET /api/invite/:token", () => {
       expect.stringContaining('"inviteToken":"valid-token-123"'),
       { expirationTtl: 600 },
     );
+    const state = new URL(location).searchParams.get("state");
+    const setCookie = res.headers.get("Set-Cookie") ?? "";
+    expect(setCookie).toContain(`oauth_state=${state}`);
+    expect(setCookie).toContain("HttpOnly");
   });
 
   it("returns 404 for a non-existent token", async () => {

@@ -7,6 +7,19 @@ import { authMiddleware } from "../middleware/auth.ts";
 import type { AppEnv } from "../types.ts";
 
 const SESSION_TTL = 60 * 60 * 24 * 30;
+const OAUTH_STATE_TTL = 600;
+
+// Binds the OAuth state to the browser that started the flow, so a callback
+// completed in a different browser (login CSRF / session fixation) is rejected.
+export function setOAuthStateCookie(c: Context<AppEnv>, state: string): void {
+  setCookie(c, "oauth_state", state, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "Lax",
+    path: "/",
+    maxAge: OAUTH_STATE_TTL,
+  });
+}
 
 async function issueSession(
   c: Context<AppEnv>,
@@ -34,8 +47,9 @@ export const authRoute = new Hono<AppEnv>();
 authRoute.get("/login", async (c) => {
   const state = crypto.randomUUID();
   await c.env.SESSION_KV.put(`oauth_state:${state}`, "1", {
-    expirationTtl: 600,
+    expirationTtl: OAUTH_STATE_TTL,
   });
+  setOAuthStateCookie(c, state);
 
   const redirectUri = new URL("/api/auth/callback", c.req.url).toString();
   const params = new URLSearchParams({
@@ -57,6 +71,13 @@ authRoute.get("/callback", async (c) => {
 
   if (!code || !state) {
     return c.json({ error: "Invalid callback parameters" }, 400);
+  }
+
+  // The state cookie binds this callback to the browser that started the flow.
+  const cookieState = getCookie(c, "oauth_state");
+  deleteCookie(c, "oauth_state", { path: "/" });
+  if (!cookieState || cookieState !== state) {
+    return c.json({ error: "Invalid or expired state" }, 400);
   }
 
   const storedState = await c.env.SESSION_KV.get(`oauth_state:${state}`);

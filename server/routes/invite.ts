@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { users } from "../db/schema.ts";
 import type { AppEnv } from "../types.ts";
+import { setOAuthStateCookie } from "./auth.ts";
 
 export const inviteRoute = new Hono<AppEnv>();
 
@@ -31,6 +32,7 @@ inviteRoute.get("/:token", async (c) => {
     JSON.stringify({ inviteToken: token }),
     { expirationTtl: 600 },
   );
+  setOAuthStateCookie(c, state);
 
   const redirectUri = new URL("/api/auth/callback", c.req.url).toString();
   const params = new URLSearchParams({

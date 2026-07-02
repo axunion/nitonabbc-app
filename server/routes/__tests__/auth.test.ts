@@ -49,6 +49,20 @@ describe("GET /api/auth/login", () => {
       { expirationTtl: 600 },
     );
   });
+
+  it("sets an HttpOnly oauth_state cookie bound to the state", async () => {
+    const env = createEnv();
+    const res = await testApp.request(
+      "http://localhost/api/auth/login",
+      {},
+      env,
+    );
+    const location = res.headers.get("Location") ?? "";
+    const state = new URL(location).searchParams.get("state");
+    const setCookie = res.headers.get("Set-Cookie") ?? "";
+    expect(setCookie).toContain(`oauth_state=${state}`);
+    expect(setCookie).toContain("HttpOnly");
+  });
 });
 
 describe("GET /api/auth/callback", () => {
@@ -64,8 +78,32 @@ describe("GET /api/auth/callback", () => {
   it("returns 400 when state is not found in KV", async () => {
     const res = await testApp.request(
       "http://localhost/api/auth/callback?code=testcode&state=invalid_state",
-      {},
+      { headers: { Cookie: "oauth_state=invalid_state" } },
       createEnv(),
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 400 when the oauth_state cookie is missing", async () => {
+    const state = "valid_state";
+    const kv = createMockKV({ [`oauth_state:${state}`]: "1" });
+    const env = createEnv({ SESSION_KV: kv });
+    const res = await testApp.request(
+      `http://localhost/api/auth/callback?code=testcode&state=${state}`,
+      {},
+      env,
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 400 when the oauth_state cookie does not match the query state", async () => {
+    const state = "valid_state";
+    const kv = createMockKV({ [`oauth_state:${state}`]: "1" });
+    const env = createEnv({ SESSION_KV: kv });
+    const res = await testApp.request(
+      `http://localhost/api/auth/callback?code=testcode&state=${state}`,
+      { headers: { Cookie: "oauth_state=attacker_state" } },
+      env,
     );
     expect(res.status).toBe(400);
   });
@@ -79,7 +117,7 @@ describe("GET /api/auth/callback", () => {
     );
     const res = await testApp.request(
       `http://localhost/api/auth/callback?code=testcode&state=${state}`,
-      {},
+      { headers: { Cookie: `oauth_state=${state}` } },
       env,
     );
     expect(res.status).toBe(500);
@@ -98,7 +136,7 @@ describe("GET /api/auth/callback", () => {
       .mockResolvedValueOnce(new Response(null, { status: 500 }));
     const res = await testApp.request(
       `http://localhost/api/auth/callback?code=testcode&state=${state}`,
-      {},
+      { headers: { Cookie: `oauth_state=${state}` } },
       env,
     );
     expect(res.status).toBe(500);
@@ -119,7 +157,7 @@ describe("GET /api/auth/callback", () => {
       );
     const res = await testApp.request(
       `http://localhost/api/auth/callback?code=testcode&state=${state}`,
-      {},
+      { headers: { Cookie: `oauth_state=${state}` } },
       env,
     );
     expect(res.status).toBe(302);
@@ -159,7 +197,7 @@ describe("GET /api/auth/callback", () => {
 
     const res = await testApp.request(
       `http://localhost/api/auth/callback?code=testcode&state=${state}`,
-      {},
+      { headers: { Cookie: `oauth_state=${state}` } },
       env,
     );
     expect(res.status).toBe(302);
@@ -214,7 +252,7 @@ describe("GET /api/auth/callback", () => {
 
     const res = await testApp.request(
       `http://localhost/api/auth/callback?code=testcode&state=${state}`,
-      {},
+      { headers: { Cookie: `oauth_state=${state}` } },
       env,
     );
     expect(res.status).toBe(302);
@@ -251,7 +289,7 @@ describe("GET /api/auth/callback", () => {
 
     const res = await testApp.request(
       `http://localhost/api/auth/callback?code=testcode&state=${state}`,
-      {},
+      { headers: { Cookie: `oauth_state=${state}` } },
       env,
     );
     expect(res.status).toBe(302);
