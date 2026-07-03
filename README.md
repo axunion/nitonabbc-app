@@ -1,28 +1,32 @@
-## Usage
+# nitonabbc-app
+
+Member PWA for Nitonabbc Church (~30 members). LINE login only, two roles (admin / member), Japanese/English i18n.
+
+- **Frontend**: Solid.js + TypeScript, Vite, @kobalte/core + CSS Modules
+- **Backend**: Hono on Cloudflare Workers, D1 (database), KV (sessions)
+- **Docs**: specifications live in [`docs/spec.md`](docs/spec.md); agent/contributor rules in [`CLAUDE.md`](CLAUDE.md)
+
+## Setup
 
 ```bash
-$ npm install # or pnpm install or yarn install
+pnpm install
+cp .dev.vars.example .dev.vars   # set DEV_AUTH=true to skip LINE auth locally
+pnpm db:fresh                    # create local D1 schema + seed sample data
+pnpm dev                         # Vite + workerd at http://localhost:5173
 ```
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+## Commands
 
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm run dev`
-
-Runs the app in the development mode.<br>
-Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
-
-### `npm run build`
-
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Dev server (Vite HMR + workerd) |
+| `pnpm build` | Type-check and build for production |
+| `pnpm check` | Biome lint/format + TypeScript check |
+| `pnpm test` | Run server tests (Vitest) |
+| `pnpm db:generate` | Generate a Drizzle migration from `server/db/schema.ts` |
+| `pnpm db:migrate:local` | Apply pending migrations to local D1 |
+| `pnpm db:fresh` | Wipe local D1, re-apply migrations, seed sample data |
 
 ## Deployment
 
-Learn more about deploying your application with the [documentations](https://vite.dev/guide/static-deploy.html)
+Production and Preview deployments run via GitHub Actions on push (`main` → Production, other branches → Preview). Never run `wrangler deploy` or remote D1 migrations locally — see the Safety section in `CLAUDE.md`.
