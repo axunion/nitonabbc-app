@@ -52,7 +52,7 @@
 
 | タブ | ルート | 子ページ |
 |------|--------|---------|
-| 教会 | `/` (Dashboard) | `/bulletin`, `/bulletin/:id`, `/bulletin/new`, `/bulletin/:id/edit` |
+| 教会 | `/` (Dashboard) | `/bulletin`, `/bulletin/new`, `/bulletin/:id` |
 | 設定 | `/settings` | なし（管理画面は `/admin/*` の専用レイアウトで表示。タブバー外） |
 
 ### ヘッダー

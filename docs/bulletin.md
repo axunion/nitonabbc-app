@@ -56,7 +56,7 @@ BulletinTemplate.sections[]
 週報は同じセクション配列を持ち、`id` でテンプレートと対応する。各セクションは `data` フィールドに値を保持。
 
 ```
-BulletinDetail.sections[]
+Bulletin.sections[]
   ├── { id="morning", type, label, data: WorshipItem[] }
   ├── { id="afternoon", type, label, data: WorshipItem[] }
   └── ...
@@ -449,23 +449,33 @@ settings テーブルのキー: `church_profile`
 
 ## 9. 画面構成（Web）
 
-### BulletinList — 週次管理ダッシュボード
+### BulletinList — 週報一覧
 
-- 「次の日曜日の週報を作成」ボタン
-- 週報一覧（service_date DESC）、各行に進捗バー（`filledItems / totalItems`）
-- 未入力項目の概要表示
+- 年・月セレクターで対象月の週報を表示（年の選択肢は `BULLETIN_START_YEAR` から当年まで）
+- 各カードに進捗バー（`filledItems / totalItems`）
+- 次の日曜日が対象月に含まれる場合、未作成でもカードとして表示。タップで新規作成（日付プリフィル）
 
-### BulletinDetail — 詳細表示
+### Bulletin — 詳細表示・入力（統合ページ）
+
+`/bulletin/new`（新規作成）と `/bulletin/:id`（既存週報）を 1 つのページで扱う。
+
+**新規作成（`/bulletin/new`）**
+
+- 日付入力 + 全セクションが編集モードで表示される
+- 画面下部の固定バーから作成（日付未入力・全セクション空の場合は作成不可）
+
+**既存週報（`/bulletin/:id`）**
 
 - 教会プロフィール（`church_profile`）をヘッダーに表示（将来フェーズ）
-- セクションを定義順に縦スクロールで表示
+- セクションを定義順に縦スクロールで表示。ページ上部に全体進捗バー
 - セクション種別ごとに専用の閲覧コンポーネント（出席は表組み、曜日別祈りは曜日ごとの課題リストなど）
-- 入力未完了の場合に「入力する」CTA を表示（`totalItems > 0 && filledItems < totalItems` で判定）
+- **セクション単位のインライン編集**: 入力済みセクションは鉛筆ボタン、空セクションは追加プレースホルダーから編集モードを開き、セクション単位で保存/キャンセルする
 - `assignments` の担当者表示: メンバー ID をメンバー名に解決して表示
+- PC ではセクション目次（サイドナビ）を表示
 
-### BulletinForm — 入力/編集
+**セクションエディタ**
 
-- セクションごとに専用エディタ UI。フォームでは値の入力のみ
+- セクションごとに専用エディタ UI。値の入力のみ
 - `worship-program`: 進行項目ごとの入力フォーム。`inputType: "member"` フィールドはメンバーセレクタを表示。フィールドの `role` 指定がある場合（例: 説教者 → 役割 "説教"）は該当役割を持つメンバーのみ表示
 - `service-meta`: member セレクタ / テキスト入力
 - `assignments`: 役割ごとにメンバー選択 UI。`SERVICE_ROLES` に含まれる役割（司会/奏楽/説教/受付）は対応する `serviceRoles` を持つメンバーのみ表示。それ以外（特賛など）は全メンバー表示
@@ -509,8 +519,7 @@ settings テーブルのキー: `church_profile`
 | パス | ページ | 説明 |
 |------|--------|------|
 | `/bulletin` | BulletinList | 週報一覧 |
-| `/bulletin/new` | BulletinForm | 新規作成 |
-| `/bulletin/:id` | BulletinDetail | 詳細表示 |
-| `/bulletin/:id/edit` | BulletinForm | 編集 |
+| `/bulletin/new` | Bulletin | 新規作成 |
+| `/bulletin/:id` | Bulletin | 詳細表示・セクション単位編集 |
 | `/admin/bulletin-template` | BulletinTemplate | テンプレート管理（管理者のみ） |
 | `/admin/church-profile` | ChurchProfile | 教会プロフィール（管理者のみ、将来フェーズ） |

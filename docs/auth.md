@@ -44,7 +44,9 @@
 
 > KV のキー構造: `session:{uuid}` → `{ userId, lineUserId, role }` JSON
 >
-> OAuth state 管理: `oauth_state:{uuid}` → `{}` or `{ inviteToken }` JSON（TTL 600 秒）。招待フロー経由のコールバックでは `inviteToken` を格納して CSRF 対策と招待フロー識別を兼ねる。
+> OAuth state 管理: `oauth_state:{uuid}` → 通常ログインは `"1"`、招待フローは `{ inviteToken }` JSON（TTL 600 秒）。`inviteToken` の有無で招待フローを識別する。
+>
+> さらに state はフロー開始時に HttpOnly Cookie（`oauth_state`、TTL 600 秒）にも保存され、callback で KV と Cookie の両方を照合する（照合後に削除）。フローを開始したブラウザ以外からの callback（ログインCSRF・セッション固定）を拒否するため。
 
 ## ページの公開範囲
 

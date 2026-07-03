@@ -127,8 +127,8 @@ tr:hover td{background:var(--gold-bg)}
     <li><a href="#login">ログイン画面</a></li>
     <li><a href="#dashboard">ダッシュボード</a></li>
     <li><a href="#bulletin-list">週報一覧</a></li>
-    <li><a href="#bulletin-detail">週報詳細</a></li>
-    <li><a href="#bulletin-form">週報作成・編集フォーム</a></li>
+    <li><a href="#bulletin-detail">週報詳細（閲覧・編集）</a></li>
+    <li><a href="#bulletin-form">週報新規作成</a></li>
     <li><a href="#settings">設定画面</a></li>
     <li><a href="#management">メンバー管理（管理者）</a></li>
     <li><a href="#template">テンプレート設定（管理者）</a></li>
@@ -198,24 +198,20 @@ tr:hover td{background:var(--gold-bg)}
       <text x="330" y="281" text-anchor="middle" font-size="13" fill="#1C1C2E" font-family="sans-serif" font-weight="600">週報一覧</text>
       <text x="330" y="293" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">/bulletin</text>
 
-      <!-- BulletinList → BulletinDetail -->
+      <!-- BulletinList → Bulletin (existing) -->
       <path d="M295,298 L295,334 L230,334 L230,362" stroke="#94A3B8" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
-      <!-- BulletinList → BulletinForm/new (dashed) -->
+      <!-- BulletinList → Bulletin/new (dashed) -->
       <path d="M365,298 L365,334 L410,334 L410,362" stroke="#94A3B8" stroke-width="1.5" fill="none" marker-end="url(#arr)" stroke-dasharray="5,3"/>
 
-      <!-- BulletinDetail -->
+      <!-- Bulletin (existing) -->
       <rect x="155" y="362" width="150" height="38" rx="8" fill="#FFFBF0" stroke="#C9A84C" stroke-width="1.5"/>
       <text x="230" y="382" text-anchor="middle" font-size="13" fill="#1C1C2E" font-family="sans-serif" font-weight="600">週報詳細</text>
       <text x="230" y="394" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">/bulletin/:id</text>
 
-      <!-- BulletinDetail → BulletinForm/edit -->
-      <path d="M305,381 L360,381" stroke="#94A3B8" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
-
-      <!-- BulletinForm -->
+      <!-- Bulletin (new) -->
       <rect x="360" y="355" width="82" height="54" rx="8" fill="#F5F3FF" stroke="#A78BFA" stroke-width="1.5"/>
-      <text x="401" y="373" text-anchor="middle" font-size="11" fill="#1C1C2E" font-family="sans-serif" font-weight="600">週報フォーム</text>
-      <text x="401" y="386" text-anchor="middle" font-size="9" fill="#7C3AED" font-family="sans-serif">/bulletin/new</text>
-      <text x="401" y="398" text-anchor="middle" font-size="9" fill="#7C3AED" font-family="sans-serif">/:id/edit</text>
+      <text x="401" y="378" text-anchor="middle" font-size="11" fill="#1C1C2E" font-family="sans-serif" font-weight="600">週報作成</text>
+      <text x="401" y="392" text-anchor="middle" font-size="9" fill="#7C3AED" font-family="sans-serif">/bulletin/new</text>
 
       <!-- ===== 設定タブ ===== -->
       <!-- Settings -->
@@ -233,13 +229,13 @@ tr:hover td{background:var(--gold-bg)}
       <rect x="538" y="268" width="164" height="42" rx="8" fill="#EDF2FF" stroke="#3B5BDB" stroke-width="1.5"/>
       <text x="620" y="287" text-anchor="middle" font-size="12" fill="#1C1C2E" font-family="sans-serif" font-weight="600">メンバー管理</text>
       <text x="620" y="300" text-anchor="middle" font-size="10" fill="#3B5BDB" font-family="sans-serif">👑 管理者のみ</text>
-      <text x="620" y="311" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">/settings/members</text>
+      <text x="620" y="311" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">/admin/members</text>
 
       <!-- BulletinTemplate (admin) -->
       <rect x="710" y="268" width="88" height="42" rx="8" fill="#EDF2FF" stroke="#3B5BDB" stroke-width="1.5"/>
       <text x="754" y="287" text-anchor="middle" font-size="10" fill="#1C1C2E" font-family="sans-serif" font-weight="600">テンプレ</text>
       <text x="754" y="300" text-anchor="middle" font-size="9" fill="#3B5BDB" font-family="sans-serif">👑 管理者</text>
-      <text x="754" y="312" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">/bulletin-template</text>
+      <text x="754" y="312" text-anchor="middle" font-size="8" fill="#94A3B8" font-family="sans-serif">/admin/bulletin-template</text>
 
       <!-- Legend -->
       <rect x="20" y="430" width="14" height="14" rx="3" fill="#FFFBF0" stroke="#C9A84C" stroke-width="1.5"/>
@@ -282,7 +278,7 @@ tr:hover td{background:var(--gold-bg)}
       <text x="68" y="214" font-size="11" fill="#3B5BDB" font-family="sans-serif">メンバー追加 / 編集 / 無効化</text>
       <text x="68" y="230" font-size="11" fill="#3B5BDB" font-family="sans-serif">招待リンク発行 / LINE連携リセット</text>
       <text x="48" y="252" font-size="13" fill="#1C1C2E" font-family="sans-serif">✓  週報テンプレート設定</text>
-      <text x="68" y="270" font-size="11" fill="#3B5BDB" font-family="sans-serif">セクション追加 / 並替 / 項目編集</text>
+      <text x="68" y="270" font-size="11" fill="#3B5BDB" font-family="sans-serif">ラベル・項目のインライン編集</text>
       <text x="68" y="286" font-size="11" fill="#3B5BDB" font-family="sans-serif">表示/非表示切替</text>
 
       <!-- Member column -->
@@ -315,7 +311,7 @@ tr:hover td{background:var(--gold-bg)}
   <div class="page-card all">
     <div class="page-meta">
       <h3>ログイン画面</h3>
-      <span class="url">/login（認証前のみ表示）</span>
+      <span class="url">未認証時に表示（専用ルートなし・SPA が描画）</span>
       <span class="badge all">全員</span>
     </div>
     <p class="page-desc">未認証ユーザーが最初に見る画面。LINE ログインボタンのみが表示されます。</p>
@@ -451,22 +447,25 @@ tr:hover td{background:var(--gold-bg)}
     </div>
   </div>
 
-  <!-- BulletinDetail -->
+  <!-- Bulletin (existing) -->
   <div class="page-card all" id="bulletin-detail">
     <div class="page-meta">
-      <h3>週報詳細</h3>
+      <h3>週報詳細（閲覧・セクション単位編集）</h3>
       <span class="url">/bulletin/:id</span>
       <span class="badge all">全員</span>
     </div>
-    <p class="page-desc">特定の週報の全セクションを閲覧します。自分が未記入の項目があると「記入する」CTA が表示されます。</p>
+    <p class="page-desc">特定の週報の全セクションを閲覧し、セクション単位でインライン編集します。専用の編集ページはありません。</p>
 
     <div class="checklist">
       <div class="checklist-title">確認項目</div>
       <ul class="check-list">
         <li>礼拝日（サービス日付）が大見出しで表示される</li>
         <li>ページ上部に全体の進捗プログレスバーが表示される（例: 7/12）</li>
-        <li>未記入の担当項目がある場合「記入する」ボタンが表示され、タップすると編集フォームへ遷移する</li>
-        <li>ヘッダー右に「編集」ボタンがあり、タップすると <code>/bulletin/:id/edit</code> へ遷移する</li>
+        <li>入力済みセクションに鉛筆ボタンが表示され、タップするとそのセクションが編集モードになる</li>
+        <li>空のセクションは「＋」プレースホルダーとして表示され、タップで編集モードになる</li>
+        <li>編集モードのセクションはセクション単位で保存 / キャンセルできる</li>
+        <li>編集モードを開くと既存データが各フィールドに正しく読み込まれている</li>
+        <li>別のメンバーが入力済みの項目も閲覧・編集できる（権限制限なし）</li>
         <li>各セクションが正しい種別に応じたレイアウトで表示される（以下のセクション種別一覧を参照）</li>
         <li>worship-program: 礼拝プログラム項目が一覧表示される</li>
         <li>assignments: 役割と担当者名が表示される</li>
@@ -477,17 +476,17 @@ tr:hover td{background:var(--gold-bg)}
     </div>
   </div>
 
-  <!-- BulletinForm -->
+  <!-- Bulletin (new) -->
   <div class="page-card all" id="bulletin-form">
     <div class="page-meta">
-      <h3>週報作成・編集フォーム</h3>
-      <span class="url">/bulletin/new &nbsp;／&nbsp; /bulletin/:id/edit</span>
+      <h3>週報新規作成</h3>
+      <span class="url">/bulletin/new</span>
       <span class="badge all">全員</span>
     </div>
-    <p class="page-desc">週報を新規作成または既存の週報を編集します。テンプレートに定義されたセクションがすべて表示されます。</p>
+    <p class="page-desc">週報を新規作成します。テンプレートに定義された全セクションが編集モードで表示されます。</p>
 
     <div class="checklist">
-      <div class="checklist-title">確認項目（新規作成）</div>
+      <div class="checklist-title">確認項目</div>
       <ul class="check-list">
         <li>一覧から「未作成日曜日」をタップした場合、日付フィールドがプリフィルされている</li>
         <li>テンプレートで定義した全セクションがフォームに表示される</li>
@@ -495,15 +494,8 @@ tr:hover td{background:var(--gold-bg)}
         <li>worship-program: 各項目のフィールドに値を入力できる</li>
         <li>assignments: ドロップダウンからメンバーを選択できる</li>
         <li>announcements: 「追加」ボタンで項目を増やせる</li>
-        <li>保存ボタンをタップすると週報詳細ページへ遷移する</li>
-      </ul>
-    </div>
-    <div class="checklist">
-      <div class="checklist-title">確認項目（編集）</div>
-      <ul class="check-list">
-        <li>既存データが各フィールドに正しく読み込まれている</li>
-        <li>変更を保存すると詳細ページに反映される</li>
-        <li>別のメンバーが入力済みの項目も閲覧・編集できる（権限制限なし）</li>
+        <li>日付未入力・全セクション空のあいだは画面下部の「作成」ボタンが無効になっている</li>
+        <li>「作成」をタップすると保存され、週報詳細ページへ遷移する</li>
       </ul>
     </div>
   </div>
@@ -531,8 +523,9 @@ tr:hover td{background:var(--gold-bg)}
     <div class="checklist">
       <div class="checklist-title">確認項目（管理者のみ）</div>
       <ul class="check-list">
-        <li>「メンバー管理」リンクが表示され、タップすると <code>/settings/members</code> へ遷移する</li>
-        <li>「週報テンプレート設定」リンクが表示され、タップすると <code>/settings/bulletin-template</code> へ遷移する</li>
+        <li>「メンバー管理」リンクが表示され、タップすると <code>/admin/members</code> へ遷移する</li>
+        <li>「週報テンプレート設定」リンクが表示され、タップすると <code>/admin/bulletin-template</code> へ遷移する</li>
+        <li>管理画面はタブバーの外側にあり、サイドバー付きの専用レイアウト（AdminLayout）で表示される</li>
         <li>メンバーロールでログインした場合、これらのリンクは表示されない</li>
       </ul>
     </div>
@@ -542,7 +535,7 @@ tr:hover td{background:var(--gold-bg)}
   <div class="page-card admin" id="management">
     <div class="page-meta">
       <h3>メンバー管理</h3>
-      <span class="url">/settings/members</span>
+      <span class="url">/admin/members</span>
       <span class="badge admin">👑 管理者のみ</span>
     </div>
     <p class="page-desc">メンバーの追加・編集・招待リンク発行・LINE 連携状態の管理を行います。</p>
@@ -550,13 +543,13 @@ tr:hover td{background:var(--gold-bg)}
     <div class="checklist">
       <div class="checklist-title">確認項目</div>
       <ul class="check-list">
-        <li>メンバー一覧がカード形式で表示される</li>
-        <li>各カードに名前・ロール（Admin/Member）・LINE連携状態・アクティブ状態が表示される</li>
+        <li>メンバー一覧がテーブル形式で表示される</li>
+        <li>各行に名前・ロール（Admin/Member）・LINE連携状態・アクティブ状態が表示される</li>
         <li>「メンバーを追加」ボタンをタップするとフォームダイアログが開く</li>
         <li class="sub">名前・ロールを入力して保存するとメンバーが追加される</li>
-        <li class="sub">追加後、一覧に新しいカードが表示される</li>
-        <li>各メンバーカードの「編集」ボタンで名前・ロール変更ダイアログが開く</li>
-        <li>「招待リンクをコピー」ボタンをタップするとクリップボードに招待URLがコピーされる</li>
+        <li class="sub">追加後、一覧に新しい行が表示される</li>
+        <li>各行の「編集」ボタンで名前・ロール変更ダイアログが開く</li>
+        <li>招待トークン未使用のメンバーに「招待リンクをコピー」ボタンが表示され、タップするとクリップボードに招待URLがコピーされる</li>
         <li>LINE 連携済みメンバーに「再招待」ボタンが表示され、タップすると連携リセット＋新トークン発行される</li>
         <li>「無効化」ボタンで該当メンバーが非アクティブになる（自分自身は無効化できない）</li>
         <li>メンバーロールのユーザーがこのページを開こうとするとダッシュボードにリダイレクトされる</li>
@@ -572,22 +565,20 @@ tr:hover td{background:var(--gold-bg)}
   <div class="page-card admin" id="template">
     <div class="page-meta">
       <h3>週報テンプレート設定</h3>
-      <span class="url">/settings/bulletin-template</span>
+      <span class="url">/admin/bulletin-template</span>
       <span class="badge admin">👑 管理者のみ</span>
     </div>
-    <p class="page-desc">週報に含まれるセクションの構成・順序・表示設定をカスタマイズします。変更後に作成された週報に反映されます。</p>
+    <p class="page-desc">各セクションのラベル・表示/非表示・項目をインライン編集します。セクション構成（種類と順序）は固定で、追加・削除・並び替えはできません。変更後に作成された週報に反映されます。</p>
 
     <div class="checklist">
       <div class="checklist-title">確認項目（セクション操作）</div>
       <ul class="check-list">
-        <li>既存セクションが縦に並んで表示される</li>
-        <li>各セクション行を展開/折り畳みできる（タップで詳細設定エリアが表示される）</li>
+        <li>全セクションが縦に並んで常時表示される（固定構成）</li>
+        <li>セクションラベル（見出し名）を直接編集できる</li>
         <li>表示/非表示トグルで週報フォームへの表示を切り替えられる</li>
-        <li>↑↓ ボタンでセクションの順序を入れ替えられる</li>
-        <li>セクションラベル（見出し名）を編集できる</li>
-        <li>削除ボタンでセクションを削除できる（確認不要か確認）</li>
-        <li>「セクションを追加」ボタンをタップすると種別選択メニューが表示される</li>
-        <li>新しいセクションを追加すると一覧の末尾に追加される</li>
+        <li>セクションの追加・削除・並び替えの UI が存在しない（仕様どおり）</li>
+        <li>「デフォルトに戻す」でテンプレート全体を初期構成にリセットできる（確認ダイアログ付き）</li>
+        <li>PC ではセクション目次（サイドナビ）と画面下部固定の保存バーが表示される</li>
       </ul>
     </div>
     <div class="checklist">
@@ -597,7 +588,7 @@ tr:hover td{background:var(--gold-bg)}
         <li>announcements: サブヘッディング（見出し候補）の編集</li>
         <li>assignments: 役割名リストの編集（例: 礼拝司会、奏楽）</li>
         <li>attendance: 集会・会議種別の追加/削除</li>
-        <li>service-meta: カスタムフィールドの追加/削除（key・label・inputType）</li>
+        <li>weekly-prayer: 曜日別のデフォルト課題文の追加/削除/編集</li>
         <li>financial-summary: 収支項目の追加/削除（key・label・unit）</li>
       </ul>
     </div>
@@ -702,7 +693,7 @@ tr:hover td{background:var(--gold-bg)}
 
       <!-- Edit loop -->
       <path d="M335,90 L335,125 L195,125 L195,110" stroke="#94A3B8" stroke-width="1.5" fill="none" marker-end="url(#ar4)" stroke-dasharray="4,3"/>
-      <text x="265" y="122" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">「記入する」CTA / ヘッダー編集ボタン</text>
+      <text x="265" y="122" text-anchor="middle" font-size="9" fill="#94A3B8" font-family="sans-serif">セクションの鉛筆ボタンでインライン編集</text>
 
       <line x1="390" y1="65" x2="420" y2="65" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#ar4)"/>
 
@@ -719,7 +710,7 @@ tr:hover td{background:var(--gold-bg)}
 <!-- ===== 5. セクション種別 ===== -->
 <section id="section-types">
   <h2><span class="num">5</span>セクション種別一覧</h2>
-  <p>週報テンプレートで設定できるセクション種別は全 13 種類です。テンプレート設定画面で追加・並替・設定変更ができます。</p>
+  <p>セクション種別は全 13 種類です（<code>service-meta</code> は互換のため型として維持されており、デフォルトテンプレートには含まれません）。セクション構成は固定で、テンプレート設定画面ではラベル・表示/非表示・項目の編集のみ行えます。</p>
 
   <div class="sec-grid">
     <div class="sec-card">
@@ -749,7 +740,7 @@ tr:hover td{background:var(--gold-bg)}
     <div class="sec-card">
       <div class="sc-type">monthly-song</div>
       <div class="sc-name">今月の賛美歌</div>
-      <div class="sc-desc">タイトルとキーワード</div>
+      <div class="sc-desc">タイトルと歌詞</div>
       <div class="sc-count">進捗カウント対象 ✓</div>
     </div>
     <div class="sec-card">
@@ -791,7 +782,7 @@ tr:hover td{background:var(--gold-bg)}
     <div class="sec-card">
       <div class="sc-type">service-meta</div>
       <div class="sc-name">礼拝情報（自由項目）</div>
-      <div class="sc-desc">カスタムフィールド（説教タイトル等）</div>
+      <div class="sc-desc">カスタムフィールド（説教タイトル等）※デフォルトテンプレート非採用</div>
       <div class="sc-count">進捗カウント対象 ✓</div>
     </div>
     <div class="sec-card">
@@ -897,10 +888,13 @@ tr:hover td{background:var(--gold-bg)}
       <tr><td>GET</td><td><code>/api/members</code></td><td>メンバー一覧（簡易）</td><td>全員</td></tr>
       <tr><td>GET</td><td><code>/api/bulletin</code></td><td>週報一覧</td><td>全員</td></tr>
       <tr><td>POST</td><td><code>/api/bulletin</code></td><td>週報作成</td><td>全員</td></tr>
+      <tr><td>POST</td><td><code>/api/bulletin/generate</code></td><td>テンプレートから次の日曜日分を生成</td><td>全員</td></tr>
       <tr><td>GET</td><td><code>/api/bulletin/:id</code></td><td>週報詳細</td><td>全員</td></tr>
       <tr><td>PUT</td><td><code>/api/bulletin/:id</code></td><td>週報更新</td><td>全員</td></tr>
+      <tr><td>DELETE</td><td><code>/api/bulletin/:id</code></td><td>週報削除</td><td>全員</td></tr>
       <tr><td>GET</td><td><code>/api/bulletin-template</code></td><td>テンプレート取得</td><td>全員</td></tr>
       <tr><td>PUT</td><td><code>/api/bulletin-template</code></td><td>テンプレート保存</td><td>管理者</td></tr>
+      <tr><td>DELETE</td><td><code>/api/bulletin-template</code></td><td>テンプレートをデフォルトに戻す</td><td>管理者</td></tr>
       <tr><td>GET</td><td><code>/api/admin/members</code></td><td>メンバー詳細一覧</td><td>管理者</td></tr>
       <tr><td>POST</td><td><code>/api/admin/members</code></td><td>メンバー追加</td><td>管理者</td></tr>
       <tr><td>PUT</td><td><code>/api/admin/members/:id</code></td><td>メンバー更新</td><td>管理者</td></tr>
