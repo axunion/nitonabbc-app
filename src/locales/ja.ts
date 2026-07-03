@@ -81,8 +81,6 @@ export const ja = {
     worshipProgram: "礼拝プログラム",
     announcements: "お知らせ",
     assignments: "奉仕当番",
-    generateNext: "次の日曜日の週報を作成",
-    generateError: "作成に失敗しました",
     alreadyExists: "この日付の週報はすでに作成済みです",
     progress: "入力進捗",
     progressCount: "{{filled}} / {{total}} 項目",

@@ -82,8 +82,6 @@ export const en: Dictionary = {
     worshipProgram: "Worship Program",
     announcements: "Announcements",
     assignments: "Assignments",
-    generateNext: "Create next Sunday's bulletin",
-    generateError: "Failed to create",
     alreadyExists: "A bulletin for this date already exists",
     progress: "Progress",
     progressCount: "{{filled}} / {{total}} items",

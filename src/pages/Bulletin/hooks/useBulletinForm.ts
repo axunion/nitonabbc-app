@@ -8,12 +8,14 @@ import {
 } from "solid-js";
 import {
   fetchBulletin,
+  fetchBulletins,
   fetchMembers,
   fetchTemplate,
   saveBulletin,
 } from "@/api/bulletin.ts";
 import {
   type AnnouncementsSectionData,
+  type AnySection,
   type AssignmentsSectionData,
   type AttendanceSectionData,
   type AttendanceSectionTemplate,
@@ -38,6 +40,70 @@ import {
   type WorshipProgramSectionData,
 } from "@/types/bulletin.ts";
 
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+// Filters AnySection[] down to known SectionData variants and migrates
+// legacy monthly-song/weekly-prayer data shapes to the current format.
+function normalizeSections(sections: AnySection[]): SectionData[] {
+  return sections
+    .filter(
+      (s): s is SectionData =>
+        s.type === "worship-program" ||
+        s.type === "announcements" ||
+        s.type === "assignments" ||
+        s.type === "weekly-verse" ||
+        s.type === "monthly-song" ||
+        s.type === "text-block" ||
+        s.type === "weekly-prayer" ||
+        s.type === "upcoming-events" ||
+        s.type === "birthdays" ||
+        s.type === "scripture-quotes" ||
+        s.type === "attendance" ||
+        s.type === "service-meta" ||
+        s.type === "financial-summary",
+    )
+    .map((s): SectionData => {
+      // Normalize monthly-song: migrate legacy { keywords } → { lyrics }
+      if (s.type === "monthly-song") {
+        const ms = s as MonthlySongSectionData;
+        const raw = ms.data as { title: string; lyrics?: string };
+        return {
+          ...ms,
+          data: { title: raw.title, lyrics: raw.lyrics ?? "" },
+        };
+      }
+      // Normalize weekly-prayer: migrate legacy string values → string[]
+      if (s.type === "weekly-prayer") {
+        const wp = s as WeeklyPrayerSectionData;
+        const normalized: Record<string, string[]> = {};
+        for (const [key, val] of Object.entries(
+          wp.data as unknown as Record<string, unknown>,
+        )) {
+          normalized[key] = Array.isArray(val)
+            ? (val as string[])
+            : typeof val === "string" && val
+              ? [val]
+              : [];
+        }
+        return { ...wp, data: normalized };
+      }
+      return s;
+    });
+}
+
+// Returns the previous bulletin's data for a section, if a section with the
+// same id and type exists in it (used to carry forward repetitive sections
+// like assignments/monthly-song/birthdays/weekly-prayer between weeks).
+// Mirrors copyForward() in server/routes/bulletin.ts.
+function copyForward<T>(
+  previousById: Map<string, SectionData>,
+  id: string,
+  type: SectionData["type"],
+): T | undefined {
+  const prev = previousById.get(id);
+  return prev?.type === type ? (prev.data as T) : undefined;
+}
+
 export function useBulletinForm() {
   const params = useParams<{ id?: string }>();
   const [searchParams] = useSearchParams<{ date?: string }>();
@@ -51,73 +117,54 @@ export function useBulletinForm() {
   const [template] = createResource(fetchTemplate);
   const [members] = createResource(fetchMembers);
 
+  // Previous bulletin's sections (for copy-forward), keyed on the target
+  // date of the new bulletin. Skipped when editing or when no date is set.
+  const [previousSections] = createResource(
+    () =>
+      !isEdit() && searchParams.date && DATE_RE.test(searchParams.date)
+        ? searchParams.date
+        : undefined,
+    async (date): Promise<SectionData[] | undefined> => {
+      const { bulletins: list } = await fetchBulletins();
+      const prev = list.find((b) => b.serviceDate < date);
+      if (!prev) return undefined;
+      const detail = await fetchBulletin(String(prev.id));
+      return normalizeSections(detail.sections);
+    },
+  );
+
   const [serviceDate, setServiceDate] = createSignal("");
   const [sections, setSections] = createSignal<SectionData[]>([]);
   const [submitting, setSubmitting] = createSignal(false);
   const [error, setError] = createSignal("");
   const [initialized, setInitialized] = createSignal(false);
 
-  // Reset when navigating between different bulletins so init effects re-run
+  // Reset when navigating between different bulletins (or a different target
+  // date for a new one) so init effects re-run instead of keeping stale data
   createEffect(
     on(
-      () => params.id,
+      () => [params.id, searchParams.date] as const,
       () => setInitialized(false),
     ),
   );
 
   function applyExisting(data: BulletinDetail) {
     setServiceDate(data.serviceDate);
-    const validSections = data.sections
-      .filter(
-        (s): s is SectionData =>
-          s.type === "worship-program" ||
-          s.type === "announcements" ||
-          s.type === "assignments" ||
-          s.type === "weekly-verse" ||
-          s.type === "monthly-song" ||
-          s.type === "text-block" ||
-          s.type === "weekly-prayer" ||
-          s.type === "upcoming-events" ||
-          s.type === "birthdays" ||
-          s.type === "scripture-quotes" ||
-          s.type === "attendance" ||
-          s.type === "service-meta" ||
-          s.type === "financial-summary",
-      )
-      .map((s): SectionData => {
-        // Normalize monthly-song: migrate legacy { keywords } → { lyrics }
-        if (s.type === "monthly-song") {
-          const ms = s as MonthlySongSectionData;
-          const raw = ms.data as { title: string; lyrics?: string };
-          return {
-            ...ms,
-            data: { title: raw.title, lyrics: raw.lyrics ?? "" },
-          };
-        }
-        // Normalize weekly-prayer: migrate legacy string values → string[]
-        if (s.type === "weekly-prayer") {
-          const wp = s as WeeklyPrayerSectionData;
-          const normalized: Record<string, string[]> = {};
-          for (const [key, val] of Object.entries(
-            wp.data as unknown as Record<string, unknown>,
-          )) {
-            normalized[key] = Array.isArray(val)
-              ? (val as string[])
-              : typeof val === "string" && val
-                ? [val]
-                : [];
-          }
-          return { ...wp, data: normalized };
-        }
-        return s;
-      });
-    setSections(validSections);
+    setSections(normalizeSections(data.sections));
   }
 
   // Initialize new bulletin from template
   createEffect(() => {
     const tmpl = template();
-    if (!isEdit() && tmpl && !initialized()) {
+    const waitingForPrevious = !!searchParams.date && previousSections.loading;
+    if (!isEdit() && tmpl && !initialized() && !waitingForPrevious) {
+      // Reading previousSections() while it's in an errored state re-throws
+      // the fetch error, so check .error first and degrade to "no previous
+      // bulletin found" instead of crashing new-bulletin initialization.
+      const previousList = previousSections.error
+        ? undefined
+        : previousSections();
+      const previousById = new Map(previousList?.map((s) => [s.id, s]));
       const built: SectionData[] = tmpl
         .filter((s) => s.visible !== false)
         .map((s): SectionData | null => {
@@ -161,7 +208,11 @@ export function useBulletinForm() {
               id: s.id,
               type: "monthly-song",
               label: s.label,
-              data: { title: "", lyrics: "" },
+              data: copyForward<MonthlySongSectionData["data"]>(
+                previousById,
+                s.id,
+                "monthly-song",
+              ) ?? { title: "", lyrics: "" },
             };
           }
           if (s.type === "text-block") {
@@ -177,15 +228,20 @@ export function useBulletinForm() {
               (s as WeeklyPrayerSectionTemplate).config.days.length > 0
                 ? (s as WeeklyPrayerSectionTemplate).config.days
                 : DEFAULT_WEEKLY_PRAYER_DAYS;
-            const data: Record<string, string[]> = {};
+            const defaultData: Record<string, string[]> = {};
             for (const d of days) {
-              data[d.key] = [...d.defaults];
+              defaultData[d.key] = [...d.defaults];
             }
             return {
               id: s.id,
               type: "weekly-prayer",
               label: s.label,
-              data,
+              data:
+                copyForward<WeeklyPrayerSectionData["data"]>(
+                  previousById,
+                  s.id,
+                  "weekly-prayer",
+                ) ?? defaultData,
             };
           }
           if (s.type === "upcoming-events") {
@@ -201,7 +257,12 @@ export function useBulletinForm() {
               id: s.id,
               type: "birthdays",
               label: s.label,
-              data: [],
+              data:
+                copyForward<BirthdaysSectionData["data"]>(
+                  previousById,
+                  s.id,
+                  "birthdays",
+                ) ?? [],
             };
           }
           if (s.type === "scripture-quotes") {
@@ -251,7 +312,17 @@ export function useBulletinForm() {
             };
           }
           if (s.type === "assignments") {
-            return { id: s.id, type: "assignments", label: s.label, data: {} };
+            return {
+              id: s.id,
+              type: "assignments",
+              label: s.label,
+              data:
+                copyForward<AssignmentsSectionData["data"]>(
+                  previousById,
+                  s.id,
+                  "assignments",
+                ) ?? {},
+            };
           }
           return null;
         })
