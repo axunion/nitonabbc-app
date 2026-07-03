@@ -7,7 +7,7 @@ import { authMiddleware } from "../middleware/auth.ts";
 import type { AppEnv } from "../types.ts";
 
 const SESSION_TTL = 60 * 60 * 24 * 30;
-const OAUTH_STATE_TTL = 600;
+export const OAUTH_STATE_TTL = 600;
 
 // Binds the OAuth state to the browser that started the flow, so a callback
 // completed in a different browser (login CSRF / session fixation) is rejected.

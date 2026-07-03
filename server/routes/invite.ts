@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { users } from "../db/schema.ts";
 import type { AppEnv } from "../types.ts";
-import { setOAuthStateCookie } from "./auth.ts";
+import { OAUTH_STATE_TTL, setOAuthStateCookie } from "./auth.ts";
 
 export const inviteRoute = new Hono<AppEnv>();
 
@@ -30,7 +30,7 @@ inviteRoute.get("/:token", async (c) => {
   await c.env.SESSION_KV.put(
     `oauth_state:${state}`,
     JSON.stringify({ inviteToken: token }),
-    { expirationTtl: 600 },
+    { expirationTtl: OAUTH_STATE_TTL },
   );
   setOAuthStateCookie(c, state);
 
