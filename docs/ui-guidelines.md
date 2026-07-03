@@ -83,7 +83,7 @@ iOS 26 (Liquid Glass) のナビゲーションパターンを参照基準とす�
 
 - 画面下部にフローティング表示（ピル形状）、2タブ構成（教会 / 設定）
 - `<button>` で実装（`<A>` ではない）。タブクリック時の挙動を制御するため
-- 子ページでも常に表示する
+- モバイル（<900px）ではタブルートページ（`/`, `/settings`）でのみ表示し、子ページ（`/bulletin/*`, `/admin/*` など）では非表示にする（`location.pathname` に応じて `display: none` を切り替え）。デスクトップのサイドバー表示では子ページを含め常時表示する
 - `env(safe-area-inset-bottom)` でノッチ対応（`bottom: calc(env(safe-area-inset-bottom) + 12px)`）
 - 幅: `min(calc(100vw - 32px), 448px)`、中央揃え
 - フロスト白グラスモーフィズム背景（`--glass-bg-chrome` + backdrop-filter）、`--radius-full` で全丸
@@ -143,6 +143,7 @@ import { FileText } from "lucide-solid";
 | ダッシュボード ウィジェット | 24px |
 | タブバーアイコン | 20px |
 | メニュー内アイコン | 20px |
+| 外部リンクバッジ（新規タブで開くウィジェット） | 12px |
 
 ## タッチターゲット
 
@@ -204,7 +205,8 @@ import { FileText } from "lucide-solid";
 - グリッド全体を `max-width: var(--app-max-width)` + 中央寄せ（TabBar と幅を揃えるため共通トークンを使用）
 - ウィジェットのスタイル: アイコン（24px, 48px 円形ラッパー）+ ラベルのみ、中央寄せ
 - ウィジェットはグラスカードスタイル + `--shadow-md` を適用
-- 各ウィジェットの `grid-column` span はアイテム数に応じて調整する
+- `grid-column` span は固定: 週報ウィジェット（`widgetPrimary`）のみ `span 2`、他のウィジェットは `span 1`
+- デスクトップ（≥900px）で新規タブとして開く外部サービスウィジェット（経費精算・ファイル等）には、ラベル横に 12px の `PictureInPicture2` アイコンを外部リンクバッジとして表示する
 
 ## 管理画面テーマ（`/admin`）
 

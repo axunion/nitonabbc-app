@@ -19,6 +19,11 @@ export const ja = {
   login: {
     subtitle: "メンバーポータル",
     lineLogin: "LINEでログイン",
+    errorInvalidInvite:
+      "招待リンクが無効です。管理者に再発行を依頼してください",
+    errorLineAlreadyLinked: "このLINEアカウントは別のメンバーに連携済みです",
+    errorNotRegistered:
+      "名簿に登録されていません。管理者にお問い合わせください",
   },
   tabbar: {
     church: "教会",

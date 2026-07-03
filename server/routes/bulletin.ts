@@ -1,4 +1,4 @@
-import { desc, eq, sql } from "drizzle-orm";
+import { desc, eq, lt, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { bulletins, settings } from "../db/schema.ts";
 import {
@@ -135,7 +135,28 @@ async function getTemplate(
   return JSON.parse(row.value) as SectionTemplate[];
 }
 
-function buildSectionsFromTemplate(template: SectionTemplate[]): SectionData[] {
+type MonthlySongData = Extract<SectionData, { type: "monthly-song" }>["data"];
+type BirthdaysData = Extract<SectionData, { type: "birthdays" }>["data"];
+type AssignmentsData = Extract<SectionData, { type: "assignments" }>["data"];
+type WeeklyPrayerData = Extract<SectionData, { type: "weekly-prayer" }>["data"];
+
+// Returns the previous bulletin's data for a section, if a section with the
+// same id and type exists in it (used to carry forward repetitive sections
+// like assignments/monthly-song/birthdays/weekly-prayer between weeks).
+function copyForward<Data>(
+  previousById: Map<string, SectionData>,
+  id: string,
+  type: SectionData["type"],
+): Data | undefined {
+  const prev = previousById.get(id);
+  return prev?.type === type ? (prev.data as Data) : undefined;
+}
+
+function buildSectionsFromTemplate(
+  template: SectionTemplate[],
+  previousSections?: SectionData[],
+): SectionData[] {
+  const previousById = new Map(previousSections?.map((s) => [s.id, s]));
   return template
     .filter((s) => s.visible !== false)
     .map((s): SectionData => {
@@ -168,7 +189,11 @@ function buildSectionsFromTemplate(template: SectionTemplate[]): SectionData[] {
           id: s.id,
           type: "monthly-song",
           label: s.label,
-          data: { title: "", lyrics: "" },
+          data: copyForward<MonthlySongData>(
+            previousById,
+            s.id,
+            "monthly-song",
+          ) ?? { title: "", lyrics: "" },
         };
       }
       if (s.type === "text-block") {
@@ -180,6 +205,19 @@ function buildSectionsFromTemplate(template: SectionTemplate[]): SectionData[] {
         };
       }
       if (s.type === "weekly-prayer") {
+        const copied = copyForward<WeeklyPrayerData>(
+          previousById,
+          s.id,
+          "weekly-prayer",
+        );
+        if (copied) {
+          return {
+            id: s.id,
+            type: "weekly-prayer",
+            label: s.label,
+            data: copied,
+          };
+        }
         const days =
           s.config.days.length > 0 ? s.config.days : DEFAULT_WEEKLY_PRAYER_DAYS;
         const data: Record<string, string[]> = {};
@@ -202,7 +240,13 @@ function buildSectionsFromTemplate(template: SectionTemplate[]): SectionData[] {
         };
       }
       if (s.type === "birthdays") {
-        return { id: s.id, type: "birthdays", label: s.label, data: [] };
+        return {
+          id: s.id,
+          type: "birthdays",
+          label: s.label,
+          data:
+            copyForward<BirthdaysData>(previousById, s.id, "birthdays") ?? [],
+        };
       }
       if (s.type === "scripture-quotes") {
         return {
@@ -243,7 +287,13 @@ function buildSectionsFromTemplate(template: SectionTemplate[]): SectionData[] {
           data,
         };
       }
-      return { id: s.id, type: "assignments", label: s.label, data: {} };
+      return {
+        id: s.id,
+        type: "assignments",
+        label: s.label,
+        data:
+          copyForward<AssignmentsData>(previousById, s.id, "assignments") ?? {},
+      };
     });
 }
 
@@ -269,7 +319,6 @@ bulletinRoute.get("/", async (c) => {
 bulletinRoute.post("/generate", async (c) => {
   const db = c.get("db");
   const user = c.get("user");
-  const template = await getTemplate(db);
 
   const body = await c.req
     .json<{ serviceDate?: string }>()
@@ -282,7 +331,17 @@ bulletinRoute.post("/generate", async (c) => {
     serviceDate = getNextSunday();
   }
 
-  const sections = buildSectionsFromTemplate(template);
+  const [template, prevRows] = await Promise.all([
+    getTemplate(db),
+    db
+      .select()
+      .from(bulletins)
+      .where(lt(bulletins.serviceDate, serviceDate))
+      .orderBy(desc(bulletins.serviceDate))
+      .limit(1),
+  ]);
+
+  const sections = buildSectionsFromTemplate(template, prevRows[0]?.sections);
 
   try {
     const [newRow] = await db

@@ -21,6 +21,11 @@ export const en: Dictionary = {
   login: {
     subtitle: "Member Portal",
     lineLogin: "Login with LINE",
+    errorInvalidInvite:
+      "This invite link is invalid. Ask an admin to reissue it",
+    errorLineAlreadyLinked:
+      "This LINE account is already linked to another member",
+    errorNotRegistered: "You are not registered. Please contact an admin",
   },
   tabbar: {
     church: "Church",

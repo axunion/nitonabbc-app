@@ -511,6 +511,211 @@ describe("POST /api/bulletin/generate — section data shapes", () => {
   });
 });
 
+// --- Generate: copies from the previous bulletin ---
+
+describe("POST /api/bulletin/generate — copies from previous bulletin", () => {
+  it("copies assignments, monthly-song, birthdays, and weekly-prayer from the most recent bulletin", async () => {
+    const { user, env } = await seedMemberAndEnv();
+    await db.insert(schema.settings).values({
+      key: "bulletin_template",
+      value: JSON.stringify([
+        {
+          id: "assign",
+          type: "assignments",
+          label: "奉仕当番",
+          visible: true,
+          config: { roles: ["司会"] },
+        },
+        {
+          id: "song",
+          type: "monthly-song",
+          label: "今月の歌",
+          visible: true,
+          config: {},
+        },
+        {
+          id: "birthdays",
+          type: "birthdays",
+          label: "誕生日",
+          visible: true,
+          config: {},
+        },
+        {
+          id: "prayer",
+          type: "weekly-prayer",
+          label: "祈り",
+          visible: true,
+          config: {
+            days: [
+              { key: "日", label: "日曜日", defaults: [] },
+              { key: "月", label: "月曜日", defaults: [] },
+            ],
+          },
+        },
+      ]),
+    });
+    const prevSections = [
+      {
+        id: "assign",
+        type: "assignments",
+        label: "奉仕当番",
+        data: { 司会: "5" },
+      },
+      {
+        id: "song",
+        type: "monthly-song",
+        label: "今月の歌",
+        data: { title: "暗闇過ぎ去って", lyrics: "1番...\n2番..." },
+      },
+      {
+        id: "birthdays",
+        type: "birthdays",
+        label: "誕生日",
+        data: [{ day: "2日", name: "勇人兄" }],
+      },
+      {
+        id: "prayer",
+        type: "weekly-prayer",
+        label: "祈り",
+        data: { 日: ["牧師の働き"], 月: [] },
+      },
+    ];
+    await db.insert(schema.bulletins).values({
+      serviceDate: "2025-08-03",
+      sections: prevSections as never,
+      createdBy: user.id,
+      updatedBy: user.id,
+    });
+
+    const res = await testApp.request(
+      "http://localhost/api/bulletin/generate",
+      {
+        method: "POST",
+        headers: { ...memberHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({ serviceDate: "2025-08-10" }),
+      },
+      env,
+    );
+    expect(res.status).toBe(201);
+    const json = (await res.json()) as {
+      sections: { id: string; data: unknown }[];
+    };
+    const byId = (id: string) => json.sections.find((s) => s.id === id)?.data;
+    expect(byId("assign")).toEqual({ 司会: "5" });
+    expect(byId("song")).toEqual({
+      title: "暗闇過ぎ去って",
+      lyrics: "1番...\n2番...",
+    });
+    expect(byId("birthdays")).toEqual([{ day: "2日", name: "勇人兄" }]);
+    expect(byId("prayer")).toEqual({ 日: ["牧師の働き"], 月: [] });
+  });
+
+  it("falls back to empty data / template defaults when no previous bulletin exists", async () => {
+    const { env } = await seedMemberAndEnv();
+    await db.insert(schema.settings).values({
+      key: "bulletin_template",
+      value: JSON.stringify([
+        {
+          id: "assign",
+          type: "assignments",
+          label: "奉仕当番",
+          visible: true,
+          config: { roles: ["司会"] },
+        },
+        {
+          id: "song",
+          type: "monthly-song",
+          label: "今月の歌",
+          visible: true,
+          config: {},
+        },
+        {
+          id: "birthdays",
+          type: "birthdays",
+          label: "誕生日",
+          visible: true,
+          config: {},
+        },
+        {
+          id: "prayer",
+          type: "weekly-prayer",
+          label: "祈り",
+          visible: true,
+          config: {
+            days: [{ key: "日", label: "日曜日", defaults: ["牧師の働き"] }],
+          },
+        },
+      ]),
+    });
+
+    const res = await testApp.request(
+      "http://localhost/api/bulletin/generate",
+      {
+        method: "POST",
+        headers: { ...memberHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({ serviceDate: "2025-08-10" }),
+      },
+      env,
+    );
+    expect(res.status).toBe(201);
+    const json = (await res.json()) as {
+      sections: { id: string; data: unknown }[];
+    };
+    const byId = (id: string) => json.sections.find((s) => s.id === id)?.data;
+    expect(byId("assign")).toEqual({});
+    expect(byId("song")).toEqual({ title: "", lyrics: "" });
+    expect(byId("birthdays")).toEqual([]);
+    expect(byId("prayer")).toEqual({ 日: ["牧師の働き"] });
+  });
+
+  it("ignores a later bulletin when generating an earlier date", async () => {
+    const { user, env } = await seedMemberAndEnv();
+    await db.insert(schema.settings).values({
+      key: "bulletin_template",
+      value: JSON.stringify([
+        {
+          id: "assign",
+          type: "assignments",
+          label: "奉仕当番",
+          visible: true,
+          config: { roles: ["司会"] },
+        },
+      ]),
+    });
+    // A future bulletin already exists (e.g. a special date generated ahead of time)
+    await db.insert(schema.bulletins).values({
+      serviceDate: "2025-12-25",
+      sections: [
+        {
+          id: "assign",
+          type: "assignments",
+          label: "奉仕当番",
+          data: { 司会: "future-member" },
+        },
+      ] as never,
+      createdBy: user.id,
+      updatedBy: user.id,
+    });
+
+    const res = await testApp.request(
+      "http://localhost/api/bulletin/generate",
+      {
+        method: "POST",
+        headers: { ...memberHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({ serviceDate: "2025-08-10" }),
+      },
+      env,
+    );
+    expect(res.status).toBe(201);
+    const json = (await res.json()) as {
+      sections: { id: string; data: unknown }[];
+    };
+    const byId = (id: string) => json.sections.find((s) => s.id === id)?.data;
+    // Must not copy from the later (2025-12-25) bulletin
+    expect(byId("assign")).toEqual({});
+  });
+});
+
 // --- Progress counting ---
 
 async function seedBulletinWithTemplate(

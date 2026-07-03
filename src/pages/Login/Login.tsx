@@ -1,8 +1,33 @@
+import { useSearchParams } from "@solidjs/router";
+import { createEffect, on } from "solid-js";
+import { showToast } from "@/components/Toast/index.ts";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import styles from "./Login.module.css";
 
+// Keys must match the ?error= values redirected from server/routes/auth.ts
+// (see the c.redirect("/?error=...") calls in the callback handler).
+const ERROR_MESSAGE_KEYS = {
+  invalid_invite: "login.errorInvalidInvite",
+  line_already_linked: "login.errorLineAlreadyLinked",
+  not_registered: "login.errorNotRegistered",
+} as const;
+
 export function Login() {
   const { t } = useLocale();
+  const [searchParams] = useSearchParams<{ error?: string }>();
+
+  createEffect(
+    on(
+      () => searchParams.error,
+      (error) => {
+        const key =
+          error && Object.hasOwn(ERROR_MESSAGE_KEYS, error)
+            ? ERROR_MESSAGE_KEYS[error as keyof typeof ERROR_MESSAGE_KEYS]
+            : undefined;
+        if (key) showToast(t(key), "error");
+      },
+    ),
+  );
 
   return (
     <div class={styles.container}>

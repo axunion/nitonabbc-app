@@ -386,6 +386,8 @@ settings テーブルのキー: `church_profile`
 | `bulletin_template` | テンプレート（`SectionTemplate[]`） |
 | `church_profile` | 教会プロフィール |
 
+`bulletin_template` が未設定で、旧キー `worship_template`（`TemplateItem[]` 形式）にデータが残っている場合、`GET /api/bulletin-template` が初回アクセス時に自動的に `SectionTemplate[]` 形式へ変換して `bulletin_template` に保存し、旧キーを削除する（`server/routes/bulletinTemplate.ts` の `migrateOldTemplate`）。
+
 ---
 
 ## 8. API エンドポイント
@@ -410,9 +412,9 @@ settings テーブルのキー: `church_profile`
 
 生成ロジック:
 - テンプレートからセクション構造を生成
-- `weekly-prayer` はテンプレートの `config.days[*].defaults` を初期値としてコピー
-- 直近の週報が存在する場合、繰り返し性が高いセクション（`weekly-prayer`, `assignments`, `monthly-song`, `birthdays` など）は値をコピー
-- `announcements`, `upcoming-events`, `weekly-verse` は空で初期化
+- 直近の週報（`service_date` が最も新しいもの）が存在する場合、繰り返し性が高いセクション（`weekly-prayer`, `assignments`, `monthly-song`, `birthdays`）は `id` が一致するセクションの値をコピーする
+- 直近の週報が存在しない場合（初回生成時）、`weekly-prayer` はテンプレートの `config.days[*].defaults` を初期値として使用し、`assignments`/`monthly-song`/`birthdays` は空で初期化する
+- `announcements`, `upcoming-events`, `weekly-verse` は常に空で初期化（前回週報の値はコピーしない）
 
 ### テンプレート管理
 

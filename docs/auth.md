@@ -107,7 +107,7 @@
 | `server/routes/invite.ts` | 招待トークン検証・LINE認証リダイレクト |
 | `src/store/auth.ts` | `/api/auth/me` を `createResource` で取得する認証ストア |
 | `src/store/AuthContext.tsx` | `AuthProvider` と `useAuth()` フック（コンポーネントが利用） |
-| `src/pages/Login/` | ログイン画面（LINE ボタン） |
+| `src/pages/Login/` | ログイン画面（LINE ボタン、`?error=` クエリパラメータを読み取りトースト表示） |
 | `server/db/schema.ts` | D1 users テーブル定義（Drizzle スキーマ）（`invite_token NOT NULL UNIQUE`, `invite_used`, `is_active` 含む） |
 | `wrangler.jsonc` | D1（`DB`）・KV（`SESSION_KV`）バインディング設定 |
 
