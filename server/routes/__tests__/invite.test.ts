@@ -56,16 +56,17 @@ describe("GET /api/invite/:token", () => {
     expect(setCookie).toContain("HttpOnly");
   });
 
-  it("returns 404 for a non-existent token", async () => {
+  it("redirects with invalid_invite for a non-existent token", async () => {
     const res = await testApp.request(
       "http://localhost/api/invite/nonexistent",
       {},
       createEnv(),
     );
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toContain("error=invalid_invite");
   });
 
-  it("returns 400 for an already-used token", async () => {
+  it("redirects with invalid_invite for an already-used token", async () => {
     await db.insert(schema.users).values({
       name: "Member",
       inviteToken: "used-token",
@@ -77,10 +78,11 @@ describe("GET /api/invite/:token", () => {
       {},
       createEnv(),
     );
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toContain("error=invalid_invite");
   });
 
-  it("returns 404 for an inactive user", async () => {
+  it("redirects with invalid_invite for an inactive user", async () => {
     await db.insert(schema.users).values({
       name: "Inactive",
       inviteToken: "inactive-token",
@@ -92,10 +94,11 @@ describe("GET /api/invite/:token", () => {
       {},
       createEnv(),
     );
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toContain("error=invalid_invite");
   });
 
-  it("returns 400 when LINE account is already linked", async () => {
+  it("redirects with invalid_invite when LINE account is already linked", async () => {
     await db.insert(schema.users).values({
       name: "Linked",
       lineUserId: "U_already_linked",
@@ -108,6 +111,7 @@ describe("GET /api/invite/:token", () => {
       {},
       createEnv(),
     );
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toContain("error=invalid_invite");
   });
 });

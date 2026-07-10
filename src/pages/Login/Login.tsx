@@ -10,6 +10,7 @@ const ERROR_MESSAGE_KEYS = {
   invalid_invite: "login.errorInvalidInvite",
   line_already_linked: "login.errorLineAlreadyLinked",
   not_registered: "login.errorNotRegistered",
+  auth_failed: "login.errorAuthFailed",
 } as const;
 
 export function Login() {

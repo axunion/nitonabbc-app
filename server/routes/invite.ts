@@ -14,16 +14,10 @@ inviteRoute.get("/:token", async (c) => {
     where: eq(users.inviteToken, token),
   });
 
-  if (!row?.isActive) {
-    return c.json({ error: "Invalid invite token" }, 404);
-  }
-
-  if (row.inviteUsed) {
-    return c.json({ error: "Invite already used" }, 400);
-  }
-
-  if (row.lineUserId) {
-    return c.json({ error: "LINE account already linked" }, 400);
+  // Any unusable link redirects to the login screen with ?error= so end
+  // users see a localized toast instead of a raw JSON response.
+  if (!row?.isActive || row.inviteUsed || row.lineUserId) {
+    return c.redirect("/?error=invalid_invite");
   }
 
   const state = crypto.randomUUID();
@@ -40,7 +34,7 @@ inviteRoute.get("/:token", async (c) => {
     client_id: c.env.LINE_CHANNEL_ID,
     redirect_uri: redirectUri,
     state,
-    scope: "profile openid",
+    scope: "profile",
   });
 
   return c.redirect(

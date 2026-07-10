@@ -57,7 +57,7 @@ authRoute.get("/login", async (c) => {
     client_id: c.env.LINE_CHANNEL_ID,
     redirect_uri: redirectUri,
     state,
-    scope: "profile openid",
+    scope: "profile",
   });
 
   return c.redirect(
@@ -69,20 +69,23 @@ authRoute.get("/callback", async (c) => {
   const db = c.get("db");
   const { code, state } = c.req.query();
 
+  // Failures redirect to the login screen with ?error= so end users see a
+  // localized toast instead of a raw JSON response (also covers the user
+  // cancelling on the LINE consent screen, which omits code/state).
   if (!code || !state) {
-    return c.json({ error: "Invalid callback parameters" }, 400);
+    return c.redirect("/?error=auth_failed");
   }
 
   // The state cookie binds this callback to the browser that started the flow.
   const cookieState = getCookie(c, "oauth_state");
   deleteCookie(c, "oauth_state", { path: "/" });
   if (!cookieState || cookieState !== state) {
-    return c.json({ error: "Invalid or expired state" }, 400);
+    return c.redirect("/?error=auth_failed");
   }
 
   const storedState = await c.env.SESSION_KV.get(`oauth_state:${state}`);
   if (!storedState) {
-    return c.json({ error: "Invalid or expired state" }, 400);
+    return c.redirect("/?error=auth_failed");
   }
   await c.env.SESSION_KV.delete(`oauth_state:${state}`);
 
@@ -112,7 +115,7 @@ authRoute.get("/callback", async (c) => {
   });
 
   if (!tokenRes.ok) {
-    return c.json({ error: "Failed to exchange token" }, 500);
+    return c.redirect("/?error=auth_failed");
   }
 
   const tokenData = (await tokenRes.json()) as { access_token: string };
@@ -122,7 +125,7 @@ authRoute.get("/callback", async (c) => {
   });
 
   if (!profileRes.ok) {
-    return c.json({ error: "Failed to fetch LINE profile" }, 500);
+    return c.redirect("/?error=auth_failed");
   }
 
   const profile = (await profileRes.json()) as { userId: string };
@@ -172,7 +175,7 @@ authRoute.get("/callback", async (c) => {
     return c.redirect("/?error=not_registered");
   }
 
-  await issueSession(c, row.id, row.lineUserId ?? profile.userId, row.role);
+  await issueSession(c, row.id, profile.userId, row.role);
   return c.redirect("/");
 });
 

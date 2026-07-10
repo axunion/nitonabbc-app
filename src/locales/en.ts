@@ -26,6 +26,7 @@ export const en: Dictionary = {
     errorLineAlreadyLinked:
       "This LINE account is already linked to another member",
     errorNotRegistered: "You are not registered. Please contact an admin",
+    errorAuthFailed: "Login failed. Please try again",
   },
   tabbar: {
     church: "Church",

@@ -36,7 +36,7 @@ describe("GET /api/auth/login", () => {
     const location = res.headers.get("Location") ?? "";
     expect(location).toContain("access.line.me");
     expect(location).toContain("client_id=test_channel_id");
-    expect(location).toContain("scope=profile+openid");
+    expect(new URL(location).searchParams.get("scope")).toBe("profile");
   });
 
   it("stores oauth state in KV with 10-minute TTL", async () => {
@@ -66,25 +66,27 @@ describe("GET /api/auth/login", () => {
 });
 
 describe("GET /api/auth/callback", () => {
-  it("returns 400 when code and state are missing", async () => {
+  it("redirects with auth_failed when code and state are missing", async () => {
     const res = await testApp.request(
       "http://localhost/api/auth/callback",
       {},
       createEnv(),
     );
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toContain("error=auth_failed");
   });
 
-  it("returns 400 when state is not found in KV", async () => {
+  it("redirects with auth_failed when state is not found in KV", async () => {
     const res = await testApp.request(
       "http://localhost/api/auth/callback?code=testcode&state=invalid_state",
       { headers: { Cookie: "oauth_state=invalid_state" } },
       createEnv(),
     );
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toContain("error=auth_failed");
   });
 
-  it("returns 400 when the oauth_state cookie is missing", async () => {
+  it("redirects with auth_failed when the oauth_state cookie is missing", async () => {
     const state = "valid_state";
     const kv = createMockKV({ [`oauth_state:${state}`]: "1" });
     const env = createEnv({ SESSION_KV: kv });
@@ -93,10 +95,11 @@ describe("GET /api/auth/callback", () => {
       {},
       env,
     );
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toContain("error=auth_failed");
   });
 
-  it("returns 400 when the oauth_state cookie does not match the query state", async () => {
+  it("redirects with auth_failed when the oauth_state cookie does not match the query state", async () => {
     const state = "valid_state";
     const kv = createMockKV({ [`oauth_state:${state}`]: "1" });
     const env = createEnv({ SESSION_KV: kv });
@@ -105,10 +108,11 @@ describe("GET /api/auth/callback", () => {
       { headers: { Cookie: "oauth_state=attacker_state" } },
       env,
     );
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toContain("error=auth_failed");
   });
 
-  it("returns 500 when LINE token exchange fails", async () => {
+  it("redirects with auth_failed when LINE token exchange fails", async () => {
     const state = "valid_state";
     const kv = createMockKV({ [`oauth_state:${state}`]: "1" });
     const env = createEnv({ SESSION_KV: kv });
@@ -120,10 +124,11 @@ describe("GET /api/auth/callback", () => {
       { headers: { Cookie: `oauth_state=${state}` } },
       env,
     );
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toContain("error=auth_failed");
   });
 
-  it("returns 500 when LINE profile fetch fails", async () => {
+  it("redirects with auth_failed when LINE profile fetch fails", async () => {
     const state = "valid_state";
     const kv = createMockKV({ [`oauth_state:${state}`]: "1" });
     const env = createEnv({ SESSION_KV: kv });
@@ -139,7 +144,8 @@ describe("GET /api/auth/callback", () => {
       { headers: { Cookie: `oauth_state=${state}` } },
       env,
     );
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toContain("error=auth_failed");
   });
 
   it("redirects to /?error=not_registered when user not found in DB", async () => {

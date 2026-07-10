@@ -24,6 +24,7 @@ export const ja = {
     errorLineAlreadyLinked: "このLINEアカウントは別のメンバーに連携済みです",
     errorNotRegistered:
       "名簿に登録されていません。管理者にお問い合わせください",
+    errorAuthFailed: "ログインに失敗しました。もう一度お試しください",
   },
   tabbar: {
     church: "教会",

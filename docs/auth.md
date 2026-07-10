@@ -75,6 +75,7 @@
 
 - LINE Developers Console でチャネル作成が必要
 - コールバックURL: `https://<domain>/api/auth/callback`
+- スコープ: `profile` のみ
 - 取得するプロフィール情報: ユーザーID、表示名、プロフィール画像
 
 ## API エンドポイント
@@ -87,15 +88,16 @@
 | GET | `/api/auth/me` | 現在のユーザー情報を取得 | ✅ |
 | GET | `/api/invite/:token` | 招待トークンを検証し、LINE認証へリダイレクト | ✅ |
 
-### callback エラーリダイレクト
+### エラーリダイレクト
 
-`/api/auth/callback` は失敗時にトップページへリダイレクトしクエリパラメータでエラー種別を通知する。
+`/api/auth/callback` と `/api/invite/:token` は失敗時にトップページへリダイレクトし、クエリパラメータでエラー種別を通知する（生の JSON エラーは返さない）。ログイン画面が `?error=` を読み取りトーストを表示する。
 
 | `?error=` 値 | 状況 |
 |-------------|------|
-| `invalid_invite` | 招待トークンが存在しない / 使用済み |
+| `invalid_invite` | 招待トークンが存在しない / 使用済み / 無効化済み / LINE 紐付け済み |
 | `line_already_linked` | その LINE アカウントは別メンバーに紐付き済み |
 | `not_registered` | 名簿に存在しない LINE アカウント（招待なし直接ログイン） |
+| `auth_failed` | 認証フローの失敗全般（LINE 同意画面でのキャンセル、state の失効・不一致、LINE API エラー） |
 
 ## 実装ファイル
 
