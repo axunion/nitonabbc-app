@@ -40,8 +40,6 @@ import {
   type WorshipProgramSectionData,
 } from "@/types/bulletin.ts";
 
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-
 // Filters AnySection[] down to known SectionData variants and migrates
 // legacy monthly-song/weekly-prayer data shapes to the current format.
 function normalizeSections(sections: AnySection[]): SectionData[] {
@@ -120,10 +118,7 @@ export function useBulletinForm() {
   // Previous bulletin's sections (for copy-forward), keyed on the target
   // date of the new bulletin. Skipped when editing or when no date is set.
   const [previousSections] = createResource(
-    () =>
-      !isEdit() && searchParams.date && DATE_RE.test(searchParams.date)
-        ? searchParams.date
-        : undefined,
+    () => (!isEdit() && searchParams.date ? searchParams.date : undefined),
     async (date): Promise<SectionData[] | undefined> => {
       const { bulletins: list } = await fetchBulletins();
       const prev = list.find((b) => b.serviceDate < date);
@@ -156,7 +151,7 @@ export function useBulletinForm() {
   // Initialize new bulletin from template
   createEffect(() => {
     const tmpl = template();
-    const waitingForPrevious = !!searchParams.date && previousSections.loading;
+    const waitingForPrevious = previousSections.loading;
     if (!isEdit() && tmpl && !initialized() && !waitingForPrevious) {
       // Reading previousSections() while it's in an errored state re-throws
       // the fetch error, so check .error first and degrade to "no previous

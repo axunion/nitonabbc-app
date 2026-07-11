@@ -205,30 +205,22 @@ function buildSectionsFromTemplate(
         };
       }
       if (s.type === "weekly-prayer") {
-        const copied = copyForward<WeeklyPrayerData>(
-          previousById,
-          s.id,
-          "weekly-prayer",
-        );
-        if (copied) {
-          return {
-            id: s.id,
-            type: "weekly-prayer",
-            label: s.label,
-            data: copied,
-          };
-        }
         const days =
           s.config.days.length > 0 ? s.config.days : DEFAULT_WEEKLY_PRAYER_DAYS;
-        const data: Record<string, string[]> = {};
+        const defaultData: Record<string, string[]> = {};
         for (const d of days) {
-          data[d.key] = [...d.defaults];
+          defaultData[d.key] = [...d.defaults];
         }
         return {
           id: s.id,
           type: "weekly-prayer",
           label: s.label,
-          data,
+          data:
+            copyForward<WeeklyPrayerData>(
+              previousById,
+              s.id,
+              "weekly-prayer",
+            ) ?? defaultData,
         };
       }
       if (s.type === "upcoming-events") {
