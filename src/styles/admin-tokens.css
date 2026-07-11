@@ -6,6 +6,8 @@
 :root {
   /* --- Surfaces (neutral zinc) --- */
   --admin-background: #fafafa;
+  /* Same hue as --admin-background; alpha matches --glass-bg-chrome (0.82) */
+  --admin-background-translucent: rgba(250, 250, 250, 0.82);
   --admin-foreground: #18181b;
   --admin-card: #ffffff;
   --admin-card-foreground: #18181b;

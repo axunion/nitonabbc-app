@@ -2,6 +2,12 @@
   composes: pageContainer from "../../styles/admin.module.css";
 }
 
+/* Lift the width cap onto .layoutGrid so the sticky bar can bleed full width.
+   Doubled class beats the composed admin rules regardless of bundle order. */
+.container.container {
+  max-width: none;
+}
+
 .pageTitle {
   composes: pageTitle from "../../styles/admin.module.css";
   margin-bottom: var(--space-2);
@@ -25,6 +31,7 @@
   align-items: flex-start;
   gap: var(--space-6);
   width: 100%;
+  max-width: calc(var(--admin-content-max) - 2 * var(--space-6));
 }
 
 .toc {
@@ -428,10 +435,14 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  width: 100%;
-  padding: var(--space-3) 0;
+  width: calc(100% + 2 * var(--space-6));
+  margin-left: calc(-1 * var(--space-6));
+  /* Cancel the container's bottom padding so the bar sits flush when
+     scrolled to the end */
+  margin-bottom: calc(-1 * var(--space-6));
+  padding: var(--space-3) var(--space-6);
   margin-top: var(--space-4);
-  background: var(--admin-background);
+  background: var(--admin-background-translucent);
   border-top: 1px solid var(--admin-border);
 }
 

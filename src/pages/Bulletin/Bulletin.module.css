@@ -388,26 +388,25 @@
 /* ---- Desktop layout ---- */
 
 @media (min-width: 900px) {
+  /* Match the admin pageContainer metrics (left-aligned, space-6 padding).
+     Doubled class beats the composed shared rules regardless of bundle order.
+     The width cap lives on .layoutGrid so the sticky bar can bleed full width. */
+  .container.container {
+    --container-padding: var(--space-6);
+    padding: var(--space-6);
+    align-items: stretch;
+  }
+
   .form {
     --toc-width: 180px;
-    --form-body-max: 640px;
-    --layout-max-width: calc(
-      var(--toc-width) +
-      var(--space-6) +
-      var(--form-body-max)
-    );
   }
 
   .layoutGrid {
-    max-width: var(--layout-max-width);
-    margin: 0 auto;
+    max-width: calc(var(--admin-content-max) - 2 * var(--space-6));
+    margin: 0;
     flex-direction: row;
     align-items: flex-start;
     gap: var(--space-6);
-  }
-
-  .formBody {
-    max-width: var(--form-body-max);
   }
 
   .toc {
@@ -426,10 +425,16 @@
 
   .stickyBar {
     padding-bottom: var(--space-3);
+    /* Cancel the container's bottom padding so the bar sits flush when
+       scrolled to the end */
+    margin-bottom: calc(-1 * var(--container-padding));
   }
 
-  .stickyBarInner {
-    max-width: var(--layout-max-width);
-    margin: 0 auto;
+  .container .cancelButton {
+    min-width: 0;
+  }
+
+  .container .error {
+    max-width: calc(var(--admin-content-max) - 2 * var(--space-6));
   }
 }
