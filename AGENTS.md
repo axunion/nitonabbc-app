@@ -1,8 +1,6 @@
 # AGENTS.md
 
-This file provides guidance to Claude Code when working with this repository.
-
-> **Keep in sync**: `CLAUDE.md` and `AGENTS.md` must always have identical content. When editing this file, apply the same changes to `CLAUDE.md`.
+This file provides guidance to AI coding agents (Claude Code and others) when working with this repository.
 
 ## Project Overview
 
@@ -17,14 +15,26 @@ PWA for members (~30) of Nitonabbc Church. Solid.js + TypeScript, Vite build, pn
 
 Bias toward caution over speed; on trivial tasks, use judgment.
 
-- **Think before coding.** State assumptions; if uncertain or multiple interpretations exist, surface them rather than silently picking one. Push back when a simpler path exists.
-- **Simplest thing that works.** Write the minimum code that solves the stated problem — no speculative abstractions, flexibility, or error handling for impossible cases.
-- **Surgical changes.** Every changed line should trace to the request. Don't refactor or reformat adjacent code that isn't broken; match the surrounding style. Remove only the symbols your change orphans; leave unrelated dead code and mention it.
-- **Goal-driven.** Turn each task into a verifiable outcome (e.g. "fix the bug" → write a failing test, then make it pass). For multi-step work, state a brief plan with a verification check per step.
+- **Think before coding.** State assumptions. Make routine judgment calls yourself and
+  note them; ask only when different interpretations would lead to materially different
+  work. If a simpler path exists, say so and push back when warranted.
+- **Simplest thing that works.** Write the minimum code that solves the stated problem —
+  nothing speculative. No unasked-for abstractions, flexibility, or error handling for
+  impossible cases. If 200 lines could be 50, rewrite it.
+- **Surgical changes.** Every changed line should trace to the request. Don't refactor,
+  reformat, or "improve" adjacent code that isn't broken; match the surrounding style.
+  Remove only the imports and symbols your change orphaned; leave unrelated dead code alone
+  and mention it.
+- **Goal-driven.** Turn each task into a verifiable outcome ("fix the bug" → "write a
+  failing test that reproduces it, then make it pass"). For multi-step work, state a brief
+  plan before starting.
 
-## Language Policy
+## Language
 
-All files in this repository — including `CLAUDE.md`, `.claude/` configs, source code comments, commit messages, and dev console output — are written in **English**.
+Write everything in **English** — in-code comments, console output, error and log
+messages, AI-readable instruction files, and docs meant for readers (README and the
+like). This rule applies to artifacts, not conversation: chat replies and
+development-time planning notes follow the language the user is working in.
 
 ## Specification Documents
 
@@ -55,15 +65,11 @@ The npm scripts `deploy` and `db:migrate:remote` are **intentionally not defined
 
 ## Architecture
 
-- **Entry**: `index.html` → `src/index.tsx` → `src/App.tsx`
 - **Routing**: `@solidjs/router`. Routes defined in `src/index.tsx`, root layout in `src/App.tsx` (auth gate + Toaster)
   - Member routes (`/`, `/settings`, `/bulletin/*`) nest under `MemberLayout` (TabBar)
   - Admin routes (`/admin/*`) nest under `AdminLayout` (sidebar, admin role guard)
-  - TabBar: bottom pill on mobile (<900px), vertical sidebar on desktop (≥900px). Each tab remembers and restores its last URL (iOS UITabBarController equivalent)
-- **Path alias**: `@/` → `./src` (configured in both `vite.config.ts` and `tsconfig.app.json`)
+  - TabBar behavior (mobile vs desktop, per-tab state restoration): see `docs/spec.md`
 - **Auth context**: `useAuth()` from `src/store/AuthContext.tsx` — provides user info and `logout`
-- **JSX**: Solid.js transform (`jsxImportSource: solid-js`)
-- **Deploy**: Cloudflare Workers + static assets
 
 See `.claude/rules/` for detailed conventions per area (UI, CSS, API, testing).
 
@@ -93,70 +99,40 @@ See `.claude/rules/` for detailed conventions per area (UI, CSS, API, testing).
 
 KV / D1 bindings are isolated per environment. LINE Login callback URLs must be configured per environment.
 
-## Commands
-
-- `pnpm check` — Biome lint/format + TypeScript check
-- `pnpm test` — run tests (Vitest, `server/**/*.test.ts` only)
-
 ## Database (Cloudflare D1 + Drizzle)
 
-- Schema: `server/db/schema.ts` is the single source of truth
-- Access DB via `c.get("db")` — never use `c.env.DB` directly in routes or middleware
-- Migrations: `pnpm db:generate` → commit `drizzle/` → `pnpm db:migrate:local`
-- Local DB commands:
-  - `pnpm db:reset` — wipe local D1 + re-apply all migrations
-  - `pnpm db:seed` — insert sample data (`scripts/seed.sql`)
-  - `pnpm db:fresh` — `db:reset` + `db:seed` in one step
-- Use `/db-migrate` skill for guided schema change workflow
-- Production migrations run via GitHub Actions only (never `--remote` locally)
+See `.claude/rules/api.md` for schema, access, and migration-command conventions (loads automatically when editing `server/`, `worker/`, or `drizzle/`). Use the `/db-migrate` skill for the guided schema-change workflow.
 
 ## Code Structure
 
 - Name variables, functions, and files to communicate intent.
+- One concern per file; split new code when a file exceeds ~300 lines. Don't split
+  existing files unless asked.
 - Extract a helper only when used in 3+ places; otherwise inline it.
-- One concern per file; split when a file exceeds ~300 lines.
-- Delete dead code; never comment it out.
-- Biome config in `biome.json` (indentStyle:space, quoteStyle:double, VCS integration, organizeImports)
+- Delete dead code you create; never comment it out.
 
 ## Testing
 
 - **TDD**: write the test first (Red → Green → Refactor). See `.claude/rules/testing.md`
+  for test targets, structure, and utilities.
 - Test observable outcomes and edge cases, not implementation details.
-- Each test must be fully self-contained; no shared mutable state between tests.
+- Each test is fully self-contained; no shared mutable state between tests.
 
 ## Commits
 
-Format:
+Format — plain prose, no prefixes or labels (`feat:`, `fix:`, and the like):
 
 ```
-<one-line summary>
+<summary: imperative mood, ≤70 chars, no trailing period>
 
-<Why: one sentence — motivation or problem>
+<motivation: one sentence, only when not evident from the diff>
 
-- <change 1>
-- <change 2>
+- <change bullets: only for 2+ distinct changes>
 ```
 
-- Summary: imperative mood, ≤70 chars, no trailing period, no prefix tags (`feat:`, `fix:`, etc.).
-- Why line: include only when motivation is not evident from the diff alone.
-- Bullets: include only for 2+ distinct changes.
 - Never commit secrets (`*.key`, `*.pem`, `credentials*`).
-- Never use `--no-verify` or `--amend`; always create a new commit.
+- Never use `--no-verify`. Use `--amend` only when explicitly asked; default to a new commit.
 
 ## Claude Code Automation
 
 Configs in `.claude/rules/`, agents in `.claude/agents/`, skills in `.claude/skills/`.
-
-### Agents
-
-| Agent | When to use |
-|-------|-------------|
-| `security-reviewer` | Changing auth, sessions, invite links, or admin routes |
-
-### Skills
-
-| Skill | Purpose |
-|-------|---------|
-| `/spec-update` | Sync `docs/spec.md` and individual feature docs |
-| `/db-migrate` | Guided workflow for D1 schema changes |
-| `/new-feature` | Scaffold a brand-new feature across all layers (schema → API → UI → i18n → docs) |
