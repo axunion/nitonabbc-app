@@ -31,10 +31,13 @@ Bias toward caution over speed; on trivial tasks, use judgment.
 
 ## Language
 
-Write everything in **English** — in-code comments, console output, error and log
-messages, AI-readable instruction files, and docs meant for readers (README and the
-like). This rule applies to artifacts, not conversation: chat replies and
-development-time planning notes follow the language the user is working in.
+Write all durable artifacts in **English** — in-code comments, console output, error and
+log messages, AI-readable instruction files, and docs meant for readers (README and the
+like).
+
+Everything else follows the user's language: chat replies, and any document that only
+exists during development (scratch notes, planning notes, temporary docs not meant to
+ship).
 
 ## Specification Documents
 
@@ -113,8 +116,8 @@ See `.claude/rules/api.md` for schema, access, and migration-command conventions
 
 ## Testing
 
-- **TDD**: write the test first (Red → Green → Refactor). See `.claude/rules/testing.md`
-  for test targets, structure, and utilities.
+- Write tests before or alongside implementation — they are your success criteria.
+- If the project has no test setup, ask briefly: introduce one, or verify another way?
 - Test observable outcomes and edge cases, not implementation details.
 - Each test is fully self-contained; no shared mutable state between tests.
 
@@ -131,7 +134,8 @@ Format — plain prose, no prefixes or labels (`feat:`, `fix:`, and the like):
 ```
 
 - Never commit secrets (`*.key`, `*.pem`, `credentials*`).
-- Never use `--no-verify`. Use `--amend` only when explicitly asked; default to a new commit.
+- Never use `--no-verify`. Use `--amend` only when explicitly asked; default to a new
+  commit.
 
 ## Claude Code Automation
 

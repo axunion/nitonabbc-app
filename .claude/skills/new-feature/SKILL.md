@@ -66,14 +66,3 @@ layout in `docs/spec.md` (2-column grid, span per item count).
 ## 8. Verify
 
 Run `pnpm check && node_modules/.bin/vitest run`.
-
-## Checklist
-
-- [ ] `docs/<feature-name>.md` created and linked from `docs/spec.md`
-- [ ] Schema migrated (`drizzle/` committed)
-- [ ] API route + tests pass (TDD: test written first)
-- [ ] `src/api/<resource>.ts` added; no inline fetch in pages
-- [ ] Page implemented per `frontend.md` conventions and registered as a route in `src/index.tsx`
-- [ ] i18n namespace added to both `ja.ts` and `en.ts`
-- [ ] Dashboard entry point added if applicable
-- [ ] `pnpm check` and tests pass
