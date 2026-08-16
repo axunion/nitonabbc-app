@@ -40,10 +40,10 @@ Section-type-specific UI is provided through three dispatchers. When adding a ne
 
 ## Steps to add a section type (summary)
 
-1. Add `<Name>SectionTemplate` / `<Name>SectionData` types to `src/types/bulletin.ts` unions
-2. Add cases to the `SectionView` / `SectionEditor` / `SectionCard` dispatchers
-3. Add sanitize and `countProgress` logic on the server side
-4. Add test cases for the new type to `server/routes/__tests__/bulletin.test.ts`
-5. Add the section to `DEFAULT_TEMPLATE` in `server/routes/bulletinTemplateDefaults.ts` and update the §5 catalog / §8 default listing in `docs/bulletin.md`
+Follow the Type system, Dispatcher pattern, and Server-side constraints sections above,
+then:
+
+1. Add test cases for the new type to `server/routes/__tests__/bulletin.test.ts`
+2. Add the section to `DEFAULT_TEMPLATE` in `server/routes/bulletinTemplateDefaults.ts` and update the §5 catalog / §8 default listing in `docs/bulletin.md`
 
 For detailed section type specs (config / data format), see the §5 catalog in `@docs/bulletin.md`.

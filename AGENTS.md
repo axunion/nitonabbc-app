@@ -18,13 +18,11 @@ Bias toward caution over speed; on trivial tasks, use judgment.
 - **Think before coding.** State assumptions. Make routine judgment calls yourself and
   note them; ask only when different interpretations would lead to materially different
   work. If a simpler path exists, say so and push back when warranted.
-- **Simplest thing that works.** Write the minimum code that solves the stated problem —
-  nothing speculative. No unasked-for abstractions, flexibility, or error handling for
-  impossible cases. If 200 lines could be 50, rewrite it.
-- **Surgical changes.** Every changed line should trace to the request. Don't refactor,
-  reformat, or "improve" adjacent code that isn't broken; match the surrounding style.
-  Remove only the imports and symbols your change orphaned; leave unrelated dead code alone
-  and mention it.
+- **Simplest thing that works.** No abstractions or error handling for cases that can't
+  happen here. If 200 lines could be 50, rewrite it.
+- **Surgical changes.** Every changed line should trace to the request. Remove only the
+  imports and symbols your change orphaned; leave unrelated dead code alone and mention
+  it.
 - **Goal-driven.** Turn each task into a verifiable outcome ("fix the bug" → "write a
   failing test that reproduces it, then make it pass"). For multi-step work, state a brief
   plan before starting.
@@ -120,6 +118,9 @@ See `.claude/rules/api.md` for schema, access, and migration-command conventions
 - If the project has no test setup, ask briefly: introduce one, or verify another way?
 - Test observable outcomes and edge cases, not implementation details.
 - Each test is fully self-contained; no shared mutable state between tests.
+- Automated coverage is backend-only by design (see `.claude/rules/testing.md`); the
+  `tester` subagent runs it. Visual/subjective judgment on the frontend routes through
+  the visual-verification gate below, not through `tester`.
 
 ## Commits
 
@@ -136,6 +137,58 @@ Format — plain prose, no prefixes or labels (`feat:`, `fix:`, and the like):
 - Never commit secrets (`*.key`, `*.pem`, `credentials*`).
 - Never use `--no-verify`. Use `--amend` only when explicitly asked; default to a new
   commit.
+
+## Subagents
+
+Investigation, review, and verification run through dedicated read-only/test-only
+subagents. The main conversation always writes the code itself, at every tier below and
+across every turn of a `/goal` run — see the rationale at the end of this section.
+
+- **Trivial** (typo, one-line config tweak): implement directly, no agents.
+- **Non-trivial but contained** (a self-contained change in one area): implement
+  directly. Optionally run the built-in `Explore` agent first to confirm an existing
+  convention, or `researcher` when the change leans on Kobalte, drizzle-orm, or the LINE
+  Login API. Afterward, run `reviewer` and `tester` in parallel automatically, without
+  asking first — both are read-only/test-only, so the cost is low and they exist
+  specifically to catch blind spots in reviewing your own work. If the change touches
+  LINE auth, sessions, invite tokens, or admin routes, also run `security-reviewer`
+  alongside them.
+- **Large, ambiguous, or substantially touching a risk area** (LINE auth/session/invite
+  flow, or the bulletin section type system and its three dispatchers — see
+  `.claude/rules/bulletin.md`): propose that the user drive it with the built-in `/goal`
+  command, with a completion condition that explicitly requires `reviewer` and `tester`
+  (and `security-reviewer` where relevant) to pass — e.g. "implement X; done when
+  reviewer and tester report no issues," not just "implement X." Once set, each turn:
+  research (`Explore` + `researcher` in parallel) → implement here → `reviewer` +
+  `tester` (+ `security-reviewer` if applicable) in parallel, repeating until the
+  evaluator confirms the condition holds.
+
+No write agent exists at any tier: implementation is exactly the kind of work — multiple
+phases sharing significant context (planning, implementation, testing) with iterative
+refinement — that belongs in the main conversation. A write agent would also need nearly
+every tool, hand back a working tree rather than a useful summary, and forget its own
+code between fix passes.
+
+**Visual-verification gate** (a separate axis from the tiers above, keyed to whether the
+change touches rendered UI, not to how risky the change is):
+
+- No rendered surface touched: skip, no browser needed.
+- A small, isolated, single-property tweak: a quick manual glance at the running app is
+  enough.
+- Layout that can vary by viewport, a change spanning multiple components sharing
+  styles, or chasing a reported visual bug: run `inspector`. It needs no confirmation to
+  run, but it isn't automatic for every UI change either — invoking it is a judgment
+  call against these three cases, not a default step.
+
+**Agents** (`.claude/agents/`):
+
+| Agent | Role |
+|---|---|
+| `researcher` | Looks up external, non-codebase knowledge — Kobalte, drizzle-orm, and the LINE Login API — before implementation. Uses `mcp__context7` for version-aware doc lookup, scoped to this agent alone via its own frontmatter (`.mcp.json` was intentionally removed project-wide for this reason — see the agent file), falling back to `WebFetch`/`WebSearch`. |
+| `reviewer` | Reviews a pending diff for general correctness and adherence to `.claude/rules/*.md`. |
+| `tester` | Runs `node_modules/.bin/vitest run` and `pnpm check`. |
+| `security-reviewer` | Existing, narrower-scoped agent for LINE auth, sessions, invite tokens, and admin routes — kept alongside `reviewer` rather than merged into it. |
+| `inspector` | Drives a disposable Playwright/Chromium instance to screenshot and check for layout overflow. |
 
 ## Claude Code Automation
 
