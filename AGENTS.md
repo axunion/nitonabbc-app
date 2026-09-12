@@ -13,29 +13,25 @@ PWA for members (~30) of Nitonabbc Church. Solid.js + TypeScript, Vite build, pn
 
 ## Approach
 
-Bias toward caution over speed; on trivial tasks, use judgment.
-
-- **Think before coding.** State assumptions. Make routine judgment calls yourself and
-  note them; ask only when different interpretations would lead to materially different
-  work. If a simpler path exists, say so and push back when warranted.
-- **Simplest thing that works.** No abstractions or error handling for cases that can't
-  happen here. If 200 lines could be 50, rewrite it.
-- **Surgical changes.** Every changed line should trace to the request. Remove only the
-  imports and symbols your change orphaned; leave unrelated dead code alone and mention
-  it.
-- **Goal-driven.** Turn each task into a verifiable outcome ("fix the bug" → "write a
-  failing test that reproduces it, then make it pass"). For multi-step work, state a brief
-  plan before starting.
+- **Change scope.** Change only what was requested. Don't "improve" adjacent code,
+  comments, or formatting; match the existing style. Delete code your own change makes
+  unused, never leave it commented out. Point out pre-existing dead code only; don't
+  delete, split, or refactor it unless asked.
+- **Implementation size.** Don't add unrequested features, abstractions, or
+  configurability. Extract a helper only when it's used in 3+ places; otherwise inline
+  it. Don't write error handling for cases that can't happen.
+- **Uncertainty.** When more than one interpretation is possible, present the options
+  instead of silently picking one.
 
 ## Language
 
-Write all durable artifacts in **English** — in-code comments, console output, error and
-log messages, AI-readable instruction files, and docs meant for readers (README and the
-like).
+Default to the user's language for everything interactive — chat replies, plan-mode
+proposals, clarifying questions, and any other back-and-forth during the session.
 
-Everything else follows the user's language: chat replies, and any document that only
-exists during development (scratch notes, planning notes, temporary docs not meant to
-ship).
+Switch to English only for durable artifacts: things other people or tools will read
+after the session ends — in-code comments, console/log/error output, AI-readable
+instruction files, and reader-facing docs (README and the like). Scratch notes and other
+throwaway dev artifacts stay in the user's language.
 
 ## Specification Documents
 
@@ -74,22 +70,6 @@ The npm scripts `deploy` and `db:migrate:remote` are **intentionally not defined
 
 See `.claude/rules/` for detailed conventions per area (UI, CSS, API, testing).
 
-## Directory Structure
-
-- `src/components/<Name>/` — component, CSS module, and `index.ts` re-export
-- `src/pages/<Name>/` — page component (route-level screen), with `hooks/` for complex logic
-- `src/api/<resource>.ts` — API fetch functions (pages do not write fetch logic inline)
-- `src/store/` — Solid.js stores (`createResource`-based)
-- `src/styles/` — global styles (`tokens.css`, `reset.css`, `shared.module.css`)
-- `server/routes/` — Hono API routes (one file per resource)
-- `server/middleware/` — shared middleware
-- `server/db/schema.ts` — Drizzle schema (single source of truth)
-- `server/db/types.ts` — shared bulletin section types
-- `server/db/index.ts` — `createDb()` and `Db` type
-- `server/types.ts` — `AppEnv`, `User`, `SessionData`, and other server-wide types
-- `worker/index.ts` — Worker entry point (re-exports the Hono app)
-- `drizzle/` — drizzle-kit generated migration SQL (committed)
-
 ## Environments
 
 | Env | Description |
@@ -115,12 +95,8 @@ See `.claude/rules/api.md` for schema, access, and migration-command conventions
 ## Testing
 
 - Write tests before or alongside implementation — they are your success criteria.
-- If the project has no test setup, ask briefly: introduce one, or verify another way?
 - Test observable outcomes and edge cases, not implementation details.
 - Each test is fully self-contained; no shared mutable state between tests.
-- Automated coverage is backend-only by design (see `.claude/rules/testing.md`); the
-  `tester` subagent runs it. Visual/subjective judgment on the frontend routes through
-  the visual-verification gate below, not through `tester`.
 
 ## Commits
 
@@ -137,59 +113,3 @@ Format — plain prose, no prefixes or labels (`feat:`, `fix:`, and the like):
 - Never commit secrets (`*.key`, `*.pem`, `credentials*`).
 - Never use `--no-verify`. Use `--amend` only when explicitly asked; default to a new
   commit.
-
-## Subagents
-
-Investigation, review, and verification run through dedicated read-only/test-only
-subagents. The main conversation always writes the code itself, at every tier below and
-across every turn of a `/goal` run — see the rationale at the end of this section.
-
-- **Trivial** (typo, one-line config tweak): implement directly, no agents.
-- **Non-trivial but contained** (a self-contained change in one area): implement
-  directly. Optionally run the built-in `Explore` agent first to confirm an existing
-  convention, or `researcher` when the change leans on Kobalte, drizzle-orm, or the LINE
-  Login API. Afterward, run `reviewer` and `tester` in parallel automatically, without
-  asking first — both are read-only/test-only, so the cost is low and they exist
-  specifically to catch blind spots in reviewing your own work. If the change touches
-  LINE auth, sessions, invite tokens, or admin routes, also run `security-reviewer`
-  alongside them.
-- **Large, ambiguous, or substantially touching a risk area** (LINE auth/session/invite
-  flow, or the bulletin section type system and its three dispatchers — see
-  `.claude/rules/bulletin.md`): propose that the user drive it with the built-in `/goal`
-  command, with a completion condition that explicitly requires `reviewer` and `tester`
-  (and `security-reviewer` where relevant) to pass — e.g. "implement X; done when
-  reviewer and tester report no issues," not just "implement X." Once set, each turn:
-  research (`Explore` + `researcher` in parallel) → implement here → `reviewer` +
-  `tester` (+ `security-reviewer` if applicable) in parallel, repeating until the
-  evaluator confirms the condition holds.
-
-No write agent exists at any tier: implementation is exactly the kind of work — multiple
-phases sharing significant context (planning, implementation, testing) with iterative
-refinement — that belongs in the main conversation. A write agent would also need nearly
-every tool, hand back a working tree rather than a useful summary, and forget its own
-code between fix passes.
-
-**Visual-verification gate** (a separate axis from the tiers above, keyed to whether the
-change touches rendered UI, not to how risky the change is):
-
-- No rendered surface touched: skip, no browser needed.
-- A small, isolated, single-property tweak: a quick manual glance at the running app is
-  enough.
-- Layout that can vary by viewport, a change spanning multiple components sharing
-  styles, or chasing a reported visual bug: run `inspector`. It needs no confirmation to
-  run, but it isn't automatic for every UI change either — invoking it is a judgment
-  call against these three cases, not a default step.
-
-**Agents** (`.claude/agents/`):
-
-| Agent | Role |
-|---|---|
-| `researcher` | Looks up external, non-codebase knowledge — Kobalte, drizzle-orm, and the LINE Login API — before implementation. Uses `WebSearch`/`WebFetch` against each library's own docs; no MCP server is configured for this agent (`.mcp.json` is intentionally not used project-wide). |
-| `reviewer` | Reviews a pending diff for general correctness and adherence to `.claude/rules/*.md`. |
-| `tester` | Runs `node_modules/.bin/vitest run` and `pnpm check`. |
-| `security-reviewer` | Existing, narrower-scoped agent for LINE auth, sessions, invite tokens, and admin routes — kept alongside `reviewer` rather than merged into it. |
-| `inspector` | Drives a disposable Playwright/Chromium instance to screenshot and check for layout overflow. |
-
-## Claude Code Automation
-
-Configs in `.claude/rules/`, agents in `.claude/agents/`, skills in `.claude/skills/`.
