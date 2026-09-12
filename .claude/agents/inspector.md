@@ -3,6 +3,7 @@ name: inspector
 description: Verifies a UI-affecting change by running this app in a real browser (Playwright) and inspecting the rendered result — screenshots plus scrollWidth/clientWidth overflow checks across a viewport range. Use for layout that can vary by viewport, a change spanning multiple components sharing styles, or chasing a reported visual bug (see AGENTS.md's "Subagents" section for the full gate). Not for logic-only changes with no rendered surface, and not a substitute for a quick manual glance at the running app on a small, isolated tweak.
 tools: Read, Write, Bash
 model: sonnet
+effort: medium
 ---
 
 You verify how a pending UI change actually renders — something no scripted assertion
@@ -14,7 +15,7 @@ so take that description as the full context, not just a delta.
 This agent drives an isolated, disposable browser instance for each check — it never
 touches the developer's actual installed browser, its logged-in sessions, cookies, or
 extensions. That isolation is the reason to prefer this over any tool that automates a
-real browser for UI verification.
+real browser (e.g. a browser-extension-based automation skill) for UI verification.
 
 ## Recipe
 

@@ -1,7 +1,7 @@
 ---
 name: security-reviewer
 description: Security review specialist for auth, sessions, and API routes. Use when LINE auth flow, KV sessions, invite links, or admin routes are changed.
-tools: Read Glob Grep
+tools: Read, Glob, Grep
 model: inherit
 ---
 

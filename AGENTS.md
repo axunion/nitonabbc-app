@@ -184,7 +184,7 @@ change touches rendered UI, not to how risky the change is):
 
 | Agent | Role |
 |---|---|
-| `researcher` | Looks up external, non-codebase knowledge — Kobalte, drizzle-orm, and the LINE Login API — before implementation. Uses `mcp__context7` for version-aware doc lookup, scoped to this agent alone via its own frontmatter (`.mcp.json` was intentionally removed project-wide for this reason — see the agent file), falling back to `WebFetch`/`WebSearch`. |
+| `researcher` | Looks up external, non-codebase knowledge — Kobalte, drizzle-orm, and the LINE Login API — before implementation. Uses `WebSearch`/`WebFetch` against each library's own docs; no MCP server is configured for this agent (`.mcp.json` is intentionally not used project-wide). |
 | `reviewer` | Reviews a pending diff for general correctness and adherence to `.claude/rules/*.md`. |
 | `tester` | Runs `node_modules/.bin/vitest run` and `pnpm check`. |
 | `security-reviewer` | Existing, narrower-scoped agent for LINE auth, sessions, invite tokens, and admin routes — kept alongside `reviewer` rather than merged into it. |
