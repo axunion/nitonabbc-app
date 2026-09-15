@@ -75,8 +75,8 @@ See `.claude/rules/` for detailed conventions per area (UI, CSS, API, testing).
 | Env | Description |
 |-----|-------------|
 | Local | `pnpm dev` starts Vite (HMR) + workerd together via `@cloudflare/vite-plugin`. Set `DEV_AUTH=true` in `.dev.vars` to skip LINE auth and auto-login as admin |
-| Preview | Auto-deployed on non-`main` branch push |
-| Production | Auto-deployed on `main` branch push |
+| Preview | Deployed via manual dispatch of `deploy.yml` (non-`main` branch) — auto-deploy on push is currently disabled pending production readiness |
+| Production | Deployed via manual dispatch of `deploy.yml` (`main` branch) — auto-deploy on push is currently disabled pending production readiness |
 
 KV / D1 bindings are isolated per environment. LINE Login callback URLs must be configured per environment.
 
