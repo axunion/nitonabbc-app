@@ -25,13 +25,6 @@ type DayEntry = {
   isNextSunday: boolean;
 };
 
-/** Adds `days` to a "YYYY-MM-DD" date string. */
-function addDays(dateStr: string, days: number): string {
-  const d = new Date(`${dateStr}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + days);
-  return d.toISOString().slice(0, 10);
-}
-
 export function BulletinList() {
   const [data] = createResource(fetchBulletins);
   const { t, locale } = useLocale();
@@ -65,6 +58,10 @@ export function BulletinList() {
   }
 
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const yearName = (y: number) =>
+    new Intl.DateTimeFormat(locale(), { year: "numeric" }).format(
+      new Date(y, 0, 1),
+    );
   const monthName = (m: number) =>
     new Intl.DateTimeFormat(locale(), { month: "long" }).format(
       new Date(2000, m - 1, 1),
@@ -112,7 +109,11 @@ export function BulletinList() {
     if (!d) return "";
     const taken = new Set(d.bulletins.map((b) => b.serviceDate));
     let date = d.nextSunday;
-    while (taken.has(date)) date = addDays(date, 7);
+    while (taken.has(date)) {
+      const d = new Date(`${date}T00:00:00Z`);
+      d.setUTCDate(d.getUTCDate() + 7);
+      date = d.toISOString().slice(0, 10);
+    }
     return date;
   };
 
@@ -171,12 +172,7 @@ export function BulletinList() {
               aria-label={t("bulletin.yearLabel")}
             >
               <For each={years}>
-                {(y) => (
-                  <option value={y}>
-                    {y}
-                    {t("bulletin.year")}
-                  </option>
-                )}
+                {(y) => <option value={y}>{yearName(y)}</option>}
               </For>
             </select>
             <select

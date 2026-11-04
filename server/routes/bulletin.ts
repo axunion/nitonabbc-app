@@ -316,7 +316,7 @@ bulletinRoute.get("/", async (c) => {
   });
 });
 
-// POST /api/bulletin/generate — auto-generate bulletin for next Sunday from template
+// POST /api/bulletin/generate — create a bulletin from the template for serviceDate (default: next Sunday)
 bulletinRoute.post("/generate", async (c) => {
   const db = c.get("db");
   const user = c.get("user");

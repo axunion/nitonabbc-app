@@ -93,7 +93,6 @@ export const ja = {
     archive: "過去の週報",
     fillIn: "入力する",
     noFieldsToFill: "入力項目はありません",
-    year: "年",
     created: "作成済",
     notFilled: "未入力",
     notCreated: "未作成",

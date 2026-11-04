@@ -94,7 +94,6 @@ export const en: Dictionary = {
     archive: "Past Bulletins",
     fillIn: "Fill in",
     noFieldsToFill: "No fields to fill",
-    year: "",
     created: "Created",
     notFilled: "Not filled",
     notCreated: "Not created",

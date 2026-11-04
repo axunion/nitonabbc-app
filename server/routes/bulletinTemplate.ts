@@ -180,11 +180,6 @@ function normalizeInputType(inputType: string): string {
   return LEGACY_TEXT_INPUT_TYPES.includes(inputType) ? "text" : inputType;
 }
 
-// `role` narrows member candidates (e.g. preacher → "説教"); keep it when set
-function roleProp(role: unknown): { role?: string } {
-  return typeof role === "string" && role !== "" ? { role } : {};
-}
-
 function sanitizeWorshipItems(items: TemplateItem[]): TemplateItem[] {
   return items.map((item) => {
     const sanitized: TemplateItem = { type: item.type, label: item.label };
@@ -193,11 +188,16 @@ function sanitizeWorshipItems(items: TemplateItem[]): TemplateItem[] {
         key: f.key,
         label: f.label,
         inputType: normalizeInputType(f.inputType),
-        ...roleProp(f.role),
+        // `role` narrows member candidates (e.g. preacher → "説教")
+        ...(typeof f.role === "string" && f.role !== ""
+          ? { role: f.role }
+          : {}),
       }));
     } else if (item.inputType) {
       sanitized.inputType = normalizeInputType(item.inputType);
-      Object.assign(sanitized, roleProp(item.role));
+      if (typeof item.role === "string" && item.role !== "") {
+        sanitized.role = item.role;
+      }
     }
     return sanitized;
   });

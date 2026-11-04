@@ -43,6 +43,7 @@ export function Bulletin() {
   );
   const [editingDate, setEditingDate] = createSignal(false);
   const [dateDraft, setDateDraft] = createSignal("");
+  const [savingDate, setSavingDate] = createSignal(false);
   const [confirmDelete, setConfirmDelete] = createSignal(false);
   // Action to run once the user agrees to discard unsaved section edits
   const [pendingDiscard, setPendingDiscard] = createSignal<(() => void) | null>(
@@ -99,8 +100,12 @@ export function Bulletin() {
   const handleSectionSave = async () => {
     const result = await form.save();
     if (result.ok) {
-      await form.reload();
       setEditingSectionId(null);
+      try {
+        await form.reload();
+      } catch {
+        showToast(t("common.error"), "error");
+      }
     } else {
       showToast(t("common.error"), "error");
     }
@@ -120,10 +125,13 @@ export function Bulletin() {
       setEditingDate(false);
       return;
     }
-    const result = await updateBulletin(params.id, { serviceDate: date });
+    setSavingDate(true);
+    const result = await updateBulletin(params.id, {
+      serviceDate: date,
+    }).finally(() => setSavingDate(false));
     if (result.ok) {
-      await form.reload();
       setEditingDate(false);
+      await form.reload().catch(() => showToast(t("common.error"), "error"));
       showToast(t("bulletin.dateChanged"));
     } else if (result.status === 409) {
       showToast(t("bulletin.alreadyExists"), "error");
@@ -205,12 +213,11 @@ export function Bulletin() {
                         <button
                           type="button"
                           class={styles.iconButton}
-                          onClick={() =>
-                            guardUnsaved(() => {
-                              discardEdits();
-                              setConfirmDelete(true);
-                            })
-                          }
+                          onClick={() => {
+                            // Deleting drops any unsaved edits as well
+                            discardEdits();
+                            setConfirmDelete(true);
+                          }}
                           aria-label={t("bulletin.delete")}
                           title={t("bulletin.delete")}
                         >
@@ -242,7 +249,7 @@ export function Bulletin() {
                       <button
                         type="button"
                         class={styles.submitButton}
-                        disabled={!dateDraft()}
+                        disabled={!dateDraft() || savingDate()}
                         onClick={handleDateSave}
                       >
                         {t("common.save")}
