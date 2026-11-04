@@ -1,8 +1,9 @@
-import { createMemo, For, type JSX } from "solid-js";
+import { For, type JSX } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type { Member, TemplateItem, WorshipItem } from "@/types/bulletin.ts";
-import { filterMembersByRole, getTemplateItem } from "@/utils/bulletin.ts";
+import { getTemplateItem } from "@/utils/bulletin.ts";
 import styles from "../editorFields.module.css";
+import { MemberSelect } from "./MemberSelect.tsx";
 
 interface WorshipInputProps {
   item: WorshipItem;
@@ -25,32 +26,6 @@ function placeholderKey(key: string): PlaceholderKey | undefined {
     return "bulletinForm.scripturePlaceholder";
   if (key === "title") return "bulletinForm.sermonTitlePlaceholder";
   return undefined;
-}
-
-function MemberSelect(props: {
-  id?: string;
-  value: string | undefined;
-  members: Member[] | undefined;
-  role?: string;
-  onChange: (val: string) => void;
-}): JSX.Element {
-  const { t } = useLocale();
-  const filteredMembers = createMemo(() =>
-    filterMembersByRole(props.members, props.role),
-  );
-  return (
-    <select
-      id={props.id}
-      class={styles.select}
-      value={props.value ?? ""}
-      onChange={(e) => props.onChange(e.currentTarget.value)}
-    >
-      <option value="">{t("bulletinForm.selectMember")}</option>
-      <For each={filteredMembers()}>
-        {(m) => <option value={String(m.id)}>{m.name}</option>}
-      </For>
-    </select>
-  );
 }
 
 export function WorshipInput(props: WorshipInputProps): JSX.Element {
@@ -81,6 +56,7 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
                     value={props.item.fieldValues?.[field.key]}
                     members={props.members}
                     role={field.role}
+                    placeholder={t("bulletinForm.selectMember")}
                     onChange={(val) =>
                       props.onUpdateFieldValue(props.index, field.key, val)
                     }
@@ -127,6 +103,7 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
         value={props.item.details}
         members={props.members}
         role={tmpl()?.role}
+        placeholder={t("bulletinForm.selectMember")}
         onChange={(val) => props.onUpdateDetails(props.index, val)}
       />
     );

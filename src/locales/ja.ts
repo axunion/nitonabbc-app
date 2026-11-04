@@ -175,6 +175,10 @@ export const ja = {
     announcementPlaceholder: "お知らせ内容",
     assignments: "奉仕当番",
     selectMember: "メンバーを選択",
+    otherPerson: "その他（名前を入力）",
+    otherPersonName: "名前",
+    noRoleMembers:
+      "「{{role}}」の役割を持つメンバーがいません。管理者がメンバー管理で役割を設定するか、「その他」から名前を入力してください。",
     selectAssignee: "担当者を選択",
     scripturePlaceholder: "聖書箇所（例: ヨハネ 3:16）",
     numberPlaceholder: "番号",

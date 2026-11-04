@@ -176,6 +176,10 @@ export const en: Dictionary = {
     announcementPlaceholder: "Announcement content",
     assignments: "Assignments",
     selectMember: "Select member",
+    otherPerson: "Other (type a name)",
+    otherPersonName: "Name",
+    noRoleMembers:
+      "No members have the {{role}} role yet. Ask an admin to set roles in Member Management, or choose Other.",
     selectAssignee: "Select assignee",
     scripturePlaceholder: "Scripture (e.g. John 3:16)",
     numberPlaceholder: "Number",

@@ -25,6 +25,12 @@
   width: auto;
 }
 
+.memberSelect {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
 .select {
   composes: formSelect from "../../styles/shared.module.css";
 }
