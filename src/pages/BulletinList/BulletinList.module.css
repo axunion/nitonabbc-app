@@ -113,3 +113,67 @@
 .loading {
   composes: loadingText from "../../styles/shared.module.css";
 }
+
+/* New bulletin: button and inline date form */
+.newButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: var(--content-width);
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1.5px dashed var(--color-gray-300);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--color-gray-600);
+  cursor: pointer;
+  outline: none;
+  transition:
+    background var(--duration-fast) var(--ease-default),
+    border-color var(--duration-fast) var(--ease-default);
+}
+
+.newButton:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--color-gray-400);
+}
+
+.newButton:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.newForm {
+  composes: glassCard from "../../styles/shared.module.css";
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: var(--content-width);
+  margin-top: var(--space-3);
+  padding: var(--space-4);
+}
+
+.newFormLabel {
+  composes: fieldLabel from "../../styles/shared.module.css";
+}
+
+.dateInput {
+  composes: formInput from "../../styles/shared.module.css";
+}
+
+.newFormActions {
+  composes: pairedActions from "../../styles/shared.module.css";
+  margin-top: var(--space-2);
+}
+
+.cancelButton {
+  composes: pairedCancel from "../../styles/shared.module.css";
+}
+
+.submitButton {
+  composes: pairedSubmit from "../../styles/shared.module.css";
+}

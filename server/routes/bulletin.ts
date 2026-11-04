@@ -115,6 +115,11 @@ function toBulletinSummary(
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
+// service_date is UNIQUE, so this signals "a bulletin for that date exists"
+function isUniqueViolation(e: unknown): boolean {
+  return e instanceof Error && e.message.includes("UNIQUE constraint");
+}
+
 // The church operates in Japan, so "today" follows JST (UTC+9, no DST).
 const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
 
@@ -352,7 +357,7 @@ bulletinRoute.post("/generate", async (c) => {
 
     return c.json(toBulletinDetail(newRow, template), 201);
   } catch (e) {
-    if (e instanceof Error && e.message.includes("UNIQUE constraint")) {
+    if (isUniqueViolation(e)) {
       return c.json({ error: "Bulletin for this date already exists" }, 409);
     }
     throw e;
@@ -410,7 +415,7 @@ bulletinRoute.post("/", async (c) => {
 
     return c.json(toBulletinDetail(newRow, template), 201);
   } catch (e) {
-    if (e instanceof Error && e.message.includes("UNIQUE constraint")) {
+    if (isUniqueViolation(e)) {
       return c.json({ error: "Bulletin for this date already exists" }, 409);
     }
     throw e;
@@ -441,19 +446,26 @@ bulletinRoute.put("/:id", async (c) => {
     return c.json({ error: "serviceDate must be YYYY-MM-DD" }, 400);
   }
 
-  await db
-    .update(bulletins)
-    .set({
-      ...(body.serviceDate !== undefined
-        ? { serviceDate: body.serviceDate }
-        : {}),
-      ...(body.sections !== undefined
-        ? { sections: body.sections as SectionData[] }
-        : {}),
-      updatedBy: user.id,
-      updatedAt: sql`(datetime('now'))`,
-    })
-    .where(eq(bulletins.id, id));
+  try {
+    await db
+      .update(bulletins)
+      .set({
+        ...(body.serviceDate !== undefined
+          ? { serviceDate: body.serviceDate }
+          : {}),
+        ...(body.sections !== undefined
+          ? { sections: body.sections as SectionData[] }
+          : {}),
+        updatedBy: user.id,
+        updatedAt: sql`(datetime('now'))`,
+      })
+      .where(eq(bulletins.id, id));
+  } catch (e) {
+    if (isUniqueViolation(e)) {
+      return c.json({ error: "Bulletin for this date already exists" }, 409);
+    }
+    throw e;
+  }
 
   const [template, updated] = await Promise.all([
     getTemplate(db),

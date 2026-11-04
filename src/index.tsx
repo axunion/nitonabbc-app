@@ -28,7 +28,6 @@ if (root) {
           <Route path="/" component={Dashboard} />
           <Route path="/settings" component={Settings} />
           <Route path="/bulletin" component={BulletinList} />
-          <Route path="/bulletin/new" component={Bulletin} />
           <Route path="/bulletin/:id" component={Bulletin} />
         </Route>
         {/* Admin section: sidebar + pages all lazy-loaded */}

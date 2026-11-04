@@ -408,11 +408,11 @@ settings テーブルのキー: `church_profile`
 
 | Method | Path | 説明 |
 |--------|------|------|
-| POST | `/api/bulletin/generate` | 次の日曜日の週報を生成 → 201 |
+| POST | `/api/bulletin/generate` | `serviceDate` の週報を生成（省略時は次の日曜日）→ 201。アプリの週報作成はすべてこれを使う |
 
 生成ロジック:
 - テンプレートからセクション構造を生成
-- 直近の週報（`service_date` が最も新しいもの）が存在する場合、繰り返し性が高いセクション（`weekly-prayer`, `assignments`, `monthly-song`, `birthdays`）は `id` が一致するセクションの値をコピーする
+- 対象日より前で最も新しい週報が存在する場合、繰り返し性が高いセクション（`weekly-prayer`, `assignments`, `monthly-song`, `birthdays`）は `id` が一致するセクションの値をコピーする
 - 直近の週報が存在しない場合（初回生成時）、`weekly-prayer` はテンプレートの `config.days[*].defaults` を初期値として使用し、`assignments`/`monthly-song`/`birthdays` は空で初期化する
 - `announcements`, `upcoming-events`, `weekly-verse` は常に空で初期化（前回週報の値はコピーしない）
 
@@ -442,7 +442,7 @@ settings テーブルのキー: `church_profile`
 ### バリデーション
 
 - `serviceDate` 必須、`YYYY-MM-DD` 形式 → 400
-- 重複 `serviceDate` → 409 Conflict
+- 重複 `serviceDate`（作成時・日付変更時）→ 409 Conflict
 - `sections` 省略可（デフォルト: `[]`）
 - テンプレートの各 `type` が有効値であること → 400
 - テンプレートの `id` 重複 → 400
@@ -453,20 +453,14 @@ settings テーブルのキー: `church_profile`
 
 ### BulletinList — 週報一覧
 
-- 年・月セレクターで対象月の週報を表示（年の選択肢は `BULLETIN_START_YEAR` から当年まで）
+- 年・月セレクターで対象月の週報を表示。初期表示は「次の日曜日」（日本時間）を含む月。年の選択肢は `BULLETIN_START_YEAR` から翌年まで
 - 各カードに進捗バー（`filledItems / totalItems`）
-- 次の日曜日が対象月に含まれる場合、未作成でもカードとして表示。タップで新規作成（日付プリフィル）
+- 次の日曜日が対象月に含まれる場合、未作成でもカードとして表示。タップするとその日の週報を生成して詳細画面へ移る
+- 「新しい週報」ボタンから任意の日付で作成できる（初期値は次の日曜日以降で未作成の最初の日曜日）。既に作成済みの日付ならその週報を開く
 
 ### Bulletin — 詳細表示・入力（統合ページ）
 
-`/bulletin/new`（新規作成）と `/bulletin/:id`（既存週報）を 1 つのページで扱う。
-
-**新規作成（`/bulletin/new`）**
-
-- 日付入力 + 全セクションが編集モードで表示される
-- 画面下部の固定バーから作成（日付未入力・全セクション空の場合は作成不可）
-
-**既存週報（`/bulletin/:id`）**
+`/bulletin/:id` で週報を表示・編集する。新規作成は一覧から `POST /api/bulletin/generate` で週報を生成してからこの画面に移るため、専用の作成画面は持たない。
 
 - 教会プロフィール（`church_profile`）をヘッダーに表示（将来フェーズ）
 - セクションを定義順に縦スクロールで表示。ページ上部に全体進捗バー
@@ -474,6 +468,8 @@ settings テーブルのキー: `church_profile`
 - **セクション単位のインライン編集**: 入力済みセクションは鉛筆ボタン、空セクションは追加プレースホルダーから編集モードを開き、セクション単位で保存/キャンセルする
 - `assignments` の担当者表示: メンバー ID をメンバー名に解決して表示
 - PC ではセクション目次（サイドナビ）を表示
+- 日付の右のボタンから日付変更・削除ができる（削除は確認ダイアログ付き）
+- セクション編集中に保存せず別のセクション・画面へ移ろうとすると、変更を破棄するか確認する
 
 **セクションエディタ**
 
@@ -521,7 +517,6 @@ settings テーブルのキー: `church_profile`
 | パス | ページ | 説明 |
 |------|--------|------|
 | `/bulletin` | BulletinList | 週報一覧 |
-| `/bulletin/new` | Bulletin | 新規作成 |
 | `/bulletin/:id` | Bulletin | 詳細表示・セクション単位編集 |
 | `/admin/bulletin-template` | BulletinTemplate | テンプレート管理（管理者のみ） |
 | `/admin/church-profile` | ChurchProfile | 教会プロフィール（管理者のみ、将来フェーズ） |

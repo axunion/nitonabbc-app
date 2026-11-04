@@ -51,25 +51,44 @@ export async function resetTemplate(): Promise<{
 }
 
 type BulletinPayload = {
-  serviceDate: string;
-  sections: SectionData[];
+  serviceDate?: string;
+  sections?: SectionData[];
 };
 
-export async function saveBulletin(
-  id: string | undefined,
+/** `status` is the HTTP status on failure (e.g. 409 when the date is taken). */
+type MutationResult = { ok: boolean; id?: number; status?: number };
+
+async function toMutationResult(res: Response): Promise<MutationResult> {
+  if (!res.ok) return { ok: false, status: res.status };
+  const result = (await res.json()) as { id?: number };
+  return { ok: true, id: result.id };
+}
+
+export async function updateBulletin(
+  id: string,
   body: BulletinPayload,
-): Promise<{ ok: boolean; id?: number; error?: string }> {
-  const url = id ? `/api/bulletin/${id}` : "/api/bulletin";
-  const method = id ? "PUT" : "POST";
-  const res = await fetch(url, {
-    method,
+): Promise<MutationResult> {
+  const res = await fetch(`/api/bulletin/${id}`, {
+    method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  if (!res.ok) {
-    const data = (await res.json()) as ApiError;
-    return { ok: false, error: data.error };
-  }
-  const result = (await res.json()) as { id?: number };
-  return { ok: true, id: result.id };
+  return toMutationResult(res);
+}
+
+/** Creates a bulletin from the template, carrying over repeating sections from the previous one. */
+export async function generateBulletin(
+  serviceDate: string,
+): Promise<MutationResult> {
+  const res = await fetch("/api/bulletin/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ serviceDate }),
+  });
+  return toMutationResult(res);
+}
+
+export async function deleteBulletin(id: string): Promise<MutationResult> {
+  const res = await fetch(`/api/bulletin/${id}`, { method: "DELETE" });
+  return toMutationResult(res);
 }

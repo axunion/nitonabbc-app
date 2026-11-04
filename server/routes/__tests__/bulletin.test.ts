@@ -396,6 +396,42 @@ describe("PUT /api/bulletin/:id", () => {
     expect(res.status).toBe(404);
   });
 
+  it("returns 409 when changing to a date that already has a bulletin", async () => {
+    const { user, env } = await seedMemberAndEnv();
+    const [first, second] = await db
+      .insert(schema.bulletins)
+      .values([
+        {
+          serviceDate: "2025-01-05",
+          sections: [],
+          createdBy: user.id,
+          updatedBy: user.id,
+        },
+        {
+          serviceDate: "2025-01-12",
+          sections: [],
+          createdBy: user.id,
+          updatedBy: user.id,
+        },
+      ])
+      .returning();
+
+    const res = await testApp.request(
+      `http://localhost/api/bulletin/${second.id}`,
+      {
+        method: "PUT",
+        headers: { ...memberHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({ serviceDate: first.serviceDate }),
+      },
+      env,
+    );
+    expect(res.status).toBe(409);
+    const unchanged = await db.query.bulletins.findFirst({
+      where: (b, { eq }) => eq(b.id, second.id),
+    });
+    expect(unchanged?.serviceDate).toBe("2025-01-12");
+  });
+
   it("returns 400 for invalid serviceDate format", async () => {
     const { user, env } = await seedMemberAndEnv();
     const [bulletin] = await db
