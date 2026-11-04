@@ -2,23 +2,11 @@ import { eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import type { SectionTemplate } from "../db/index.ts";
 import { settings } from "../db/schema.ts";
+import type { TemplateField, TemplateItem } from "../db/types.ts";
 import { adminMiddleware } from "../middleware/admin.ts";
 import { authMiddleware } from "../middleware/auth.ts";
 import type { AppEnv } from "../types.ts";
 import { DEFAULT_TEMPLATE } from "./bulletinTemplateDefaults.ts";
-
-type TemplateField = {
-  key: string;
-  label: string;
-  inputType: string;
-};
-
-type TemplateItem = {
-  type: string;
-  label: string;
-  inputType?: string;
-  fields?: TemplateField[];
-};
 
 const VALID_INPUT_TYPES = ["text", "number", "member", "scripture", "none"];
 const VALID_SECTION_TYPES = [
@@ -192,6 +180,11 @@ function normalizeInputType(inputType: string): string {
   return LEGACY_TEXT_INPUT_TYPES.includes(inputType) ? "text" : inputType;
 }
 
+// `role` narrows member candidates (e.g. preacher → "説教"); keep it when set
+function roleProp(role: unknown): { role?: string } {
+  return typeof role === "string" && role !== "" ? { role } : {};
+}
+
 function sanitizeWorshipItems(items: TemplateItem[]): TemplateItem[] {
   return items.map((item) => {
     const sanitized: TemplateItem = { type: item.type, label: item.label };
@@ -200,9 +193,11 @@ function sanitizeWorshipItems(items: TemplateItem[]): TemplateItem[] {
         key: f.key,
         label: f.label,
         inputType: normalizeInputType(f.inputType),
+        ...roleProp(f.role),
       }));
     } else if (item.inputType) {
       sanitized.inputType = normalizeInputType(item.inputType);
+      Object.assign(sanitized, roleProp(item.role));
     }
     return sanitized;
   });
