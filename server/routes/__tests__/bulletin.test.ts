@@ -783,6 +783,62 @@ describe("POST /api/bulletin/generate — copies from previous bulletin", () => 
     // Must not copy from the later (2025-12-25) bulletin
     expect(byId("assign")).toEqual({});
   });
+
+  it("copies from the most recent bulletin before the target date, not the oldest or latest", async () => {
+    const { user, env } = await seedMemberAndEnv();
+    await db.insert(schema.settings).values({
+      key: "bulletin_template",
+      value: JSON.stringify([
+        {
+          id: "assign",
+          type: "assignments",
+          label: "奉仕当番",
+          visible: true,
+          config: { roles: ["司会"] },
+        },
+      ]),
+    });
+    const bulletinWith = (serviceDate: string, who: string) => ({
+      serviceDate,
+      sections: [
+        {
+          id: "assign",
+          type: "assignments",
+          label: "奉仕当番",
+          data: { 司会: who },
+        },
+      ] as never,
+      createdBy: user.id,
+      updatedBy: user.id,
+    });
+    // Insert out of date order so id order differs from date order
+    await db
+      .insert(schema.bulletins)
+      .values(bulletinWith("2025-08-03", "closest"));
+    await db
+      .insert(schema.bulletins)
+      .values(bulletinWith("2025-07-06", "older"));
+    await db
+      .insert(schema.bulletins)
+      .values(bulletinWith("2025-12-25", "later"));
+
+    const res = await testApp.request(
+      "http://localhost/api/bulletin/generate",
+      {
+        method: "POST",
+        headers: { ...memberHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({ serviceDate: "2025-08-10" }),
+      },
+      env,
+    );
+    expect(res.status).toBe(201);
+    const json = (await res.json()) as {
+      sections: { id: string; data: unknown }[];
+    };
+    expect(json.sections.find((s) => s.id === "assign")?.data).toEqual({
+      司会: "closest",
+    });
+  });
 });
 
 // --- Progress counting ---
