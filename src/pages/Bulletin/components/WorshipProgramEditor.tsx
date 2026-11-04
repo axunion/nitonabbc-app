@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { Index } from "solid-js";
 import type {
   Member,
   SectionTemplate,
@@ -28,13 +28,13 @@ export function WorshipProgramEditor(props: Props) {
   };
 
   return (
-    <For each={props.section.data}>
+    <Index each={props.section.data}>
       {(item, index) => (
         <fieldset class={styles.repeatRow}>
-          <legend class={styles.fieldLabel}>{item.label}</legend>
+          <legend class={styles.fieldLabel}>{item().label}</legend>
           <WorshipInput
-            item={item}
-            index={index()}
+            item={item()}
+            index={index}
             template={templateItems()}
             members={props.members}
             onUpdateDetails={(i, v) =>
@@ -46,6 +46,6 @@ export function WorshipProgramEditor(props: Props) {
           />
         </fieldset>
       )}
-    </For>
+    </Index>
   );
 }

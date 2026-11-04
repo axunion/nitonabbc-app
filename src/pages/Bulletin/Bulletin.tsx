@@ -4,6 +4,7 @@ import {
   createMemo,
   createSignal,
   For,
+  Index,
   onCleanup,
   onMount,
   Show,
@@ -264,17 +265,18 @@ export function Bulletin() {
                 </Show>
 
                 <div class={styles.sectionsGrid}>
-                  <For each={form.sections()}>
+                  <Index each={form.sections()}>
                     {(section) => {
-                      const isEditing = () => editingSectionId() === section.id;
+                      const isEditing = () =>
+                        editingSectionId() === section().id;
                       const hasContent = () =>
-                        hasSectionViewContent(section, template());
+                        hasSectionViewContent(section(), template());
 
                       return (
                         <Show
                           when={isEditing()}
                           fallback={
-                            <div id={sectionAnchorId(section.id)}>
+                            <div id={sectionAnchorId(section().id)}>
                               <Show
                                 when={hasContent()}
                                 fallback={
@@ -283,11 +285,11 @@ export function Bulletin() {
                                     type="button"
                                     class={styles.emptySection}
                                     onClick={() =>
-                                      handleSectionEdit(section.id)
+                                      handleSectionEdit(section().id)
                                     }
                                   >
                                     <span class={styles.sectionTitle}>
-                                      {section.label}
+                                      {section().label}
                                     </span>
                                     <span class={styles.emptySectionIcon}>
                                       <Plus size={14} stroke-width={1.5} />
@@ -297,7 +299,7 @@ export function Bulletin() {
                               >
                                 <div class={styles.filledSection}>
                                   <SectionView
-                                    section={section}
+                                    section={section()}
                                     template={template()}
                                     members={form.members()}
                                   />
@@ -305,7 +307,7 @@ export function Bulletin() {
                                     type="button"
                                     class={styles.sectionPencilBtn}
                                     onClick={() =>
-                                      handleSectionEdit(section.id)
+                                      handleSectionEdit(section().id)
                                     }
                                     aria-label={t("common.edit")}
                                   >
@@ -317,15 +319,15 @@ export function Bulletin() {
                           }
                         >
                           <fieldset
-                            id={sectionAnchorId(section.id)}
+                            id={sectionAnchorId(section().id)}
                             class={styles.section}
                           >
                             <legend class={styles.sectionTitle}>
-                              {section.label}
+                              {section().label}
                             </legend>
                             <div class={styles.sectionBody}>
                               <SectionEditor
-                                section={section}
+                                section={section()}
                                 template={template()}
                                 members={form.members()}
                                 onUpdateDetails={form.updateWorshipDetails}
@@ -381,7 +383,7 @@ export function Bulletin() {
                         </Show>
                       );
                     }}
-                  </For>
+                  </Index>
                 </div>
               </div>
             </div>

@@ -1,5 +1,5 @@
 import { Minus, Plus } from "lucide-solid";
-import { For } from "solid-js";
+import { Index } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type {
   ScriptureQuote,
@@ -19,7 +19,7 @@ export function ScriptureQuotesEditor(props: Props) {
 
   return (
     <>
-      <For each={props.section.data}>
+      <Index each={props.section.data}>
         {(quote, index) => (
           <div class={styles.repeatRow}>
             <div class={styles.field}>
@@ -27,10 +27,10 @@ export function ScriptureQuotesEditor(props: Props) {
                 type="text"
                 class={styles.input}
                 placeholder={t("bulletinForm.verseReferencePlaceholder")}
-                value={quote.reference}
+                value={quote().reference}
                 onInput={(e) =>
-                  props.onUpdate(props.section.id, index(), {
-                    ...quote,
+                  props.onUpdate(props.section.id, index, {
+                    ...quote(),
                     reference: e.currentTarget.value,
                   })
                 }
@@ -41,10 +41,10 @@ export function ScriptureQuotesEditor(props: Props) {
                 type="text"
                 class={styles.input}
                 placeholder={t("bulletinForm.verseTextPlaceholder")}
-                value={quote.text}
+                value={quote().text}
                 onInput={(e) =>
-                  props.onUpdate(props.section.id, index(), {
-                    ...quote,
+                  props.onUpdate(props.section.id, index, {
+                    ...quote(),
                     text: e.currentTarget.value,
                   })
                 }
@@ -54,7 +54,7 @@ export function ScriptureQuotesEditor(props: Props) {
               <button
                 type="button"
                 class={styles.removeButton}
-                onClick={() => props.onRemove(props.section.id, index())}
+                onClick={() => props.onRemove(props.section.id, index)}
               >
                 <Minus size={14} stroke-width={1.5} />
                 {t("common.delete")}
@@ -62,7 +62,7 @@ export function ScriptureQuotesEditor(props: Props) {
             </div>
           </div>
         )}
-      </For>
+      </Index>
       <button
         type="button"
         class={styles.addButton}
