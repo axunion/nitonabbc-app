@@ -45,36 +45,48 @@ export function IframeViewer(props: IframeViewerProps) {
   });
 
   // Push a history entry while open so the browser/Android back action closes
-  // the viewer instead of leaving the page underneath
+  // the viewer instead of leaving the page underneath. Each open gets its own
+  // token so entries left by earlier opens (forward, reload) are not mistaken
+  // for the current one.
   const HISTORY_KEY = "iframeViewer";
-  const hasHistoryEntry = () =>
+  let historyToken: string | null = null;
+  const onOwnEntry = () =>
+    historyToken !== null &&
     (window.history.state as Record<string, unknown> | null)?.[HISTORY_KEY] ===
-    true;
+      historyToken;
 
   createEffect(
     on(
       () => props.open,
       (open) => {
         if (!open) return;
+        const token = crypto.randomUUID();
+        historyToken = token;
         window.history.pushState(
-          { ...(window.history.state ?? {}), [HISTORY_KEY]: true },
+          { ...(window.history.state ?? {}), [HISTORY_KEY]: token },
           "",
         );
         const onPopState = () => {
-          if (!hasHistoryEntry()) props.onClose();
+          if (!onOwnEntry()) props.onClose();
         };
         window.addEventListener("popstate", onPopState);
-        onCleanup(() => window.removeEventListener("popstate", onPopState));
+        onCleanup(() => {
+          window.removeEventListener("popstate", onPopState);
+          historyToken = null;
+        });
       },
     ),
   );
 
   function close() {
-    if (hasHistoryEntry()) {
-      window.history.back(); // popstate then calls onClose
-    } else {
-      props.onClose();
-    }
+    // Pages navigated inside the iframe share this history, so history.back()
+    // may only move the iframe; close directly and drop our entry when it is
+    // still on top.
+    const dropEntry = onOwnEntry();
+    if (contentRef) contentRef.style.transform = "";
+    if (overlayRef) overlayRef.style.opacity = "";
+    props.onClose();
+    if (dropEntry) window.history.back();
   }
 
   const EDGE_THRESHOLD = 20;

@@ -57,5 +57,8 @@ export async function reinviteMember(id: number): Promise<void> {
 }
 
 export async function reactivateMember(id: number): Promise<void> {
-  await fetch(`/api/admin/members/${id}/reactivate`, { method: "POST" });
+  const res = await fetch(`/api/admin/members/${id}/reactivate`, {
+    method: "POST",
+  });
+  if (!res.ok) throw new Error("Failed to reactivate member");
 }
