@@ -342,7 +342,10 @@ export function Management() {
                 </div>
               </div>
               <div class={styles.dialogActions}>
-                <Dialog.CloseButton class={styles.cancelButton}>
+                <Dialog.CloseButton
+                  class={styles.cancelButton}
+                  aria-label={t("common.cancel")}
+                >
                   {t("common.cancel")}
                 </Dialog.CloseButton>
                 <button

@@ -42,7 +42,10 @@ export function ConfirmDialog(props: Props) {
             {(desc) => <p class={styles.description}>{desc()}</p>}
           </Show>
           <div class={styles.actions}>
-            <Dialog.CloseButton class={styles.cancelButton}>
+            <Dialog.CloseButton
+              class={styles.cancelButton}
+              aria-label={props.cancelLabel}
+            >
               {props.cancelLabel}
             </Dialog.CloseButton>
             <button
