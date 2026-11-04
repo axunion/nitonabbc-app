@@ -13,6 +13,20 @@ interface WorshipInputProps {
   onUpdateFieldValue: (index: number, key: string, value: string) => void;
 }
 
+type PlaceholderKey =
+  | "bulletinForm.hymnPlaceholder"
+  | "bulletinForm.scripturePlaceholder"
+  | "bulletinForm.sermonTitlePlaceholder";
+
+// Placeholder hints for the default template's keys; other keys get none
+function placeholderKey(key: string): PlaceholderKey | undefined {
+  if (key.startsWith("hymn")) return "bulletinForm.hymnPlaceholder";
+  if (key === "reading" || key === "scripture")
+    return "bulletinForm.scripturePlaceholder";
+  if (key === "title") return "bulletinForm.sermonTitlePlaceholder";
+  return undefined;
+}
+
 function MemberSelect(props: {
   id?: string;
   value: string | undefined;
@@ -43,6 +57,10 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
   const { t } = useLocale();
   const tmpl = () => getTemplateItem(props.template, props.item.type);
   const inputType = () => tmpl()?.inputType ?? "text";
+  const hint = (key: string) => {
+    const k = placeholderKey(key);
+    return k ? t(k) : undefined;
+  };
 
   // Compound fields mode
   if ((tmpl()?.fields?.length ?? 0) > 0) {
@@ -79,7 +97,7 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
                   id={fieldId}
                   type="text"
                   class={styles.input}
-                  placeholder={t("bulletinForm.detailsPlaceholder")}
+                  placeholder={hint(field.key)}
                   value={props.item.fieldValues?.[field.key] ?? ""}
                   onInput={(e) =>
                     props.onUpdateFieldValue(
@@ -118,7 +136,7 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
     <input
       type="text"
       class={styles.input}
-      placeholder={t("bulletinForm.detailsPlaceholder")}
+      placeholder={hint(props.item.type)}
       value={props.item.details ?? ""}
       onInput={(e) => props.onUpdateDetails(props.index, e.currentTarget.value)}
     />
