@@ -115,9 +115,13 @@ function toBulletinSummary(
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-/** Returns the current or next Sunday as "YYYY-MM-DD" (UTC). Sunday returns today. */
+// The church operates in Japan, so "today" follows JST (UTC+9, no DST).
+const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+/** Returns the current or next Sunday in JST as "YYYY-MM-DD". Sunday returns today. */
 function getNextSunday(): string {
-  const today = new Date();
+  // Shift so that the UTC fields of this Date read as JST wall-clock time
+  const today = new Date(Date.now() + JST_OFFSET_MS);
   const dayOfWeek = today.getUTCDay();
   const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
   const nextSunday = new Date(today);

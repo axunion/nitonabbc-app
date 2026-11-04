@@ -94,6 +94,39 @@ describe("GET /api/bulletin", () => {
     expect(typeof (json as { nextSunday: string }).nextSunday).toBe("string");
   });
 
+  describe("nextSunday uses Japan time", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    async function nextSundayAt(iso: string): Promise<string> {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date(iso));
+      const { env } = await seedMemberAndEnv();
+      const res = await testApp.request(
+        "http://localhost/api/bulletin",
+        { headers: memberHeaders },
+        env,
+      );
+      return ((await res.json()) as { nextSunday: string }).nextSunday;
+    }
+
+    it("returns the following Sunday early on Monday JST (still Sunday in UTC)", async () => {
+      // 2026-11-09 05:00 JST (Mon) = 2026-11-08 20:00 UTC (Sun)
+      expect(await nextSundayAt("2026-11-08T20:00:00Z")).toBe("2026-11-15");
+    });
+
+    it("returns today on Sunday JST", async () => {
+      // 2026-11-08 08:00 JST (Sun) = 2026-11-07 23:00 UTC (Sat)
+      expect(await nextSundayAt("2026-11-07T23:00:00Z")).toBe("2026-11-08");
+    });
+
+    it("rolls over month and year boundaries", async () => {
+      // 2026-12-28 12:00 JST (Mon)
+      expect(await nextSundayAt("2026-12-28T03:00:00Z")).toBe("2027-01-03");
+    });
+  });
+
   it("returns bulletins ordered by service_date desc", async () => {
     const { user, env } = await seedMemberAndEnv();
     await db.insert(schema.bulletins).values([
