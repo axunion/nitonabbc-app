@@ -80,6 +80,15 @@ export const en: Dictionary = {
     colLineStatus: "LINE",
     colActions: "Actions",
   },
+  notFound: {
+    title: "Page not found",
+    message: "This page does not exist or may have moved.",
+    backHome: "Back to home",
+  },
+  iframeViewer: {
+    openInNewTab: "Open in new tab",
+    slow: "This is taking a while. If it does not open, try a new tab.",
+  },
   bulletin: {
     title: "Bulletin",
     newBulletin: "New bulletin",

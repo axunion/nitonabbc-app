@@ -14,6 +14,7 @@ const Settings = lazy(() => import("@/pages/Settings"));
 const AdminLayout = lazy(() => import("@/components/AdminLayout"));
 const Management = lazy(() => import("@/pages/Management"));
 const BulletinTemplate = lazy(() => import("@/pages/BulletinTemplate"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
 
 const AdminRedirect = () => <Navigate href="/admin/members" />;
 
@@ -29,6 +30,7 @@ if (root) {
           <Route path="/settings" component={Settings} />
           <Route path="/bulletin" component={BulletinList} />
           <Route path="/bulletin/:id" component={Bulletin} />
+          <Route path="*" component={NotFound} />
         </Route>
         {/* Admin section: sidebar + pages all lazy-loaded */}
         <Route path="/admin" component={AdminLayout}>

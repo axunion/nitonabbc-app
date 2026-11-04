@@ -79,6 +79,15 @@ export const ja = {
     colLineStatus: "LINE状況",
     colActions: "操作",
   },
+  notFound: {
+    title: "ページが見つかりません",
+    message: "お探しのページは存在しないか、移動した可能性があります。",
+    backHome: "ホームに戻る",
+  },
+  iframeViewer: {
+    openInNewTab: "新しいタブで開く",
+    slow: "読み込みに時間がかかっています。開けない場合は新しいタブで開いてください。",
+  },
   bulletin: {
     title: "週報",
     newBulletin: "新しい週報",

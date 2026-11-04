@@ -30,6 +30,9 @@
   color: var(--color-gray-900);
   text-align: center;
   line-height: var(--leading-tight);
+  /* Avoid leaving a single character on the second line of the church name */
+  text-wrap: balance;
+  word-break: auto-phrase;
 }
 
 .subtitle {

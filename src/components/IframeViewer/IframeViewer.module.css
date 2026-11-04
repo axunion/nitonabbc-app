@@ -62,6 +62,8 @@
   position: absolute;
   inset: 0;
   display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
   align-items: center;
   justify-content: center;
   background: var(--color-bg);
@@ -83,44 +85,74 @@
   }
 }
 
-/* Close button — floating semi-transparent primary glass, bottom-left */
-.closeButton {
-  position: fixed;
-  left: var(--space-4);
-  bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
-  z-index: calc(var(--z-modal) + 1);
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--color-primary-glass-border);
-  background: var(--color-primary-glass);
-  backdrop-filter: var(--glass-blur) var(--glass-saturate);
-  -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 2px 10px var(--color-primary-glass-border);
+/* Header — mirrors the app Header so the viewer reads as a child page */
+.header {
+  composes: scrolledHeader from "../../styles/shared.module.css";
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: var(--space-2);
+  padding-top: calc(var(--space-2) + env(safe-area-inset-top, 0px));
+  flex-shrink: 0;
+}
+
+.headerButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  width: 36px;
+  height: 36px;
+  border: var(--glass-border);
+  border-radius: var(--radius-full);
+  background: var(--glass-bg);
+  color: var(--color-primary);
   cursor: pointer;
   outline: none;
-  transition:
-    background var(--duration-fast) var(--ease-default),
-    transform var(--duration-fast) var(--ease-default);
+  padding: 0;
+  flex-shrink: 0;
+  box-shadow: var(--glass-shadow-sm);
+  -webkit-tap-highlight-color: transparent;
 }
 
-.closeButton:hover {
-  background: var(--color-primary-glass-hover);
+.headerButton:hover {
+  background: var(--glass-bg-hover);
 }
 
-.closeButton:active {
-  transform: scale(0.9);
-  background: var(--color-primary-glass-active);
-}
-
-.closeButton:focus-visible {
+.headerButton:focus-visible {
   box-shadow: var(--focus-ring);
+}
+
+.title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--color-gray-900);
+  white-space: nowrap;
+}
+
+.body {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.slowText {
+  margin: 0;
+  padding: 0 var(--space-6);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-gray-600);
+}
+
+.slowLink {
+  font-size: var(--text-sm);
+  color: var(--color-primary);
 }
 
 /* Reduced motion: skip slide, use opacity only */
