@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Reviews a pending diff against this project's AGENTS.md/.claude/rules conventions and general correctness. Use proactively after any non-trivial implementation change, before it is considered done. Read-only — inspects the diff and code, never edits.
+description: Reviews a pending diff against this project's CLAUDE.md/.claude/rules conventions and general correctness. Use proactively after any non-trivial implementation change, before it is considered done. Read-only — inspects the diff and code, never edits.
 tools: Read, Bash, Grep, Glob
 model: inherit
 ---

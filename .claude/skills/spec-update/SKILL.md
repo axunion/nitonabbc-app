@@ -36,8 +36,3 @@ checklist of what to cover, not literal heading text to copy.
 1. Edit `docs/<feature-name>.md` according to the changes
 2. If implementation status changed, update the corresponding row
 3. Update the status column in `docs/spec.md` if needed
-
-## Checklist
-- [ ] Document covers the topics above, in the existing docs' Japanese/organic style
-- [ ] Link added or updated in the `docs/spec.md` feature table
-- [ ] Implementation status accurately reflects the current state

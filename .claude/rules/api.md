@@ -54,7 +54,6 @@ paths:
 
 See `.claude/rules/testing.md` for test targets, structure, and utilities.
 `node_modules/.bin/vitest run` targets `server/**/*.test.ts` only.
-Create the test file before implementing a new route (TDD).
 
 ## FK constraints
 

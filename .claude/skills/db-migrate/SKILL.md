@@ -15,7 +15,7 @@ the decision logic and safety gate around those commands:
 
 1. Read `server/db/schema.ts` and display the changes made.
 
-2. Generate the migration SQL: `node_modules/.bin/drizzle-kit generate`.
+2. Generate the migration SQL: `pnpm db:generate`.
    This creates a new `.sql` file under `drizzle/`. Never edit generated
    `drizzle/` files by hand — `schema.ts` is the single source of truth.
 
@@ -34,8 +34,5 @@ the decision logic and safety gate around those commands:
 5. To restore sample data after a reset: `pnpm db:seed`, or `pnpm db:fresh`
    to reset + seed in one step.
 
-6. Production migrations are handled exclusively by GitHub Actions.
-   Never run `wrangler d1 migrations apply nitonabbc-db --remote` locally.
-
-**Important**: `pnpm db:reset` removes all local D1 data. Always get user
-approval before proceeding.
+6. Production migrations run via GitHub Actions only (see the rule above);
+   never apply `--remote` locally.

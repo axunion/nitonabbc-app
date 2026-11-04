@@ -1,7 +1,6 @@
 ---
 paths:
   - "src/pages/Bulletin*/**"
-  - "src/components/Section*/**"
   - "server/routes/bulletin*.ts"
   - "src/types/bulletin.ts"
   - "src/utils/bulletin.ts"
