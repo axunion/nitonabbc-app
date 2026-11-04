@@ -349,6 +349,25 @@ describe("DELETE /api/admin/members/:id", () => {
 });
 
 describe("POST /api/admin/members/:id/reactivate", () => {
+  it("returns 401 without session", async () => {
+    const res = await testApp.request(
+      "http://localhost/api/admin/members/1/reactivate",
+      { method: "POST" },
+      createEnv(),
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it("returns 400 for a non-numeric id", async () => {
+    const { env } = await seedAdminAndEnv();
+    const res = await testApp.request(
+      "http://localhost/api/admin/members/abc/reactivate",
+      { method: "POST", headers: adminHeaders },
+      env,
+    );
+    expect(res.status).toBe(400);
+  });
+
   it("returns 403 for member role", async () => {
     const { env } = await seedMemberAndEnv();
     const res = await testApp.request(
