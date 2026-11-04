@@ -6,6 +6,7 @@ import {
   Pencil,
   Plus,
   RefreshCw,
+  UserCheck,
   UserMinus,
 } from "lucide-solid";
 import { createResource, createSignal, For, Show } from "solid-js";
@@ -14,6 +15,7 @@ import {
   createMember,
   deactivateMember,
   fetchAdminMembers,
+  reactivateMember,
   reinviteMember,
   updateMember,
 } from "@/api/members.ts";
@@ -102,6 +104,28 @@ export function Management() {
           await refetch();
           showToast(
             t("management.deactivated", { name: member.name }),
+            "success",
+          );
+        } catch (err) {
+          showToast(t("common.error"), "error");
+          throw err;
+        }
+      },
+    });
+  }
+
+  function handleReactivate(member: AdminMember) {
+    setPending({
+      title: t("management.reactivate"),
+      description: t("management.confirmReactivate", { name: member.name }),
+      confirmLabel: t("management.reactivate"),
+      variant: "default",
+      run: async () => {
+        try {
+          await reactivateMember(member.id);
+          await refetch();
+          showToast(
+            t("management.reactivated", { name: member.name }),
             "success",
           );
         } catch (err) {
@@ -226,7 +250,21 @@ export function Management() {
                         </Show>
                       </td>
                       <td class={styles.td}>
-                        <Show when={member.isActive}>
+                        <Show
+                          when={member.isActive}
+                          fallback={
+                            <div class={styles.actionsCell}>
+                              <button
+                                type="button"
+                                class={styles.actionButton}
+                                onClick={() => handleReactivate(member)}
+                              >
+                                <UserCheck size={14} stroke-width={1.5} />
+                                {t("management.reactivate")}
+                              </button>
+                            </div>
+                          }
+                        >
                           <div class={styles.actionsCell}>
                             <button
                               type="button"

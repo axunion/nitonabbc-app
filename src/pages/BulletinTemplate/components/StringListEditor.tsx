@@ -1,5 +1,5 @@
 import { Plus, X } from "lucide-solid";
-import { For, Show } from "solid-js";
+import { Index, Show } from "solid-js";
 import styles from "../BulletinTemplate.module.css";
 
 type Props = {
@@ -27,28 +27,28 @@ export function StringListEditor(props: Props) {
 
   return (
     <div class={styles.fieldsSection}>
-      <For each={props.items}>
+      <Index each={props.items}>
         {(item, index) => (
           <div class={styles.fieldRow}>
             <input
               type="text"
               class={styles.input}
-              value={item}
+              value={item()}
               placeholder={props.placeholder}
-              onInput={(e) => update(index(), e.currentTarget.value)}
+              onInput={(e) => update(index, e.currentTarget.value)}
             />
             <Show when={props.items.length > min()}>
               <button
                 type="button"
                 class={styles.removeButton}
-                onClick={() => remove(index())}
+                onClick={() => remove(index)}
               >
                 <X size={14} stroke-width={1.5} />
               </button>
             </Show>
           </div>
         )}
-      </For>
+      </Index>
       <button type="button" class={styles.addFieldButton} onClick={add}>
         <Plus size={14} stroke-width={1.5} />
         {props.addLabel}

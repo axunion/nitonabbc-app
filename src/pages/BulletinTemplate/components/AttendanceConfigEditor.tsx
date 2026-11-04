@@ -1,7 +1,8 @@
 import { Plus, X } from "lucide-solid";
-import { For } from "solid-js";
+import { Index } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type { AttendanceSectionTemplate } from "@/types/bulletin.ts";
+import { newTemplateKey } from "@/utils/template.ts";
 import styles from "../BulletinTemplate.module.css";
 
 type Meeting = { key: string; label: string };
@@ -26,7 +27,7 @@ export function AttendanceConfigEditor(props: Props) {
   function add() {
     props.onUpdateMeetings(props.section.id, [
       ...meetings(),
-      { key: "", label: "" },
+      { key: newTemplateKey(), label: "" },
     ]);
   }
 
@@ -39,7 +40,7 @@ export function AttendanceConfigEditor(props: Props) {
 
   return (
     <div class={styles.fieldsSection}>
-      <For each={meetings()}>
+      <Index each={meetings()}>
         {(meeting, index) => (
           <div class={styles.fieldRow}>
             <input
@@ -48,28 +49,19 @@ export function AttendanceConfigEditor(props: Props) {
               placeholder={t(
                 "bulletinTemplate.attendanceMeetingLabelPlaceholder",
               )}
-              value={meeting.label}
-              onInput={(e) => update(index(), "label", e.currentTarget.value)}
-            />
-            <input
-              type="text"
-              class={styles.input}
-              placeholder={t(
-                "bulletinTemplate.attendanceMeetingKeyPlaceholder",
-              )}
-              value={meeting.key}
-              onInput={(e) => update(index(), "key", e.currentTarget.value)}
+              value={meeting().label}
+              onInput={(e) => update(index, "label", e.currentTarget.value)}
             />
             <button
               type="button"
               class={styles.removeButton}
-              onClick={() => remove(index())}
+              onClick={() => remove(index)}
             >
               <X size={14} stroke-width={1.5} />
             </button>
           </div>
         )}
-      </For>
+      </Index>
       <button type="button" class={styles.addFieldButton} onClick={add}>
         <Plus size={14} stroke-width={1.5} />
         {t("bulletinTemplate.addMeeting")}

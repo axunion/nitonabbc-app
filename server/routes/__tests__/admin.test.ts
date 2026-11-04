@@ -348,6 +348,50 @@ describe("DELETE /api/admin/members/:id", () => {
   });
 });
 
+describe("POST /api/admin/members/:id/reactivate", () => {
+  it("returns 403 for member role", async () => {
+    const { env } = await seedMemberAndEnv();
+    const res = await testApp.request(
+      "http://localhost/api/admin/members/1/reactivate",
+      { method: "POST", headers: memberHeaders },
+      env,
+    );
+    expect(res.status).toBe(403);
+  });
+
+  it("returns 404 when member not found", async () => {
+    const { env } = await seedAdminAndEnv();
+    const res = await testApp.request(
+      "http://localhost/api/admin/members/9999/reactivate",
+      { method: "POST", headers: adminHeaders },
+      env,
+    );
+    expect(res.status).toBe(404);
+  });
+
+  it("reactivates a deactivated member", async () => {
+    const { env } = await seedAdminAndEnv();
+    const [target] = await db
+      .insert(schema.users)
+      .values({ name: "Target", inviteToken: "tok_target", isActive: false })
+      .returning();
+
+    const res = await testApp.request(
+      `http://localhost/api/admin/members/${target.id}/reactivate`,
+      { method: "POST", headers: adminHeaders },
+      env,
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ id: target.id, isActive: true });
+
+    const [row] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, target.id));
+    expect(row?.isActive).toBe(true);
+  });
+});
+
 describe("POST /api/admin/members/:id/reinvite", () => {
   it("returns 404 when member not found", async () => {
     const { env } = await seedAdminAndEnv();

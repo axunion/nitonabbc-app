@@ -1,11 +1,7 @@
 import { ChevronDown, ChevronUp, Plus, X } from "lucide-solid";
-import { For, type JSX, Show } from "solid-js";
+import { For, Index, type JSX, Show } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
-import type {
-  InputType,
-  TemplateField,
-  TemplateItem,
-} from "@/types/bulletin.ts";
+import type { InputType, TemplateItem } from "@/types/bulletin.ts";
 import { INPUT_TYPES } from "@/utils/template.ts";
 import styles from "../BulletinTemplate.module.css";
 
@@ -20,7 +16,7 @@ interface TemplateItemRowProps {
   onMoveDown: (index: number) => void;
   onUpdateItem: (
     index: number,
-    field: "type" | "label" | "inputType",
+    field: "label" | "inputType",
     value: string,
   ) => void;
   onToggleFieldMode: (index: number) => void;
@@ -29,7 +25,7 @@ interface TemplateItemRowProps {
   onUpdateField: (
     index: number,
     fieldIndex: number,
-    prop: keyof TemplateField,
+    prop: "label" | "inputType",
     value: string,
   ) => void;
   onRemoveItem: (index: number) => void;
@@ -89,15 +85,6 @@ export function TemplateItemRow(props: TemplateItemRowProps): JSX.Element {
             props.onUpdateItem(props.index, "label", e.currentTarget.value)
           }
         />
-        <input
-          type="text"
-          class={styles.input}
-          placeholder={t("worshipTemplate.typePlaceholder")}
-          value={props.item.type}
-          onInput={(e) =>
-            props.onUpdateItem(props.index, "type", e.currentTarget.value)
-          }
-        />
         <select
           class={styles.select}
           value={selectValue()}
@@ -121,44 +108,30 @@ export function TemplateItemRow(props: TemplateItemRowProps): JSX.Element {
 
       <Show when={props.item.fields}>
         <div class={styles.programFields}>
-          <For each={props.item.fields}>
+          <Index each={props.item.fields}>
             {(field, fi) => (
               <div class={styles.fieldRow}>
                 <input
                   type="text"
                   class={styles.input}
                   placeholder={t("worshipTemplate.fieldLabelPlaceholder")}
-                  value={field.label}
+                  value={field().label}
                   onInput={(e) =>
                     props.onUpdateField(
                       props.index,
-                      fi(),
+                      fi,
                       "label",
-                      e.currentTarget.value,
-                    )
-                  }
-                />
-                <input
-                  type="text"
-                  class={styles.input}
-                  placeholder={t("worshipTemplate.fieldKeyPlaceholder")}
-                  value={field.key}
-                  onInput={(e) =>
-                    props.onUpdateField(
-                      props.index,
-                      fi(),
-                      "key",
                       e.currentTarget.value,
                     )
                   }
                 />
                 <select
                   class={styles.select}
-                  value={field.inputType}
+                  value={field().inputType}
                   onChange={(e) =>
                     props.onUpdateField(
                       props.index,
-                      fi(),
+                      fi,
                       "inputType",
                       e.currentTarget.value,
                     )
@@ -173,7 +146,7 @@ export function TemplateItemRow(props: TemplateItemRowProps): JSX.Element {
                   <button
                     type="button"
                     class={styles.removeButton}
-                    onClick={() => props.onRemoveField(props.index, fi())}
+                    onClick={() => props.onRemoveField(props.index, fi)}
                     title={t("worshipTemplate.deleteItem")}
                   >
                     <X size={14} stroke-width={1.5} />
@@ -181,7 +154,7 @@ export function TemplateItemRow(props: TemplateItemRowProps): JSX.Element {
                 </Show>
               </div>
             )}
-          </For>
+          </Index>
           <button
             type="button"
             class={styles.addFieldButton}

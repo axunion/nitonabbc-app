@@ -1,10 +1,7 @@
 import { Plus } from "lucide-solid";
 import { For } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
-import type {
-  TemplateField,
-  WorshipProgramSectionTemplate,
-} from "@/types/bulletin.ts";
+import type { WorshipProgramSectionTemplate } from "@/types/bulletin.ts";
 import styles from "../BulletinTemplate.module.css";
 import { TemplateItemRow } from "./TemplateItemRow.tsx";
 
@@ -13,7 +10,7 @@ type Props = {
   onUpdateItem: (
     sectionId: string,
     itemIndex: number,
-    field: "type" | "label" | "inputType",
+    field: "label" | "inputType",
     value: string,
   ) => void;
   onToggleFieldMode: (sectionId: string, itemIndex: number) => void;
@@ -27,7 +24,7 @@ type Props = {
     sectionId: string,
     itemIndex: number,
     fieldIndex: number,
-    prop: keyof TemplateField,
+    prop: "label" | "inputType",
     value: string,
   ) => void;
   onAddItem: (sectionId: string) => void;
