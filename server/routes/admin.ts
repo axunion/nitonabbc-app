@@ -177,14 +177,21 @@ adminRoute.post("/members/:id/reactivate", async (c) => {
     return c.json({ error: "Invalid id" }, 400);
   }
 
-  const [updated] = await db
-    .update(users)
-    .set({ isActive: true, updatedAt: sql`(datetime('now'))` })
-    .where(eq(users.id, id))
-    .returning();
-  if (!updated) {
+  const existing = await db.query.users.findFirst({ where: eq(users.id, id) });
+  if (!existing) {
     return c.json({ error: "Member not found" }, 404);
   }
+
+  const [updated] = await db
+    .update(users)
+    .set({
+      isActive: true,
+      // An invite link sent before deactivation must not come back to life
+      ...(existing.inviteUsed ? {} : { inviteToken: crypto.randomUUID() }),
+      updatedAt: sql`(datetime('now'))`,
+    })
+    .where(eq(users.id, id))
+    .returning();
   return c.json(toMemberResponse(updated));
 });
 

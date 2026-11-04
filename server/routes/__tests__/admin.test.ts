@@ -409,6 +409,54 @@ describe("POST /api/admin/members/:id/reactivate", () => {
       .where(eq(schema.users.id, target.id));
     expect(row?.isActive).toBe(true);
   });
+
+  it("issues a new invite token when the old invite was never used", async () => {
+    const { env } = await seedAdminAndEnv();
+    const [target] = await db
+      .insert(schema.users)
+      .values({ name: "Target", inviteToken: "tok_old", isActive: false })
+      .returning();
+
+    await testApp.request(
+      `http://localhost/api/admin/members/${target.id}/reactivate`,
+      { method: "POST", headers: adminHeaders },
+      env,
+    );
+
+    const [row] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, target.id));
+    expect(row?.inviteToken).not.toBe("tok_old");
+    expect(row?.inviteUsed).toBe(false);
+  });
+
+  it("keeps the LINE link and token of a member who had already signed in", async () => {
+    const { env } = await seedAdminAndEnv();
+    const [target] = await db
+      .insert(schema.users)
+      .values({
+        name: "Target",
+        inviteToken: "tok_used",
+        inviteUsed: true,
+        lineUserId: "U_target",
+        isActive: false,
+      })
+      .returning();
+
+    await testApp.request(
+      `http://localhost/api/admin/members/${target.id}/reactivate`,
+      { method: "POST", headers: adminHeaders },
+      env,
+    );
+
+    const [row] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, target.id));
+    expect(row?.inviteToken).toBe("tok_used");
+    expect(row?.lineUserId).toBe("U_target");
+  });
 });
 
 describe("POST /api/admin/members/:id/reinvite", () => {
