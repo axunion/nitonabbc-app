@@ -169,6 +169,36 @@ adminRoute.delete("/members/:id", async (c) => {
   return c.json({ ok: true });
 });
 
+// POST /api/admin/members/:id/reactivate — undo a deactivation
+adminRoute.post("/members/:id/reactivate", async (c) => {
+  const db = c.get("db");
+  const id = Number(c.req.param("id"));
+  if (!Number.isInteger(id) || id <= 0) {
+    return c.json({ error: "Invalid id" }, 400);
+  }
+
+  const existing = await db.query.users.findFirst({ where: eq(users.id, id) });
+  if (!existing) {
+    return c.json({ error: "Member not found" }, 404);
+  }
+  // Already active: nothing to undo, and rotating the token would break a live invite
+  if (existing.isActive) {
+    return c.json(toMemberResponse(existing));
+  }
+
+  const [updated] = await db
+    .update(users)
+    .set({
+      isActive: true,
+      // An invite link sent before deactivation must not come back to life
+      ...(existing.inviteUsed ? {} : { inviteToken: crypto.randomUUID() }),
+      updatedAt: sql`(datetime('now'))`,
+    })
+    .where(eq(users.id, id))
+    .returning();
+  return c.json(toMemberResponse(updated));
+});
+
 // POST /api/admin/members/:id/reinvite — reset LINE link + new token
 adminRoute.post("/members/:id/reinvite", async (c) => {
   const db = c.get("db");

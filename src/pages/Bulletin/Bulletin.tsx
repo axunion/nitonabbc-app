@@ -1,8 +1,19 @@
-import { useNavigate, useParams } from "@solidjs/router";
-import { Pencil, Plus } from "lucide-solid";
-import { createMemo, createSignal, For, onCleanup, Show } from "solid-js";
+import { useBeforeLeave, useNavigate, useParams } from "@solidjs/router";
+import { CalendarDays, Pencil, Plus, Trash2 } from "lucide-solid";
+import {
+  createMemo,
+  createSignal,
+  For,
+  Index,
+  onCleanup,
+  onMount,
+  Show,
+} from "solid-js";
+import { deleteBulletin, updateBulletin } from "@/api/bulletin.ts";
+import { ConfirmDialog } from "@/components/ConfirmDialog/index.ts";
 import { Header } from "@/components/Header";
 import { ProgressBar } from "@/components/ProgressBar";
+import { showToast } from "@/components/Toast/toast.tsx";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import { hasSectionViewContent } from "@/utils/bulletin.ts";
 import { formatDate } from "@/utils/date.ts";
@@ -17,65 +28,135 @@ function sectionAnchorId(sectionId: string): string {
 }
 
 export function Bulletin() {
-  const params = useParams<{ id?: string }>();
+  const params = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t, locale } = useLocale();
-  const isNew = () => !params.id;
   const mq = window.matchMedia("(min-width: 900px)");
   const [isDesktop, setIsDesktop] = createSignal(mq.matches);
   const onMqChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
   mq.addEventListener("change", onMqChange);
   onCleanup(() => mq.removeEventListener("change", onMqChange));
 
-  // For existing bulletins: which section (if any) is open for editing
+  // Which section (if any) is open for editing
   const [editingSectionId, setEditingSectionId] = createSignal<string | null>(
+    null,
+  );
+  // Non-null while the date editor is open
+  const [dateDraft, setDateDraft] = createSignal<string | null>(null);
+  const [savingDate, setSavingDate] = createSignal(false);
+  const [confirmDelete, setConfirmDelete] = createSignal(false);
+  // Action to run once the user agrees to discard unsaved section edits
+  const [pendingDiscard, setPendingDiscard] = createSignal<(() => void) | null>(
     null,
   );
 
   const form = useBulletinForm();
 
-  const handleSectionEdit = (sectionId: string) => {
-    // Reset any in-progress edits before opening a new section
-    if (editingSectionId() && editingSectionId() !== sectionId) {
-      form.resetToExisting();
-    }
-    setEditingSectionId(sectionId);
-  };
+  const hasUnsavedEdits = () => editingSectionId() !== null && form.isDirty();
 
-  const handleSectionCancel = () => {
-    form.clearError();
+  function discardEdits() {
     form.resetToExisting();
     setEditingSectionId(null);
+  }
+
+  // Run `action` right away, or after confirming that unsaved edits may be lost
+  function guardUnsaved(action: () => void) {
+    if (hasUnsavedEdits()) {
+      setPendingDiscard(() => action);
+    } else {
+      action();
+    }
+  }
+
+  useBeforeLeave((e) => {
+    if (e.defaultPrevented || !hasUnsavedEdits()) return;
+    e.preventDefault();
+    setPendingDiscard(() => () => {
+      discardEdits();
+      e.retry(true);
+    });
+  });
+
+  const onBeforeUnload = (e: BeforeUnloadEvent) => {
+    if (hasUnsavedEdits()) e.preventDefault();
+  };
+  onMount(() => window.addEventListener("beforeunload", onBeforeUnload));
+  onCleanup(() => window.removeEventListener("beforeunload", onBeforeUnload));
+
+  const handleSectionEdit = (sectionId: string) => {
+    guardUnsaved(() => {
+      // Drop edits of the section being closed (no-op when unchanged)
+      if (editingSectionId() && editingSectionId() !== sectionId) {
+        form.resetToExisting();
+      }
+      setEditingSectionId(sectionId);
+    });
   };
 
   const handleSectionSave = async () => {
     const result = await form.save();
     if (result.ok) {
-      form.refetchExisting();
       setEditingSectionId(null);
+      try {
+        await form.reload();
+      } catch {
+        showToast(t("common.error"), "error");
+      }
+    } else {
+      showToast(t("common.error"), "error");
     }
   };
 
-  // New bulletin: form submit via sticky bar
-  const handleNewBulletinSave = async (e: SubmitEvent) => {
-    e.preventDefault();
-    const result = await form.save();
-    if (result.ok && result.id != null) {
-      navigate(`/bulletin/${result.id}`);
+  const openDateEditor = () => {
+    guardUnsaved(() => {
+      discardEdits();
+      setDateDraft(form.serviceDate());
+    });
+  };
+
+  const handleDateSave = async () => {
+    const date = dateDraft();
+    if (!date || date === form.serviceDate()) {
+      setDateDraft(null);
+      return;
     }
+    setSavingDate(true);
+    const result = await updateBulletin(params.id, { serviceDate: date });
+    setSavingDate(false);
+    if (result.ok) {
+      setDateDraft(null);
+      await form.reload().catch(() => showToast(t("common.error"), "error"));
+      showToast(t("bulletin.dateChanged"));
+    } else if (result.status === 409) {
+      showToast(t("bulletin.alreadyExists"), "error");
+    } else {
+      showToast(t("common.error"), "error");
+    }
+  };
+
+  const handleDelete = async () => {
+    const result = await deleteBulletin(params.id);
+    if (!result.ok) {
+      showToast(t("common.error"), "error");
+      // Keep the dialog open so the user can retry
+      throw new Error("delete failed");
+    }
+    // Drop unsaved edits only now, so the leave guard does not prompt for them
+    discardEdits();
+    showToast(t("bulletin.deleted"));
+    navigate("/bulletin");
   };
 
   const template = () => form.template() ?? [];
 
-  const visibleTocSections = createMemo(() => {
-    if (isNew()) return form.sections();
-    return form
+  const visibleTocSections = createMemo(() =>
+    form
       .sections()
       .filter(
         (s) =>
           editingSectionId() === s.id || hasSectionViewContent(s, template()),
-      );
-  });
+      ),
+  );
 
   return (
     <>
@@ -85,12 +166,7 @@ export function Bulletin() {
           when={form.initialized()}
           fallback={<p class={styles.loading}>{t("common.loading")}</p>}
         >
-          <form
-            onSubmit={
-              isNew() ? handleNewBulletinSave : (e) => e.preventDefault()
-            }
-            class={styles.form}
-          >
+          <form onSubmit={(e) => e.preventDefault()} class={styles.form}>
             <div class={styles.layoutGrid}>
               <Show when={isDesktop()}>
                 <nav class={styles.toc} aria-label={t("bulletinForm.tocLabel")}>
@@ -113,28 +189,37 @@ export function Bulletin() {
               </Show>
 
               <div class={styles.formBody}>
-                {/* Existing bulletin: date heading + progress */}
-                <Show when={!isNew()}>
-                  <h1 class={styles.title}>
-                    {formatDate(form.serviceDate(), locale())}
-                  </h1>
-                  <Show when={form.totalItems() > 0}>
-                    <div class={styles.progressRow}>
-                      <ProgressBar
-                        filled={form.filledItems()}
-                        total={form.totalItems()}
-                        label={t("bulletin.progressCount", {
-                          filled: String(form.filledItems()),
-                          total: String(form.totalItems()),
-                        })}
-                      />
+                <Show
+                  when={dateDraft() !== null}
+                  fallback={
+                    <div class={styles.titleRow}>
+                      <h1 class={styles.title}>
+                        {formatDate(form.serviceDate(), locale())}
+                      </h1>
+                      <div class={styles.titleActions}>
+                        <button
+                          type="button"
+                          class={styles.iconButton}
+                          onClick={openDateEditor}
+                          aria-label={t("bulletin.changeDate")}
+                          title={t("bulletin.changeDate")}
+                        >
+                          <CalendarDays size={16} stroke-width={1.5} />
+                        </button>
+                        <button
+                          type="button"
+                          class={styles.iconButton}
+                          onClick={() => setConfirmDelete(true)}
+                          aria-label={t("bulletin.delete")}
+                          title={t("bulletin.delete")}
+                        >
+                          <Trash2 size={16} stroke-width={1.5} />
+                        </button>
+                      </div>
                     </div>
-                  </Show>
-                </Show>
-
-                {/* New bulletin: date input */}
-                <Show when={isNew()}>
-                  <div class={editorStyles.field}>
+                  }
+                >
+                  <div class={styles.dateEditor}>
                     <label for="service-date" class={editorStyles.fieldLabel}>
                       {t("bulletinForm.serviceDate")}
                     </label>
@@ -142,80 +227,55 @@ export function Bulletin() {
                       id="service-date"
                       type="date"
                       class={editorStyles.input}
-                      value={form.serviceDate()}
-                      onInput={(e) =>
-                        form.setServiceDate(e.currentTarget.value)
-                      }
-                      required
+                      value={dateDraft() ?? ""}
+                      onInput={(e) => setDateDraft(e.currentTarget.value)}
+                    />
+                    <div class={styles.sectionActions}>
+                      <button
+                        type="button"
+                        class={styles.cancelButton}
+                        onClick={() => setDateDraft(null)}
+                      >
+                        {t("common.cancel")}
+                      </button>
+                      <button
+                        type="button"
+                        class={styles.submitButton}
+                        disabled={!dateDraft() || savingDate()}
+                        onClick={handleDateSave}
+                      >
+                        {t("common.save")}
+                      </button>
+                    </div>
+                  </div>
+                </Show>
+
+                <Show when={form.totalItems() > 0}>
+                  <div class={styles.progressRow}>
+                    <ProgressBar
+                      filled={form.filledItems()}
+                      total={form.totalItems()}
+                      label={t("bulletin.progressCount", {
+                        filled: String(form.filledItems()),
+                        total: String(form.totalItems()),
+                      })}
                     />
                   </div>
                 </Show>
 
-                <Show when={form.error()}>
-                  <p class={styles.error}>{form.error()}</p>
-                </Show>
-
                 <div class={styles.sectionsGrid}>
-                  <For each={form.sections()}>
+                  <Index each={form.sections()}>
                     {(section) => {
-                      const isEditing = () => editingSectionId() === section.id;
+                      const isEditing = () =>
+                        editingSectionId() === section().id;
                       const hasContent = () =>
-                        hasSectionViewContent(section, template());
+                        hasSectionViewContent(section(), template());
 
-                      const renderEditor = () => (
-                        <SectionEditor
-                          section={section}
-                          template={template()}
-                          members={form.members()}
-                          onUpdateDetails={form.updateWorshipDetails}
-                          onUpdateFieldValue={form.updateWorshipFieldValue}
-                          onAddAnnouncement={form.addAnnouncement}
-                          onRemoveAnnouncement={form.removeAnnouncement}
-                          onUpdateAnnouncement={form.updateAnnouncement}
-                          onUpdateAssignment={form.updateAssignment}
-                          onUpdateWeeklyVerse={form.updateWeeklyVerse}
-                          onUpdateMonthlySong={form.updateMonthlySong}
-                          onUpdateTextBlock={form.updateTextBlock}
-                          onUpdateWeeklyPrayer={form.updateWeeklyPrayer}
-                          onAddUpcomingEvent={form.addUpcomingEvent}
-                          onRemoveUpcomingEvent={form.removeUpcomingEvent}
-                          onUpdateUpcomingEvent={form.updateUpcomingEvent}
-                          onAddBirthday={form.addBirthday}
-                          onRemoveBirthday={form.removeBirthday}
-                          onUpdateBirthday={form.updateBirthday}
-                          onAddScriptureQuote={form.addScriptureQuote}
-                          onRemoveScriptureQuote={form.removeScriptureQuote}
-                          onUpdateScriptureQuote={form.updateScriptureQuote}
-                          onUpdateAttendance={form.updateAttendance}
-                          onUpdateServiceMeta={form.updateServiceMeta}
-                          onUpdateFinancialSummary={form.updateFinancialSummary}
-                        />
-                      );
-
-                      // New bulletin: all sections always in edit mode
-                      if (isNew()) {
-                        return (
-                          <fieldset
-                            id={sectionAnchorId(section.id)}
-                            class={styles.section}
-                          >
-                            <legend class={styles.sectionTitle}>
-                              {section.label}
-                            </legend>
-                            <div class={styles.sectionBody}>
-                              {renderEditor()}
-                            </div>
-                          </fieldset>
-                        );
-                      }
-
-                      // Existing bulletin: per-section editing
                       return (
                         <Show
                           when={isEditing()}
                           fallback={
-                            // View mode for this section
-                            <div id={sectionAnchorId(section.id)}>
+                            <div id={sectionAnchorId(section().id)}>
                               <Show
                                 when={hasContent()}
                                 fallback={
@@ -224,11 +284,11 @@ export function Bulletin() {
                                     type="button"
                                     class={styles.emptySection}
                                     onClick={() =>
-                                      handleSectionEdit(section.id)
+                                      handleSectionEdit(section().id)
                                     }
                                   >
                                     <span class={styles.sectionTitle}>
-                                      {section.label}
+                                      {section().label}
                                     </span>
                                     <span class={styles.emptySectionIcon}>
                                       <Plus size={14} stroke-width={1.5} />
@@ -236,10 +296,9 @@ export function Bulletin() {
                                   </button>
                                 }
                               >
-                                {/* Filled section: view + pencil */}
                                 <div class={styles.filledSection}>
                                   <SectionView
-                                    section={section}
+                                    section={section()}
                                     template={template()}
                                     members={form.members()}
                                   />
@@ -247,7 +306,7 @@ export function Bulletin() {
                                     type="button"
                                     class={styles.sectionPencilBtn}
                                     onClick={() =>
-                                      handleSectionEdit(section.id)
+                                      handleSectionEdit(section().id)
                                     }
                                     aria-label={t("common.edit")}
                                   >
@@ -258,22 +317,55 @@ export function Bulletin() {
                             </div>
                           }
                         >
-                          {/* Edit mode for this section */}
                           <fieldset
-                            id={sectionAnchorId(section.id)}
+                            id={sectionAnchorId(section().id)}
                             class={styles.section}
                           >
                             <legend class={styles.sectionTitle}>
-                              {section.label}
+                              {section().label}
                             </legend>
                             <div class={styles.sectionBody}>
-                              {renderEditor()}
+                              <SectionEditor
+                                section={section()}
+                                template={template()}
+                                members={form.members()}
+                                onUpdateDetails={form.updateWorshipDetails}
+                                onUpdateFieldValue={
+                                  form.updateWorshipFieldValue
+                                }
+                                onAddAnnouncement={form.addAnnouncement}
+                                onRemoveAnnouncement={form.removeAnnouncement}
+                                onUpdateAnnouncement={form.updateAnnouncement}
+                                onUpdateAssignment={form.updateAssignment}
+                                onUpdateWeeklyVerse={form.updateWeeklyVerse}
+                                onUpdateMonthlySong={form.updateMonthlySong}
+                                onUpdateTextBlock={form.updateTextBlock}
+                                onUpdateWeeklyPrayer={form.updateWeeklyPrayer}
+                                onAddUpcomingEvent={form.addUpcomingEvent}
+                                onRemoveUpcomingEvent={form.removeUpcomingEvent}
+                                onUpdateUpcomingEvent={form.updateUpcomingEvent}
+                                onAddBirthday={form.addBirthday}
+                                onRemoveBirthday={form.removeBirthday}
+                                onUpdateBirthday={form.updateBirthday}
+                                onAddScriptureQuote={form.addScriptureQuote}
+                                onRemoveScriptureQuote={
+                                  form.removeScriptureQuote
+                                }
+                                onUpdateScriptureQuote={
+                                  form.updateScriptureQuote
+                                }
+                                onUpdateAttendance={form.updateAttendance}
+                                onUpdateServiceMeta={form.updateServiceMeta}
+                                onUpdateFinancialSummary={
+                                  form.updateFinancialSummary
+                                }
+                              />
                             </div>
                             <div class={styles.sectionActions}>
                               <button
                                 type="button"
                                 class={styles.cancelButton}
-                                onClick={handleSectionCancel}
+                                onClick={discardEdits}
                               >
                                 {t("common.cancel")}
                               </button>
@@ -290,46 +382,41 @@ export function Bulletin() {
                         </Show>
                       );
                     }}
-                  </For>
+                  </Index>
                 </div>
               </div>
             </div>
-
-            {/* Sticky bar: only for new bulletin creation */}
-            <Show when={isNew()}>
-              <div class={styles.stickyBar}>
-                <div class={styles.stickyBarInner}>
-                  <Show when={form.serviceDate() && !form.hasContent()}>
-                    <p class={styles.validationHint}>
-                      {t("bulletinForm.fillAtLeastOne")}
-                    </p>
-                  </Show>
-                  <div class={styles.actions}>
-                    <button
-                      type="button"
-                      class={styles.cancelButton}
-                      onClick={() => navigate("/bulletin")}
-                    >
-                      {t("common.cancel")}
-                    </button>
-                    <button
-                      type="submit"
-                      class={styles.submitButton}
-                      disabled={
-                        form.submitting() ||
-                        !form.serviceDate() ||
-                        !form.hasContent()
-                      }
-                    >
-                      {t("common.create")}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </Show>
           </form>
         </Show>
       </div>
+
+      <ConfirmDialog
+        open={pendingDiscard() !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDiscard(null);
+        }}
+        title={t("bulletin.discardTitle")}
+        description={t("bulletin.discardDescription")}
+        confirmLabel={t("common.discard")}
+        cancelLabel={t("bulletin.keepEditing")}
+        variant="destructive"
+        onConfirm={() => pendingDiscard()?.()}
+      />
+
+      <ConfirmDialog
+        open={confirmDelete()}
+        onOpenChange={setConfirmDelete}
+        title={t("bulletin.delete")}
+        description={t("bulletin.confirmDelete", {
+          date: form.serviceDate()
+            ? formatDate(form.serviceDate(), locale())
+            : "",
+        })}
+        confirmLabel={t("common.delete")}
+        cancelLabel={t("common.cancel")}
+        variant="destructive"
+        onConfirm={handleDelete}
+      />
     </>
   );
 }

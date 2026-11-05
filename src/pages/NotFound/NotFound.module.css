@@ -1,0 +1,22 @@
+.container {
+  composes: pageContainer from "../../styles/shared.module.css";
+  gap: var(--space-4);
+  padding-top: var(--space-12);
+}
+
+.message {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-gray-600);
+  text-align: center;
+  text-wrap: balance;
+  word-break: auto-phrase;
+}
+
+.homeLink {
+  composes: pairedSubmit from "../../styles/shared.module.css";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}

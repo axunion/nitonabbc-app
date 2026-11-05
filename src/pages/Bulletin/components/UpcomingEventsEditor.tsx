@@ -1,5 +1,5 @@
 import { Minus, Plus } from "lucide-solid";
-import { For } from "solid-js";
+import { Index } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type {
   UpcomingEvent,
@@ -19,7 +19,7 @@ export function UpcomingEventsEditor(props: Props) {
 
   return (
     <>
-      <For each={props.section.data}>
+      <Index each={props.section.data}>
         {(event, index) => (
           <div class={styles.repeatRow}>
             <div class={styles.field}>
@@ -27,10 +27,10 @@ export function UpcomingEventsEditor(props: Props) {
                 type="text"
                 class={styles.input}
                 placeholder={t("bulletinForm.upcomingDatePlaceholder")}
-                value={event.date}
+                value={event().date}
                 onInput={(e) =>
-                  props.onUpdate(props.section.id, index(), {
-                    ...event,
+                  props.onUpdate(props.section.id, index, {
+                    ...event(),
                     date: e.currentTarget.value,
                   })
                 }
@@ -41,10 +41,10 @@ export function UpcomingEventsEditor(props: Props) {
                 type="text"
                 class={styles.input}
                 placeholder={t("bulletinForm.upcomingDescriptionPlaceholder")}
-                value={event.description}
+                value={event().description}
                 onInput={(e) =>
-                  props.onUpdate(props.section.id, index(), {
-                    ...event,
+                  props.onUpdate(props.section.id, index, {
+                    ...event(),
                     description: e.currentTarget.value,
                   })
                 }
@@ -54,7 +54,7 @@ export function UpcomingEventsEditor(props: Props) {
               <button
                 type="button"
                 class={styles.removeButton}
-                onClick={() => props.onRemove(props.section.id, index())}
+                onClick={() => props.onRemove(props.section.id, index)}
               >
                 <Minus size={14} stroke-width={1.5} />
                 {t("common.delete")}
@@ -62,7 +62,7 @@ export function UpcomingEventsEditor(props: Props) {
             </div>
           </div>
         )}
-      </For>
+      </Index>
       <button
         type="button"
         class={styles.addButton}

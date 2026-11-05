@@ -115,9 +115,18 @@ function toBulletinSummary(
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-/** Returns the current or next Sunday as "YYYY-MM-DD" (UTC). Sunday returns today. */
+// service_date is UNIQUE, so this signals "a bulletin for that date exists"
+function isUniqueViolation(e: unknown): boolean {
+  return e instanceof Error && e.message.includes("UNIQUE constraint");
+}
+
+// The church operates in Japan, so "today" follows JST (UTC+9, no DST).
+const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+/** Returns the current or next Sunday in JST as "YYYY-MM-DD". Sunday returns today. */
 function getNextSunday(): string {
-  const today = new Date();
+  // Shift so that the UTC fields of this Date read as JST wall-clock time
+  const today = new Date(Date.now() + JST_OFFSET_MS);
   const dayOfWeek = today.getUTCDay();
   const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
   const nextSunday = new Date(today);
@@ -307,7 +316,7 @@ bulletinRoute.get("/", async (c) => {
   });
 });
 
-// POST /api/bulletin/generate — auto-generate bulletin for next Sunday from template
+// POST /api/bulletin/generate — create a bulletin from the template for serviceDate (default: next Sunday)
 bulletinRoute.post("/generate", async (c) => {
   const db = c.get("db");
   const user = c.get("user");
@@ -315,13 +324,10 @@ bulletinRoute.post("/generate", async (c) => {
   const body = await c.req
     .json<{ serviceDate?: string }>()
     .catch((): { serviceDate?: string } => ({}));
-  let serviceDate: string;
-
-  if (body.serviceDate && DATE_RE.test(body.serviceDate)) {
-    serviceDate = body.serviceDate;
-  } else {
-    serviceDate = getNextSunday();
+  if (body.serviceDate !== undefined && !DATE_RE.test(body.serviceDate)) {
+    return c.json({ error: "serviceDate must be YYYY-MM-DD" }, 400);
   }
+  const serviceDate = body.serviceDate ?? getNextSunday();
 
   const [template, prevRows] = await Promise.all([
     getTemplate(db),
@@ -348,7 +354,7 @@ bulletinRoute.post("/generate", async (c) => {
 
     return c.json(toBulletinDetail(newRow, template), 201);
   } catch (e) {
-    if (e instanceof Error && e.message.includes("UNIQUE constraint")) {
+    if (isUniqueViolation(e)) {
       return c.json({ error: "Bulletin for this date already exists" }, 409);
     }
     throw e;
@@ -406,7 +412,7 @@ bulletinRoute.post("/", async (c) => {
 
     return c.json(toBulletinDetail(newRow, template), 201);
   } catch (e) {
-    if (e instanceof Error && e.message.includes("UNIQUE constraint")) {
+    if (isUniqueViolation(e)) {
       return c.json({ error: "Bulletin for this date already exists" }, 409);
     }
     throw e;
@@ -437,19 +443,26 @@ bulletinRoute.put("/:id", async (c) => {
     return c.json({ error: "serviceDate must be YYYY-MM-DD" }, 400);
   }
 
-  await db
-    .update(bulletins)
-    .set({
-      ...(body.serviceDate !== undefined
-        ? { serviceDate: body.serviceDate }
-        : {}),
-      ...(body.sections !== undefined
-        ? { sections: body.sections as SectionData[] }
-        : {}),
-      updatedBy: user.id,
-      updatedAt: sql`(datetime('now'))`,
-    })
-    .where(eq(bulletins.id, id));
+  try {
+    await db
+      .update(bulletins)
+      .set({
+        ...(body.serviceDate !== undefined
+          ? { serviceDate: body.serviceDate }
+          : {}),
+        ...(body.sections !== undefined
+          ? { sections: body.sections as SectionData[] }
+          : {}),
+        updatedBy: user.id,
+        updatedAt: sql`(datetime('now'))`,
+      })
+      .where(eq(bulletins.id, id));
+  } catch (e) {
+    if (isUniqueViolation(e)) {
+      return c.json({ error: "Bulletin for this date already exists" }, 409);
+    }
+    throw e;
+  }
 
   const [template, updated] = await Promise.all([
     getTemplate(db),

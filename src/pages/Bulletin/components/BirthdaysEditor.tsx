@@ -1,5 +1,5 @@
 import { Minus, Plus } from "lucide-solid";
-import { For } from "solid-js";
+import { Index } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type { Birthday, BirthdaysSectionData } from "@/types/bulletin.ts";
 import styles from "../editorFields.module.css";
@@ -16,7 +16,7 @@ export function BirthdaysEditor(props: Props) {
 
   return (
     <>
-      <For each={props.section.data}>
+      <Index each={props.section.data}>
         {(birthday, index) => (
           <div class={styles.repeatRow}>
             <div class={styles.pairGrid}>
@@ -24,10 +24,10 @@ export function BirthdaysEditor(props: Props) {
                 type="text"
                 class={styles.input}
                 placeholder={t("bulletinForm.birthdayDayPlaceholder")}
-                value={birthday.day}
+                value={birthday().day}
                 onInput={(e) =>
-                  props.onUpdate(props.section.id, index(), {
-                    ...birthday,
+                  props.onUpdate(props.section.id, index, {
+                    ...birthday(),
                     day: e.currentTarget.value,
                   })
                 }
@@ -36,10 +36,10 @@ export function BirthdaysEditor(props: Props) {
                 type="text"
                 class={styles.input}
                 placeholder={t("bulletinForm.birthdayNamePlaceholder")}
-                value={birthday.name}
+                value={birthday().name}
                 onInput={(e) =>
-                  props.onUpdate(props.section.id, index(), {
-                    ...birthday,
+                  props.onUpdate(props.section.id, index, {
+                    ...birthday(),
                     name: e.currentTarget.value,
                   })
                 }
@@ -49,7 +49,7 @@ export function BirthdaysEditor(props: Props) {
               <button
                 type="button"
                 class={styles.removeButton}
-                onClick={() => props.onRemove(props.section.id, index())}
+                onClick={() => props.onRemove(props.section.id, index)}
               >
                 <Minus size={14} stroke-width={1.5} />
                 {t("common.delete")}
@@ -57,7 +57,7 @@ export function BirthdaysEditor(props: Props) {
             </div>
           </div>
         )}
-      </For>
+      </Index>
       <button
         type="button"
         class={styles.addButton}

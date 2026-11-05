@@ -94,6 +94,39 @@ describe("GET /api/bulletin", () => {
     expect(typeof (json as { nextSunday: string }).nextSunday).toBe("string");
   });
 
+  describe("nextSunday uses Japan time", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    async function nextSundayAt(iso: string): Promise<string> {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date(iso));
+      const { env } = await seedMemberAndEnv();
+      const res = await testApp.request(
+        "http://localhost/api/bulletin",
+        { headers: memberHeaders },
+        env,
+      );
+      return ((await res.json()) as { nextSunday: string }).nextSunday;
+    }
+
+    it("returns the following Sunday early on Monday JST (still Sunday in UTC)", async () => {
+      // 2026-11-09 05:00 JST (Mon) = 2026-11-08 20:00 UTC (Sun)
+      expect(await nextSundayAt("2026-11-08T20:00:00Z")).toBe("2026-11-15");
+    });
+
+    it("returns today on Sunday JST", async () => {
+      // 2026-11-08 08:00 JST (Sun) = 2026-11-07 23:00 UTC (Sat)
+      expect(await nextSundayAt("2026-11-07T23:00:00Z")).toBe("2026-11-08");
+    });
+
+    it("rolls over month and year boundaries", async () => {
+      // 2026-12-28 12:00 JST (Mon)
+      expect(await nextSundayAt("2026-12-28T03:00:00Z")).toBe("2027-01-03");
+    });
+  });
+
   it("returns bulletins ordered by service_date desc", async () => {
     const { user, env } = await seedMemberAndEnv();
     await db.insert(schema.bulletins).values([
@@ -287,6 +320,20 @@ describe("POST /api/bulletin/generate", () => {
     expect(json).toMatchObject({ serviceDate: "2025-06-01" });
   });
 
+  it("returns 400 for a malformed serviceDate", async () => {
+    const { env } = await seedMemberAndEnv();
+    const res = await testApp.request(
+      "http://localhost/api/bulletin/generate",
+      {
+        method: "POST",
+        headers: { ...memberHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({ serviceDate: "06/01/2025" }),
+      },
+      env,
+    );
+    expect(res.status).toBe(400);
+  });
+
   it("generates from the default template when none is saved", async () => {
     const { env } = await seedMemberAndEnv();
     const res = await testApp.request(
@@ -361,6 +408,42 @@ describe("PUT /api/bulletin/:id", () => {
       env,
     );
     expect(res.status).toBe(404);
+  });
+
+  it("returns 409 when changing to a date that already has a bulletin", async () => {
+    const { user, env } = await seedMemberAndEnv();
+    const [first, second] = await db
+      .insert(schema.bulletins)
+      .values([
+        {
+          serviceDate: "2025-01-05",
+          sections: [],
+          createdBy: user.id,
+          updatedBy: user.id,
+        },
+        {
+          serviceDate: "2025-01-12",
+          sections: [],
+          createdBy: user.id,
+          updatedBy: user.id,
+        },
+      ])
+      .returning();
+
+    const res = await testApp.request(
+      `http://localhost/api/bulletin/${second.id}`,
+      {
+        method: "PUT",
+        headers: { ...memberHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({ serviceDate: first.serviceDate }),
+      },
+      env,
+    );
+    expect(res.status).toBe(409);
+    const unchanged = await db.query.bulletins.findFirst({
+      where: (b, { eq }) => eq(b.id, second.id),
+    });
+    expect(unchanged?.serviceDate).toBe("2025-01-12");
   });
 
   it("returns 400 for invalid serviceDate format", async () => {
@@ -713,6 +796,62 @@ describe("POST /api/bulletin/generate — copies from previous bulletin", () => 
     const byId = (id: string) => json.sections.find((s) => s.id === id)?.data;
     // Must not copy from the later (2025-12-25) bulletin
     expect(byId("assign")).toEqual({});
+  });
+
+  it("copies from the most recent bulletin before the target date, not the oldest or latest", async () => {
+    const { user, env } = await seedMemberAndEnv();
+    await db.insert(schema.settings).values({
+      key: "bulletin_template",
+      value: JSON.stringify([
+        {
+          id: "assign",
+          type: "assignments",
+          label: "奉仕当番",
+          visible: true,
+          config: { roles: ["司会"] },
+        },
+      ]),
+    });
+    const bulletinWith = (serviceDate: string, who: string) => ({
+      serviceDate,
+      sections: [
+        {
+          id: "assign",
+          type: "assignments",
+          label: "奉仕当番",
+          data: { 司会: who },
+        },
+      ] as never,
+      createdBy: user.id,
+      updatedBy: user.id,
+    });
+    // Insert out of date order so id order differs from date order
+    await db
+      .insert(schema.bulletins)
+      .values(bulletinWith("2025-08-03", "closest"));
+    await db
+      .insert(schema.bulletins)
+      .values(bulletinWith("2025-07-06", "older"));
+    await db
+      .insert(schema.bulletins)
+      .values(bulletinWith("2025-12-25", "later"));
+
+    const res = await testApp.request(
+      "http://localhost/api/bulletin/generate",
+      {
+        method: "POST",
+        headers: { ...memberHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({ serviceDate: "2025-08-10" }),
+      },
+      env,
+    );
+    expect(res.status).toBe(201);
+    const json = (await res.json()) as {
+      sections: { id: string; data: unknown }[];
+    };
+    expect(json.sections.find((s) => s.id === "assign")?.data).toEqual({
+      司会: "closest",
+    });
   });
 });
 

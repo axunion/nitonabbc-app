@@ -128,7 +128,7 @@ WorshipItem {
 }
 ```
 
-`inputType: "member"` フィールドの値（`details` または `fieldValues[key]`）はメンバーの `id` を文字列化したもの。
+`inputType: "member"` フィールドの値（`details` または `fieldValues[key]`）はメンバーの `id` を文字列化したもの。名簿にいない人（ゲストの説教者など）は「その他」から名前を直接入力でき、その場合は数字だけでない文字列として名前をそのまま保存する（表示時は ID に一致するメンバーがいなければ値をそのまま表示する）。
 
 データ例:
 ```json
@@ -166,7 +166,7 @@ WorshipItem {
 
 役割ごとにメンバー選択 UI が表示される。役割名が `SERVICE_ROLES`（司会・奏楽・説教・受付）に含まれる場合は、その役割を `serviceRoles` に持つメンバーのみを選択肢に表示する。含まれない役割（特賛など）は全アクティブメンバーを表示する。
 
-データは `Record<役割名, メンバーID文字列>`。
+データは `Record<役割名, メンバーID文字列>`。名簿にいない人は名前の文字列を保存する（`worship-program` の member フィールドと同じ規則）。
 
 データ例: `{ "司会": "5", "奏楽": "7", "受付": "12" }`
 
@@ -408,11 +408,11 @@ settings テーブルのキー: `church_profile`
 
 | Method | Path | 説明 |
 |--------|------|------|
-| POST | `/api/bulletin/generate` | 次の日曜日の週報を生成 → 201 |
+| POST | `/api/bulletin/generate` | `serviceDate` の週報を生成（省略時は次の日曜日）→ 201。アプリの週報作成はすべてこれを使う |
 
 生成ロジック:
 - テンプレートからセクション構造を生成
-- 直近の週報（`service_date` が最も新しいもの）が存在する場合、繰り返し性が高いセクション（`weekly-prayer`, `assignments`, `monthly-song`, `birthdays`）は `id` が一致するセクションの値をコピーする
+- 対象日より前で最も新しい週報が存在する場合、繰り返し性が高いセクション（`weekly-prayer`, `assignments`, `monthly-song`, `birthdays`）は `id` が一致するセクションの値をコピーする
 - 直近の週報が存在しない場合（初回生成時）、`weekly-prayer` はテンプレートの `config.days[*].defaults` を初期値として使用し、`assignments`/`monthly-song`/`birthdays` は空で初期化する
 - `announcements`, `upcoming-events`, `weekly-verse` は常に空で初期化（前回週報の値はコピーしない）
 
@@ -442,7 +442,7 @@ settings テーブルのキー: `church_profile`
 ### バリデーション
 
 - `serviceDate` 必須、`YYYY-MM-DD` 形式 → 400
-- 重複 `serviceDate` → 409 Conflict
+- 重複 `serviceDate`（作成時・日付変更時）→ 409 Conflict
 - `sections` 省略可（デフォルト: `[]`）
 - テンプレートの各 `type` が有効値であること → 400
 - テンプレートの `id` 重複 → 400
@@ -453,20 +453,14 @@ settings テーブルのキー: `church_profile`
 
 ### BulletinList — 週報一覧
 
-- 年・月セレクターで対象月の週報を表示（年の選択肢は `BULLETIN_START_YEAR` から当年まで）
+- 年・月セレクターで対象月の週報を表示。初期表示は「次の日曜日」（日本時間）を含む月。年の選択肢は `BULLETIN_START_YEAR` から翌年まで
 - 各カードに進捗バー（`filledItems / totalItems`）
-- 次の日曜日が対象月に含まれる場合、未作成でもカードとして表示。タップで新規作成（日付プリフィル）
+- 次の日曜日が対象月に含まれる場合、未作成でもカードとして表示。タップするとその日の週報を生成して詳細画面へ移る
+- 「新しい週報」ボタンから任意の日付で作成できる（初期値は次の日曜日以降で未作成の最初の日曜日）。既に作成済みの日付ならその週報を開く
 
 ### Bulletin — 詳細表示・入力（統合ページ）
 
-`/bulletin/new`（新規作成）と `/bulletin/:id`（既存週報）を 1 つのページで扱う。
-
-**新規作成（`/bulletin/new`）**
-
-- 日付入力 + 全セクションが編集モードで表示される
-- 画面下部の固定バーから作成（日付未入力・全セクション空の場合は作成不可）
-
-**既存週報（`/bulletin/:id`）**
+`/bulletin/:id` で週報を表示・編集する。新規作成は一覧から `POST /api/bulletin/generate` で週報を生成してからこの画面に移るため、専用の作成画面は持たない。
 
 - 教会プロフィール（`church_profile`）をヘッダーに表示（将来フェーズ）
 - セクションを定義順に縦スクロールで表示。ページ上部に全体進捗バー
@@ -474,6 +468,8 @@ settings テーブルのキー: `church_profile`
 - **セクション単位のインライン編集**: 入力済みセクションは鉛筆ボタン、空セクションは追加プレースホルダーから編集モードを開き、セクション単位で保存/キャンセルする
 - `assignments` の担当者表示: メンバー ID をメンバー名に解決して表示
 - PC ではセクション目次（サイドナビ）を表示
+- 日付の右のボタンから日付変更・削除ができる（削除は確認ダイアログ付き）
+- セクション編集中に保存せず別のセクション・画面へ移ろうとすると、変更を破棄するか確認する
 
 **セクションエディタ**
 
@@ -481,6 +477,7 @@ settings テーブルのキー: `church_profile`
 - `worship-program`: 進行項目ごとの入力フォーム。`inputType: "member"` フィールドはメンバーセレクタを表示。フィールドの `role` 指定がある場合（例: 説教者 → 役割 "説教"）は該当役割を持つメンバーのみ表示
 - `service-meta`: member セレクタ / テキスト入力
 - `assignments`: 役割ごとにメンバー選択 UI。`SERVICE_ROLES` に含まれる役割（司会/奏楽/説教/受付）は対応する `serviceRoles` を持つメンバーのみ表示。それ以外（特賛など）は全メンバー表示
+- メンバー選択（`worship-program`・`assignments`）には「その他（名前を入力）」があり、名簿にいない人の名前を入力できる。役割で絞り込んだ結果が 0 人のときは、役割の設定を促す説明を表示する
 - `attendance`: 集会ごとの大人/子供数入力（セクション名は「先週の出席人数」）
 - `weekly-prayer`: 曜日ごとに課題文を複数追加/削除可能
 - `monthly-song`: タイトル入力 + 歌詞テキストエリア
@@ -493,6 +490,8 @@ settings テーブルのキー: `church_profile`
 - 全セクションを常時表示（アコーディオンなし）
 - 各セクションのラベルを直接編集できる
 - 各セクションの表示/非表示を切り替えられる
+- 項目の内部キー（`type` / `key`）は表示せず、行の追加時に自動で付ける（既存の週報データとの対応が崩れないようにするため）
+- 480px 以下の狭い画面では、項目名の下に入力種別を置く 2 段組みで表示する
 - config が必要なセクション（`worship-program`・`assignments`・`attendance`・`service-meta`・`financial-summary`・`announcements`・`weekly-prayer`）は、セクション内にインラインでエディタを表示する
   - `weekly-prayer` は曜日別のデフォルト課題文をリスト形式で追加/削除/編集できる
 - テンプレートにはデフォルト値があらかじめ設定されており、管理者は変更が必要な箇所だけを編集する
@@ -521,7 +520,6 @@ settings テーブルのキー: `church_profile`
 | パス | ページ | 説明 |
 |------|--------|------|
 | `/bulletin` | BulletinList | 週報一覧 |
-| `/bulletin/new` | Bulletin | 新規作成 |
 | `/bulletin/:id` | Bulletin | 詳細表示・セクション単位編集 |
 | `/admin/bulletin-template` | BulletinTemplate | テンプレート管理（管理者のみ） |
 | `/admin/church-profile` | ChurchProfile | 教会プロフィール（管理者のみ、将来フェーズ） |

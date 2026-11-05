@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { Index } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type {
   WeeklyPrayerDay,
@@ -24,19 +24,19 @@ export function WeeklyPrayerConfigEditor(props: Props) {
 
   return (
     <div class={styles.fieldsSection}>
-      <For each={props.section.config.days}>
+      <Index each={props.section.config.days}>
         {(day) => (
           <div class={styles.dayGroup}>
-            <span class={styles.dayGroupLabel}>{day.label}</span>
+            <span class={styles.dayGroupLabel}>{day().label}</span>
             <StringListEditor
-              items={day.defaults}
-              onChange={(items) => updateDefaults(day.key, items)}
+              items={day().defaults}
+              onChange={(items) => updateDefaults(day().key, items)}
               placeholder={t("bulletinTemplate.prayerDefaultPlaceholder")}
               addLabel={t("bulletinTemplate.addPrayerDefault")}
             />
           </div>
         )}
-      </For>
+      </Index>
     </div>
   );
 }

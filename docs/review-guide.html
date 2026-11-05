@@ -128,7 +128,6 @@ tr:hover td{background:var(--gold-bg)}
     <li><a href="#dashboard">ダッシュボード</a></li>
     <li><a href="#bulletin-list">週報一覧</a></li>
     <li><a href="#bulletin-detail">週報詳細（閲覧・編集）</a></li>
-    <li><a href="#bulletin-form">週報新規作成</a></li>
     <li><a href="#settings">設定画面</a></li>
     <li><a href="#management">メンバー管理（管理者）</a></li>
     <li><a href="#template">テンプレート設定（管理者）</a></li>
@@ -211,7 +210,7 @@ tr:hover td{background:var(--gold-bg)}
       <!-- Bulletin (new) -->
       <rect x="360" y="355" width="82" height="54" rx="8" fill="#F5F3FF" stroke="#A78BFA" stroke-width="1.5"/>
       <text x="401" y="378" text-anchor="middle" font-size="11" fill="#1C1C2E" font-family="sans-serif" font-weight="600">週報作成</text>
-      <text x="401" y="392" text-anchor="middle" font-size="9" fill="#7C3AED" font-family="sans-serif">/bulletin/new</text>
+      <text x="401" y="392" text-anchor="middle" font-size="9" fill="#7C3AED" font-family="sans-serif">一覧から生成</text>
 
       <!-- ===== 設定タブ ===== -->
       <!-- Settings -->
@@ -413,7 +412,9 @@ tr:hover td{background:var(--gold-bg)}
         <li>「週報」ウィジェットをタップすると <code>/bulletin</code>（週報一覧）へ遷移する</li>
         <li>「経費」ウィジェットをタップすると iframe オーバーレイが開く</li>
         <li>「ファイル」ウィジェットをタップすると iframe オーバーレイが開く</li>
-        <li>iframe は画面を下にスワイプ、または Escape キーで閉じられる</li>
+        <li>iframe 表示にはタイトル・戻るボタン・新しいタブで開くボタンのヘッダーが付く</li>
+        <li>iframe は戻るボタン、画面左端からの右スワイプ、Escape キー、ブラウザ / Android の戻る操作で閉じられる（iframe 内でページを移動した後でも戻るボタン 1 回で閉じる）</li>
+        <li>存在しない URL を開くと「ページが見つかりません」とホームに戻るボタンが表示される</li>
         <li>タブバーが画面下部に常時表示されている</li>
         <li>「教会」タブがアクティブ（ゴールド色）になっている</li>
         <li>「設定」タブをタップすると設定画面へ遷移する</li>
@@ -437,11 +438,12 @@ tr:hover td{background:var(--gold-bg)}
       <ul class="check-list">
         <li>ヘッダー左に戻るボタン（← 丸形ガラスボタン）が表示され、タップするとダッシュボードに戻る</li>
         <li>年・月のセレクターが表示され、切り替えると対象月の週報一覧が更新される</li>
-        <li>その月の日曜日ごとにカードが表示される</li>
+        <li>初期表示は「次の日曜日」を含む月になる（月末に開いた場合は翌月）。年の選択肢には翌年も含まれる</li>
+        <li>その月の作成済み週報ごとにカードが表示される</li>
         <li>作成済みの週報カードにプログレスバーが表示される（filled / total）</li>
         <li>作成済みカードをタップすると週報詳細（<code>/bulletin/:id</code>）へ遷移する</li>
-        <li>未作成の日曜日カードをタップすると週報作成フォーム（<code>/bulletin/new?date=...</code>）へ遷移する</li>
-        <li>次回日曜日は未作成でもカードが表示される</li>
+        <li>次回日曜日は未作成でもカードが表示され、タップするとその日の週報が作成されて週報詳細へ遷移する（前週の奉仕当番・今月の歌・誕生日・祈りの課題を引き継ぐ）</li>
+        <li>「新しい週報」から任意の日付を選んで作成できる。作成済みの日付を選ぶとその週報が開く</li>
         <li>スクロール時にヘッダーのフロスト背景が出現する</li>
       </ul>
     </div>
@@ -472,30 +474,10 @@ tr:hover td{background:var(--gold-bg)}
         <li>weekly-verse / monthly-song: 聖句・賛美歌情報が表示される</li>
         <li>attendance: 各集会の出席数が表示される</li>
         <li>戻るボタンで週報一覧に戻る</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Bulletin (new) -->
-  <div class="page-card all" id="bulletin-form">
-    <div class="page-meta">
-      <h3>週報新規作成</h3>
-      <span class="url">/bulletin/new</span>
-      <span class="badge all">全員</span>
-    </div>
-    <p class="page-desc">週報を新規作成します。テンプレートに定義された全セクションが編集モードで表示されます。</p>
-
-    <div class="checklist">
-      <div class="checklist-title">確認項目</div>
-      <ul class="check-list">
-        <li>一覧から「未作成日曜日」をタップした場合、日付フィールドがプリフィルされている</li>
-        <li>テンプレートで定義した全セクションがフォームに表示される</li>
-        <li>各セクション種別ごとの入力UIが正しく機能する（後述のセクション種別を参照）</li>
-        <li>worship-program: 各項目のフィールドに値を入力できる</li>
-        <li>assignments: ドロップダウンからメンバーを選択できる</li>
-        <li>announcements: 「追加」ボタンで項目を増やせる</li>
-        <li>日付未入力・全セクション空のあいだは画面下部の「作成」ボタンが無効になっている</li>
-        <li>「作成」をタップすると保存され、週報詳細ページへ遷移する</li>
+        <li>セクション編集中に保存せず戻る・タブ移動・別セクションを開くと、変更を破棄するか確認される</li>
+        <li>入力欄に続けて文字を入力しても、フォーカスが外れず全ての文字が入る</li>
+        <li>担当者の選択肢で「その他（名前を入力）」を選ぶと、名簿にいない人の名前を入力できる</li>
+        <li>日付の右のボタンで日付を変更できる（作成済みの日付にはできない）。削除ボタンは確認ダイアログの後に削除して一覧へ戻る</li>
       </ul>
     </div>
   </div>
@@ -552,6 +534,8 @@ tr:hover td{background:var(--gold-bg)}
         <li>招待トークン未使用のメンバーに「招待リンクをコピー」ボタンが表示され、タップするとクリップボードに招待URLがコピーされる</li>
         <li>LINE 連携済みメンバーに「再招待」ボタンが表示され、タップすると連携リセット＋新トークン発行される</li>
         <li>「無効化」ボタンで該当メンバーが非アクティブになる（自分自身は無効化できない）</li>
+        <li>無効化したメンバーの「有効に戻す」ボタンで再びアクティブになる</li>
+        <li>スマホ幅では 1 メンバー 1 カードで表示され、操作ボタンが切れずに全て押せる</li>
         <li>メンバーロールのユーザーがこのページを開こうとするとダッシュボードにリダイレクトされる</li>
       </ul>
     </div>
@@ -589,14 +573,15 @@ tr:hover td{background:var(--gold-bg)}
         <li>assignments: 役割名リストの編集（例: 礼拝司会、奏楽）</li>
         <li>attendance: 集会・会議種別の追加/削除</li>
         <li>weekly-prayer: 曜日別のデフォルト課題文の追加/削除/編集</li>
-        <li>financial-summary: 収支項目の追加/削除（key・label・unit）</li>
+        <li>financial-summary: 収支項目の追加/削除（label・unit。内部キーは自動で付き、画面には表示されない）</li>
       </ul>
     </div>
     <div class="checklist">
       <div class="checklist-title">確認項目（保存と反映）</div>
       <ul class="check-list">
         <li>「保存」ボタンをタップするとサーバーにテンプレートが保存される</li>
-        <li>保存後、新規作成フォームを開くと変更が反映されている</li>
+        <li>保存後に新しく作成した週報に変更が反映されている</li>
+        <li>保存しても説教者などの「役割で絞り込む」設定が消えない</li>
         <li>既存の週報詳細は変更されない（テンプレートは新規作成時のみ参照）</li>
       </ul>
     </div>
@@ -899,6 +884,7 @@ tr:hover td{background:var(--gold-bg)}
       <tr><td>POST</td><td><code>/api/admin/members</code></td><td>メンバー追加</td><td>管理者</td></tr>
       <tr><td>PUT</td><td><code>/api/admin/members/:id</code></td><td>メンバー更新</td><td>管理者</td></tr>
       <tr><td>DELETE</td><td><code>/api/admin/members/:id</code></td><td>メンバー無効化</td><td>管理者</td></tr>
+      <tr><td>POST</td><td><code>/api/admin/members/:id/reactivate</code></td><td>有効に戻す</td><td>管理者</td></tr>
       <tr><td>POST</td><td><code>/api/admin/members/:id/reinvite</code></td><td>再招待</td><td>管理者</td></tr>
       <tr><td>GET</td><td><code>/api/invite/:token</code></td><td>招待トークン検証</td><td>不要</td></tr>
     </tbody>

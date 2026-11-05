@@ -1,9 +1,18 @@
 import { useNavigate } from "@solidjs/router";
-import { Check } from "lucide-solid";
-import { createMemo, createResource, createSignal, For, Show } from "solid-js";
-import { fetchBulletins } from "@/api/bulletin.ts";
+import { Check, Plus } from "lucide-solid";
+import {
+  createEffect,
+  createMemo,
+  createResource,
+  createSignal,
+  For,
+  on,
+  Show,
+} from "solid-js";
+import { fetchBulletins, generateBulletin } from "@/api/bulletin.ts";
 import { Header } from "@/components/Header";
 import { ProgressBar } from "@/components/ProgressBar";
+import { showToast } from "@/components/Toast/toast.tsx";
 import { BULLETIN_START_YEAR } from "@/config/app.ts";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type { BulletinSummary } from "@/types/bulletin.ts";
@@ -24,14 +33,39 @@ export function BulletinList() {
   const now = new Date();
   const [selectedYear, setSelectedYear] = createSignal(now.getFullYear());
   const [selectedMonth, setSelectedMonth] = createSignal(now.getMonth() + 1);
+  const [creating, setCreating] = createSignal(false);
+  const [showNewForm, setShowNewForm] = createSignal(false);
+  const [newDate, setNewDate] = createSignal("");
 
-  // Year options: current year down to BULLETIN_START_YEAR (constant)
+  // Open on the month of the next Sunday, which may already be next month
+  createEffect(
+    on(
+      () => data()?.nextSunday,
+      (nextSunday) => {
+        if (!nextSunday) return;
+        const [y, m] = nextSunday.split("-").map(Number);
+        setSelectedYear(y);
+        setSelectedMonth(m);
+      },
+      { defer: true },
+    ),
+  );
+
+  // Year options: next year (for late-December planning) down to BULLETIN_START_YEAR
   const years: number[] = [];
-  for (let y = now.getFullYear(); y >= BULLETIN_START_YEAR; y--) {
+  for (let y = now.getFullYear() + 1; y >= BULLETIN_START_YEAR; y--) {
     years.push(y);
   }
 
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const yearName = (y: number) =>
+    new Intl.DateTimeFormat(locale(), { year: "numeric" }).format(
+      new Date(y, 0, 1),
+    );
+  const monthName = (m: number) =>
+    new Intl.DateTimeFormat(locale(), { month: "long" }).format(
+      new Date(2000, m - 1, 1),
+    );
 
   // Entries for selected year/month: created bulletins + next Sunday if applicable
   const entries = createMemo((): DayEntry[] => {
@@ -69,12 +103,46 @@ export function BulletinList() {
     return result;
   });
 
+  async function createFor(dateStr: string) {
+    // An existing bulletin for the date is opened instead of failing
+    const existing = data()?.bulletins.find((b) => b.serviceDate === dateStr);
+    if (existing) {
+      navigate(`/bulletin/${existing.id}`);
+      return;
+    }
+    setCreating(true);
+    const result = await generateBulletin(dateStr);
+    setCreating(false);
+    if (result.ok && result.id != null) {
+      navigate(`/bulletin/${result.id}`);
+    } else {
+      showToast(
+        t(result.status === 409 ? "bulletin.alreadyExists" : "common.error"),
+        "error",
+      );
+    }
+  }
+
   function handleDayClick(entry: DayEntry) {
     if (entry.bulletin) {
       navigate(`/bulletin/${entry.bulletin.id}`);
     } else {
-      navigate(`/bulletin/new?date=${entry.dateStr}`);
+      createFor(entry.dateStr);
     }
+  }
+
+  function openNewForm() {
+    // Suggest the first Sunday from the next one onward that has no bulletin yet
+    const d = data();
+    let date = d?.nextSunday ?? "";
+    const taken = new Set(d?.bulletins.map((b) => b.serviceDate));
+    while (taken.has(date)) {
+      const next = new Date(`${date}T00:00:00Z`);
+      next.setUTCDate(next.getUTCDate() + 7);
+      date = next.toISOString().slice(0, 10);
+    }
+    setNewDate(date);
+    setShowNewForm(true);
   }
 
   return (
@@ -91,28 +159,20 @@ export function BulletinList() {
               class={styles.selector}
               value={selectedYear()}
               onChange={(e) => setSelectedYear(Number(e.currentTarget.value))}
+              aria-label={t("bulletin.yearLabel")}
             >
               <For each={years}>
-                {(y) => (
-                  <option value={y}>
-                    {y}
-                    {t("bulletin.year")}
-                  </option>
-                )}
+                {(y) => <option value={y}>{yearName(y)}</option>}
               </For>
             </select>
             <select
               class={styles.selector}
               value={selectedMonth()}
               onChange={(e) => setSelectedMonth(Number(e.currentTarget.value))}
+              aria-label={t("bulletin.monthLabel")}
             >
               <For each={months}>
-                {(m) => (
-                  <option value={m}>
-                    {m}
-                    {t("bulletin.month")}
-                  </option>
-                )}
+                {(m) => <option value={m}>{monthName(m)}</option>}
               </For>
             </select>
           </div>
@@ -130,6 +190,7 @@ export function BulletinList() {
                       [styles.dayCardPending]:
                         !entry.bulletin && entry.isNextSunday,
                     }}
+                    disabled={creating()}
                     onClick={() => handleDayClick(entry)}
                   >
                     <span class={styles.dayDate}>
@@ -169,6 +230,57 @@ export function BulletinList() {
               )}
             </For>
           </ul>
+
+          {/* Create a bulletin for any date */}
+          <Show
+            when={showNewForm()}
+            fallback={
+              <button
+                type="button"
+                class={styles.newButton}
+                onClick={openNewForm}
+              >
+                <Plus size={16} stroke-width={1.5} />
+                {t("bulletin.newBulletin")}
+              </button>
+            }
+          >
+            <form
+              class={styles.newForm}
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (newDate()) createFor(newDate());
+              }}
+            >
+              <label for="new-bulletin-date" class={styles.newFormLabel}>
+                {t("bulletinForm.serviceDate")}
+              </label>
+              <input
+                id="new-bulletin-date"
+                type="date"
+                class={styles.dateInput}
+                value={newDate()}
+                onInput={(e) => setNewDate(e.currentTarget.value)}
+                required
+              />
+              <div class={styles.newFormActions}>
+                <button
+                  type="button"
+                  class={styles.cancelButton}
+                  onClick={() => setShowNewForm(false)}
+                >
+                  {t("common.cancel")}
+                </button>
+                <button
+                  type="submit"
+                  class={styles.submitButton}
+                  disabled={creating() || !newDate()}
+                >
+                  {t("common.create")}
+                </button>
+              </div>
+            </form>
+          </Show>
         </Show>
       </div>
     </>

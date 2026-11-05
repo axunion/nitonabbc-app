@@ -2,23 +2,11 @@ import { eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import type { SectionTemplate } from "../db/index.ts";
 import { settings } from "../db/schema.ts";
+import type { TemplateField, TemplateItem } from "../db/types.ts";
 import { adminMiddleware } from "../middleware/admin.ts";
 import { authMiddleware } from "../middleware/auth.ts";
 import type { AppEnv } from "../types.ts";
 import { DEFAULT_TEMPLATE } from "./bulletinTemplateDefaults.ts";
-
-type TemplateField = {
-  key: string;
-  label: string;
-  inputType: string;
-};
-
-type TemplateItem = {
-  type: string;
-  label: string;
-  inputType?: string;
-  fields?: TemplateField[];
-};
 
 const VALID_INPUT_TYPES = ["text", "number", "member", "scripture", "none"];
 const VALID_SECTION_TYPES = [
@@ -200,9 +188,16 @@ function sanitizeWorshipItems(items: TemplateItem[]): TemplateItem[] {
         key: f.key,
         label: f.label,
         inputType: normalizeInputType(f.inputType),
+        // `role` narrows member candidates (e.g. preacher → "説教")
+        ...(typeof f.role === "string" && f.role !== ""
+          ? { role: f.role }
+          : {}),
       }));
     } else if (item.inputType) {
       sanitized.inputType = normalizeInputType(item.inputType);
+      if (typeof item.role === "string" && item.role !== "") {
+        sanitized.role = item.role;
+      }
     }
     return sanitized;
   });

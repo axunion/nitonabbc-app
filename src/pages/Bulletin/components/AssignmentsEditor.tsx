@@ -5,8 +5,9 @@ import type {
   Member,
   SectionTemplate,
 } from "@/types/bulletin.ts";
-import { filterMembersByRole, findSectionTemplate } from "@/utils/bulletin.ts";
+import { findSectionTemplate } from "@/utils/bulletin.ts";
 import styles from "../editorFields.module.css";
+import { MemberSelect } from "./MemberSelect.tsx";
 
 type Props = {
   section: AssignmentsSectionData;
@@ -27,19 +28,17 @@ export function AssignmentsEditor(props: Props) {
     <For each={roles()}>
       {(role) => (
         <div class={styles.field}>
-          <span class={styles.fieldLabel}>{role}</span>
-          <select
-            class={styles.select}
-            value={props.section.data[role] ?? ""}
-            onChange={(e) =>
-              props.onUpdate(props.section.id, role, e.currentTarget.value)
-            }
-          >
-            <option value="">{t("bulletinForm.selectAssignee")}</option>
-            <For each={filterMembersByRole(props.members, role)}>
-              {(m) => <option value={String(m.id)}>{m.name}</option>}
-            </For>
-          </select>
+          <label for={`assign-${role}`} class={styles.fieldLabel}>
+            {role}
+          </label>
+          <MemberSelect
+            id={`assign-${role}`}
+            value={props.section.data[role]}
+            members={props.members}
+            role={role}
+            placeholder={t("bulletinForm.selectAssignee")}
+            onChange={(value) => props.onUpdate(props.section.id, role, value)}
+          />
         </div>
       )}
     </For>

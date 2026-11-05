@@ -1,4 +1,5 @@
 import { For, Show } from "solid-js";
+import { useLocale } from "@/store/LocaleContext.tsx";
 import type {
   Member,
   SectionTemplate,
@@ -18,6 +19,7 @@ type Props = {
 };
 
 export function WorshipProgramView(props: Props) {
+  const { t } = useLocale();
   const items = () => {
     const tmpl = findSectionTemplate(props.template, props.section.id);
     return tmpl?.type === "worship-program" ? tmpl.config.items : [];
@@ -32,11 +34,32 @@ export function WorshipProgramView(props: Props) {
             <For each={props.section.data}>
               {(item) => {
                 const tmpl = () => getTemplateItem(items(), item.type);
+                // Items that take input but have none yet are marked so
+                // readers can tell them apart from items like the prelude
+                const isUnfilled = () => {
+                  const fields = (tmpl()?.fields ?? []).filter(
+                    (f) => f.inputType !== "none",
+                  );
+                  if (fields.length > 0) {
+                    return fields.every(
+                      (f) => !item.fieldValues?.[f.key]?.trim(),
+                    );
+                  }
+                  return (
+                    (tmpl()?.inputType ?? "text") !== "none" &&
+                    !item.details?.trim()
+                  );
+                };
 
                 return (
                   <li class={styles.worshipItem}>
                     <div class={styles.worshipItemHeader}>
                       <span class={styles.worshipLabel}>{item.label}</span>
+                      <Show when={isUnfilled()}>
+                        <span class={styles.worshipUnfilled}>
+                          {t("bulletin.notFilled")}
+                        </span>
+                      </Show>
                     </div>
                     <Show
                       when={tmpl()?.fields && (tmpl()?.fields?.length ?? 0) > 0}

@@ -212,6 +212,63 @@ describe("PUT /api/bulletin-template", () => {
     expect(res.status).toBe(403);
   });
 
+  it("keeps member role filters on worship items and fields", async () => {
+    const env = await seedAdminEnv();
+    const template = [
+      {
+        id: "morning",
+        type: "worship-program",
+        label: "午前礼拝",
+        visible: true,
+        config: {
+          items: [
+            {
+              type: "prayer",
+              label: "祈り",
+              inputType: "member",
+              role: "司会",
+            },
+            {
+              type: "sermon",
+              label: "説教",
+              fields: [
+                {
+                  key: "preacher",
+                  label: "説教者",
+                  inputType: "member",
+                  role: "説教",
+                },
+              ],
+            },
+          ],
+        },
+      },
+    ];
+    const put = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      {
+        method: "PUT",
+        headers: { ...adminHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify(template),
+      },
+      env,
+    );
+    expect(put.status).toBe(200);
+
+    const get = await testApp.request(
+      "http://localhost/api/bulletin-template",
+      { headers: adminHeaders },
+      env,
+    );
+    const [section] = (await get.json()) as {
+      config: {
+        items: { role?: string; fields?: { role?: string }[] }[];
+      };
+    }[];
+    expect(section.config.items[0].role).toBe("司会");
+    expect(section.config.items[1].fields?.[0].role).toBe("説教");
+  });
+
   it("returns 400 for empty array", async () => {
     const env = await seedAdminEnv();
     const res = await testApp.request(

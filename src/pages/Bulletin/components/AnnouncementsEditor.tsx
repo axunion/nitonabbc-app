@@ -1,5 +1,5 @@
 import { Minus, Plus } from "lucide-solid";
-import { For } from "solid-js";
+import { Index } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type { AnnouncementsSectionData } from "@/types/bulletin.ts";
 import styles from "../editorFields.module.css";
@@ -16,15 +16,15 @@ export function AnnouncementsEditor(props: Props) {
 
   return (
     <>
-      <For each={props.section.data}>
+      <Index each={props.section.data}>
         {(a, index) => (
           <div class={styles.repeatRow}>
             <textarea
               class={styles.textarea}
               rows={3}
-              value={a.content}
+              value={a().content}
               onInput={(e) =>
-                props.onUpdate(props.section.id, index(), e.currentTarget.value)
+                props.onUpdate(props.section.id, index, e.currentTarget.value)
               }
               placeholder={t("bulletinForm.announcementPlaceholder")}
             />
@@ -32,7 +32,7 @@ export function AnnouncementsEditor(props: Props) {
               <button
                 type="button"
                 class={styles.removeButton}
-                onClick={() => props.onRemove(props.section.id, index())}
+                onClick={() => props.onRemove(props.section.id, index)}
               >
                 <Minus size={14} stroke-width={1.5} />
                 {t("common.delete")}
@@ -40,7 +40,7 @@ export function AnnouncementsEditor(props: Props) {
             </div>
           </div>
         )}
-      </For>
+      </Index>
       <button
         type="button"
         class={styles.addButton}

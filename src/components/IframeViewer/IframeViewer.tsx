@@ -1,5 +1,5 @@
-import { X } from "lucide-solid";
-import { createEffect, createSignal, onCleanup } from "solid-js";
+import { ChevronLeft, ExternalLink } from "lucide-solid";
+import { createEffect, createSignal, on, onCleanup, Show } from "solid-js";
 import { Portal } from "solid-js/web";
 import { useAuth } from "@/store/AuthContext.tsx";
 import { useLocale } from "@/store/LocaleContext.tsx";
@@ -34,6 +34,61 @@ export function IframeViewer(props: IframeViewerProps) {
     }
   }
 
+  // Shown when the page has not loaded after this long (e.g. offline or blocked)
+  const SLOW_LOAD_MS = 10_000;
+  const [slow, setSlow] = createSignal(false);
+  createEffect(() => {
+    if (!props.open || loaded()) return;
+    setSlow(false);
+    const timer = setTimeout(() => setSlow(true), SLOW_LOAD_MS);
+    onCleanup(() => clearTimeout(timer));
+  });
+
+  // Push a history entry while open so the browser/Android back action closes
+  // the viewer instead of leaving the page underneath. Each open gets its own
+  // token so entries left by earlier opens (forward, reload) are not mistaken
+  // for the current one.
+  const HISTORY_KEY = "iframeViewer";
+  let historyToken: string | null = null;
+  const onOwnEntry = () =>
+    historyToken !== null &&
+    (window.history.state as Record<string, unknown> | null)?.[HISTORY_KEY] ===
+      historyToken;
+
+  createEffect(
+    on(
+      () => props.open,
+      (open) => {
+        if (!open) return;
+        const token = crypto.randomUUID();
+        historyToken = token;
+        window.history.pushState(
+          { ...(window.history.state ?? {}), [HISTORY_KEY]: token },
+          "",
+        );
+        const onPopState = () => {
+          if (!onOwnEntry()) props.onClose();
+        };
+        window.addEventListener("popstate", onPopState);
+        onCleanup(() => {
+          window.removeEventListener("popstate", onPopState);
+          historyToken = null;
+        });
+      },
+    ),
+  );
+
+  function close() {
+    // Pages navigated inside the iframe share this history, so history.back()
+    // may only move the iframe; close directly and drop our entry when it is
+    // still on top.
+    const dropEntry = onOwnEntry();
+    if (contentRef) contentRef.style.transform = "";
+    if (overlayRef) overlayRef.style.opacity = "";
+    props.onClose();
+    if (dropEntry) window.history.back();
+  }
+
   const EDGE_THRESHOLD = 20;
   const SWIPE_DISTANCE_RATIO = 0.3;
   const SWIPE_VELOCITY_THRESHOLD = 0.5;
@@ -63,7 +118,7 @@ export function IframeViewer(props: IframeViewerProps) {
 
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
-        props.onClose();
+        close();
       }
     }
     document.addEventListener("keydown", onKeyDown);
@@ -111,7 +166,7 @@ export function IframeViewer(props: IframeViewerProps) {
         currentDelta > window.innerWidth * SWIPE_DISTANCE_RATIO ||
         velocity > SWIPE_VELOCITY_THRESHOLD
       ) {
-        props.onClose();
+        close();
       } else {
         contentRef.style.transform = "";
         overlayRef.style.opacity = "";
@@ -136,7 +191,7 @@ export function IframeViewer(props: IframeViewerProps) {
         ref={overlayRef}
         class={styles.overlay}
         classList={{ [styles.overlayOpen]: props.open }}
-        onClick={props.onClose}
+        onClick={close}
         aria-hidden="true"
       />
       <div
@@ -146,32 +201,61 @@ export function IframeViewer(props: IframeViewerProps) {
         role="dialog"
         aria-modal="true"
         aria-label={props.title}
+        // Stays mounted while closed for the slide animation; hide it from
+        // assistive tech and focus until opened
+        inert={!props.open}
         onTransitionEnd={handleTransitionEnd}
       >
-        {/* Transparent strip on the left edge captures swipe gestures above the iframe */}
-        <div class={styles.edgeStrip} aria-hidden="true" />
-        {!loaded() && (
-          <div class={styles.loader} aria-hidden="true">
-            <div class={styles.loaderSpinner} />
-          </div>
-        )}
-        {isMounted() && (
-          <iframe
-            ref={iframeRef}
-            src={props.url}
-            class={styles.iframe}
-            title={props.title}
-            onLoad={() => setLoaded(true)}
-          />
-        )}
-        <button
-          type="button"
-          class={styles.closeButton}
-          onClick={props.onClose}
-          aria-label={t("common.close")}
-        >
-          <X size={20} stroke-width={1.5} />
-        </button>
+        <header class={styles.header}>
+          <button
+            type="button"
+            class={styles.headerButton}
+            onClick={close}
+            aria-label={t("common.close")}
+          >
+            <ChevronLeft size={24} stroke-width={1.5} />
+          </button>
+          <span class={styles.title}>{props.title}</span>
+          <a
+            href={props.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class={styles.headerButton}
+            aria-label={t("iframeViewer.openInNewTab")}
+            title={t("iframeViewer.openInNewTab")}
+          >
+            <ExternalLink size={18} stroke-width={1.5} />
+          </a>
+        </header>
+        <div class={styles.body}>
+          {/* Transparent strip on the left edge captures swipe gestures above the iframe */}
+          <div class={styles.edgeStrip} aria-hidden="true" />
+          <Show when={!loaded()}>
+            <div class={styles.loader}>
+              <div class={styles.loaderSpinner} aria-hidden="true" />
+              <Show when={slow()}>
+                <p class={styles.slowText}>{t("iframeViewer.slow")}</p>
+                <a
+                  href={props.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class={styles.slowLink}
+                >
+                  {t("iframeViewer.openInNewTab")}
+                </a>
+              </Show>
+            </div>
+          </Show>
+          {isMounted() && (
+            <iframe
+              ref={iframeRef}
+              src={props.url}
+              class={styles.iframe}
+              title={props.title}
+              onLoad={() => setLoaded(true)}
+            />
+          )}
+        </div>
       </div>
     </Portal>
   );

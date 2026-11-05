@@ -1,10 +1,11 @@
 import { Plus, X } from "lucide-solid";
-import { For } from "solid-js";
+import { Index } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type {
   ServiceMetaFieldDef,
   ServiceMetaSectionTemplate,
 } from "@/types/bulletin.ts";
+import { newTemplateKey } from "@/utils/template.ts";
 import styles from "../BulletinTemplate.module.css";
 
 type Props = {
@@ -34,7 +35,7 @@ export function ServiceMetaConfigEditor(props: Props) {
   function add() {
     props.onUpdateFieldDefs(props.section.id, [
       ...fieldDefs(),
-      { key: "", label: "", inputType: "text" as const },
+      { key: newTemplateKey(), label: "", inputType: "text" as const },
     ]);
   }
 
@@ -47,28 +48,21 @@ export function ServiceMetaConfigEditor(props: Props) {
 
   return (
     <div class={styles.fieldsSection}>
-      <For each={fieldDefs()}>
+      <Index each={fieldDefs()}>
         {(def, index) => (
           <div class={styles.fieldRow}>
             <input
               type="text"
               class={styles.input}
               placeholder={t("bulletinTemplate.serviceMetaLabelPlaceholder")}
-              value={def.label}
-              onInput={(e) => update(index(), "label", e.currentTarget.value)}
-            />
-            <input
-              type="text"
-              class={styles.input}
-              placeholder={t("bulletinTemplate.serviceMetaKeyPlaceholder")}
-              value={def.key}
-              onInput={(e) => update(index(), "key", e.currentTarget.value)}
+              value={def().label}
+              onInput={(e) => update(index, "label", e.currentTarget.value)}
             />
             <select
               class={styles.select}
-              value={def.inputType}
+              value={def().inputType}
               onChange={(e) =>
-                update(index(), "inputType", e.currentTarget.value)
+                update(index, "inputType", e.currentTarget.value)
               }
               aria-label={t("bulletinTemplate.serviceMetaInputType")}
             >
@@ -79,13 +73,13 @@ export function ServiceMetaConfigEditor(props: Props) {
             <button
               type="button"
               class={styles.removeButton}
-              onClick={() => remove(index())}
+              onClick={() => remove(index)}
             >
               <X size={14} stroke-width={1.5} />
             </button>
           </div>
         )}
-      </For>
+      </Index>
       <button type="button" class={styles.addFieldButton} onClick={add}>
         <Plus size={14} stroke-width={1.5} />
         {t("bulletinTemplate.addFieldDef")}

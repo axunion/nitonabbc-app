@@ -1,5 +1,5 @@
 import { Minus, Plus } from "lucide-solid";
-import { For } from "solid-js";
+import { For, Index } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import {
   DEFAULT_WEEKLY_PRAYER_DAYS,
@@ -62,28 +62,26 @@ export function WeeklyPrayerEditor(props: Props) {
               {t("bulletinForm.addPrayerItem")}
             </button>
           </div>
-          <For each={getItems(day.key)}>
+          <Index each={getItems(day.key)}>
             {(item, i) => (
               <div class={styles.inlineRow}>
                 <input
                   type="text"
                   class={styles.input}
                   placeholder={t("bulletinForm.prayerPlaceholder")}
-                  value={item}
-                  onInput={(e) =>
-                    updateItem(day.key, i(), e.currentTarget.value)
-                  }
+                  value={item()}
+                  onInput={(e) => updateItem(day.key, i, e.currentTarget.value)}
                 />
                 <button
                   type="button"
                   class={styles.iconButton}
-                  onClick={() => removeItem(day.key, i())}
+                  onClick={() => removeItem(day.key, i)}
                 >
                   <Minus size={14} stroke-width={1.5} />
                 </button>
               </div>
             )}
-          </For>
+          </Index>
         </div>
       )}
     </For>

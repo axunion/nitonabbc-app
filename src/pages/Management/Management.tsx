@@ -6,6 +6,7 @@ import {
   Pencil,
   Plus,
   RefreshCw,
+  UserCheck,
   UserMinus,
 } from "lucide-solid";
 import { createResource, createSignal, For, Show } from "solid-js";
@@ -14,6 +15,7 @@ import {
   createMember,
   deactivateMember,
   fetchAdminMembers,
+  reactivateMember,
   reinviteMember,
   updateMember,
 } from "@/api/members.ts";
@@ -102,6 +104,28 @@ export function Management() {
           await refetch();
           showToast(
             t("management.deactivated", { name: member.name }),
+            "success",
+          );
+        } catch (err) {
+          showToast(t("common.error"), "error");
+          throw err;
+        }
+      },
+    });
+  }
+
+  function handleReactivate(member: AdminMember) {
+    setPending({
+      title: t("management.reactivate"),
+      description: t("management.confirmReactivate", { name: member.name }),
+      confirmLabel: t("management.reactivate"),
+      variant: "default",
+      run: async () => {
+        try {
+          await reactivateMember(member.id);
+          await refetch();
+          showToast(
+            t("management.reactivated", { name: member.name }),
             "success",
           );
         } catch (err) {
@@ -226,8 +250,20 @@ export function Management() {
                         </Show>
                       </td>
                       <td class={styles.td}>
-                        <Show when={member.isActive}>
-                          <div class={styles.actionsCell}>
+                        <div class={styles.actionsCell}>
+                          <Show
+                            when={member.isActive}
+                            fallback={
+                              <button
+                                type="button"
+                                class={styles.actionButton}
+                                onClick={() => handleReactivate(member)}
+                              >
+                                <UserCheck size={14} stroke-width={1.5} />
+                                {t("management.reactivate")}
+                              </button>
+                            }
+                          >
                             <button
                               type="button"
                               class={styles.actionButton}
@@ -266,8 +302,8 @@ export function Management() {
                                 {t("management.deactivate")}
                               </button>
                             </Show>
-                          </div>
-                        </Show>
+                          </Show>
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -342,7 +378,10 @@ export function Management() {
                 </div>
               </div>
               <div class={styles.dialogActions}>
-                <Dialog.CloseButton class={styles.cancelButton}>
+                <Dialog.CloseButton
+                  class={styles.cancelButton}
+                  aria-label={t("common.cancel")}
+                >
                   {t("common.cancel")}
                 </Dialog.CloseButton>
                 <button

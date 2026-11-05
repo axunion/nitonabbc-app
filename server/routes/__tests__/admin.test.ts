@@ -348,6 +348,138 @@ describe("DELETE /api/admin/members/:id", () => {
   });
 });
 
+describe("POST /api/admin/members/:id/reactivate", () => {
+  it("returns 401 without session", async () => {
+    const res = await testApp.request(
+      "http://localhost/api/admin/members/1/reactivate",
+      { method: "POST" },
+      createEnv(),
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it("returns 400 for a non-numeric id", async () => {
+    const { env } = await seedAdminAndEnv();
+    const res = await testApp.request(
+      "http://localhost/api/admin/members/abc/reactivate",
+      { method: "POST", headers: adminHeaders },
+      env,
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 403 for member role", async () => {
+    const { env } = await seedMemberAndEnv();
+    const res = await testApp.request(
+      "http://localhost/api/admin/members/1/reactivate",
+      { method: "POST", headers: memberHeaders },
+      env,
+    );
+    expect(res.status).toBe(403);
+  });
+
+  it("returns 404 when member not found", async () => {
+    const { env } = await seedAdminAndEnv();
+    const res = await testApp.request(
+      "http://localhost/api/admin/members/9999/reactivate",
+      { method: "POST", headers: adminHeaders },
+      env,
+    );
+    expect(res.status).toBe(404);
+  });
+
+  it("reactivates a deactivated member", async () => {
+    const { env } = await seedAdminAndEnv();
+    const [target] = await db
+      .insert(schema.users)
+      .values({ name: "Target", inviteToken: "tok_target", isActive: false })
+      .returning();
+
+    const res = await testApp.request(
+      `http://localhost/api/admin/members/${target.id}/reactivate`,
+      { method: "POST", headers: adminHeaders },
+      env,
+    );
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ id: target.id, isActive: true });
+
+    const [row] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, target.id));
+    expect(row?.isActive).toBe(true);
+  });
+
+  it("issues a new invite token when the old invite was never used", async () => {
+    const { env } = await seedAdminAndEnv();
+    const [target] = await db
+      .insert(schema.users)
+      .values({ name: "Target", inviteToken: "tok_old", isActive: false })
+      .returning();
+
+    await testApp.request(
+      `http://localhost/api/admin/members/${target.id}/reactivate`,
+      { method: "POST", headers: adminHeaders },
+      env,
+    );
+
+    const [row] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, target.id));
+    expect(row?.inviteToken).not.toBe("tok_old");
+    expect(row?.inviteUsed).toBe(false);
+  });
+
+  it("keeps the LINE link and token of a member who had already signed in", async () => {
+    const { env } = await seedAdminAndEnv();
+    const [target] = await db
+      .insert(schema.users)
+      .values({
+        name: "Target",
+        inviteToken: "tok_used",
+        inviteUsed: true,
+        lineUserId: "U_target",
+        isActive: false,
+      })
+      .returning();
+
+    await testApp.request(
+      `http://localhost/api/admin/members/${target.id}/reactivate`,
+      { method: "POST", headers: adminHeaders },
+      env,
+    );
+
+    const [row] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, target.id));
+    expect(row?.inviteToken).toBe("tok_used");
+    expect(row?.lineUserId).toBe("U_target");
+  });
+
+  it("leaves an already-active member's pending invite untouched", async () => {
+    const { env } = await seedAdminAndEnv();
+    const [target] = await db
+      .insert(schema.users)
+      .values({ name: "Target", inviteToken: "tok_live", isActive: true })
+      .returning();
+
+    const res = await testApp.request(
+      `http://localhost/api/admin/members/${target.id}/reactivate`,
+      { method: "POST", headers: adminHeaders },
+      env,
+    );
+
+    expect(res.status).toBe(200);
+    const [row] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, target.id));
+    expect(row?.inviteToken).toBe("tok_live");
+  });
+});
+
 describe("POST /api/admin/members/:id/reinvite", () => {
   it("returns 404 when member not found", async () => {
     const { env } = await seedAdminAndEnv();

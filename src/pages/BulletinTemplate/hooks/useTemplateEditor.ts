@@ -18,6 +18,7 @@ import type {
   WeeklyPrayerDay,
   WorshipProgramSectionTemplate,
 } from "@/types/bulletin.ts";
+import { newTemplateKey } from "@/utils/template.ts";
 
 export type TemplateEditor = ReturnType<typeof useTemplateEditor>;
 
@@ -128,14 +129,14 @@ export function useTemplateEditor() {
   function updateWorshipItem(
     sectionId: string,
     itemIndex: number,
-    field: "type" | "label" | "inputType",
+    field: "label" | "inputType",
     value: string,
   ) {
     mutateSections((sectionList) => {
       const item = findWorship(sectionList, sectionId)?.config.items[itemIndex];
       if (!item) return;
       if (field === "inputType") item.inputType = value as InputType;
-      else item[field] = value;
+      else item.label = value;
     });
   }
 
@@ -162,7 +163,11 @@ export function useTemplateEditor() {
   function addWorshipField(sectionId: string, itemIndex: number) {
     mutateSections((sectionList) => {
       const item = findWorship(sectionList, sectionId)?.config.items[itemIndex];
-      item?.fields?.push({ key: "", label: "", inputType: "text" });
+      item?.fields?.push({
+        key: newTemplateKey(),
+        label: "",
+        inputType: "text",
+      });
     });
   }
 
@@ -181,7 +186,7 @@ export function useTemplateEditor() {
     sectionId: string,
     itemIndex: number,
     fieldIndex: number,
-    prop: keyof TemplateField,
+    prop: "label" | "inputType",
     value: string,
   ) {
     mutateSections((sectionList) => {
@@ -189,14 +194,14 @@ export function useTemplateEditor() {
         ?.fields?.[fieldIndex];
       if (!field) return;
       if (prop === "inputType") field.inputType = value as InputType;
-      else field[prop] = value;
+      else field.label = value;
     });
   }
 
   function addWorshipItem(sectionId: string) {
     mutateSections((sectionList) => {
       findWorship(sectionList, sectionId)?.config.items.push({
-        type: "",
+        type: newTemplateKey(),
         label: "",
         inputType: "text",
       });

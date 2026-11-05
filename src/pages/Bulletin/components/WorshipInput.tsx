@@ -1,8 +1,9 @@
-import { createMemo, For, type JSX } from "solid-js";
+import { For, type JSX } from "solid-js";
 import { useLocale } from "@/store/LocaleContext.tsx";
 import type { Member, TemplateItem, WorshipItem } from "@/types/bulletin.ts";
-import { filterMembersByRole, getTemplateItem } from "@/utils/bulletin.ts";
+import { getTemplateItem } from "@/utils/bulletin.ts";
 import styles from "../editorFields.module.css";
+import { MemberSelect } from "./MemberSelect.tsx";
 
 interface WorshipInputProps {
   item: WorshipItem;
@@ -13,36 +14,18 @@ interface WorshipInputProps {
   onUpdateFieldValue: (index: number, key: string, value: string) => void;
 }
 
-function MemberSelect(props: {
-  id?: string;
-  value: string | undefined;
-  members: Member[] | undefined;
-  role?: string;
-  onChange: (val: string) => void;
-}): JSX.Element {
-  const { t } = useLocale();
-  const filteredMembers = createMemo(() =>
-    filterMembersByRole(props.members, props.role),
-  );
-  return (
-    <select
-      id={props.id}
-      class={styles.select}
-      value={props.value ?? ""}
-      onChange={(e) => props.onChange(e.currentTarget.value)}
-    >
-      <option value="">{t("bulletinForm.selectMember")}</option>
-      <For each={filteredMembers()}>
-        {(m) => <option value={String(m.id)}>{m.name}</option>}
-      </For>
-    </select>
-  );
-}
-
 export function WorshipInput(props: WorshipInputProps): JSX.Element {
   const { t } = useLocale();
   const tmpl = () => getTemplateItem(props.template, props.item.type);
   const inputType = () => tmpl()?.inputType ?? "text";
+  // Placeholder hints for the default template's keys; other keys get none
+  const hint = (key: string) => {
+    if (key.startsWith("hymn")) return t("bulletinForm.hymnPlaceholder");
+    if (key === "reading" || key === "scripture")
+      return t("bulletinForm.scripturePlaceholder");
+    if (key === "title") return t("bulletinForm.sermonTitlePlaceholder");
+    return undefined;
+  };
 
   // Compound fields mode
   if ((tmpl()?.fields?.length ?? 0) > 0) {
@@ -63,6 +46,7 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
                     value={props.item.fieldValues?.[field.key]}
                     members={props.members}
                     role={field.role}
+                    placeholder={t("bulletinForm.selectMember")}
                     onChange={(val) =>
                       props.onUpdateFieldValue(props.index, field.key, val)
                     }
@@ -79,7 +63,7 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
                   id={fieldId}
                   type="text"
                   class={styles.input}
-                  placeholder={t("bulletinForm.detailsPlaceholder")}
+                  placeholder={hint(field.key)}
                   value={props.item.fieldValues?.[field.key] ?? ""}
                   onInput={(e) =>
                     props.onUpdateFieldValue(
@@ -109,6 +93,7 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
         value={props.item.details}
         members={props.members}
         role={tmpl()?.role}
+        placeholder={t("bulletinForm.selectMember")}
         onChange={(val) => props.onUpdateDetails(props.index, val)}
       />
     );
@@ -118,7 +103,7 @@ export function WorshipInput(props: WorshipInputProps): JSX.Element {
     <input
       type="text"
       class={styles.input}
-      placeholder={t("bulletinForm.detailsPlaceholder")}
+      placeholder={hint(props.item.type)}
       value={props.item.details ?? ""}
       onInput={(e) => props.onUpdateDetails(props.index, e.currentTarget.value)}
     />
