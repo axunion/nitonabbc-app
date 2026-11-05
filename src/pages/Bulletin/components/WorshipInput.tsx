@@ -14,27 +14,17 @@ interface WorshipInputProps {
   onUpdateFieldValue: (index: number, key: string, value: string) => void;
 }
 
-type PlaceholderKey =
-  | "bulletinForm.hymnPlaceholder"
-  | "bulletinForm.scripturePlaceholder"
-  | "bulletinForm.sermonTitlePlaceholder";
-
-// Placeholder hints for the default template's keys; other keys get none
-function placeholderKey(key: string): PlaceholderKey | undefined {
-  if (key.startsWith("hymn")) return "bulletinForm.hymnPlaceholder";
-  if (key === "reading" || key === "scripture")
-    return "bulletinForm.scripturePlaceholder";
-  if (key === "title") return "bulletinForm.sermonTitlePlaceholder";
-  return undefined;
-}
-
 export function WorshipInput(props: WorshipInputProps): JSX.Element {
   const { t } = useLocale();
   const tmpl = () => getTemplateItem(props.template, props.item.type);
   const inputType = () => tmpl()?.inputType ?? "text";
+  // Placeholder hints for the default template's keys; other keys get none
   const hint = (key: string) => {
-    const k = placeholderKey(key);
-    return k ? t(k) : undefined;
+    if (key.startsWith("hymn")) return t("bulletinForm.hymnPlaceholder");
+    if (key === "reading" || key === "scripture")
+      return t("bulletinForm.scripturePlaceholder");
+    if (key === "title") return t("bulletinForm.sermonTitlePlaceholder");
+    return undefined;
   };
 
   // Compound fields mode

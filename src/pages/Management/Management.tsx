@@ -250,10 +250,10 @@ export function Management() {
                         </Show>
                       </td>
                       <td class={styles.td}>
-                        <Show
-                          when={member.isActive}
-                          fallback={
-                            <div class={styles.actionsCell}>
+                        <div class={styles.actionsCell}>
+                          <Show
+                            when={member.isActive}
+                            fallback={
                               <button
                                 type="button"
                                 class={styles.actionButton}
@@ -262,10 +262,8 @@ export function Management() {
                                 <UserCheck size={14} stroke-width={1.5} />
                                 {t("management.reactivate")}
                               </button>
-                            </div>
-                          }
-                        >
-                          <div class={styles.actionsCell}>
+                            }
+                          >
                             <button
                               type="button"
                               class={styles.actionButton}
@@ -304,8 +302,8 @@ export function Management() {
                                 {t("management.deactivate")}
                               </button>
                             </Show>
-                          </div>
-                        </Show>
+                          </Show>
+                        </div>
                       </td>
                     </tr>
                   )}

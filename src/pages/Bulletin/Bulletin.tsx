@@ -41,8 +41,8 @@ export function Bulletin() {
   const [editingSectionId, setEditingSectionId] = createSignal<string | null>(
     null,
   );
-  const [editingDate, setEditingDate] = createSignal(false);
-  const [dateDraft, setDateDraft] = createSignal("");
+  // Non-null while the date editor is open
+  const [dateDraft, setDateDraft] = createSignal<string | null>(null);
   const [savingDate, setSavingDate] = createSignal(false);
   const [confirmDelete, setConfirmDelete] = createSignal(false);
   // Action to run once the user agrees to discard unsaved section edits
@@ -93,10 +93,6 @@ export function Bulletin() {
     });
   };
 
-  const handleSectionCancel = () => {
-    discardEdits();
-  };
-
   const handleSectionSave = async () => {
     const result = await form.save();
     if (result.ok) {
@@ -115,22 +111,20 @@ export function Bulletin() {
     guardUnsaved(() => {
       discardEdits();
       setDateDraft(form.serviceDate());
-      setEditingDate(true);
     });
   };
 
   const handleDateSave = async () => {
     const date = dateDraft();
     if (!date || date === form.serviceDate()) {
-      setEditingDate(false);
+      setDateDraft(null);
       return;
     }
     setSavingDate(true);
-    const result = await updateBulletin(params.id, { serviceDate: date })
-      .catch(() => ({ ok: false, status: undefined }))
-      .finally(() => setSavingDate(false));
+    const result = await updateBulletin(params.id, { serviceDate: date });
+    setSavingDate(false);
     if (result.ok) {
-      setEditingDate(false);
+      setDateDraft(null);
       await form.reload().catch(() => showToast(t("common.error"), "error"));
       showToast(t("bulletin.dateChanged"));
     } else if (result.status === 409) {
@@ -141,9 +135,7 @@ export function Bulletin() {
   };
 
   const handleDelete = async () => {
-    const result = await deleteBulletin(params.id).catch(() => ({
-      ok: false,
-    }));
+    const result = await deleteBulletin(params.id);
     if (!result.ok) {
       showToast(t("common.error"), "error");
       // Keep the dialog open so the user can retry
@@ -198,7 +190,7 @@ export function Bulletin() {
 
               <div class={styles.formBody}>
                 <Show
-                  when={editingDate()}
+                  when={dateDraft() !== null}
                   fallback={
                     <div class={styles.titleRow}>
                       <h1 class={styles.title}>
@@ -235,14 +227,14 @@ export function Bulletin() {
                       id="service-date"
                       type="date"
                       class={editorStyles.input}
-                      value={dateDraft()}
+                      value={dateDraft() ?? ""}
                       onInput={(e) => setDateDraft(e.currentTarget.value)}
                     />
                     <div class={styles.sectionActions}>
                       <button
                         type="button"
                         class={styles.cancelButton}
-                        onClick={() => setEditingDate(false)}
+                        onClick={() => setDateDraft(null)}
                       >
                         {t("common.cancel")}
                       </button>
@@ -373,7 +365,7 @@ export function Bulletin() {
                               <button
                                 type="button"
                                 class={styles.cancelButton}
-                                onClick={handleSectionCancel}
+                                onClick={discardEdits}
                               >
                                 {t("common.cancel")}
                               </button>

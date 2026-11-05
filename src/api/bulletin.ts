@@ -55,10 +55,16 @@ type BulletinPayload = {
   sections?: SectionData[];
 };
 
-/** `status` is the HTTP status on failure (e.g. 409 when the date is taken). */
+/** `status` is the HTTP status on failure (e.g. 409 when the date is taken); absent on network errors. */
 type MutationResult = { ok: boolean; id?: number; status?: number };
 
-async function toMutationResult(res: Response): Promise<MutationResult> {
+async function mutate(url: string, init: RequestInit): Promise<MutationResult> {
+  let res: Response;
+  try {
+    res = await fetch(url, init);
+  } catch {
+    return { ok: false };
+  }
   if (!res.ok) return { ok: false, status: res.status };
   const result = (await res.json()) as { id?: number };
   return { ok: true, id: result.id };
@@ -68,27 +74,24 @@ export async function updateBulletin(
   id: string,
   body: BulletinPayload,
 ): Promise<MutationResult> {
-  const res = await fetch(`/api/bulletin/${id}`, {
+  return mutate(`/api/bulletin/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  return toMutationResult(res);
 }
 
 /** Creates a bulletin from the template, carrying over repeating sections from the previous one. */
 export async function generateBulletin(
   serviceDate: string,
 ): Promise<MutationResult> {
-  const res = await fetch("/api/bulletin/generate", {
+  return mutate("/api/bulletin/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ serviceDate }),
   });
-  return toMutationResult(res);
 }
 
 export async function deleteBulletin(id: string): Promise<MutationResult> {
-  const res = await fetch(`/api/bulletin/${id}`, { method: "DELETE" });
-  return toMutationResult(res);
+  return mutate(`/api/bulletin/${id}`, { method: "DELETE" });
 }

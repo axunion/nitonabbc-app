@@ -1,11 +1,5 @@
 import { useParams } from "@solidjs/router";
-import {
-  createEffect,
-  createMemo,
-  createResource,
-  createSignal,
-  on,
-} from "solid-js";
+import { createEffect, createResource, createSignal, on } from "solid-js";
 import {
   fetchBulletin,
   fetchMembers,
@@ -86,7 +80,7 @@ export function useBulletinForm() {
   const [template] = createResource(fetchTemplate);
   const [members] = createResource(fetchMembers);
 
-  const [serviceDate, setServiceDate] = createSignal("");
+  const serviceDate = () => loaded()?.serviceDate ?? "";
   const [sections, setSections] = createSignal<SectionData[]>([]);
   const [submitting, setSubmitting] = createSignal(false);
   const [initialized, setInitialized] = createSignal(false);
@@ -101,7 +95,6 @@ export function useBulletinForm() {
   );
 
   function applyExisting(data: BulletinDetail) {
-    setServiceDate(data.serviceDate);
     setSections(normalizeSections(data.sections));
   }
 
@@ -127,15 +120,15 @@ export function useBulletinForm() {
     if (data) applyExisting(data);
   }
 
-  /** True when the sections differ from what was last loaded from the server. */
-  const isDirty = createMemo(() => {
+  /** True when the sections differ from what was last loaded from the server. Computed on demand by the leave guards. */
+  function isDirty() {
     const data = loaded();
     if (!data) return false;
     return (
       JSON.stringify(sections()) !==
       JSON.stringify(normalizeSections(data.sections))
     );
-  });
+  }
 
   function updateSection(
     sectionId: string,
@@ -390,14 +383,9 @@ export function useBulletinForm() {
 
   async function save(): Promise<{ ok: boolean }> {
     setSubmitting(true);
-    try {
-      const result = await updateBulletin(params.id, { sections: sections() });
-      return { ok: result.ok };
-    } catch {
-      return { ok: false };
-    } finally {
-      setSubmitting(false);
-    }
+    const result = await updateBulletin(params.id, { sections: sections() });
+    setSubmitting(false);
+    return { ok: result.ok };
   }
 
   return {

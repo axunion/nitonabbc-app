@@ -103,20 +103,6 @@ export function BulletinList() {
     return result;
   });
 
-  // First Sunday from the next one onward that has no bulletin yet
-  const suggestedNewDate = () => {
-    const d = data();
-    if (!d) return "";
-    const taken = new Set(d.bulletins.map((b) => b.serviceDate));
-    let date = d.nextSunday;
-    while (taken.has(date)) {
-      const next = new Date(`${date}T00:00:00Z`);
-      next.setUTCDate(next.getUTCDate() + 7);
-      date = next.toISOString().slice(0, 10);
-    }
-    return date;
-  };
-
   async function createFor(dateStr: string) {
     // An existing bulletin for the date is opened instead of failing
     const existing = data()?.bulletins.find((b) => b.serviceDate === dateStr);
@@ -125,20 +111,15 @@ export function BulletinList() {
       return;
     }
     setCreating(true);
-    try {
-      const result = await generateBulletin(dateStr);
-      if (result.ok && result.id != null) {
-        navigate(`/bulletin/${result.id}`);
-      } else {
-        showToast(
-          t(result.status === 409 ? "bulletin.alreadyExists" : "common.error"),
-          "error",
-        );
-      }
-    } catch {
-      showToast(t("common.error"), "error");
-    } finally {
-      setCreating(false);
+    const result = await generateBulletin(dateStr);
+    setCreating(false);
+    if (result.ok && result.id != null) {
+      navigate(`/bulletin/${result.id}`);
+    } else {
+      showToast(
+        t(result.status === 409 ? "bulletin.alreadyExists" : "common.error"),
+        "error",
+      );
     }
   }
 
@@ -151,7 +132,16 @@ export function BulletinList() {
   }
 
   function openNewForm() {
-    setNewDate(suggestedNewDate());
+    // Suggest the first Sunday from the next one onward that has no bulletin yet
+    const d = data();
+    let date = d?.nextSunday ?? "";
+    const taken = new Set(d?.bulletins.map((b) => b.serviceDate));
+    while (taken.has(date)) {
+      const next = new Date(`${date}T00:00:00Z`);
+      next.setUTCDate(next.getUTCDate() + 7);
+      date = next.toISOString().slice(0, 10);
+    }
+    setNewDate(date);
     setShowNewForm(true);
   }
 

@@ -6,12 +6,6 @@ import styles from "../editorFields.module.css";
 
 const OTHER = "__other__";
 
-// Member fields store a member id; any non-numeric value is a name typed in
-// for someone outside the roster (e.g. a guest preacher).
-function isFreeText(value: string | undefined): boolean {
-  return !!value && !/^\d+$/.test(value);
-}
-
 type Props = {
   id?: string;
   value: string | undefined;
@@ -26,7 +20,11 @@ export function MemberSelect(props: Props): JSX.Element {
   const candidates = createMemo(() =>
     filterMembersByRole(props.members, props.role),
   );
-  const [otherMode, setOtherMode] = createSignal(isFreeText(props.value));
+  // Member fields store a member id; any non-numeric value is a name typed in
+  // for someone outside the roster (e.g. a guest preacher).
+  const [otherMode, setOtherMode] = createSignal(
+    !!props.value && !/^\d+$/.test(props.value),
+  );
   // A role filter that leaves nobody usually means roles are not set up yet
   const noCandidates = () =>
     (props.members?.length ?? 0) > 0 && candidates().length === 0;
