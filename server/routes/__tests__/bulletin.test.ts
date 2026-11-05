@@ -320,6 +320,20 @@ describe("POST /api/bulletin/generate", () => {
     expect(json).toMatchObject({ serviceDate: "2025-06-01" });
   });
 
+  it("returns 400 for a malformed serviceDate", async () => {
+    const { env } = await seedMemberAndEnv();
+    const res = await testApp.request(
+      "http://localhost/api/bulletin/generate",
+      {
+        method: "POST",
+        headers: { ...memberHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({ serviceDate: "06/01/2025" }),
+      },
+      env,
+    );
+    expect(res.status).toBe(400);
+  });
+
   it("generates from the default template when none is saved", async () => {
     const { env } = await seedMemberAndEnv();
     const res = await testApp.request(

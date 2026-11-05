@@ -80,6 +80,9 @@ export function useBulletinForm() {
     (id) => fetchBulletin(id),
   );
 
+  // Reading an errored resource re-throws, so expose it as "no data" instead
+  const loaded = () => (existing.error ? undefined : existing());
+
   const [template] = createResource(fetchTemplate);
   const [members] = createResource(fetchMembers);
 
@@ -103,7 +106,7 @@ export function useBulletinForm() {
   }
 
   createEffect(() => {
-    const data = existing();
+    const data = loaded();
     if (!initialized() && !existing.loading) {
       if (data) {
         applyExisting(data);
@@ -120,13 +123,13 @@ export function useBulletinForm() {
   }
 
   function resetToExisting() {
-    const data = existing();
+    const data = loaded();
     if (data) applyExisting(data);
   }
 
   /** True when the sections differ from what was last loaded from the server. */
   const isDirty = createMemo(() => {
-    const data = existing();
+    const data = loaded();
     if (!data) return false;
     return (
       JSON.stringify(sections()) !==
@@ -382,8 +385,8 @@ export function useBulletinForm() {
     });
   }
 
-  const totalItems = () => existing()?.totalItems ?? 0;
-  const filledItems = () => existing()?.filledItems ?? 0;
+  const totalItems = () => loaded()?.totalItems ?? 0;
+  const filledItems = () => loaded()?.filledItems ?? 0;
 
   async function save(): Promise<{ ok: boolean }> {
     setSubmitting(true);

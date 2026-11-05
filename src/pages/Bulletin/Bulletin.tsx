@@ -126,9 +126,9 @@ export function Bulletin() {
       return;
     }
     setSavingDate(true);
-    const result = await updateBulletin(params.id, {
-      serviceDate: date,
-    }).finally(() => setSavingDate(false));
+    const result = await updateBulletin(params.id, { serviceDate: date })
+      .catch(() => ({ ok: false, status: undefined }))
+      .finally(() => setSavingDate(false));
     if (result.ok) {
       setEditingDate(false);
       await form.reload().catch(() => showToast(t("common.error"), "error"));
@@ -141,12 +141,16 @@ export function Bulletin() {
   };
 
   const handleDelete = async () => {
-    const result = await deleteBulletin(params.id);
+    const result = await deleteBulletin(params.id).catch(() => ({
+      ok: false,
+    }));
     if (!result.ok) {
       showToast(t("common.error"), "error");
       // Keep the dialog open so the user can retry
       throw new Error("delete failed");
     }
+    // Drop unsaved edits only now, so the leave guard does not prompt for them
+    discardEdits();
     showToast(t("bulletin.deleted"));
     navigate("/bulletin");
   };
@@ -213,11 +217,7 @@ export function Bulletin() {
                         <button
                           type="button"
                           class={styles.iconButton}
-                          onClick={() => {
-                            // Deleting drops any unsaved edits as well
-                            discardEdits();
-                            setConfirmDelete(true);
-                          }}
+                          onClick={() => setConfirmDelete(true)}
                           aria-label={t("bulletin.delete")}
                           title={t("bulletin.delete")}
                         >

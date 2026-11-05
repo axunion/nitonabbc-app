@@ -181,6 +181,10 @@ adminRoute.post("/members/:id/reactivate", async (c) => {
   if (!existing) {
     return c.json({ error: "Member not found" }, 404);
   }
+  // Already active: nothing to undo, and rotating the token would break a live invite
+  if (existing.isActive) {
+    return c.json(toMemberResponse(existing));
+  }
 
   const [updated] = await db
     .update(users)

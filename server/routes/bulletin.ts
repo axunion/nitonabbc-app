@@ -324,13 +324,10 @@ bulletinRoute.post("/generate", async (c) => {
   const body = await c.req
     .json<{ serviceDate?: string }>()
     .catch((): { serviceDate?: string } => ({}));
-  let serviceDate: string;
-
-  if (body.serviceDate && DATE_RE.test(body.serviceDate)) {
-    serviceDate = body.serviceDate;
-  } else {
-    serviceDate = getNextSunday();
+  if (body.serviceDate !== undefined && !DATE_RE.test(body.serviceDate)) {
+    return c.json({ error: "serviceDate must be YYYY-MM-DD" }, 400);
   }
+  const serviceDate = body.serviceDate ?? getNextSunday();
 
   const [template, prevRows] = await Promise.all([
     getTemplate(db),

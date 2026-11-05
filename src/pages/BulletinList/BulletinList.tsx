@@ -110,9 +110,9 @@ export function BulletinList() {
     const taken = new Set(d.bulletins.map((b) => b.serviceDate));
     let date = d.nextSunday;
     while (taken.has(date)) {
-      const d = new Date(`${date}T00:00:00Z`);
-      d.setUTCDate(d.getUTCDate() + 7);
-      date = d.toISOString().slice(0, 10);
+      const next = new Date(`${date}T00:00:00Z`);
+      next.setUTCDate(next.getUTCDate() + 7);
+      date = next.toISOString().slice(0, 10);
     }
     return date;
   };

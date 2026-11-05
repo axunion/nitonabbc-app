@@ -457,6 +457,27 @@ describe("POST /api/admin/members/:id/reactivate", () => {
     expect(row?.inviteToken).toBe("tok_used");
     expect(row?.lineUserId).toBe("U_target");
   });
+
+  it("leaves an already-active member's pending invite untouched", async () => {
+    const { env } = await seedAdminAndEnv();
+    const [target] = await db
+      .insert(schema.users)
+      .values({ name: "Target", inviteToken: "tok_live", isActive: true })
+      .returning();
+
+    const res = await testApp.request(
+      `http://localhost/api/admin/members/${target.id}/reactivate`,
+      { method: "POST", headers: adminHeaders },
+      env,
+    );
+
+    expect(res.status).toBe(200);
+    const [row] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, target.id));
+    expect(row?.inviteToken).toBe("tok_live");
+  });
 });
 
 describe("POST /api/admin/members/:id/reinvite", () => {
