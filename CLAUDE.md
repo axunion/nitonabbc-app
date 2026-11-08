@@ -44,7 +44,7 @@ The npm scripts `deploy` and `db:migrate:remote` are **intentionally not defined
   - TabBar behavior (mobile vs desktop, per-tab state restoration): see `docs/spec.md`
 - **Auth context**: `useAuth()` from `src/store/AuthContext.tsx` — provides user info and `logout`
 
-See `.claude/rules/` for detailed conventions per area (UI, CSS, API, testing).
+See `.claude/rules/` for detailed conventions per area (UI, CSS, API, testing), and `DESIGN.md` for the design system (tokens, theme, layout).
 
 ## Environments
 
