@@ -12,7 +12,7 @@
   backdrop-filter: var(--glass-blur) var(--glass-saturate);
   -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
   border: var(--glass-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--group-radius);
   box-shadow: var(--glass-shadow-lg);
   padding: var(--space-10) var(--space-8);
   width: 100%;
@@ -24,8 +24,8 @@
 }
 
 .title {
-  font-size: var(--text-xl);
-  font-weight: var(--font-semibold);
+  font-size: var(--type-title1);
+  font-weight: var(--font-bold);
   letter-spacing: var(--tracking-tight);
   color: var(--color-gray-900);
   text-align: center;
@@ -36,7 +36,7 @@
 }
 
 .subtitle {
-  font-size: var(--text-sm);
+  font-size: var(--type-subhead);
   color: var(--color-gray-500);
   margin-bottom: var(--space-6);
 }
@@ -47,10 +47,12 @@
   gap: var(--space-2);
   background-color: #06c755;
   color: #fff;
-  font-size: var(--text-base);
-  font-weight: var(--font-medium);
-  padding: var(--space-3) var(--space-6);
-  border-radius: var(--radius-md);
+  font-size: var(--type-headline);
+  font-weight: var(--font-semibold);
+  min-height: var(--control-height);
+  box-sizing: border-box;
+  padding: var(--space-2) var(--space-6);
+  border-radius: var(--control-radius);
   text-decoration: none;
   transition: opacity var(--duration-fast);
   width: 100%;

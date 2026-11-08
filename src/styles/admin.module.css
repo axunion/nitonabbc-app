@@ -1,22 +1,23 @@
-/* Shared patterns for PC admin pages. Flat shadcn-style surfaces built on
- * the --admin-* tokens (admin-tokens.css). No glass tokens here. */
+/* Shared patterns for admin pages: the neutral --admin-* palette
+ * (admin-tokens.css) on the platform metrics from tokens.css, so controls
+ * follow iOS below 900px and macOS above. No glass tokens here. */
 
 .pageContainer {
   width: 100%;
   max-width: var(--admin-content-max);
-  padding: var(--space-6);
+  padding: var(--space-4) var(--margin) var(--space-8);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
 }
 
+/* iOS large title; macOS window-content title */
 .pageTitle {
-  font-size: var(--text-xl);
-  font-weight: var(--font-semibold);
+  font-size: var(--type-large-title);
+  font-weight: var(--font-bold);
   color: var(--admin-foreground);
-  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
   margin: 0;
-  white-space: nowrap;
 }
 
 .toolbar {
@@ -32,22 +33,22 @@
   text-align: center;
   padding: var(--space-8);
   color: var(--admin-muted-foreground);
-  font-size: var(--text-sm);
+  font-size: var(--type-subhead);
 }
 
 .messageSuccess {
-  font-size: var(--text-sm);
+  font-size: var(--type-subhead);
   padding: var(--space-3);
-  border-radius: var(--radius-md);
+  border-radius: var(--field-radius);
   background-color: var(--admin-success-soft);
   color: var(--admin-success);
   box-sizing: border-box;
 }
 
 .messageError {
-  font-size: var(--text-sm);
+  font-size: var(--type-subhead);
   padding: var(--space-3);
-  border-radius: var(--radius-md);
+  border-radius: var(--field-radius);
   background-color: var(--admin-destructive-soft);
   color: var(--admin-destructive);
   box-sizing: border-box;
@@ -56,17 +57,17 @@
 .card {
   background: var(--admin-card);
   border: 1px solid var(--admin-border);
-  border-radius: var(--admin-radius);
+  border-radius: var(--group-radius);
   box-shadow: var(--admin-shadow-sm);
 }
 
 .input {
   width: 100%;
-  height: 44px;
+  height: var(--control-height);
   padding: 0 var(--space-3);
   border: 1px solid var(--admin-input);
-  border-radius: var(--radius-md);
-  font-size: var(--text-base);
+  border-radius: var(--field-radius);
+  font-size: var(--type-body);
   color: var(--admin-foreground);
   background: var(--admin-card);
   outline: none;
@@ -89,15 +90,15 @@
 }
 
 .buttonPrimary {
-  height: 44px;
+  height: var(--control-height);
   min-width: 7rem;
   padding: 0 var(--space-4);
-  border-radius: var(--radius-md);
+  border-radius: var(--control-radius);
   border: none;
   background-color: var(--admin-primary);
   color: var(--admin-primary-foreground);
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
+  font-size: var(--type-body);
+  font-weight: var(--font-semibold);
   cursor: pointer;
   outline: none;
   transition: background-color var(--duration-fast) var(--ease-default);
@@ -117,13 +118,13 @@
 }
 
 .buttonOutline {
-  height: 44px;
+  height: var(--control-height);
   padding: 0 var(--space-4);
-  border-radius: var(--radius-md);
+  border-radius: var(--control-radius);
   border: 1px solid var(--admin-border);
   background: var(--admin-card);
   color: var(--admin-foreground);
-  font-size: var(--text-sm);
+  font-size: var(--type-body);
   font-weight: var(--font-medium);
   cursor: pointer;
   outline: none;
@@ -191,7 +192,7 @@
   z-index: var(--z-modal);
   background: var(--admin-card);
   border: 1px solid var(--admin-border);
-  border-radius: var(--admin-radius);
+  border-radius: var(--group-radius);
   box-shadow: var(--admin-shadow-lg);
   padding: var(--space-6);
   animation: dialogSlideUp var(--duration-normal) var(--ease-default);

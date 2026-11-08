@@ -41,25 +41,43 @@ export function Header(props: HeaderProps) {
     onCleanup(() => container.removeEventListener("scroll", handleScroll));
   });
 
+  const title = () => props.title ?? t("common.churchName");
+  // Tab root pages (no back button) use the iOS large title
+  const isLargeTitle = () => !props.backTo;
+
   return (
-    <header
-      ref={headerRef}
-      class={styles.header}
-      classList={{ [styles.scrolled]: scrolled() }}
-    >
-      <Show when={props.backTo} fallback={<span class={styles.spacer} />}>
-        {(backTo) => (
-          <button
-            type="button"
-            class={styles.backButton}
-            onClick={() => navigate(backTo())}
-          >
-            <ChevronLeft size={24} stroke-width={1.5} />
-          </button>
-        )}
+    <>
+      <header
+        ref={headerRef}
+        class={styles.header}
+        classList={{ [styles.scrolled]: scrolled() }}
+      >
+        <Show when={props.backTo} fallback={<span class={styles.spacer} />}>
+          {(backTo) => (
+            <button
+              type="button"
+              class={styles.backButton}
+              aria-label={t("common.back")}
+              onClick={() => navigate(backTo())}
+            >
+              <ChevronLeft size={24} stroke-width={1.5} />
+            </button>
+          )}
+        </Show>
+        <span
+          class={styles.title}
+          classList={{
+            [styles.titleCollapsed]: isLargeTitle() && !scrolled(),
+          }}
+          aria-hidden={isLargeTitle() ? "true" : undefined}
+        >
+          {title()}
+        </span>
+        <div class={styles.actions}>{props.rightAction}</div>
+      </header>
+      <Show when={isLargeTitle()}>
+        <h1 class={styles.largeTitle}>{title()}</h1>
       </Show>
-      <span class={styles.title}>{props.title ?? t("common.churchName")}</span>
-      <div class={styles.actions}>{props.rightAction}</div>
-    </header>
+    </>
   );
 }

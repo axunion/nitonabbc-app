@@ -1,15 +1,27 @@
-/* Admin toast notifications — flat PC theme, header-zone top-right */
+/* Toast notifications on the neutral admin surfaces: an iOS banner at the
+ * top center below 900px, a macOS notification at the top right above. */
 
 .region {
   position: fixed;
-  top: var(--space-3);
-  right: var(--space-3);
+  top: calc(var(--space-2) + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
   z-index: var(--z-toast);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  width: 300px;
+  width: min(calc(100vw - 2 * var(--margin)), 400px);
   pointer-events: none;
+}
+
+@media (min-width: 900px) {
+  .region {
+    top: var(--space-3);
+    left: auto;
+    right: var(--space-3);
+    transform: none;
+    width: 300px;
+  }
 }
 
 @keyframes toastSlideIn {
@@ -39,7 +51,7 @@
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--admin-border);
-  border-radius: var(--admin-radius);
+  border-radius: var(--group-radius);
   box-shadow: var(--admin-shadow-lg);
   background: var(--admin-card);
   pointer-events: auto;
@@ -62,7 +74,7 @@
 
 .title {
   flex: 1;
-  font-size: var(--text-sm);
+  font-size: var(--type-footnote);
   font-weight: var(--font-medium);
   color: var(--admin-foreground);
   line-height: 1.4;

@@ -100,17 +100,11 @@
     0 0 0 calc(var(--focus-ring-offset) + 2px) var(--focus-ring-color);
 
   /* --- Typography --- */
+  /* San Francisco on Apple platforms (native iOS/macOS feel), Inter elsewhere */
   --font-sans:
-    "Inter", system-ui, -apple-system, "Segoe UI", "Hiragino Sans",
+    -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", "Hiragino Sans",
     "Noto Sans JP", sans-serif;
   --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", monospace;
-
-  --text-2xs: 0.625rem;
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.25rem;
-  --text-xl: 1.5rem;
 
   --leading-tight: 1.25;
   --leading-normal: 1.5;
@@ -120,6 +114,19 @@
   --font-medium: 500;
   --font-semibold: 600;
   --font-bold: 700;
+
+  /* HIG text styles: iOS Dynamic Type "Large" here, macOS values at >=900px */
+  --type-large-title: 2.125rem;
+  --type-title1: 1.75rem;
+  --type-title2: 1.375rem;
+  --type-title3: 1.25rem;
+  --type-headline: 1.0625rem;
+  --type-body: 1.0625rem;
+  --type-callout: 1rem;
+  --type-subhead: 0.9375rem;
+  --type-footnote: 0.8125rem;
+  --type-caption1: 0.75rem;
+  --type-caption2: 0.6875rem;
 
   --tracking-tight: -0.01em;
   --tracking-normal: 0;
@@ -194,6 +201,22 @@
   --content-width: 448px;
   /* Left sidebar width for member layout on desktop (matches admin sidebar) */
   --sidebar-width: 240px;
+  /* macOS floating sidebar: gap to the window edge, corner radius, row height */
+  --sidebar-inset: 8px;
+  --sidebar-radius: 18px;
+  --sidebar-row-height: 28px;
+
+  /* --- Platform metrics: iOS here, macOS overrides at >=900px --- */
+  --margin: 16px;
+  --control-height: 44px;
+  --control-height-sm: 34px;
+  --control-radius: 9999px;
+  --field-radius: 12px;
+  --row-height: 44px;
+  --group-radius: 26px;
+  --bar-height: 44px;
+  --bar-button-size: 44px;
+  --tab-bar-height: 62px;
 
   /* --- Icons --- */
   --icon-chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -202,5 +225,27 @@
 @media (min-width: 900px) {
   :root {
     --content-width: 820px;
+
+    --type-large-title: 1.625rem;
+    --type-title1: 1.375rem;
+    --type-title2: 1.0625rem;
+    --type-title3: 0.9375rem;
+    --type-headline: 0.8125rem;
+    --type-body: 0.8125rem;
+    --type-callout: 0.75rem;
+    --type-subhead: 0.6875rem;
+    --type-footnote: 0.625rem;
+    --type-caption1: 0.625rem;
+    --type-caption2: 0.625rem;
+
+    --margin: 20px;
+    --control-height: 28px;
+    --control-height-sm: 22px;
+    --control-radius: 8px;
+    --field-radius: 8px;
+    --row-height: 36px;
+    --group-radius: 12px;
+    --bar-height: 52px;
+    --bar-button-size: 28px;
   }
 }

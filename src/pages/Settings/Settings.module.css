@@ -12,7 +12,7 @@
   backdrop-filter: var(--glass-blur) var(--glass-saturate);
   -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
   border: var(--glass-border);
-  border-radius: var(--radius-xl);
+  border-radius: var(--group-radius);
   padding: var(--space-12) var(--space-4);
   margin-bottom: var(--space-4);
   box-shadow: var(--glass-shadow-md);
@@ -42,7 +42,7 @@
   backdrop-filter: var(--glass-blur) var(--glass-saturate);
   -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
   border: var(--glass-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--group-radius);
   overflow: hidden;
   box-shadow: var(--glass-shadow-sm);
 }
@@ -56,6 +56,12 @@
   .adminMenuList {
     display: none;
   }
+
+  /* macOS row icons match the 13pt body text */
+  .menuItem svg {
+    width: 16px;
+    height: 16px;
+  }
 }
 
 .menuItem {
@@ -63,12 +69,14 @@
   align-items: center;
   gap: var(--space-3);
   width: 100%;
-  padding: var(--space-3) var(--space-4);
+  min-height: var(--row-height);
+  padding: var(--space-2) var(--space-4);
+  box-sizing: border-box;
   background: none;
   border: none;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   color: var(--color-gray-800);
-  font-size: var(--text-base);
+  font-size: var(--type-body);
   cursor: pointer;
   outline: none;
   text-align: left;
@@ -102,9 +110,9 @@
   appearance: none;
   background: var(--input-bg);
   border: 1px solid var(--input-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-1) var(--space-6) var(--space-1) var(--space-2);
-  font-size: var(--text-sm);
+  border-radius: var(--field-radius);
+  padding: var(--space-1) var(--space-6) var(--space-1) var(--space-3);
+  font-size: var(--type-subhead);
   color: var(--color-gray-800);
   outline: none;
   cursor: pointer;
@@ -139,17 +147,17 @@
 }
 
 .installTitle {
-  font-size: var(--text-base);
+  font-size: var(--type-body);
 }
 
 .installDescription {
-  font-size: var(--text-sm);
+  font-size: var(--type-subhead);
   color: var(--color-text-muted);
   margin: 0;
 }
 
 .installGuide {
-  font-size: var(--text-sm);
+  font-size: var(--type-subhead);
   color: var(--color-text-muted);
   margin: 0;
   line-height: var(--leading-normal);
@@ -160,10 +168,11 @@
   background: var(--color-primary);
   color: white;
   border: none;
-  border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
+  border-radius: var(--control-radius);
+  height: var(--control-height-sm);
+  padding: 0 var(--space-4);
+  font-size: var(--type-subhead);
+  font-weight: var(--font-semibold);
   cursor: pointer;
   transition: opacity var(--duration-fast) var(--ease-default);
 }
