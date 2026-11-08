@@ -106,7 +106,6 @@ type:
   title3: 1.25rem
   headline: 1.0625rem
   body: 1.0625rem
-  callout: 1rem
   subhead: 0.9375rem
   footnote: 0.8125rem
   caption1: 0.75rem
@@ -199,7 +198,6 @@ desktop:
   type-title3: 0.9375rem
   type-headline: 0.8125rem
   type-body: 0.8125rem
-  type-callout: 0.75rem
   type-subhead: 0.6875rem
   type-footnote: 0.625rem
   type-caption1: 0.625rem
@@ -331,10 +329,10 @@ Colors are platform independent.
   falling back to Hiragino Sans / Noto Sans JP for Japanese.
 - **Scale**: the `type.*` tokens are the HIG text styles. iOS uses Dynamic
   Type "Large" (Large Title 34, Title 1 28, Title 2 22, Title 3 20, Headline
-  and Body 17, Callout 16, Subhead 15, Footnote 13, Caption 12/11); macOS
-  overrides them with its fixed styles (Large Title 26, Title 1 22, Title 2
-  17, Title 3 15, Headline and Body 13, Callout 12, Subheadline 11, Footnote
-  and Captions 10).
+  and Body 17, Subhead 15, Footnote 13, Caption 12/11); macOS overrides them
+  with its fixed styles (Large Title 26, Title 1 22, Title 2 17, Title 3 15,
+  Headline and Body 13, Subheadline 11, Footnote and Captions 10). Callout is
+  left out until something needs it.
 - **Roles** (`typography`):
   - `large-title` — iOS large titles of tab roots (`Header`) and admin page
     titles.
@@ -367,8 +365,9 @@ Colors are platform independent.
     its scroll container scrolls, then `glass.bg-chrome` + blur + a bottom
     `glass.border`. Child pages show a circular glass back button
     (`bar-button-size` 44, chevron only) and a centered `headline` title. Tab
-    roots show a left-aligned `large-title` below the bar, which scrolls away
-    while the centered bar title fades in. `Header` listens to the nearest
+    roots show a left-aligned `large-title` below the bar; the centered bar
+    title fades in only once the large title has scrolled under the bar
+    (IntersectionObserver). `Header` listens to the nearest
     `[data-scroll-container]` ancestor (MemberLayout's `.main`), falling back
     to `window`; a new layout must set that attribute on its scrolling element.
     Back navigates to the parent route, not browser history.
@@ -380,25 +379,32 @@ Colors are platform independent.
     `/settings`). `MemberLayout` pads `.main` by the bar height, offset and a
     gap.
   - *Admin* (`AdminLayout`): a navigation bar with a circular back button
-    (to `/`) and a segmented control (capsule track, raised white selected
-    segment) switching between the admin pages.
+    (to `/`) and a segmented control (`admin.muted` capsule track,
+    `admin.primary-soft` selected segment) switching between the admin pages,
+    followed by a compact row with the church name and the signed-in user.
 - **macOS navigation (≥900px)**:
   - *Sidebar*: member `TabBar` and admin `AdminLayout` both become a floating
     inset source list: `layout.sidebar-width`, `sidebar-inset` from the
     window edges, `sidebar-radius` corners, 16px accent icons, `body` rows of
     `sidebar-row-height` with a rounded (`radius.lg`) selection highlight
-    (`primary-100` member, `admin.primary-soft` admin). The app name tops the
+    (`primary-50` with accent text for members, `admin.primary-soft` with
+    `admin.primary` text for admins). The app name tops the
     list; the footer holds the admin shortcut (members) or Back (admin).
     Member sidebar is glass; admin sidebar is an opaque `admin.card`.
   - *Toolbar*: `Header` and the admin header are unified toolbars of
     `bar-height` 52 with a leading `title3` title; the back button becomes a
-    28px circular glass toolbar button. No large title.
+    28px circular glass toolbar button. No visible large title: the `h1`
+    stays in the accessibility tree (visually hidden) because the toolbar
+    title is `aria-hidden` on tab roots.
   - The bulletin views add a sticky table of contents column on the left of
     the content, styled like sidebar rows.
 - **Dashboard**: 2-column grid of widget cards (`gap: space-3`). The bulletin
   widget spans 2 columns; others span 1.
-- **Touch targets**: at least 44×44pt on iOS; extend small controls with
-  padding.
+- **Touch targets**: primary controls are `control-height` (44 on iOS, the
+  HIG minimum hit target). `control-height-sm` (34 on iOS, the HIG small /
+  medium button size) is only for secondary in-content buttons that sit next
+  to larger targets (row actions, add/remove, install); don't use it for a
+  page's main action.
 
 ## Elevation & Depth
 

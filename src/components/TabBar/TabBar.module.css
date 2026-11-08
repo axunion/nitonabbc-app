@@ -66,7 +66,7 @@
   border: none;
   background: none;
   font: inherit;
-  color: var(--color-gray-500);
+  color: var(--color-gray-400);
   cursor: pointer;
   outline: none;
   -webkit-tap-highlight-color: transparent;
@@ -80,7 +80,7 @@
 }
 
 .tab:hover {
-  color: var(--color-gray-700);
+  color: var(--color-gray-600);
 }
 
 .tab:focus-visible {
@@ -146,26 +146,29 @@
     height: var(--sidebar-row-height);
     padding: 0 var(--space-2);
     border-radius: var(--radius-lg);
-    color: var(--color-gray-700);
+    color: var(--color-gray-500);
   }
 
   .tab svg,
   .footerLink svg {
     width: 16px;
     height: 16px;
-    color: var(--color-primary);
   }
 
   .tab:hover,
   .footerLink:hover {
     background: var(--glass-bg-hover);
-    color: var(--color-gray-900);
+    color: var(--color-gray-800);
   }
 
-  .active,
+  .active {
+    background: var(--color-primary-50);
+    color: var(--color-primary);
+  }
+
   .active:hover {
     background: var(--color-primary-100);
-    color: var(--color-gray-900);
+    color: var(--color-primary);
   }
 
   .label {

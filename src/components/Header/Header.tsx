@@ -15,7 +15,9 @@ export function Header(props: HeaderProps) {
   const { t } = useLocale();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = createSignal(false);
+  const [largeTitleVisible, setLargeTitleVisible] = createSignal(true);
   let headerRef!: HTMLElement;
+  let largeTitleRef: HTMLHeadingElement | undefined;
 
   onMount(() => {
     // Scroll happens inside the MemberLayout .main container (overflow-y:auto),
@@ -39,6 +41,19 @@ export function Header(props: HeaderProps) {
     handleScroll();
     container.addEventListener("scroll", handleScroll, { passive: true });
     onCleanup(() => container.removeEventListener("scroll", handleScroll));
+
+    // The bar title fades in only once the large title has scrolled under the bar
+    if (largeTitleRef) {
+      const observer = new IntersectionObserver(
+        ([entry]) => setLargeTitleVisible(entry.isIntersecting),
+        {
+          root: found,
+          rootMargin: `-${headerRef.offsetHeight}px 0px 0px 0px`,
+        },
+      );
+      observer.observe(largeTitleRef);
+      onCleanup(() => observer.disconnect());
+    }
   });
 
   const title = () => props.title ?? t("common.churchName");
@@ -67,7 +82,7 @@ export function Header(props: HeaderProps) {
         <span
           class={styles.title}
           classList={{
-            [styles.titleCollapsed]: isLargeTitle() && !scrolled(),
+            [styles.titleCollapsed]: isLargeTitle() && largeTitleVisible(),
           }}
           aria-hidden={isLargeTitle() ? "true" : undefined}
         >
@@ -76,7 +91,9 @@ export function Header(props: HeaderProps) {
         <div class={styles.actions}>{props.rightAction}</div>
       </header>
       <Show when={isLargeTitle()}>
-        <h1 class={styles.largeTitle}>{title()}</h1>
+        <h1 ref={largeTitleRef} class={styles.largeTitle}>
+          {title()}
+        </h1>
       </Show>
     </>
   );

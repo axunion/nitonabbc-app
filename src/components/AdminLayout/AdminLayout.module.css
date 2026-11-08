@@ -21,7 +21,7 @@
   box-sizing: border-box;
   flex-shrink: 0;
   border-bottom: 1px solid var(--admin-border);
-  background: var(--admin-background-translucent);
+  background: var(--admin-card);
 }
 
 .brand {
@@ -60,7 +60,7 @@
   height: var(--control-height-sm);
   padding: 0 var(--space-3);
   border-radius: var(--radius-full);
-  color: var(--admin-foreground);
+  color: var(--admin-muted-foreground);
   font-size: var(--type-footnote);
   font-weight: var(--font-medium);
   text-decoration: none;
@@ -78,9 +78,14 @@
   box-shadow: var(--admin-focus-ring);
 }
 
-.navLinkActive {
-  background: var(--admin-card);
-  box-shadow: var(--admin-shadow-md);
+.navLink:hover {
+  color: var(--admin-foreground);
+}
+
+.navLinkActive,
+.navLinkActive:hover {
+  background: var(--admin-primary-soft);
+  color: var(--admin-primary);
   font-weight: var(--font-semibold);
 }
 
@@ -107,7 +112,7 @@
   border-radius: var(--radius-full);
   background: var(--admin-card);
   box-shadow: var(--admin-shadow-sm);
-  color: var(--admin-primary);
+  color: var(--admin-muted-foreground);
   text-decoration: none;
   outline: none;
 }
@@ -128,18 +133,24 @@
   overflow: hidden;
 }
 
+/* iOS: a compact context row under the navigation bar */
 .header {
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--margin) 0;
+  flex-shrink: 0;
 }
 
 .headerTitle {
-  font-size: var(--type-title3);
+  font-size: var(--type-footnote);
   font-weight: var(--font-semibold);
   color: var(--admin-foreground);
 }
 
 .userName {
-  font-size: var(--type-subhead);
+  font-size: var(--type-footnote);
   color: var(--admin-muted-foreground);
 }
 
@@ -192,7 +203,7 @@
     border-radius: var(--radius-lg);
     background: none;
     box-shadow: none;
-    color: var(--admin-foreground);
+    color: var(--admin-muted-foreground);
     font-size: var(--type-body);
     font-weight: var(--font-normal);
   }
@@ -202,18 +213,18 @@
     display: block;
     width: 16px;
     height: 16px;
-    color: var(--admin-primary);
   }
 
   .navLink:hover,
   .footerLink:hover {
     background: var(--admin-accent);
+    color: var(--admin-foreground);
   }
 
   .navLinkActive,
   .navLinkActive:hover {
     background: var(--admin-primary-soft);
-    box-shadow: none;
+    color: var(--admin-primary);
     font-weight: var(--font-normal);
   }
 
@@ -246,8 +257,16 @@
       border-color var(--duration-fast) var(--ease-default);
   }
 
+  .headerTitle {
+    font-size: var(--type-title3);
+  }
+
+  .userName {
+    font-size: var(--type-subhead);
+  }
+
   .headerScrolled {
-    background: var(--admin-background-translucent);
+    background: var(--admin-background);
     border-bottom: 1px solid var(--admin-border);
   }
 }

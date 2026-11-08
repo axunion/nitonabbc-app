@@ -16,6 +16,7 @@
   font-size: var(--type-large-title);
   font-weight: var(--font-bold);
   color: var(--admin-foreground);
+  letter-spacing: var(--tracking-tight);
   line-height: var(--leading-tight);
   margin: 0;
 }
