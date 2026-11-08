@@ -79,6 +79,7 @@
 }
 
 .navLink:hover {
+  background: var(--admin-accent);
   color: var(--admin-foreground);
 }
 
@@ -121,6 +122,11 @@
   display: none;
 }
 
+.footerLink:hover {
+  background: var(--admin-accent);
+  color: var(--admin-foreground);
+}
+
 .footerLink:focus-visible {
   box-shadow: var(--admin-focus-ring);
 }
@@ -139,8 +145,18 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
-  padding: var(--space-2) var(--margin) 0;
+  padding: var(--space-2) var(--margin);
   flex-shrink: 0;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background var(--duration-fast) var(--ease-default),
+    border-color var(--duration-fast) var(--ease-default);
+}
+
+.headerScrolled {
+  background: var(--admin-background);
+  border-bottom: 1px solid var(--admin-border);
 }
 
 .headerTitle {
@@ -244,17 +260,8 @@
   }
 
   .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     height: var(--bar-height);
     padding: 0 var(--margin);
-    flex-shrink: 0;
-    background: transparent;
-    border-bottom: 1px solid transparent;
-    transition:
-      background var(--duration-fast) var(--ease-default),
-      border-color var(--duration-fast) var(--ease-default);
   }
 
   .headerTitle {
@@ -263,10 +270,5 @@
 
   .userName {
     font-size: var(--type-subhead);
-  }
-
-  .headerScrolled {
-    background: var(--admin-background);
-    border-bottom: 1px solid var(--admin-border);
   }
 }

@@ -415,8 +415,13 @@ content groups that sit on the mesh gradient.
 
 - **Glass surface**: `glass.bg` + `backdrop-filter: glass.blur glass.saturate`
   (always with the `-webkit-` prefix) + `glass.border`. Hover: `glass.bg-hover`
-  + `glass.border-hover`. Active: `glass.bg-active`. Chrome (tab bar, scrolled
-  bars, sidebar): `glass.bg-chrome`.
+  + `glass.border-hover`. Active: `glass.bg-active`.
+- **Chrome**: floating chrome (the iOS tab bar, the macOS sidebar) uses
+  `glass.bg-chrome` once, so content shows through like Liquid Glass. Edge
+  bars that content scrolls under (`.scrolledHeader`: scrolled navigation
+  bars and toolbars, the iframe viewer header) layer `glass.bg-chrome` twice
+  for a nearly opaque bar, so text behind them never collides with the
+  title.
 - **Shadows**: `shadow.sm/md/lg` are plain warm gold drop shadows.
   `glass.shadow-sm/md/lg` add inset white highlights and are used on glass:
   `lg` for the floating tab bar, `md` for groups, widgets and the sidebar,

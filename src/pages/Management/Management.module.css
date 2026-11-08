@@ -272,6 +272,10 @@
     flex-basis: 100%;
   }
 
+  .memberName {
+    white-space: normal;
+  }
+
   .actionsCell {
     justify-content: flex-start;
     flex-wrap: wrap;
