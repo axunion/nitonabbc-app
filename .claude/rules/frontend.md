@@ -56,4 +56,4 @@ paths:
 
 ## Design details
 
-See @docs/ui-guidelines.md for UI design specifics.
+See @DESIGN.md for design tokens and UI design specifics. Its YAML front matter mirrors `src/styles/tokens.css` and `src/styles/admin-tokens.css`; change both in the same commit (`src/styles/__tests__/designTokens.test.ts` enforces it).

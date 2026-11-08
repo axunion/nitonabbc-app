@@ -3,6 +3,7 @@ paths:
   - "server/**/*.test.ts"
   - "server/__tests__/**"
   - "vitest.config.ts"
+  - "src/**/__tests__/**"
 ---
 
 # Testing Rules (TDD)
@@ -17,6 +18,7 @@ Develop API routes using TDD.
 - The frontend is small scale (~30 users) with an admin always present; visual inspection is sufficient coverage
 - Testing Solid.js hooks has a high runtime dependency cost relative to the benefit
 - Pure frontend utilities (`src/utils/`) are indirectly covered by the backend tests
+- One exception: `src/styles/__tests__/designTokens.test.ts` keeps `DESIGN.md` in sync with the CSS tokens. It reads files only and renders nothing
 
 ## Test structure
 
