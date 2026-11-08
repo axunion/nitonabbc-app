@@ -362,7 +362,8 @@ Colors are platform independent.
   `admin.content-max`.
 - **iOS navigation (<900px)**:
   - *Navigation bar* (`Header`, sticky, `bar-height` 44): transparent until
-    its scroll container scrolls, then `glass.bg-chrome` + blur + a bottom
+    its scroll container scrolls, then `glass.bg-chrome` layered twice
+    (nearly opaque, like iOS 27 bars) + blur + a bottom
     `glass.border`. Child pages show a circular glass back button
     (`bar-button-size` 44, chevron only) and a centered `headline` title. Tab
     roots show a left-aligned `large-title` below the bar; the centered bar

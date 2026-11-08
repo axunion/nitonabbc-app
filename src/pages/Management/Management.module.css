@@ -74,6 +74,7 @@
 }
 
 .memberName {
+  white-space: nowrap;
   font-size: var(--type-body);
   font-weight: var(--font-medium);
   color: var(--admin-card-foreground);
@@ -131,7 +132,7 @@
   align-items: center;
   gap: var(--space-2);
   justify-content: flex-end;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .actionButton {
@@ -273,5 +274,6 @@
 
   .actionsCell {
     justify-content: flex-start;
+    flex-wrap: wrap;
   }
 }
