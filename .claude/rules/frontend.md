@@ -20,7 +20,7 @@ paths:
   - Colors: `var(--color-*)`, focus: `var(--focus-ring)`, typography: `var(--text-*)`, `var(--font-*)`, `var(--tracking-*)`
   - Spacing: `var(--space-*)`, border-radius: `var(--radius-*)`, shadows: `var(--shadow-*)`
   - Transitions: `var(--duration-*)`, `var(--ease-*)`, z-index: `var(--z-*)`
-  - Layout: `var(--app-max-width)` (shared value to align TabBar and page content widths)
+  - Layout: `var(--app-max-width)` (member layout cap below 900px), `var(--content-width)` (content column width)
 - Apply a fadeIn animation to page containers
 - Define shared styles in `src/styles/shared.module.css` and apply them via `composes` in each page (e.g. `composes: pairedCancel from "../../styles/shared.module.css";`)
 

@@ -57,18 +57,24 @@ const normalize = (value: string) =>
     .replace(/\s+,/g, ",")
     .trim();
 
-type VarMap = Map<string, string>;
+// Entry lists rather than maps, so that duplicate names stay detectable
+type Vars = [name: string, value: string][];
 
-function parseCss(css: string): { base: VarMap; media: Map<string, VarMap> } {
+interface ParsedCss {
+  base: Vars;
+  media: Map<string, Vars>;
+  // Every custom-property declaration in the file, whatever its selector
+  declarationCount: number;
+}
+
+function parseCss(css: string): ParsedCss {
   const source = css.replace(/\/\*[\s\S]*?\*\//g, "");
-  const declarations = (body: string): VarMap =>
-    new Map(
-      [...body.matchAll(/--([\w-]+)\s*:\s*([^;]+);/g)].map(([, n, v]) => [
-        n,
-        normalize(v),
-      ]),
-    );
-  const media = new Map<string, VarMap>();
+  const declarations = (body: string): Vars =>
+    [...body.matchAll(/--([\w-]+)\s*:\s*([^;]+);/g)].map(([, n, v]) => [
+      n,
+      normalize(v),
+    ]);
+  const media = new Map<string, Vars>();
   const withoutMedia = source.replace(
     /@media\s*([^{]+)\{\s*:root\s*\{([^}]*)\}\s*\}/g,
     (_, condition: string, body: string) => {
@@ -76,11 +82,10 @@ function parseCss(css: string): { base: VarMap; media: Map<string, VarMap> } {
       return "";
     },
   );
-  const base: VarMap = new Map();
-  for (const [, body] of withoutMedia.matchAll(/:root\s*\{([^}]*)\}/g)) {
-    for (const [n, v] of declarations(body)) base.set(n, v);
-  }
-  return { base, media };
+  const base = [...withoutMedia.matchAll(/:root\s*\{([^}]*)\}/g)].flatMap(
+    ([, body]) => declarations(body),
+  );
+  return { base, media, declarationCount: declarations(source).length };
 }
 
 function frontMatter(markdown: string): Record<string, unknown> {
@@ -98,12 +103,15 @@ function toCssValue(value: unknown): string {
   return ref ? `var(--${varName(ref[1], ref[2])})` : text;
 }
 
-function yamlVars(tokens: Record<string, unknown>, group: string): VarMap {
+function yamlVars(tokens: Record<string, unknown>, group: string): Vars {
   const entries = Object.entries(
     (tokens[group] ?? {}) as Record<string, unknown>,
   );
-  return new Map(entries.map(([k, v]) => [varName(group, k), toCssValue(v)]));
+  return entries.map(([k, v]) => [varName(group, k), toCssValue(v)]);
 }
+
+const duplicateNames = (vars: Vars) =>
+  vars.map(([n]) => n).filter((n, i, names) => names.indexOf(n) !== i);
 
 const designMd = read("DESIGN.md");
 const tokens = frontMatter(designMd);
@@ -127,11 +135,20 @@ describe("DESIGN.md", () => {
   });
 
   it("matches the :root custom properties in tokens.css and admin-tokens.css", () => {
-    const fromYaml: VarMap = new Map(
-      Object.keys(GROUP_PREFIX).flatMap((g) => [...yamlVars(tokens, g)]),
+    const fromYaml = Object.keys(GROUP_PREFIX).flatMap((g) =>
+      yamlVars(tokens, g),
     );
-    const fromCss: VarMap = new Map([...memberCss.base, ...adminCss.base]);
+    const fromCss = [...memberCss.base, ...adminCss.base];
+    expect(duplicateNames(fromYaml)).toEqual([]);
+    expect(duplicateNames(fromCss)).toEqual([]);
     expect(Object.fromEntries(fromYaml)).toEqual(Object.fromEntries(fromCss));
+  });
+
+  it("declares custom properties only in :root or the desktop media query", () => {
+    for (const css of [memberCss, adminCss]) {
+      const mediaCount = [...css.media.values()].flat().length;
+      expect(css.base.length + mediaCount).toBe(css.declarationCount);
+    }
   });
 
   it(`matches the ${DESKTOP_MEDIA} overrides in tokens.css`, () => {

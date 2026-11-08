@@ -57,11 +57,15 @@ typography:
     fontSize: "{text.xl}"
     fontWeight: 600
     letterSpacing: "{tracking.tight}"
-  section-title:
+  view-title:
     fontFamily: "{font.sans}"
     fontSize: "{text.lg}"
     fontWeight: 600
     letterSpacing: "{tracking.tight}"
+  section-label:
+    fontFamily: "{font.sans}"
+    fontSize: "{text.sm}"
+    fontWeight: 600
   header-title:
     fontFamily: "{font.sans}"
     fontSize: "{text.base}"
@@ -88,11 +92,10 @@ typography:
     fontSize: "{text.xs}"
     fontWeight: 400
     letterSpacing: "{tracking.wide}"
-  tab-label:
+  sidebar-label:
     fontFamily: "{font.sans}"
-    fontSize: "{text.2xs}"
+    fontSize: "{text.sm}"
     fontWeight: 500
-    letterSpacing: "{tracking.wide}"
 text:
   2xs: 0.625rem
   xs: 0.75rem
@@ -227,8 +230,9 @@ two diverge, and also runs the official DESIGN.md linter. Change a token in
 both places in the same commit.
 
 Each YAML group maps to a CSS prefix: `colors` → `--color-*`, `rounded` →
-`--radius-*`, `spacing` → `--space-*`, `layout` → no prefix, and every other
-group (`text`, `font`, `glass`, `admin`, ...) → `--<group>-*`. A value that is
+`--radius-*`, `spacing` → `--space-*`, `color-rgb` → `--color-*`, `layout` →
+no prefix, and every other group (`text`, `font`, `glass`, `admin`, ...) →
+`--<group>-*`. A value that is
 exactly `{group.key}` corresponds to `var(--...)` in CSS. `desktop` holds the
 overrides inside `@media (min-width: 900px)`. `typography` has no CSS
 counterpart: it names the usage combinations of the primitive tokens.
@@ -275,19 +279,21 @@ with iOS Liquid Glass as the reference for navigation chrome.
 - **Scale**: `text.2xs` (10px) → `text.xl` (24px). Use `tracking.tight` on
   `lg`/`xl` titles and `tracking.wide` on `xs`/`2xs` Latin text.
 - Usage styles are defined in `typography`: page titles (`page-title`, the
-  `.pageTitle` shared class) and the login title use `xl`; section and dialog
-  titles use `lg`; header titles and widget labels use semibold `base`; field
-  labels use medium `sm`; captions use `xs`; tab labels use `2xs`.
+  `.pageTitle` shared class), the login title and the `ConfirmDialog` title
+  use `xl`; view titles (bulletin view, Management dialogs) use `lg`; header
+  titles and widget labels use semibold `base`; bulletin section labels use
+  semibold `sm`; field labels and desktop sidebar labels use medium `sm`;
+  captions use `xs`. `text.2xs` is currently unused.
 
 ## Layout
 
 - **Grid**: 8pt grid. `space-*` tokens are on a 4px base; prefer even steps.
   `space-4` (16px) is the base unit: screen side margin `space-4`, grid gap
   `space-3`, section spacing `space-6`.
-- **Width**: no viewport cap. Content columns are `max-width:
-  var(--content-width)` + `margin: auto` (448px on mobile, `desktop`
-  override 820px at ≥900px). `app-max-width` aligns floating chrome with the
-  content column.
+- **Width**: below 900px the whole member layout is capped at
+  `layout.app-max-width` (448px) and centered (`MemberLayout`). Content
+  columns use `max-width: var(--content-width)` + `margin: auto` (448px, or
+  the `desktop` override 820px at ≥900px, where the layout is uncapped).
 - **Page container**: every member page composes `.pageContainer` from
   `src/styles/shared.module.css` (16px padding, centered column, fadeIn:
   `translateY(8px)` → 0 over `duration.normal` with `ease.out`).
@@ -303,8 +309,10 @@ with iOS Liquid Glass as the reference for navigation chrome.
   - Each tab remembers its last URL and restores it; re-tapping the active tab
     returns to its root.
 - **Header**: each page places its own `<Header>` (sticky, min-height 52px).
-  Transparent until `window.scrollY > 0`, then `glass.bg-chrome` + blur + a
-  bottom `glass.border`. Tab roots show a centered title; child pages add a
+  Transparent until its scroll container is scrolled, then `glass.bg-chrome`
+  + blur + a bottom `glass.border`. It listens to the nearest
+  `[data-scroll-container]` ancestor (MemberLayout's `.main`), falling back
+  to `window`; a new layout must set that attribute on its scrolling element. Tab roots show a centered title; child pages add a
   back button on the left that navigates to the parent route (not browser
   history). Put page actions inside the page container rather than in the
   header's `rightAction`.

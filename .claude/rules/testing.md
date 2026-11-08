@@ -23,7 +23,7 @@ Develop API routes using TDD.
 ## Test structure
 
 - **Test runner**: Vitest (config: `vitest.config.ts`)
-- **Scope**: `server/**/*.test.ts` (API routes and middleware) only
+- **Scope**: `server/**/*.test.ts` (API routes and middleware), plus the design token sync test (`src/styles/__tests__/designTokens.test.ts`)
 - **Environment**: Node.js (`@cloudflare/vitest-pool-workers` is not used)
   - KV is mocked with an in-memory `Map`
   - D1 is replaced by a **better-sqlite3 in-memory database** running real SQL via drizzle migrations
