@@ -137,18 +137,18 @@
 
 .actionButton {
   composes: buttonOutline from "../../styles/admin.module.css";
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  height: var(--control-height-sm);
-  padding: 0 var(--space-3);
-  font-size: var(--type-subhead);
-  font-weight: var(--font-normal);
   white-space: nowrap;
 }
 
 .destructiveButton {
   composes: buttonOutlineDestructive from "../../styles/admin.module.css";
+  white-space: nowrap;
+}
+
+/* Compact row-action metrics. Doubled classes beat the composed admin button
+   rules regardless of stylesheet order (route preloads can re-inject them). */
+.actionButton.actionButton,
+.destructiveButton.destructiveButton {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -156,7 +156,6 @@
   padding: 0 var(--space-3);
   font-size: var(--type-subhead);
   font-weight: var(--font-normal);
-  white-space: nowrap;
 }
 
 /* --- Dialog --- */
