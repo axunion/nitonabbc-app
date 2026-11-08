@@ -143,6 +143,19 @@ describe("DESIGN.md", () => {
     );
   });
 
+  it("resolves every {group.key} token reference", () => {
+    const refs = [
+      ...JSON.stringify(tokens).matchAll(/\{([\w-]+)\.([\w-]+)\}/g),
+    ];
+    const broken = refs
+      .filter(([, group, key]) => {
+        const target = tokens[group] as Record<string, unknown> | undefined;
+        return target?.[key] === undefined;
+      })
+      .map(([ref]) => ref);
+    expect(broken).toEqual([]);
+  });
+
   it("uses only defined font weights in typography styles", () => {
     const weights = new Set(
       Object.values(tokens.font as Record<string, unknown>).filter(
