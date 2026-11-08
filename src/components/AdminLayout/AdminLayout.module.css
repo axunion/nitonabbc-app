@@ -116,6 +116,9 @@
   color: var(--admin-muted-foreground);
   text-decoration: none;
   outline: none;
+  transition:
+    background var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default);
 }
 
 .footerLink .navText {
@@ -229,12 +232,6 @@
     display: block;
     width: 16px;
     height: 16px;
-  }
-
-  .navLink:hover,
-  .footerLink:hover {
-    background: var(--admin-accent);
-    color: var(--admin-foreground);
   }
 
   .navLinkActive,
