@@ -222,10 +222,13 @@
 /* --- Worship program items ---
  *
  * Grid layout ensures every row (parent + compound fields) shares the same
- * column widths: [order 22px] [label 1fr] [type/key 1fr] [inputType 130px] [remove 28px]
+ * column widths: [order] [label 1fr] [inputType 130px] [remove 28px].
+ * --order-col is the order column width; the compound-field indent and guide
+ * line derive from it so both stay aligned when it grows below 900px.
  */
 
 .programList {
+  --order-col: 22px;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -242,16 +245,16 @@
 
 .programRow {
   display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) 130px 28px;
+  grid-template-columns: var(--order-col) minmax(0, 1fr) 130px 28px;
   gap: var(--space-2);
   align-items: center;
 }
 
-/* Compound fields block: left-offset by (22px order col + gap) so that
+/* Compound fields block: left-offset by (order col + gap) so that
  * the first input column aligns with the parent label column. */
 .programFields {
   position: relative;
-  padding-left: calc(22px + var(--space-2));
+  padding-left: calc(var(--order-col) + var(--space-2));
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -262,7 +265,7 @@
 .programFields::before {
   content: "";
   position: absolute;
-  left: 11px;
+  left: calc(var(--order-col) / 2 - 1px);
   top: 0;
   bottom: calc(36px + var(--space-4));
   width: 2px;
@@ -347,15 +350,28 @@
   align-items: center;
 }
 
-/* Narrow screens: the input-type select moves under the label so the label
- * input keeps a usable width. */
-@media (max-width: 480px) {
+/* Below 900px (touch): the input-type select moves under the label so the
+ * label input keeps a usable width, and the order column widens to 44px so
+ * each reorder button meets the 44pt touch target — up sits beside the label
+ * row, down beside the select row. */
+@media (max-width: 899px) {
+  .programList {
+    --order-col: 44px;
+  }
+
   .programRow {
-    grid-template-columns: 22px minmax(0, 1fr) 28px;
+    grid-template-columns: var(--order-col) minmax(0, 1fr) 28px;
   }
 
   .programRow > .orderButtons {
     grid-row: span 2;
+    gap: var(--space-2);
+  }
+
+  .orderButton {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
   }
 
   .programRow > .select {
