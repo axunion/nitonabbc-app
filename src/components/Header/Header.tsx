@@ -35,15 +35,16 @@ export function Header(props: HeaderProps) {
         : () => container.scrollTop;
 
     function handleScroll() {
-      setScrolled(getScrollTop() > 0);
       // The bar title fades in only once the large title has scrolled under
-      // the bar. Measured live so it follows the bar height across breakpoints.
+      // the bar. Measured live so it follows the bar height across breakpoints,
+      // and before the class toggle below so the reads hit clean layout.
       if (largeTitleRef) {
         setLargeTitleVisible(
           largeTitleRef.getBoundingClientRect().bottom >
             headerRef.getBoundingClientRect().bottom,
         );
       }
+      setScrolled(getScrollTop() > 0);
     }
 
     handleScroll();

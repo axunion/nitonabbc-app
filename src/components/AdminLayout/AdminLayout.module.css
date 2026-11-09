@@ -192,7 +192,6 @@
     padding: var(--space-4) var(--space-2) var(--space-2);
     border: 1px solid var(--admin-border);
     border-radius: var(--sidebar-radius);
-    background: var(--admin-card);
     box-shadow: var(--admin-shadow-md);
   }
 
@@ -222,7 +221,6 @@
     border-radius: var(--radius-lg);
     background: none;
     box-shadow: none;
-    color: var(--admin-muted-foreground);
     font-size: var(--type-body);
     font-weight: var(--font-normal);
   }
@@ -230,8 +228,8 @@
   .navLink svg,
   .footerLink svg {
     display: block;
-    width: 16px;
-    height: 16px;
+    width: var(--row-icon-size);
+    height: var(--row-icon-size);
   }
 
   .navLinkActive,

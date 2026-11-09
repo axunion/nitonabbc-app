@@ -53,7 +53,9 @@
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.tab {
+/* .footerLink only renders in the macOS sidebar (hidden below 900px) */
+.tab,
+.footerLink {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -87,7 +89,8 @@
   color: var(--color-gray-600);
 }
 
-.tab:focus-visible {
+.tab:focus-visible,
+.footerLink:focus-visible {
   box-shadow: var(--focus-ring);
 }
 
@@ -156,8 +159,8 @@
 
   .tab svg,
   .footerLink svg {
-    width: 16px;
-    height: 16px;
+    width: var(--row-icon-size);
+    height: var(--row-icon-size);
   }
 
   .tab:hover,
@@ -177,7 +180,6 @@
   }
 
   .label {
-    display: block;
     font-size: var(--type-body);
     font-weight: var(--font-normal);
     letter-spacing: normal;
@@ -191,17 +193,7 @@
   }
 
   .footerLink {
-    display: flex;
-    align-items: center;
     text-decoration: none;
-    outline: none;
-    transition:
-      background var(--duration-fast) var(--ease-default),
-      color var(--duration-fast) var(--ease-default);
-  }
-
-  .footerLink:focus-visible {
-    box-shadow: var(--focus-ring);
   }
 }
 

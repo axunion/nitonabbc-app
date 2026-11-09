@@ -59,8 +59,8 @@
 
   /* macOS row icons match the 13pt body text */
   .menuItem svg {
-    width: 16px;
-    height: 16px;
+    width: var(--row-icon-size);
+    height: var(--row-icon-size);
   }
 }
 

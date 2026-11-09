@@ -21,12 +21,9 @@
 /* --- Table --- */
 
 .tableWrap {
+  composes: card from "../../styles/admin.module.css";
   width: 100%;
   overflow-x: auto;
-  background: var(--admin-card);
-  border: 1px solid var(--admin-border);
-  border-radius: var(--group-radius);
-  box-shadow: var(--admin-shadow-sm);
 }
 
 .table {
@@ -136,26 +133,11 @@
 }
 
 .actionButton {
-  composes: buttonOutline from "../../styles/admin.module.css";
-  white-space: nowrap;
+  composes: buttonOutline buttonCompact from "../../styles/admin.module.css";
 }
 
 .destructiveButton {
-  composes: buttonOutlineDestructive from "../../styles/admin.module.css";
-  white-space: nowrap;
-}
-
-/* Compact row-action metrics. Doubled classes beat the composed admin button
-   rules regardless of stylesheet order (route preloads can re-inject them). */
-.actionButton.actionButton,
-.destructiveButton.destructiveButton {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  height: var(--control-height-sm);
-  padding: 0 var(--space-3);
-  font-size: var(--type-subhead);
-  font-weight: var(--font-normal);
+  composes: buttonOutlineDestructive buttonCompact from "../../styles/admin.module.css";
 }
 
 /* --- Dialog --- */
@@ -171,9 +153,7 @@
 }
 
 .dialogTitle {
-  font-size: var(--type-headline);
-  font-weight: var(--font-semibold);
-  color: var(--admin-foreground);
+  composes: dialogTitle from "../../styles/admin.module.css";
   margin: 0 0 var(--space-4) 0;
   letter-spacing: var(--tracking-tight);
 }

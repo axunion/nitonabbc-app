@@ -70,6 +70,7 @@
   animation: toastDropIn var(--duration-normal) var(--ease-default);
 }
 
+/* After .toast so the shorthand above does not override it */
 @media (min-width: 900px) {
   .toast {
     animation-name: toastSlideIn;

@@ -179,6 +179,7 @@ layout:
   sidebar-inset: 8px
   sidebar-radius: 18px
   sidebar-row-height: 28px
+  row-icon-size: 16px
   margin: 16px
   control-height: 44px
   control-height-sm: 34px
@@ -188,6 +189,7 @@ layout:
   group-radius: 26px
   bar-height: 44px
   bar-button-size: 44px
+  bar-icon-size: 24px
   tab-bar-height: 62px
   tab-bar-offset: "max(var(--space-4), calc(env(safe-area-inset-bottom, 0px) - 8px))"
 desktop:
@@ -211,6 +213,7 @@ desktop:
   group-radius: 12px
   bar-height: 52px
   bar-button-size: 28px
+  bar-icon-size: 18px
 icon:
   chevron-down: |-
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
@@ -476,8 +479,8 @@ minus padding where shapes nest).
   at the top center below 900px, a top-right notification that slides in from
   the right at ≥900px.
 - **Icons**: lucide-solid, `stroke-width={1.5}`, color from `currentColor`.
-  The components size them per platform in CSS: tab bar 24px, sidebar 16px,
-  back button 24 / 18px, dashboard widget 24px, external-link badge 12px. No
+  The components size them per platform in CSS: tab bar 24px, macOS sidebar
+  and list rows `row-icon-size` (16px), back button `bar-icon-size` (24 / 18px), dashboard widget 24px, external-link badge 12px. No
   background box, except the dashboard widget's circular wrapper.
 - **Favicon / PWA icons**: gold-gradient cross on a beige-gradient rounded
   square. `favicon.svg` for browser tabs, `pwa-192x192.png` /

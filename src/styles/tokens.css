@@ -203,6 +203,8 @@
   --sidebar-inset: 8px;
   --sidebar-radius: 18px;
   --sidebar-row-height: 28px;
+  /* macOS list/sidebar row icons */
+  --row-icon-size: 16px;
 
   /* --- Platform metrics: iOS here, macOS overrides at >=900px --- */
   --margin: 16px;
@@ -214,6 +216,7 @@
   --group-radius: 26px;
   --bar-height: 44px;
   --bar-button-size: 44px;
+  --bar-icon-size: 24px;
   --tab-bar-height: 62px;
   /* Floating tab bar distance from the bottom edge (TabBar position and the
      content clearance in MemberLayout) */
@@ -250,5 +253,6 @@
     --group-radius: 12px;
     --bar-height: 52px;
     --bar-button-size: 28px;
+    --bar-icon-size: 18px;
   }
 }

@@ -15,10 +15,8 @@
 }
 
 .title {
+  composes: dialogTitle from "../../styles/admin.module.css";
   margin: 0 0 var(--space-2);
-  font-size: var(--type-headline);
-  font-weight: var(--font-semibold);
-  color: var(--admin-foreground);
 }
 
 .description {

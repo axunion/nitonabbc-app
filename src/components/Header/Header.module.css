@@ -53,6 +53,13 @@
     transform var(--duration-fast) var(--ease-default);
 }
 
+/* Scoped to this header: IframeViewer composes .backButton with its own
+   icon sizes */
+.header .backButton svg {
+  width: var(--bar-icon-size);
+  height: var(--bar-icon-size);
+}
+
 .backButton:hover {
   background: var(--glass-bg-hover);
 }
@@ -105,11 +112,6 @@
 }
 
 @media (min-width: 900px) {
-  .backButton svg {
-    width: 18px;
-    height: 18px;
-  }
-
   .title {
     position: static;
     transform: none;

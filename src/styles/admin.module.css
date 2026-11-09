@@ -151,6 +151,26 @@
   background: var(--admin-destructive-soft);
 }
 
+/* Compact in-content button (row actions). Compose after a button class
+   from this file so it wins by source order. */
+.buttonCompact {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: var(--control-height-sm);
+  padding: 0 var(--space-3);
+  font-size: var(--type-subhead);
+  font-weight: var(--font-normal);
+  white-space: nowrap;
+}
+
+/* Alert / dialog title; callers add their own margin */
+.dialogTitle {
+  font-size: var(--type-headline);
+  font-weight: var(--font-semibold);
+  color: var(--admin-foreground);
+}
+
 .dialogActions {
   display: flex;
   gap: var(--space-3);
