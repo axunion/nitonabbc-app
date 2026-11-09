@@ -8,7 +8,7 @@
   display: flex;
   align-items: center;
   position: fixed;
-  bottom: max(var(--space-4), calc(env(safe-area-inset-bottom, 0px) - 8px));
+  bottom: var(--tab-bar-offset);
   left: 50%;
   transform: translateX(-50%);
   height: var(--tab-bar-height);
@@ -60,6 +60,8 @@
   justify-content: center;
   gap: 2px;
   position: relative;
+  /* Equal widths: the indicator is exactly one tab wide (50%) */
+  flex: 1 1 0;
   min-width: 88px;
   height: 100%;
   padding: 0 var(--space-4);
@@ -141,6 +143,7 @@
 
   .tab,
   .footerLink {
+    flex: none;
     flex-direction: row;
     justify-content: flex-start;
     gap: var(--space-2);

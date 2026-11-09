@@ -36,24 +36,19 @@ export function Header(props: HeaderProps) {
 
     function handleScroll() {
       setScrolled(getScrollTop() > 0);
+      // The bar title fades in only once the large title has scrolled under
+      // the bar. Measured live so it follows the bar height across breakpoints.
+      if (largeTitleRef) {
+        setLargeTitleVisible(
+          largeTitleRef.getBoundingClientRect().bottom >
+            headerRef.getBoundingClientRect().bottom,
+        );
+      }
     }
 
     handleScroll();
     container.addEventListener("scroll", handleScroll, { passive: true });
     onCleanup(() => container.removeEventListener("scroll", handleScroll));
-
-    // The bar title fades in only once the large title has scrolled under the bar
-    if (largeTitleRef) {
-      const observer = new IntersectionObserver(
-        ([entry]) => setLargeTitleVisible(entry.isIntersecting),
-        {
-          root: found,
-          rootMargin: `-${headerRef.offsetHeight}px 0px 0px 0px`,
-        },
-      );
-      observer.observe(largeTitleRef);
-      onCleanup(() => observer.disconnect());
-    }
   });
 
   const title = () => props.title ?? t("common.churchName");

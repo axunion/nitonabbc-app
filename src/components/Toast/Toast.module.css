@@ -35,6 +35,18 @@
   }
 }
 
+/* iOS banner: drops in from above */
+@keyframes toastDropIn {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-100% - var(--space-2)));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes toastFadeOut {
   from {
     opacity: 1;
@@ -55,7 +67,13 @@
   box-shadow: var(--admin-shadow-lg);
   background: var(--admin-card);
   pointer-events: auto;
-  animation: toastSlideIn var(--duration-normal) var(--ease-default);
+  animation: toastDropIn var(--duration-normal) var(--ease-default);
+}
+
+@media (min-width: 900px) {
+  .toast {
+    animation-name: toastSlideIn;
+  }
 }
 
 .toast[data-closed] {

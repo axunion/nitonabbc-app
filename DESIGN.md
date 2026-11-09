@@ -118,7 +118,6 @@ rounded:
   sm: 0.25rem
   md: 0.375rem
   lg: 0.5rem
-  xl: 0.75rem
   full: 9999px
 spacing:
   "1": 0.25rem
@@ -190,6 +189,7 @@ layout:
   bar-height: 44px
   bar-button-size: 44px
   tab-bar-height: 62px
+  tab-bar-offset: "max(var(--space-4), calc(env(safe-area-inset-bottom, 0px) - 8px))"
 desktop:
   content-width: 820px
   type-large-title: 1.625rem
@@ -368,13 +368,13 @@ Colors are platform independent.
     (`bar-button-size` 44, chevron only) and a centered `headline` title. Tab
     roots show a left-aligned `large-title` below the bar; the centered bar
     title fades in only once the large title has scrolled under the bar
-    (IntersectionObserver). `Header` listens to the nearest
+    (measured on scroll). `Header` listens to the nearest
     `[data-scroll-container]` ancestor (MemberLayout's `.main`), falling back
     to `window`; a new layout must set that attribute on its scrolling element.
     Back navigates to the parent route, not browser history.
   - *Tab bar* (`TabBar`): a floating Liquid Glass capsule
     (`tab-bar-height` 62, `glass.shadow-lg`), centered, hugging its two tabs,
-    `bottom: max(16px, safe-area − 8px)`. Each tab shows a 24px icon over a
+    `bottom: tab-bar-offset` (16px, or the safe area − 8px when larger). Each tab shows a 24px icon over a
     `tab-label`; the selected tab gets a `primary-100` capsule lozenge that
     slides between tabs and the accent color. Shown only on tab roots (`/`,
     `/settings`). `MemberLayout` pads `.main` by the bar height, offset and a
@@ -472,8 +472,9 @@ minus padding where shapes nest).
 - **Alert** (`ConfirmDialog`): a 300px centered alert on admin surfaces with
   `group-radius`: `headline` title, `footnote` message, equal-width buttons
   side by side. Used on member and admin pages alike.
-- **Toast**: admin surfaces with `group-radius`; an iOS banner at the top
-  center below 900px, a top-right notification at ≥900px.
+- **Toast**: admin surfaces with `group-radius`; an iOS banner that drops in
+  at the top center below 900px, a top-right notification that slides in from
+  the right at ≥900px.
 - **Icons**: lucide-solid, `stroke-width={1.5}`, color from `currentColor`.
   The components size them per platform in CSS: tab bar 24px, sidebar 16px,
   back button 24 / 18px, dashboard widget 24px, external-link badge 12px. No

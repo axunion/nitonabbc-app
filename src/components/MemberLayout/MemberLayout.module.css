@@ -34,7 +34,7 @@
   /* Clearance for the floating tab bar (its height + bottom offset + gap) */
   padding-bottom: calc(
     var(--tab-bar-height) +
-    max(var(--space-4), calc(env(safe-area-inset-bottom, 0px) - 8px)) +
+    var(--tab-bar-offset) +
     var(--space-4)
   );
 }
