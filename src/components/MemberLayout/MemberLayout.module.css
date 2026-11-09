@@ -7,7 +7,7 @@
   background: var(--glass-bg-chrome);
   border: var(--glass-border);
   border-radius: var(--radius-md);
-  font-size: var(--text-sm);
+  font-size: var(--type-subhead);
   font-weight: var(--font-medium);
   color: var(--color-primary);
   text-decoration: none;
@@ -31,7 +31,12 @@
   min-width: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px) + 24px);
+  /* Clearance for the floating tab bar (its height + bottom offset + gap) */
+  padding-bottom: calc(
+    var(--tab-bar-height) +
+    var(--tab-bar-offset) +
+    var(--space-4)
+  );
 }
 
 @media (min-width: 900px) {

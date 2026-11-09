@@ -17,10 +17,10 @@
 
 .sectionTitle {
   display: block;
-  font-size: var(--text-sm);
+  font-size: var(--type-subhead);
   font-weight: var(--font-semibold);
   color: var(--color-gray-600);
-  margin: 0 0 var(--space-2) var(--space-1);
+  margin: 0 0 var(--space-2) var(--space-4);
   padding: 0;
 }
 
@@ -29,7 +29,7 @@
   backdrop-filter: var(--glass-blur) var(--glass-saturate);
   -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
   border: var(--glass-border);
-  border-radius: var(--radius-xl);
+  border-radius: var(--group-radius);
   box-shadow: var(--glass-shadow-sm);
   padding: var(--space-4);
 }
@@ -37,8 +37,8 @@
 /* ---- View mode header ---- */
 
 .title {
-  font-size: var(--text-lg);
-  font-weight: var(--font-semibold);
+  font-size: var(--type-title2);
+  font-weight: var(--font-bold);
   color: var(--color-gray-900);
   margin: 0 0 var(--space-4) 0;
   letter-spacing: var(--tracking-tight);
@@ -66,8 +66,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: var(--control-height);
+  height: var(--control-height);
   border-radius: 50%;
   border: var(--glass-border);
   background: var(--glass-bg);
@@ -103,13 +103,13 @@
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  height: 36px;
+  height: var(--control-height-sm);
   padding: 0 var(--space-3);
-  border-radius: var(--radius-md);
+  border-radius: var(--control-radius);
   border: var(--glass-border);
   background: var(--glass-bg);
   color: var(--color-gray-700);
-  font-size: var(--text-sm);
+  font-size: var(--type-subhead);
   cursor: pointer;
   outline: none;
   transition:
@@ -165,12 +165,13 @@
 .tocLink {
   display: block;
   text-align: left;
+  min-height: var(--sidebar-row-height);
   padding: var(--space-1) var(--space-2);
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
   background: transparent;
   color: var(--color-gray-500);
-  font-size: var(--text-sm);
+  font-size: var(--type-body);
   cursor: pointer;
   outline: none;
   overflow: hidden;
@@ -217,19 +218,19 @@
 }
 
 .worshipLabel {
-  font-size: var(--text-sm);
+  font-size: var(--type-body);
   font-weight: var(--font-medium);
   color: var(--color-gray-700);
 }
 
 .worshipUnfilled {
-  font-size: var(--text-xs);
+  font-size: var(--type-footnote);
   color: var(--color-gray-400);
   letter-spacing: var(--tracking-wide);
 }
 
 .worshipAssignee {
-  font-size: var(--text-xs);
+  font-size: var(--type-footnote);
   color: var(--color-primary);
   letter-spacing: var(--tracking-wide);
   background: rgba(var(--color-primary-rgb, 59, 130, 246), 0.08);
@@ -238,7 +239,7 @@
 }
 
 .worshipDetails {
-  font-size: var(--text-sm);
+  font-size: var(--type-subhead);
   color: var(--color-gray-600);
   display: block;
   margin-top: var(--space-1);
@@ -259,13 +260,13 @@
 }
 
 .compoundFieldLabel {
-  font-size: var(--text-xs);
+  font-size: var(--type-footnote);
   color: var(--color-gray-500);
   min-width: 60px;
 }
 
 .compoundFieldValue {
-  font-size: var(--text-sm);
+  font-size: var(--type-body);
   color: var(--color-gray-600);
 }
 
@@ -279,7 +280,7 @@
 }
 
 .announcementItem {
-  font-size: var(--text-sm);
+  font-size: var(--type-body);
   color: var(--color-gray-700);
   line-height: var(--leading-relaxed);
   white-space: pre-wrap;
@@ -287,7 +288,7 @@
 
 .announcementHeading {
   display: block;
-  font-size: var(--text-xs);
+  font-size: var(--type-footnote);
   font-weight: var(--font-semibold);
   color: var(--color-gray-500);
   text-transform: uppercase;
@@ -303,13 +304,13 @@
 }
 
 .assignmentRole {
-  font-size: var(--text-sm);
+  font-size: var(--type-body);
   font-weight: var(--font-medium);
   color: var(--color-gray-700);
 }
 
 .assignmentPerson {
-  font-size: var(--text-sm);
+  font-size: var(--type-body);
   color: var(--color-gray-600);
   margin: 0;
 }
@@ -357,7 +358,7 @@
   padding: var(--space-4) var(--space-4);
   margin: 0 0 var(--space-4) 0;
   border: 1.5px dashed var(--color-gray-300);
-  border-radius: var(--radius-xl);
+  border-radius: var(--group-radius);
   background: transparent;
   cursor: pointer;
   text-align: left;
@@ -399,10 +400,10 @@
 /* ---- Desktop layout ---- */
 
 @media (min-width: 900px) {
-  /* Match the admin pageContainer metrics (left-aligned, space-6 padding).
+  /* Match the admin pageContainer metrics (left-aligned, window margins).
      Doubled class beats the composed shared rules regardless of bundle order. */
   .container.container {
-    padding: var(--space-6);
+    padding: var(--space-4) var(--margin) var(--space-8);
     align-items: stretch;
   }
 
@@ -411,7 +412,7 @@
   }
 
   .layoutGrid {
-    max-width: calc(var(--admin-content-max) - 2 * var(--space-6));
+    max-width: calc(var(--admin-content-max) - 2 * var(--margin));
     margin: 0;
     flex-direction: row;
     align-items: flex-start;

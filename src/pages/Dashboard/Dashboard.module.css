@@ -22,7 +22,7 @@
   backdrop-filter: var(--glass-blur) var(--glass-saturate);
   -webkit-backdrop-filter: var(--glass-blur) var(--glass-saturate);
   border: var(--glass-border);
-  border-radius: var(--radius-xl);
+  border-radius: var(--group-radius);
   box-shadow: var(--glass-shadow-md);
   cursor: pointer;
   outline: none;
@@ -73,12 +73,12 @@
 }
 
 .widgetLabel {
-  font-size: var(--text-base);
+  font-size: var(--type-headline);
   font-weight: var(--font-semibold);
   color: var(--color-text);
 }
 
 .widgetExternalBadge {
-  color: var(--color-text-tertiary);
+  color: var(--color-gray-400);
   flex-shrink: 0;
 }

@@ -1,12 +1,12 @@
 .songTitle {
-  font-size: var(--text-sm);
+  font-size: var(--type-headline);
   font-weight: var(--font-medium);
   color: var(--color-gray-800);
   margin: 0 0 var(--space-2) 0;
 }
 
 .lyrics {
-  font-size: var(--text-sm);
+  font-size: var(--type-body);
   color: var(--color-gray-600);
   margin: 0;
   white-space: pre-wrap;
