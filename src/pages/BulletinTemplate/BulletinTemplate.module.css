@@ -350,17 +350,17 @@
   align-items: center;
 }
 
-/* Below 900px (touch): the input-type select moves under the label so the
- * label input keeps a usable width, and the order column widens to 44px so
- * each reorder button meets the 44pt touch target — up sits beside the label
- * row, down beside the select row. */
+/* Below 900px (touch): the input-type select moves under the label and
+ * stretches to the label width so its text is not clipped, and the order and
+ * remove columns widen to 44px for the 44pt touch target — up sits beside the
+ * label row, down beside the select row. */
 @media (max-width: 899px) {
   .programList {
     --order-col: 44px;
   }
 
   .programRow {
-    grid-template-columns: var(--order-col) minmax(0, 1fr) 28px;
+    grid-template-columns: var(--order-col) minmax(0, 1fr) 44px;
   }
 
   .programRow > .orderButtons {
@@ -377,15 +377,19 @@
   .programRow > .select {
     grid-column: 2;
     grid-row: 2;
+    width: 100%;
+    min-width: 0;
   }
 
   .programFields .fieldRow {
-    grid-template-columns: minmax(0, 1fr) 28px;
+    grid-template-columns: minmax(0, 1fr) 44px;
   }
 
   .programFields .fieldRow > .select {
     grid-column: 1;
     grid-row: 2;
+    width: 100%;
+    min-width: 0;
   }
 }
 
@@ -408,6 +412,14 @@
 
 .removeButton:hover {
   color: var(--admin-destructive);
+}
+
+/* 44pt touch target below 900px; the icon stays the same size. */
+@media (max-width: 899px) {
+  .removeButton {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 .removeButton:focus-visible {
