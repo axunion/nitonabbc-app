@@ -460,9 +460,9 @@ minus padding where shapes nest).
 - **Switch**: iOS 51×31 with a 27px thumb; macOS 38×22.
 - **Template item rows** (bulletin template editor): on iOS the input-type
   select sits under the label and the ↑↓ reorder buttons fill both lines in
-  a `control-height-sm` wide column; the remove button is `control-height-sm`
-  square. macOS keeps a single line with compact 22px reorder and 28px remove
-  columns.
+  a `control-height-sm` wide column (34×48); the remove button is a
+  `control-height` square (44). macOS keeps a single line, where the same
+  tokens give 22px reorder and 28px remove columns.
 - **List rows**: at least `row-height` (44 iOS / 36 macOS), `space-4` side
   padding, `border-subtle` hairlines between rows of one group.
 - **Dashboard widget**: glass group with `glass.shadow-md`, centered 24px
