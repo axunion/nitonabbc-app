@@ -21,6 +21,9 @@
 }
 
 .form {
+  /* Input-type select width; fits "Compound Fields" plus the chevron. Shared
+   * by .select and the program grid columns so they stay aligned. */
+  --select-width: 160px;
   width: 100%;
 }
 
@@ -130,8 +133,8 @@
 .select {
   composes: input;
   flex: none;
-  width: 130px;
-  min-width: 130px;
+  width: var(--select-width);
+  min-width: var(--select-width);
   appearance: none;
   background-image: var(--admin-icon-chevron-down);
   background-repeat: no-repeat;
@@ -222,7 +225,7 @@
 /* --- Worship program items ---
  *
  * Grid layout ensures every row (parent + compound fields) shares the same
- * column widths: [order] [label 1fr] [inputType 130px] [remove 28px].
+ * column widths: [order] [label 1fr] [inputType --select-width] [remove 28px].
  * --order-col is the order column width; the compound-field indent and guide
  * line derive from it so both stay aligned when it grows below 900px.
  */
@@ -245,7 +248,7 @@
 
 .programRow {
   display: grid;
-  grid-template-columns: var(--order-col) minmax(0, 1fr) 130px 28px;
+  grid-template-columns: var(--order-col) minmax(0, 1fr) var(--select-width) 28px;
   gap: var(--space-2);
   align-items: center;
 }
@@ -345,7 +348,7 @@
  * Placed after .fieldRow so higher specificity (0,2,0) correctly overrides. */
 .programFields .fieldRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 130px 28px;
+  grid-template-columns: minmax(0, 1fr) var(--select-width) 28px;
   gap: var(--space-2);
   align-items: center;
 }
