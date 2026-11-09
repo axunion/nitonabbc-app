@@ -350,6 +350,12 @@
   align-items: center;
 }
 
+/* Field row with an input-type select (service meta): below 900px it uses
+ * the same two-row layout as compound program fields. */
+.selectFieldRow {
+  composes: fieldRow;
+}
+
 /* Below 900px (touch): the input-type select moves under the label and
  * stretches to the label width so its text is not clipped, and the order and
  * remove columns widen to 44px for the 44pt touch target — up sits beside the
@@ -376,6 +382,18 @@
 
   .programRow > .select {
     grid-column: 2;
+    grid-row: 2;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .selectFieldRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px;
+  }
+
+  .selectFieldRow > .select {
+    grid-column: 1;
     grid-row: 2;
     width: 100%;
     min-width: 0;

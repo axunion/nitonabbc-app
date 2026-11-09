@@ -50,7 +50,7 @@ export function ServiceMetaConfigEditor(props: Props) {
     <div class={styles.fieldsSection}>
       <Index each={fieldDefs()}>
         {(def, index) => (
-          <div class={styles.fieldRow}>
+          <div class={styles.selectFieldRow}>
             <input
               type="text"
               class={styles.input}
