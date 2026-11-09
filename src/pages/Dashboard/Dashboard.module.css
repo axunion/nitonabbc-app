@@ -79,6 +79,6 @@
 }
 
 .widgetExternalBadge {
-  color: var(--color-text-tertiary);
+  color: var(--color-gray-400);
   flex-shrink: 0;
 }

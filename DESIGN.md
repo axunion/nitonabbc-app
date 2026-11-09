@@ -458,12 +458,17 @@ minus padding where shapes nest).
 - **Form input** (`.formInput`, admin `.input`): `control-height`,
   `field-radius`, `body` text.
 - **Switch**: iOS 51×31 with a 27px thumb; macOS 38×22.
+- **Template item rows** (bulletin template editor): on iOS the input-type
+  select sits under the label and the ↑↓ reorder buttons fill both lines in
+  a `control-height-sm` wide column; the remove button is `control-height-sm`
+  square. macOS keeps a single line with compact 22px reorder and 28px remove
+  columns.
 - **List rows**: at least `row-height` (44 iOS / 36 macOS), `space-4` side
   padding, `border-subtle` hairlines between rows of one group.
 - **Dashboard widget**: glass group with `glass.shadow-md`, centered 24px
   icon in a 48px `primary-50` circle above a `headline` label.
   External-service widgets that open a new tab on desktop show a 12px
-  `PictureInPicture2` badge next to the label.
+  `PictureInPicture2` badge in `gray-400` next to the label.
 - **Alert** (`ConfirmDialog`): a 300px centered alert on admin surfaces with
   `group-radius`: `headline` title, `footnote` message, equal-width buttons
   side by side. Used on member and admin pages alike.

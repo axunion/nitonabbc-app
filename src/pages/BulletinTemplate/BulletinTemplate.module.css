@@ -78,7 +78,11 @@
   text-decoration: line-through;
 }
 
+/* Item-row column widths shared by the grid, the compound-field indent and
+ * its guide line. iOS: touch-sized order/remove columns; macOS: compact. */
 .sectionList {
+  --order-col: var(--control-height-sm);
+  --remove-col: var(--control-height-sm);
   flex: 1;
   min-width: 0;
   display: flex;
@@ -199,6 +203,11 @@
 }
 
 @media (min-width: 900px) {
+  .sectionList {
+    --order-col: 22px;
+    --remove-col: 28px;
+  }
+
   .switchControl {
     width: 38px;
     height: 22px;
@@ -240,7 +249,7 @@
 /* --- Worship program items ---
  *
  * Grid layout ensures every row (parent + compound fields) shares the same
- * column widths: [order 22px] [label 1fr] [type/key 1fr] [inputType 130px] [remove 28px]
+ * column widths: [order] [label 1fr] [type/key 1fr] [inputType 130px] [remove]
  */
 
 .programList {
@@ -260,16 +269,16 @@
 
 .programRow {
   display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) 130px 28px;
+  grid-template-columns: var(--order-col) minmax(0, 1fr) 130px var(--remove-col);
   gap: var(--space-2);
   align-items: center;
 }
 
-/* Compound fields block: left-offset by (22px order col + gap) so that
+/* Compound fields block: left-offset by (order col + gap) so that
  * the first input column aligns with the parent label column. */
 .programFields {
   position: relative;
-  padding-left: calc(22px + var(--space-2));
+  padding-left: calc(var(--order-col) + var(--space-2));
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -280,7 +289,7 @@
 .programFields::before {
   content: "";
   position: absolute;
-  left: 11px;
+  left: calc(var(--order-col) / 2 - 1px);
   top: 0;
   bottom: calc(var(--control-height) + var(--space-4));
   width: 2px;
@@ -299,8 +308,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 18px;
+  width: 100%;
+  min-height: 18px;
   border-radius: var(--radius-sm);
   border: none;
   background: transparent;
@@ -360,20 +369,30 @@
  * Placed after .fieldRow so higher specificity (0,2,0) correctly overrides. */
 .programFields .fieldRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 130px 28px;
+  grid-template-columns: minmax(0, 1fr) 130px var(--remove-col);
   gap: var(--space-2);
   align-items: center;
 }
 
-/* Narrow screens: the input-type select moves under the label so the label
- * input keeps a usable width. */
-@media (max-width: 480px) {
+/* iOS: the input-type select moves under the label so the label input keeps
+ * a usable width, and the order buttons fill both lines (touch-sized). */
+@media (max-width: 899px) {
   .programRow {
-    grid-template-columns: 22px minmax(0, 1fr) 28px;
+    grid-template-columns: var(--order-col) minmax(0, 1fr) var(--remove-col);
   }
 
   .programRow > .orderButtons {
     grid-row: span 2;
+    align-self: stretch;
+  }
+
+  .orderButton {
+    flex: 1;
+  }
+
+  .orderButton svg {
+    width: 20px;
+    height: 20px;
   }
 
   .programRow > .select {
@@ -382,7 +401,7 @@
   }
 
   .programFields .fieldRow {
-    grid-template-columns: minmax(0, 1fr) 28px;
+    grid-template-columns: minmax(0, 1fr) var(--remove-col);
   }
 
   .programFields .fieldRow > .select {
@@ -395,8 +414,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: var(--remove-col);
+  height: var(--remove-col);
   border-radius: var(--radius-full);
   border: none;
   background: transparent;
