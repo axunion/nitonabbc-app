@@ -17,7 +17,8 @@ them:
   covered by the backend test suite. Scripted, fast, objective.
 - **Visual/aesthetic judgment** ("does this look right", spacing, color) — not yours.
   There is no automated frontend test suite by design (small user base, admin always
-  present — see `.claude/rules/testing.md`); a visual check is the calling
+  present; the one exception is the file-reading design-token sync test — see
+  `.claude/rules/testing.md`); a visual check is the calling
   conversation's job (or the `inspector` agent's, for layout-sensitive changes), done by
   looking at the running app directly. Don't try to replicate it here.
 
@@ -28,9 +29,8 @@ them:
    tests must pass, not just the ones touching changed files.
 2. Run `pnpm check` (biome + `tsc -b --noEmit`) if the implementation summary didn't
    already confirm it passed clean.
-3. If the change touches `server/routes/auth.ts`, `server/routes/invite.ts`,
-   `server/routes/bulletin.ts`, `server/routes/bulletinTemplate.ts`, or
-   `server/middleware/` without a corresponding test update, write one following the
+3. If the change touches any file under `server/routes/` or `server/middleware/`
+   without a corresponding test update, write one following the
    existing pattern in `server/routes/__tests__/` / `server/middleware/__tests__/`
    (see `.claude/rules/testing.md` for the `createTestDb`/`createMockKV`/`wrapWithDb`
    helpers) before reporting the change as verified.

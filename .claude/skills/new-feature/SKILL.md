@@ -65,4 +65,7 @@ layout in `docs/spec.md` (2-column grid, span per item count).
 
 ## 8. Verify
 
-Run `pnpm check && node_modules/.bin/vitest run`.
+Run `pnpm check && node_modules/.bin/vitest run`, then follow CLAUDE.md's
+"Subagents" section: a whole new feature is usually Large, so propose `/goal`
+(with `reviewer` and `tester` in the completion condition) rather than
+finishing silently; add `security-reviewer` if it touches admin routes or auth.

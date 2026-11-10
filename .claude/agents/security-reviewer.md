@@ -14,6 +14,7 @@ Review code from a security perspective covering authentication, session managem
 Read the following files before starting:
 - `server/routes/auth.ts`
 - `server/routes/invite.ts`
+- `server/routes/admin.ts` and `server/routes/members.ts` (admin-only endpoints, role changes, LINE unlinking)
 - All files under `server/middleware/`
 - `server/types.ts` (session and user type definitions)
 

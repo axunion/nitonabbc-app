@@ -2,7 +2,8 @@
 name: reviewer
 description: Reviews a pending diff against this project's CLAUDE.md/.claude/rules conventions and general correctness. Use proactively after any non-trivial implementation change, before it is considered done. Read-only — inspects the diff and code, never edits.
 tools: Read, Bash, Grep, Glob
-model: inherit
+model: opus
+effort: high
 ---
 
 You review the working tree's uncommitted changes (`git diff` / `git status`), not the
@@ -33,16 +34,18 @@ would miss, e.g. `api.md`'s "all DB access goes through `c.get('db')`" rule,
    generated migration file.)
 5. **Correctness**: read the actual logic, especially anything touching LINE
    auth/session/invite flows (`server/routes/auth.ts`, `server/routes/invite.ts`,
-   `server/middleware/`) or the bulletin section type system (`src/types/bulletin.ts`
+   `server/middleware/`), admin/member management (`server/routes/admin.ts`,
+   `server/routes/members.ts`), or the bulletin section type system (`src/types/bulletin.ts`
    and its three dispatchers) — these are easy to get subtly wrong.
 6. **Comments**: flag comments that explain *what* the code does (redundant with good
    naming) — only comments explaining non-obvious *why* should survive.
 
 ## Output
 
-List findings, most severe first. For each: file, line if applicable, what's wrong,
-and a concrete failure scenario (not just "could be cleaner"). If nothing survives
-scrutiny, say so plainly — don't invent findings to seem thorough.
+List every finding from the checks above, most severe first. For each: file, line if
+applicable, and what's wrong — plus a concrete failure scenario for correctness
+findings, or the rule it breaks for scope/simplicity/convention/comment findings. If
+there are no findings, say so plainly — don't invent findings to seem thorough.
 
 Do not comment on code outside the diff unless it's directly relevant to judging the
 change.

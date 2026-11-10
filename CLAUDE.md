@@ -74,8 +74,8 @@ across every turn of a `/goal` run — see the rationale at the end of this sect
 - **Trivial** (typo, one-line config tweak): implement directly, no agents.
 - **Non-trivial but contained** (a self-contained change in one area): implement
   directly. Optionally run the built-in `Explore` agent first to confirm an existing
-  convention, or `researcher` when the change leans on Kobalte, drizzle-orm, or the LINE
-  Login API. Afterward, run `reviewer` and `tester` in parallel automatically, without
+  convention, or `researcher` when the change leans on Kobalte, drizzle-orm, Hono,
+  `@solidjs/router`, or the LINE Login API. Afterward, run `reviewer` and `tester` in parallel automatically, without
   asking first — both are read-only/test-only, so the cost is low and they exist
   specifically to catch blind spots in reviewing your own work. If the change touches
   LINE auth, sessions, invite tokens, or admin routes, also run `security-reviewer`
@@ -107,6 +107,10 @@ change touches rendered UI, not to how risky the change is):
   run, but it isn't automatic for every UI change either — invoking it is a judgment
   call against these three cases, not a default step.
 
+This gate covers verifying a *known change*. Open-ended exploration of the UI for bugs,
+spec gaps, and improvements is the `/ui-sweep` skill (explicit invocation only), which
+drives `inspector` in explore mode.
+
 **Agents** (`.claude/agents/`):
 
 | Agent | Role |
@@ -115,7 +119,7 @@ change touches rendered UI, not to how risky the change is):
 | `reviewer` | Reviews a pending diff for general correctness and adherence to `.claude/rules/*.md`. |
 | `tester` | Runs `node_modules/.bin/vitest run` and `pnpm check`. |
 | `security-reviewer` | Existing, narrower-scoped agent for LINE auth, sessions, invite tokens, and admin routes — kept alongside `reviewer` rather than merged into it. |
-| `inspector` | Drives a disposable Playwright/Chromium instance to screenshot and check for layout overflow. |
+| `inspector` | Drives a disposable Playwright/Chromium instance to screenshot and check for layout overflow. Verify mode for a known change; explore mode via the `/ui-sweep` skill. |
 
 ## Claude Code Automation
 
