@@ -78,11 +78,14 @@
   text-decoration: line-through;
 }
 
-/* Item-row column widths shared by the grid, the compound-field indent and
- * its guide line. iOS: touch-sized order/remove columns; macOS: compact. */
+/* Item-row column widths shared by the controls, the grid, the
+ * compound-field indent and its guide line. iOS: touch-sized order/remove
+ * columns; macOS: compact. --select-width fits "Compound Fields" plus the
+ * chevron; on iOS the select fills the label column instead. */
 .sectionList {
   --order-col: var(--control-height-sm);
   --remove-col: var(--control-height);
+  --select-width: 160px;
   flex: 1;
   min-width: 0;
   display: flex;
@@ -136,8 +139,8 @@
 .select {
   composes: input;
   flex: none;
-  width: 130px;
-  min-width: 130px;
+  width: var(--select-width);
+  min-width: var(--select-width);
   appearance: none;
   background-image: var(--admin-icon-chevron-down);
   background-repeat: no-repeat;
@@ -244,7 +247,7 @@
 /* --- Worship program items ---
  *
  * Grid layout ensures every row (parent + compound fields) shares the same
- * column widths: [order] [label 1fr] [type/key 1fr] [inputType 130px] [remove]
+ * column widths: [order] [label 1fr] [inputType] [remove]
  */
 
 .programList {
@@ -264,7 +267,9 @@
 
 .programRow {
   display: grid;
-  grid-template-columns: var(--order-col) minmax(0, 1fr) 130px var(--remove-col);
+  grid-template-columns:
+    var(--order-col) minmax(0, 1fr) var(--select-width)
+    var(--remove-col);
   gap: var(--space-2);
   align-items: center;
 }
@@ -364,14 +369,24 @@
  * Placed after .fieldRow so higher specificity (0,2,0) correctly overrides. */
 .programFields .fieldRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 130px var(--remove-col);
+  grid-template-columns: minmax(0, 1fr) var(--select-width) var(--remove-col);
   gap: var(--space-2);
   align-items: center;
 }
 
-/* iOS: the input-type select moves under the label so the label input keeps
- * a usable width, and the order buttons fill both lines (touch-sized). */
+/* Field row with an input-type select (compound fields, service meta). */
+.selectFieldRow {
+  composes: fieldRow;
+}
+
+/* iOS: the input-type select moves under the label at the label width so the
+ * label input keeps a usable width, and the order buttons fill both lines
+ * (touch-sized). */
 @media (max-width: 899px) {
+  .sectionList {
+    --select-width: 100%;
+  }
+
   .programRow {
     grid-template-columns: var(--order-col) minmax(0, 1fr) var(--remove-col);
   }
@@ -395,13 +410,18 @@
     grid-row: 2;
   }
 
-  .programFields .fieldRow {
+  .selectFieldRow {
+    display: grid;
     grid-template-columns: minmax(0, 1fr) var(--remove-col);
   }
 
-  .programFields .fieldRow > .select {
+  .selectFieldRow > .select {
     grid-column: 1;
     grid-row: 2;
+  }
+
+  .programFields .fieldRow {
+    grid-template-columns: minmax(0, 1fr) var(--remove-col);
   }
 }
 
