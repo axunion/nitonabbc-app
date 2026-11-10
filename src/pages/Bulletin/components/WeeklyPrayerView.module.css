@@ -6,7 +6,7 @@
 }
 
 .day {
-  font-size: var(--text-sm);
+  font-size: var(--type-body);
   font-weight: var(--font-medium);
   color: var(--color-gray-700);
 }
@@ -25,7 +25,7 @@
 }
 
 .textItem {
-  font-size: var(--text-sm);
+  font-size: var(--type-body);
   color: var(--color-gray-600);
   line-height: var(--leading-relaxed);
 }

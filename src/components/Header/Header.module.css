@@ -1,13 +1,21 @@
+/*
+ * iOS (<900px): 44pt navigation bar, centered title, circular glass back
+ * button; tab roots show a large title below the bar that collapses into
+ * the bar title on scroll.
+ * macOS (>=900px): 52pt unified toolbar with a leading title.
+ */
 .header {
   display: flex;
   align-items: center;
-  min-height: 52px;
-  padding: var(--space-2) var(--space-2);
+  gap: var(--space-2);
+  min-height: var(--bar-height);
+  padding: 0 var(--margin);
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
   background: transparent;
   border-bottom: 1px solid transparent;
+  box-sizing: border-box;
   transition:
     background var(--duration-fast) var(--ease-default),
     border-color var(--duration-fast) var(--ease-default);
@@ -25,8 +33,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: var(--bar-button-size);
+  height: var(--bar-button-size);
   border: var(--glass-border);
   border-radius: var(--radius-full);
   background: var(--glass-bg);
@@ -41,7 +49,15 @@
   box-shadow: var(--glass-shadow-sm);
   transition:
     background var(--duration-fast) var(--ease-default),
-    box-shadow var(--duration-fast) var(--ease-default);
+    box-shadow var(--duration-fast) var(--ease-default),
+    transform var(--duration-fast) var(--ease-default);
+}
+
+/* Scoped to this header: IframeViewer composes .backButton with its own
+   icon sizes */
+.header .backButton svg {
+  width: var(--bar-icon-size);
+  height: var(--bar-icon-size);
 }
 
 .backButton:hover {
@@ -57,17 +73,66 @@
 }
 
 .title {
-  font-size: var(--text-base);
+  font-size: var(--type-headline);
   font-weight: var(--font-semibold);
   color: var(--color-gray-900);
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  max-width: calc(100% - 2 * (var(--bar-button-size) + var(--margin)));
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
+  transition: opacity var(--duration-fast) var(--ease-default);
 }
 
 .actions {
   flex: 1;
   display: flex;
   justify-content: flex-end;
+}
+
+.largeTitle {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: calc(var(--content-width) + 2 * var(--margin));
+  margin: 0 auto;
+  padding: var(--space-1) var(--margin) var(--space-2);
+  font-size: var(--type-large-title);
+  font-weight: var(--font-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-gray-900);
+}
+
+@media (max-width: 899px) {
+  .titleCollapsed {
+    opacity: 0;
+  }
+}
+
+@media (min-width: 900px) {
+  .title {
+    position: static;
+    transform: none;
+    max-width: none;
+    font-size: var(--type-title3);
+  }
+
+  .spacer {
+    display: none;
+  }
+
+  /* The toolbar title is aria-hidden on tab roots, so keep the h1 for
+     assistive technology while hiding it visually */
+  .largeTitle {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }

@@ -15,7 +15,9 @@ export function Header(props: HeaderProps) {
   const { t } = useLocale();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = createSignal(false);
+  const [largeTitleVisible, setLargeTitleVisible] = createSignal(true);
   let headerRef!: HTMLElement;
+  let largeTitleRef: HTMLHeadingElement | undefined;
 
   onMount(() => {
     // Scroll happens inside the MemberLayout .main container (overflow-y:auto),
@@ -33,6 +35,15 @@ export function Header(props: HeaderProps) {
         : () => container.scrollTop;
 
     function handleScroll() {
+      // The bar title fades in only once the large title has scrolled under
+      // the bar. Measured live so it follows the bar height across breakpoints,
+      // and before the class toggle below so the reads hit clean layout.
+      if (largeTitleRef) {
+        setLargeTitleVisible(
+          largeTitleRef.getBoundingClientRect().bottom >
+            headerRef.getBoundingClientRect().bottom,
+        );
+      }
       setScrolled(getScrollTop() > 0);
     }
 
@@ -41,25 +52,45 @@ export function Header(props: HeaderProps) {
     onCleanup(() => container.removeEventListener("scroll", handleScroll));
   });
 
+  const title = () => props.title ?? t("common.churchName");
+  // Tab root pages (no back button) use the iOS large title
+  const isLargeTitle = () => !props.backTo;
+
   return (
-    <header
-      ref={headerRef}
-      class={styles.header}
-      classList={{ [styles.scrolled]: scrolled() }}
-    >
-      <Show when={props.backTo} fallback={<span class={styles.spacer} />}>
-        {(backTo) => (
-          <button
-            type="button"
-            class={styles.backButton}
-            onClick={() => navigate(backTo())}
-          >
-            <ChevronLeft size={24} stroke-width={1.5} />
-          </button>
-        )}
+    <>
+      <header
+        ref={headerRef}
+        class={styles.header}
+        classList={{ [styles.scrolled]: scrolled() }}
+      >
+        <Show when={props.backTo} fallback={<span class={styles.spacer} />}>
+          {(backTo) => (
+            <button
+              type="button"
+              class={styles.backButton}
+              aria-label={t("common.back")}
+              onClick={() => navigate(backTo())}
+            >
+              <ChevronLeft size={24} stroke-width={1.5} />
+            </button>
+          )}
+        </Show>
+        <span
+          class={styles.title}
+          classList={{
+            [styles.titleCollapsed]: isLargeTitle() && largeTitleVisible(),
+          }}
+          aria-hidden={isLargeTitle() ? "true" : undefined}
+        >
+          {title()}
+        </span>
+        <div class={styles.actions}>{props.rightAction}</div>
+      </header>
+      <Show when={isLargeTitle()}>
+        <h1 ref={largeTitleRef} class={styles.largeTitle}>
+          {title()}
+        </h1>
       </Show>
-      <span class={styles.title}>{props.title ?? t("common.churchName")}</span>
-      <div class={styles.actions}>{props.rightAction}</div>
-    </header>
+    </>
   );
 }
