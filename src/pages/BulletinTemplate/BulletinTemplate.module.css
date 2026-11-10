@@ -420,6 +420,8 @@
     grid-row: 2;
   }
 
+  /* Needed: the desktop .programFields .fieldRow (0,2,0) outranks
+   * .selectFieldRow above. */
   .programFields .fieldRow {
     grid-template-columns: minmax(0, 1fr) var(--remove-col);
   }
