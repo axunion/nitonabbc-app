@@ -21,8 +21,11 @@
 }
 
 .form {
-  /* Input-type select width; fits "Compound Fields" plus the chevron. Shared
-   * by .select and the program grid columns so they stay aligned. */
+  /* Control column widths, shared by the controls and the program grid
+   * columns so parent and compound rows stay aligned. --select-width fits
+   * "Compound Fields" plus the chevron. Overridden below 900px. */
+  --order-col: 22px;
+  --remove-col: 28px;
   --select-width: 160px;
   width: 100%;
 }
@@ -225,13 +228,12 @@
 /* --- Worship program items ---
  *
  * Grid layout ensures every row (parent + compound fields) shares the same
- * column widths: [order] [label 1fr] [inputType --select-width] [remove 28px].
- * --order-col is the order column width; the compound-field indent and guide
- * line derive from it so both stay aligned when it grows below 900px.
+ * column widths: [order] [label 1fr] [inputType] [remove], all from the
+ * custom properties on .form. The compound-field indent and guide line derive
+ * from --order-col.
  */
 
 .programList {
-  --order-col: 22px;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -248,7 +250,9 @@
 
 .programRow {
   display: grid;
-  grid-template-columns: var(--order-col) minmax(0, 1fr) var(--select-width) 28px;
+  grid-template-columns:
+    var(--order-col) minmax(0, 1fr) var(--select-width)
+    var(--remove-col);
   gap: var(--space-2);
   align-items: center;
 }
@@ -287,7 +291,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
+  width: var(--order-col);
   height: 18px;
   border-radius: var(--radius-sm);
   border: none;
@@ -348,28 +352,27 @@
  * Placed after .fieldRow so higher specificity (0,2,0) correctly overrides. */
 .programFields .fieldRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--select-width) 28px;
+  grid-template-columns: minmax(0, 1fr) var(--select-width) var(--remove-col);
   gap: var(--space-2);
   align-items: center;
 }
 
-/* Field row with an input-type select (service meta): below 900px it uses
- * the same two-row layout as compound program fields. */
+/* Field row with an input-type select (compound fields, service meta). */
 .selectFieldRow {
   composes: fieldRow;
 }
 
-/* Below 900px (touch): the input-type select moves under the label and
- * stretches to the label width so its text is not clipped, and the order and
- * remove columns widen to 44px for the 44pt touch target — up sits beside the
- * label row, down beside the select row. */
+/* Below 900px (touch): 44pt touch targets, and the select moves under the
+ * label at the label width. */
 @media (max-width: 899px) {
-  .programList {
+  .form {
     --order-col: 44px;
+    --remove-col: 44px;
+    --select-width: 100%;
   }
 
   .programRow {
-    grid-template-columns: var(--order-col) minmax(0, 1fr) 44px;
+    grid-template-columns: var(--order-col) minmax(0, 1fr) var(--remove-col);
   }
 
   .programRow > .orderButtons {
@@ -378,39 +381,27 @@
   }
 
   .orderButton {
-    width: 44px;
-    height: 44px;
+    height: var(--order-col);
     border-radius: var(--radius-md);
   }
 
   .programRow > .select {
     grid-column: 2;
     grid-row: 2;
-    width: 100%;
-    min-width: 0;
   }
 
   .selectFieldRow {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 44px;
+    grid-template-columns: minmax(0, 1fr) var(--remove-col);
   }
 
   .selectFieldRow > .select {
     grid-column: 1;
     grid-row: 2;
-    width: 100%;
-    min-width: 0;
   }
 
   .programFields .fieldRow {
-    grid-template-columns: minmax(0, 1fr) 44px;
-  }
-
-  .programFields .fieldRow > .select {
-    grid-column: 1;
-    grid-row: 2;
-    width: 100%;
-    min-width: 0;
+    grid-template-columns: minmax(0, 1fr) var(--remove-col);
   }
 }
 
@@ -418,8 +409,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: var(--remove-col);
+  height: var(--remove-col);
   border-radius: var(--radius-full);
   border: none;
   background: transparent;
@@ -433,14 +424,6 @@
 
 .removeButton:hover {
   color: var(--admin-destructive);
-}
-
-/* 44pt touch target below 900px; the icon stays the same size. */
-@media (max-width: 899px) {
-  .removeButton {
-    width: 44px;
-    height: 44px;
-  }
 }
 
 .removeButton:focus-visible {

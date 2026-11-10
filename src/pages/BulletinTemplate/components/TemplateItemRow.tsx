@@ -110,7 +110,7 @@ export function TemplateItemRow(props: TemplateItemRowProps): JSX.Element {
         <div class={styles.programFields}>
           <Index each={props.item.fields}>
             {(field, fi) => (
-              <div class={styles.fieldRow}>
+              <div class={styles.selectFieldRow}>
                 <input
                   type="text"
                   class={styles.input}
